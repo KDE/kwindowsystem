@@ -35,7 +35,8 @@ class KStartupInfo_UnitTest : public QObject
 public:
     KStartupInfo_UnitTest()
         : m_listener(true, this),
-        m_receivedCount(0) {
+          m_receivedCount(0)
+    {
         qRegisterMetaType<KStartupInfoId>();
         qRegisterMetaType<KStartupInfoData>();
         connect(&m_listener, SIGNAL(gotNewStartup(KStartupInfoId,KStartupInfoData)),
@@ -144,7 +145,7 @@ void KStartupInfo_UnitTest::dontCrashCleanup()
         data.setSilent(KStartupInfoData::Yes);
     }
 
-    QSignalSpy spy(&m_listener, SIGNAL(gotRemoveStartup(KStartupInfoId, KStartupInfoData)));
+    QSignalSpy spy(&m_listener, SIGNAL(gotRemoveStartup(KStartupInfoId,KStartupInfoData)));
     QFETCH(bool, change);
     if (change) {
         KStartupInfo::sendChange(id, data);

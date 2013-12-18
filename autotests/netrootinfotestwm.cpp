@@ -64,7 +64,8 @@ private Q_SLOTS:
 
 private:
     void waitForPropertyChange(NETRootInfo *info, xcb_atom_t atom, NET::Property prop, NET::Property2 prop2 = NET::Property2(0));
-    xcb_connection_t *connection() {
+    xcb_connection_t *connection()
+    {
         return m_connection;
     }
     xcb_connection_t *m_connection;
@@ -121,7 +122,7 @@ void NetRootInfoTestWM::init()
     const uint32_t lowerValues[] = { XCB_STACK_MODE_BELOW };
     // we need to do the lower window with a roundtrip, otherwise NETRootInfo is not functioning
     QScopedPointer<xcb_generic_error_t, QScopedPointerPodDeleter> error(xcb_request_check(m_connection,
-        xcb_configure_window_checked(m_connection, m_supportWindow, XCB_CONFIG_WINDOW_STACK_MODE, lowerValues)));
+            xcb_configure_window_checked(m_connection, m_supportWindow, XCB_CONFIG_WINDOW_STACK_MODE, lowerValues)));
     QVERIFY(error.isNull());
 }
 
@@ -142,7 +143,7 @@ void NetRootInfoTestWM::waitForPropertyChange(NETRootInfo *info, xcb_atom_t atom
         if ((event->response_type & ~0x80) != XCB_PROPERTY_NOTIFY) {
             continue;
         }
-        xcb_property_notify_event_t *pe = reinterpret_cast<xcb_property_notify_event_t*>(event.data());
+        xcb_property_notify_event_t *pe = reinterpret_cast<xcb_property_notify_event_t *>(event.data());
         if (pe->window != m_rootWindow) {
             continue;
         }
@@ -195,23 +196,23 @@ void NetRootInfoTestWM::testSupported()
         if (i == 12) {
             continue;
         }
-        QVERIFY(rootInfo.isSupported(NET::Property(1<<i)));
+        QVERIFY(rootInfo.isSupported(NET::Property(1 << i)));
         count++;
     }
     for (int i = 0; i < 22; ++i) {
-        QVERIFY(rootInfo.isSupported(NET::Property2(1<<i)));
+        QVERIFY(rootInfo.isSupported(NET::Property2(1 << i)));
         count++;
     }
     for (int i = 0; i < 16; ++i) {
-        QVERIFY(rootInfo.isSupported(NET::WindowTypeMask(1<<i)));
+        QVERIFY(rootInfo.isSupported(NET::WindowTypeMask(1 << i)));
         count++;
     }
     for (int i = 0; i < 12; ++i) {
-        QVERIFY(rootInfo.isSupported(NET::State(1<<i)));
+        QVERIFY(rootInfo.isSupported(NET::State(1 << i)));
         count++;
     }
     for (int i = 0; i < 10; ++i) {
-        QVERIFY(rootInfo.isSupported(NET::Action(1<<i)));
+        QVERIFY(rootInfo.isSupported(NET::Action(1 << i)));
         count++;
     }
     // NET::WMFrameExtents has two properties
@@ -230,13 +231,13 @@ void NetRootInfoTestWM::testSupported()
 
     // get the cookies of the things to check
     xcb_get_property_cookie_t supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                           supported, XCB_ATOM_ATOM, 0, 100);
+            supported, XCB_ATOM_ATOM, 0, 100);
     xcb_get_property_cookie_t wmCheckRootCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                             wmCheck, XCB_ATOM_WINDOW, 0, 1);
+            wmCheck, XCB_ATOM_WINDOW, 0, 1);
     xcb_get_property_cookie_t wmCheckSupportWinCookie = xcb_get_property_unchecked(connection(), false, m_supportWindow,
-                                                                                   wmCheck, XCB_ATOM_WINDOW, 0, 1);
+            wmCheck, XCB_ATOM_WINDOW, 0, 1);
     xcb_get_property_cookie_t  wmNameCookie = xcb_get_property_unchecked(connection(), false, m_supportWindow,
-                                                                         wmName, utf8String, 0, 16);
+            wmName, utf8String, 0, 16);
 
     Property supportedReply(xcb_get_property_reply(connection(), supportedCookie, Q_NULLPTR));
     QVERIFY(!supportedReply.isNull());
@@ -247,19 +248,19 @@ void NetRootInfoTestWM::testSupported()
     QVERIFY(!wmCheckRootReply.isNull());
     QCOMPARE(wmCheckRootReply->format, uint8_t(32));
     QCOMPARE(wmCheckRootReply->value_len, uint32_t(1));
-    QCOMPARE(reinterpret_cast<xcb_window_t*>(xcb_get_property_value(wmCheckRootReply.data()))[0], m_supportWindow);
+    QCOMPARE(reinterpret_cast<xcb_window_t *>(xcb_get_property_value(wmCheckRootReply.data()))[0], m_supportWindow);
 
     Property wmCheckSupportReply(xcb_get_property_reply(connection(), wmCheckSupportWinCookie, Q_NULLPTR));
     QVERIFY(!wmCheckSupportReply.isNull());
     QCOMPARE(wmCheckSupportReply->format, uint8_t(32));
     QCOMPARE(wmCheckSupportReply->value_len, uint32_t(1));
-    QCOMPARE(reinterpret_cast<xcb_window_t*>(xcb_get_property_value(wmCheckSupportReply.data()))[0], m_supportWindow);
+    QCOMPARE(reinterpret_cast<xcb_window_t *>(xcb_get_property_value(wmCheckSupportReply.data()))[0], m_supportWindow);
 
     Property wmNameReply(xcb_get_property_reply(connection(), wmNameCookie, Q_NULLPTR));
     QVERIFY(!wmNameReply.isNull());
     QCOMPARE(wmNameReply->format, uint8_t(8));
     QCOMPARE(wmNameReply->value_len, uint32_t(15));
-    QCOMPARE(reinterpret_cast<const char*>(xcb_get_property_value(wmNameReply.data())), s_wmName);
+    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(wmNameReply.data())), s_wmName);
 
     // disable some supported
     rootInfo.setSupported(NET::WMFrameExtents, false);
@@ -279,7 +280,7 @@ void NetRootInfoTestWM::testSupported()
 
     // lets get supported again
     supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                 supported, XCB_ATOM_ATOM, 0, 89);
+                      supported, XCB_ATOM_ATOM, 0, 89);
     supportedReply.reset(xcb_get_property_reply(connection(), supportedCookie, Q_NULLPTR));
     QVERIFY(!supportedReply.isNull());
     QCOMPARE(supportedReply->format, uint8_t(32));
@@ -295,7 +296,7 @@ void NetRootInfoTestWM::testSupported()
     rootInfo.setSupported(NET::WM2TakeActivity, false);
     // lets get supported again
     supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                 supported, XCB_ATOM_ATOM, 0, 89);
+                      supported, XCB_ATOM_ATOM, 0, 89);
     supportedReply.reset(xcb_get_property_reply(connection(), supportedCookie, Q_NULLPTR));
     QVERIFY(!supportedReply.isNull());
     QCOMPARE(supportedReply->format, uint8_t(32));
@@ -314,10 +315,11 @@ void NetRootInfoTestWM::testClientList()
     QVERIFY(!rootInfo.clientList());
 
     xcb_window_t windows[] = {xcb_generate_id(connection()),
-        xcb_generate_id(connection()),
-        xcb_generate_id(connection()),
-        xcb_generate_id(connection()),
-        xcb_generate_id(connection())};
+                              xcb_generate_id(connection()),
+                              xcb_generate_id(connection()),
+                              xcb_generate_id(connection()),
+                              xcb_generate_id(connection())
+                             };
     rootInfo.setClientList(windows, 5);
     QCOMPARE(rootInfo.clientListCount(), 5);
     const xcb_window_t *otherWins = rootInfo.clientList();
@@ -328,12 +330,12 @@ void NetRootInfoTestWM::testClientList()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                  atom, XCB_ATOM_WINDOW, 0, 5);
+                                       atom, XCB_ATOM_WINDOW, 0, 5);
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(5));
-    const xcb_window_t *propWins = reinterpret_cast<xcb_window_t*>(xcb_get_property_value(reply.data()));
+    const xcb_window_t *propWins = reinterpret_cast<xcb_window_t *>(xcb_get_property_value(reply.data()));
     for (int i = 0; i < 5; ++i) {
         QCOMPARE(propWins[i], windows[i]);
     }
@@ -357,10 +359,11 @@ void NetRootInfoTestWM::testClientListStacking()
     QVERIFY(!rootInfo.clientListStacking());
 
     xcb_window_t windows[] = {xcb_generate_id(connection()),
-        xcb_generate_id(connection()),
-        xcb_generate_id(connection()),
-        xcb_generate_id(connection()),
-        xcb_generate_id(connection())};
+                              xcb_generate_id(connection()),
+                              xcb_generate_id(connection()),
+                              xcb_generate_id(connection()),
+                              xcb_generate_id(connection())
+                             };
     rootInfo.setClientListStacking(windows, 5);
     QCOMPARE(rootInfo.clientListStackingCount(), 5);
     const xcb_window_t *otherWins = rootInfo.clientListStacking();
@@ -371,12 +374,12 @@ void NetRootInfoTestWM::testClientListStacking()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                  atom, XCB_ATOM_WINDOW, 0, 5);
+                                       atom, XCB_ATOM_WINDOW, 0, 5);
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(5));
-    const xcb_window_t *propWins = reinterpret_cast<xcb_window_t*>(xcb_get_property_value(reply.data()));
+    const xcb_window_t *propWins = reinterpret_cast<xcb_window_t *>(xcb_get_property_value(reply.data()));
     for (int i = 0; i < 5; ++i) {
         QCOMPARE(propWins[i], windows[i]);
     }
@@ -399,10 +402,11 @@ void NetRootInfoTestWM::testVirtualRoots()
     QVERIFY(!rootInfo.virtualRoots());
 
     xcb_window_t windows[] = {xcb_generate_id(connection()),
-        xcb_generate_id(connection()),
-        xcb_generate_id(connection()),
-        xcb_generate_id(connection()),
-        xcb_generate_id(connection())};
+                              xcb_generate_id(connection()),
+                              xcb_generate_id(connection()),
+                              xcb_generate_id(connection()),
+                              xcb_generate_id(connection())
+                             };
     rootInfo.setVirtualRoots(windows, 5);
     QCOMPARE(rootInfo.virtualRootsCount(), 5);
     const xcb_window_t *otherWins = rootInfo.virtualRoots();
@@ -413,12 +417,12 @@ void NetRootInfoTestWM::testVirtualRoots()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                  atom, XCB_ATOM_WINDOW, 0, 5);
+                                       atom, XCB_ATOM_WINDOW, 0, 5);
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(5));
-    const xcb_window_t *propWins = reinterpret_cast<xcb_window_t*>(xcb_get_property_value(reply.data()));
+    const xcb_window_t *propWins = reinterpret_cast<xcb_window_t *>(xcb_get_property_value(reply.data()));
     for (int i = 0; i < 5; ++i) {
         QCOMPARE(propWins[i], windows[i]);
     }
@@ -445,12 +449,12 @@ void NetRootInfoTestWM::testNumberOfDesktops()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                  atom, XCB_ATOM_CARDINAL, 0, 1);
+                                       atom, XCB_ATOM_CARDINAL, 0, 1);
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(1));
-    QCOMPARE(reinterpret_cast<uint32_t*>(xcb_get_property_value(reply.data()))[0], uint32_t(4));
+    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], uint32_t(4));
 
     // wait for our property
     waitForPropertyChange(&rootInfo, atom, NET::NumberOfDesktops);
@@ -470,13 +474,13 @@ void NetRootInfoTestWM::testCurrentDesktop()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                  atom, XCB_ATOM_CARDINAL, 0, 1);
+                                       atom, XCB_ATOM_CARDINAL, 0, 1);
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(1));
     // note: API starts counting at 1, but property starts counting at 5, because of that subtracting one
-    QCOMPARE(reinterpret_cast<uint32_t*>(xcb_get_property_value(reply.data()))[0], uint32_t(5-1));
+    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], uint32_t(5 - 1));
 
     // wait for our property
     waitForPropertyChange(&rootInfo, atom, NET::CurrentDesktop);
@@ -502,12 +506,12 @@ void NetRootInfoTestWM::testDesktopNames()
     QVERIFY(atom != XCB_ATOM_NONE);
     QVERIFY(utf8String != XCB_ATOM_NONE);
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                  atom, utf8String, 0, 10000);
+                                       atom, utf8String, 0, 10000);
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(8));
     QCOMPARE(reply->value_len, uint32_t(8));
-    QCOMPARE(reinterpret_cast<const char*>(xcb_get_property_value(reply.data())), "foo\0bar");
+    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.data())), "foo\0bar");
 
     // wait for our property
     waitForPropertyChange(&rootInfo, atom, NET::DesktopNames);
@@ -533,12 +537,12 @@ void NetRootInfoTestWM::testActiveWindow()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                  atom, XCB_ATOM_WINDOW, 0, 1);
+                                       atom, XCB_ATOM_WINDOW, 0, 1);
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(1));
-    QCOMPARE(reinterpret_cast<xcb_window_t*>(xcb_get_property_value(reply.data()))[0], activeWindow);
+    QCOMPARE(reinterpret_cast<xcb_window_t *>(xcb_get_property_value(reply.data()))[0], activeWindow);
 
     // wait for our property
     waitForPropertyChange(&rootInfo, atom, NET::ActiveWindow);
@@ -563,12 +567,12 @@ void NetRootInfoTestWM::testDesktopGeometry()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                  atom, XCB_ATOM_CARDINAL, 0, 2);
+                                       atom, XCB_ATOM_CARDINAL, 0, 2);
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(2));
-    uint32_t *data = reinterpret_cast<uint32_t*>(xcb_get_property_value(reply.data()));
+    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()));
     QCOMPARE(data[0], uint32_t(size.width));
     QCOMPARE(data[1], uint32_t(size.height));
 
@@ -611,12 +615,12 @@ void NetRootInfoTestWM::testDesktopLayout()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                  atom, XCB_ATOM_CARDINAL, 0, 4);
+                                       atom, XCB_ATOM_CARDINAL, 0, 4);
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(4));
-    uint32_t *data = reinterpret_cast<uint32_t*>(xcb_get_property_value(reply.data()));
+    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()));
     QCOMPARE(data[0], uint32_t(orientation));
     QCOMPARE(data[1], uint32_t(columnsRows.width()));
     QCOMPARE(data[2], uint32_t(columnsRows.height()));
@@ -661,12 +665,12 @@ void NetRootInfoTestWM::testDesktopViewports()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                  atom, XCB_ATOM_CARDINAL, 0, 8);
+                                       atom, XCB_ATOM_CARDINAL, 0, 8);
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(8));
-    uint32_t *data = reinterpret_cast<uint32_t*>(xcb_get_property_value(reply.data()));
+    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()));
     QCOMPARE(data[0], uint32_t(desktopOne.x));
     QCOMPARE(data[1], uint32_t(desktopOne.y));
     QCOMPARE(data[2], uint32_t(desktopTwo.x));
@@ -711,12 +715,12 @@ void NetRootInfoTestWM::testShowingDesktop()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                  atom, XCB_ATOM_CARDINAL, 0, 1);
+                                       atom, XCB_ATOM_CARDINAL, 0, 1);
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(1));
-    QTEST(reinterpret_cast<uint32_t*>(xcb_get_property_value(reply.data()))[0], "setValue");
+    QTEST(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], "setValue");
 
     // wait for our property
     waitForPropertyChange(&rootInfo, atom, NET::Property(0), NET::WM2ShowingDesktop);
@@ -767,12 +771,12 @@ void NetRootInfoTestWM::testWorkArea()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                                                  atom, XCB_ATOM_CARDINAL, 0, 16);
+                                       atom, XCB_ATOM_CARDINAL, 0, 16);
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(16));
-    uint32_t *data = reinterpret_cast<uint32_t*>(xcb_get_property_value(reply.data()));
+    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()));
     QCOMPARE(data[ 0], uint32_t(desktopOne.pos.x));
     QCOMPARE(data[ 1], uint32_t(desktopOne.pos.y));
     QCOMPARE(data[ 2], uint32_t(desktopOne.size.width));

@@ -61,27 +61,27 @@ public:
     /**
      * Access to the singleton instance. Useful mainly for connecting to signals.
      */
-    static KWindowSystem* self();
+    static KWindowSystem *self();
 
-   /**
-     * Returns the list of all toplevel windows currently managed by the
-     * window manager in the order of creation. Please do not rely on
-     * indexes of this list: Whenever you enter Qt's event loop in your
-     * application, it may happen that entries are removed or added.
-     * Your module should perhaps work on a copy of this list and verify a
-     * window with hasWId() before any operations.
-     *
-     * Iteration over this list can be done easily with
-     * \code
-     *  QList<WId>::ConstIterator it;
-     *  for ( it = KWindowSystem::windows().begin();
-     *        it != KWindowSystem::windows().end(); ++it ) {
-     *     ... do something here,  (*it) is the current WId.
-     *       }
-     * \endcode
-     * @return the list of all toplevel windows
-     */
-    static const QList<WId>& windows();
+    /**
+      * Returns the list of all toplevel windows currently managed by the
+      * window manager in the order of creation. Please do not rely on
+      * indexes of this list: Whenever you enter Qt's event loop in your
+      * application, it may happen that entries are removed or added.
+      * Your module should perhaps work on a copy of this list and verify a
+      * window with hasWId() before any operations.
+      *
+      * Iteration over this list can be done easily with
+      * \code
+      *  QList<WId>::ConstIterator it;
+      *  for ( it = KWindowSystem::windows().begin();
+      *        it != KWindowSystem::windows().end(); ++it ) {
+      *     ... do something here,  (*it) is the current WId.
+      *       }
+      * \endcode
+      * @return the list of all toplevel windows
+      */
+    static const QList<WId> &windows();
 
     /**
      * Test to see if @p id still managed at present.
@@ -100,7 +100,7 @@ public:
      * @param properties2 additional properties (see NET::Property2 enum)
      * @return the window information
      */
-    static KWindowInfo windowInfo( WId win, unsigned long properties, unsigned long properties2 = 0 );
+    static KWindowInfo windowInfo(WId win, unsigned long properties, unsigned long properties2 = 0);
 
     /**
      * Returns the list of all toplevel windows currently managed by the
@@ -143,7 +143,7 @@ public:
      * @param time X server timestamp of the user activity that
      *    caused this request
      */
-    static void activateWindow( WId win, long time = 0 );
+    static void activateWindow(WId win, long time = 0);
 
     /**
      * Sets window @p win to be the active window. Note that this
@@ -157,7 +157,7 @@ public:
      * @param time X server timestamp of the user activity that
      *    caused this request
     */
-    static void forceActiveWindow( WId win, long time = 0 );
+    static void forceActiveWindow(WId win, long time = 0);
 
     /**
      * When application finishes some operation and wants to notify
@@ -168,7 +168,7 @@ public:
      *
      * Note that it's usually better to use KNotifyClient.
      */
-    static void demandAttention( WId win, bool set = true );
+    static void demandAttention(WId win, bool set = true);
 
     /**
      * Returns true if a compositing manager is running (i.e. ARGB windows
@@ -193,7 +193,7 @@ public:
      * See NETRootInfo.
      * @param desktop the number of the new desktop
      */
-    static void setCurrentDesktop( int desktop );
+    static void setCurrentDesktop(int desktop);
 
     /**
      * Sets window @p win to be present on all virtual desktops if @p
@@ -203,7 +203,7 @@ public:
      * @param b true to show the window on all desktops, false
      *          otherwise
      */
-    static void setOnAllDesktops( WId win, bool b );
+    static void setOnAllDesktops(WId win, bool b);
 
     /**
      * Moves window @p win to desktop @p desktop.
@@ -211,7 +211,7 @@ public:
      * @param win the id of the window
      * @param desktop the number of the new desktop
      */
-    static void setOnDesktop( WId win, int desktop);
+    static void setOnDesktop(WId win, int desktop);
 
     /**
      * Sets the parent window of @p subwindow to be @p mainwindow.
@@ -224,7 +224,7 @@ public:
      * This function should be used before a dialog is shown for a window
      * that belongs to another application.
      */
-    static void setMainWindow( QWidget* subwindow, WId mainwindow );
+    static void setMainWindow(QWidget *subwindow, WId mainwindow);
 #if HAVE_X11
     /**
      * Returns the WM_TRANSIENT_FOR property for the given window, i.e. the mainwindow
@@ -232,13 +232,13 @@ public:
      *
      * @param window the id of the window
      */
-    static WId transientFor( WId window );
+    static WId transientFor(WId window);
 
     /**
      * Returns the leader window for the group the given window is in, if any.
      * @param window the id of the window
      */
-    static WId groupLeader( WId window );
+    static WId groupLeader(WId window);
 #endif
     /**
      * Returns an icon for window @p win.
@@ -256,7 +256,7 @@ public:
      *        icon will not be modified.
      * @return the icon of the window
      */
-    static QPixmap icon( WId win, int width = -1, int height = -1, bool scale = false );
+    static QPixmap icon(WId win, int width = -1, int height = -1, bool scale = false);
 
     /**
      * Masks specifying from which sources to read an icon. They are tried from the best
@@ -267,10 +267,10 @@ public:
      * @li XApp load the standard X icon (last fallback)
      */
     enum IconSource { NETWM = 1, //!< read from property from the window manager specification
-		      WMHints = 2, //!< read from WMHints property
-		      ClassHint = 4, //!< load icon after getting name from the classhint
-		      XApp = 8 //!<load the standard X icon (last fallback)
-    };
+                      WMHints = 2, //!< read from WMHints property
+                      ClassHint = 4, //!< load icon after getting name from the classhint
+                      XApp = 8 //!<load the standard X icon (last fallback)
+                    };
     /**
      * @overload
      *
@@ -285,7 +285,7 @@ public:
      *        icon will not be modified.
      * @param flags OR-ed flags from the IconSource enum
      */
-    static QPixmap icon( WId win, int width, int height, bool scale, int flags );
+    static QPixmap icon(WId win, int width, int height, bool scale, int flags);
 
     /**
      * Sets an @p icon and a  @p miniIcon on window @p win
@@ -293,14 +293,14 @@ public:
      * @param icon the new icon
      * @param miniIcon the new mini icon
      */
-    static void  setIcons( WId win, const QPixmap& icon, const QPixmap& miniIcon );
+    static void  setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon);
     /**
      * Sets the type of window @p win to @p windowType.
      *
      * @param win the id of the window
      * @param windowType the type of the window (see NET::WindowType)
      */
-    static void setType( WId win, NET::WindowType windowType );
+    static void setType(WId win, NET::WindowType windowType);
     /**
      * Sets the state of window @p win to @p state.
      *
@@ -312,7 +312,7 @@ public:
      * @param win the id of the window
      * @param state the new flags that will be set
      */
-    static void setState( WId win, unsigned long state );
+    static void setState(WId win, unsigned long state);
 
     /**
      * Clears the state of window @p win from @p state.
@@ -325,7 +325,7 @@ public:
      * @param win the id of the window
      * @param state the flags that will be cleared
      */
-    static void clearState( WId win, unsigned long  state );
+    static void clearState(WId win, unsigned long  state);
 
     /**
      * Iconifies a window. Compatible to XIconifyWindow but has an
@@ -335,7 +335,7 @@ public:
      * @param animation true to show an animation
      * @see deIconifyWindow()
      */
-    static void minimizeWindow( WId win, bool animation = true );
+    static void minimizeWindow(WId win, bool animation = true);
 
     /**
      * DeIconifies a window. Compatible to XMapWindow but has an
@@ -345,7 +345,7 @@ public:
      * @param animation true to show an animation
      * @see iconifyWindow()
      */
-    static void unminimizeWindow( WId win, bool animation = true );
+    static void unminimizeWindow(WId win, bool animation = true);
 
     /**
      * Raises the given window. This call is only for pagers and similar
@@ -353,7 +353,7 @@ public:
      * use it, they should keep using QWidget::raise() or XRaiseWindow()
      * if necessary.
      */
-    static void raiseWindow( WId win );
+    static void raiseWindow(WId win);
 
     /**
      * Lowers the given window. This call is only for pagers and similar
@@ -361,7 +361,7 @@ public:
      * use it, they should keep using QWidget::lower() or XLowerWindow()
      * if necessary.
      */
-    static void lowerWindow( WId win );
+    static void lowerWindow(WId win);
 
     /**
      * @internal
@@ -377,8 +377,7 @@ public:
      *        current desktop
      * @return the size and position of the desktop
      **/
-    static QRect workArea( int desktop = - 1 );
-
+    static QRect workArea(int desktop = - 1);
 
     /**
      * Returns the workarea for the specified desktop, or the current
@@ -390,21 +389,21 @@ public:
      *        current desktop
      * @return the size and position of the desktop
      **/
-    static QRect workArea( const QList<WId> &excludes, int desktop = -1);
+    static QRect workArea(const QList<WId> &excludes, int desktop = -1);
 
     /**
      * Returns the name of the specified desktop.
      * @param desktop the number of the desktop
      * @return the name of the desktop
      **/
-    static QString desktopName( int desktop );
+    static QString desktopName(int desktop);
 
     /**
      * Sets the name of the specified desktop.
      * @param desktop the number of the desktop
      * @param name the new name for the desktop
      **/
-    static void setDesktopName( int desktop, const QString& name );
+    static void setDesktopName(int desktop, const QString &name);
 
     /**
      * Returns the state of showing the desktop.
@@ -419,7 +418,7 @@ public:
      * The most common case is the special value 0 which means
      * not to activate the window after being shown.
      */
-    static void setUserTime( WId win, long time );
+    static void setUserTime(WId win, long time);
     /**
      * Sets the strut of window @p win to @p to @p left width
      * ranging from @p left_start to @p left_end on the left edge,
@@ -441,9 +440,9 @@ public:
      * @param bottom_start starting x coordinate of the strut at the bottom edge
      * @param bottom_end ending x coordinate of the strut at the bottom edge
      */
-    static void setExtendedStrut( WId win, int left_width, int left_start, int left_end,
-        int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
-        int bottom_width, int bottom_start, int bottom_end );
+    static void setExtendedStrut(WId win, int left_width, int left_start, int left_end,
+                                 int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
+                                 int bottom_width, int bottom_start, int bottom_end);
 
     /**
      * Convenience function for setExtendedStrut() that automatically makes struts
@@ -456,7 +455,7 @@ public:
      * @param top the top strut
      * @param bottom the bottom strut
      */
-    static void setStrut( WId win, int left, int right, int top, int bottom );
+    static void setStrut(WId win, int left, int right, int top, int bottom);
     /**
      * Returns true if the WM announces which actions it allows for windows.
      */
@@ -465,7 +464,7 @@ public:
      * Function that reads and returns the contents of the given text
      * property (WM_NAME, WM_ICON_NAME,...).
      */
-    static QString readNameProperty( WId window, unsigned long atom );
+    static QString readNameProperty(WId window, unsigned long atom);
 
     /**
      * Allows a window from another process to raise and activate itself.
@@ -484,13 +483,13 @@ public:
      * @param pid if specified, the grant only applies to windows belonging to the
      *            specific process. By default, a value of -1 means all processes.
      */
-    static void allowExternalProcessWindowActivation( int pid = -1 );
+    static void allowExternalProcessWindowActivation(int pid = -1);
 
     /**
      * Sets whether the client wishes to block compositing (for better performance)
      * @since 4.7
      */
-    static void setBlockingCompositing( WId window, bool active );
+    static void setBlockingCompositing(WId window, bool active);
 
 #if HAVE_X11
     /**
@@ -502,24 +501,24 @@ public:
      * @internal
      * Returns mapped virtual desktop for the given position in the viewport.
      */
-    static int viewportToDesktop( const QPoint& pos );
+    static int viewportToDesktop(const QPoint &pos);
     /**
      * @internal
      * Returns mapped virtual desktop for the given window geometry.
      */
-    static int viewportWindowToDesktop( const QRect& r );
+    static int viewportWindowToDesktop(const QRect &r);
     /**
      * @internal
      * Returns topleft corner of the viewport area for the given mapped virtual desktop.
      */
-    static QPoint desktopToViewport( int desktop, bool absolute );
+    static QPoint desktopToViewport(int desktop, bool absolute);
     /**
      * @internal
      * @since 4.0.1
      * Checks the relative difference used to move a window will still be inside
      * valid desktop area.
      */
-    static QPoint constrainViewportRelativePosition( const QPoint& pos );
+    static QPoint constrainViewportRelativePosition(const QPoint &pos);
 #endif
 
 Q_SIGNALS:
@@ -528,7 +527,7 @@ Q_SIGNALS:
      * Switched to another virtual desktop.
      * @param desktop the number of the new desktop
      */
-    void currentDesktopChanged( int desktop);
+    void currentDesktopChanged(int desktop);
 
     /**
      * A window has been added.
@@ -587,7 +586,7 @@ Q_SIGNALS:
      * @param id the id of the window
      * @param properties the properties that were modified
      */
-    void windowChanged(WId id, const unsigned long* properties );
+    void windowChanged(WId id, const unsigned long *properties);
 
     /**
      * @deprecated
@@ -609,7 +608,7 @@ Q_SIGNALS:
     /**
      * The state of showing the desktop has changed.
      */
-    void showingDesktopChanged( bool showing );
+    void showingDesktopChanged(bool showing);
 
     /**
      * Compositing was enabled or disabled.
@@ -623,23 +622,24 @@ Q_SIGNALS:
      *
      * @since 4.7.1
      */
-    void compositingChanged( bool enabled );
+    void compositingChanged(bool enabled);
 
 protected:
-    virtual void connectNotify(const QMetaMethod& signal) Q_DECL_OVERRIDE;
+    virtual void connectNotify(const QMetaMethod &signal) Q_DECL_OVERRIDE;
 
 private:
     friend class KWindowSystemStaticContainer;
 
     KWindowSystem() {}
 
-    enum { INFO_BASIC=1, // desktop info, not per-window
-           INFO_WINDOWS=2 }; // also per-window info
+    enum { INFO_BASIC = 1, // desktop info, not per-window
+           INFO_WINDOWS = 2
+         }; // also per-window info
 
     static void init(int);
 
     friend class KWindowSystemPrivate;
-    static KWindowSystemPrivate* s_d_func();
+    static KWindowSystemPrivate *s_d_func();
 };
 
 #endif

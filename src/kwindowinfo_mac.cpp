@@ -34,13 +34,13 @@ KWindowInfo::Private::Private()
 {
 }
 
-void KWindowInfo::Private::setAxElement(const AXUIElementRef& axWin)
+void KWindowInfo::Private::setAxElement(const AXUIElementRef &axWin)
 {
     m_axWin = axWin;
     CFRetain(m_axWin);
 }
 
-void KWindowInfo::Private::setProcessSerialNumber(const ProcessSerialNumber& psn)
+void KWindowInfo::Private::setProcessSerialNumber(const ProcessSerialNumber &psn)
 {
     m_psn = psn;
     GetProcessPID(&psn, &m_pid);
@@ -61,18 +61,18 @@ void KWindowInfo::Private::updateData()
     FSRef ref;
 #endif
     pinfo.processInfoLength = sizeof pinfo;
-    pinfo.processName = (unsigned char*) processName;
+    pinfo.processName = (unsigned char *) processName;
 #ifdef Q_OS_MAC32
     pinfo.processAppSpec = &appSpec;
 #else
     pinfo.processAppRef = &ref;
 #endif
     GetProcessInformation(&m_psn, &pinfo);
-    name = QString::fromLatin1(processName+1, processName[0]);
+    name = QString::fromLatin1(processName + 1, processName[0]);
 
     if (m_axWin) {
         CFStringRef title;
-        if (AXUIElementCopyAttributeValue(m_axWin, kAXTitleAttribute, (CFTypeRef*)&title) == noErr) {
+        if (AXUIElementCopyAttributeValue(m_axWin, kAXTitleAttribute, (CFTypeRef *)&title) == noErr) {
             CFStringGetCString(title, processName, sizeof processName, kCFStringEncodingUTF8);
             name = QString::fromUtf8(processName);
         }
@@ -110,7 +110,7 @@ void KWindowInfo::Private::updateData()
     loadedData = true;
 }
 
-KWindowInfo::KWindowInfo( WId win, unsigned long, unsigned long ) : d(new Private)
+KWindowInfo::KWindowInfo(WId win, unsigned long, unsigned long) : d(new Private)
 {
     d->ref = 1;
     d->win = win;
@@ -121,43 +121,45 @@ KWindowInfo::KWindowInfo( WId win, unsigned long, unsigned long ) : d(new Privat
     }
 }
 
-
 // this one is only to make QList<> or similar happy
 KWindowInfo::KWindowInfo()
-    : d( NULL )
+    : d(NULL)
 {
 }
 
 KWindowInfo::~KWindowInfo()
 {
-    if( d != NULL ) {
-        if( --d->ref == 0 ) {
+    if (d != NULL) {
+        if (--d->ref == 0) {
             delete d;
         }
     }
 }
 
-KWindowInfo::KWindowInfo( const KWindowInfo& wininfo )
-    : d( wininfo.d )
+KWindowInfo::KWindowInfo(const KWindowInfo &wininfo)
+    : d(wininfo.d)
 {
-    if( d != NULL )
-	++d->ref;
+    if (d != NULL) {
+        ++d->ref;
+    }
 }
 
-KWindowInfo& KWindowInfo::operator=( const KWindowInfo& wininfo )
+KWindowInfo &KWindowInfo::operator=(const KWindowInfo &wininfo)
 {
-    if( d != wininfo.d ) {
-        if( d != NULL )
-            if( --d->ref == 0 )
-        delete d;
+    if (d != wininfo.d) {
+        if (d != NULL)
+            if (--d->ref == 0) {
+                delete d;
+            }
         d = wininfo.d;
-        if( d != NULL )
+        if (d != NULL) {
             ++d->ref;
+        }
     }
     return *this;
 }
 
-bool KWindowInfo::valid( bool withdrawn_is_valid ) const
+bool KWindowInfo::valid(bool withdrawn_is_valid) const
 {
     return d->pid() >= 0;
 }
@@ -172,7 +174,7 @@ unsigned long KWindowInfo::state() const
     return 0;
 }
 
-bool KWindowInfo::hasState( unsigned long s ) const
+bool KWindowInfo::hasState(unsigned long s) const
 {
     return false;
 }
@@ -181,7 +183,7 @@ bool KWindowInfo::isMinimized() const
 {
     if (d->axElement()) {
         CFBooleanRef val;
-        if (AXUIElementCopyAttributeValue(d->axElement(), kAXMinimizedAttribute, (CFTypeRef*)&val) == noErr) {
+        if (AXUIElementCopyAttributeValue(d->axElement(), kAXMinimizedAttribute, (CFTypeRef *)&val) == noErr) {
             return CFBooleanGetValue(val);
         } else {
             return false;
@@ -202,7 +204,7 @@ NETExtendedStrut KWindowInfo::extendedStrut() const
     return ext;
 }
 
-NET::WindowType KWindowInfo::windowType( int supported_types ) const
+NET::WindowType KWindowInfo::windowType(int supported_types) const
 {
     return (NET::WindowType) 0;
 }
@@ -210,9 +212,9 @@ NET::WindowType KWindowInfo::windowType( int supported_types ) const
 QString KWindowInfo::visibleNameWithState() const
 {
     QString s = visibleName();
-    if ( isMinimized() ) {
-	s.prepend(QLatin1Char('('));
-	s.append(QLatin1Char(')'));
+    if (isMinimized()) {
+        s.prepend(QLatin1Char('('));
+        s.append(QLatin1Char(')'));
     }
     return s;
 }
@@ -233,9 +235,9 @@ QString KWindowInfo::name() const
 QString KWindowInfo::visibleIconNameWithState() const
 {
     QString s = visibleIconName();
-    if ( isMinimized() ) {
-	s.prepend(QLatin1Char('('));
-	s.append(QLatin1Char(')'));
+    if (isMinimized()) {
+        s.prepend(QLatin1Char('('));
+        s.append(QLatin1Char(')'));
     }
     return s;
 }
@@ -252,10 +254,10 @@ QString KWindowInfo::iconName() const
 
 bool KWindowInfo::isOnCurrentDesktop() const
 {
-    return isOnDesktop( KWindowSystem::currentDesktop());
+    return isOnDesktop(KWindowSystem::currentDesktop());
 }
 
-bool KWindowInfo::isOnDesktop( int _desktop ) const
+bool KWindowInfo::isOnDesktop(int _desktop) const
 {
     return true;
 }
@@ -280,7 +282,7 @@ QRect KWindowInfo::frameGeometry() const
     return QRect();
 }
 
-bool KWindowInfo::actionSupported( NET::Action action ) const
+bool KWindowInfo::actionSupported(NET::Action action) const
 {
     return true; // no idea if it's supported or not -> pretend it is
 }
@@ -288,65 +290,68 @@ bool KWindowInfo::actionSupported( NET::Action action ) const
 #if 0
 WId KWindowInfo::transientFor() const
 {
-    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2TransientFor ) == 0, 176 )
-        << "Pass NET::WM2TransientFor to KWindowInfo";
+    kWarning((d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2TransientFor) == 0, 176)
+            << "Pass NET::WM2TransientFor to KWindowInfo";
     return d->info->transientFor();
 }
 
 WId KWindowInfo::groupLeader() const
 {
-    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2GroupLeader ) == 0, 176 )
-        << "Pass NET::WM2GroupLeader to KWindowInfo";
+    kWarning((d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2GroupLeader) == 0, 176)
+            << "Pass NET::WM2GroupLeader to KWindowInfo";
     return d->info->groupLeader();
 }
 
 QByteArray KWindowInfo::windowClassClass() const
 {
-    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2WindowClass ) == 0, 176 )
-        << "Pass NET::WM2WindowClass to KWindowInfo";
+    kWarning((d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2WindowClass) == 0, 176)
+            << "Pass NET::WM2WindowClass to KWindowInfo";
     return d->info->windowClassClass();
 }
 
 QByteArray KWindowInfo::windowClassName() const
 {
-    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2WindowClass ) == 0, 176 )
-        << "Pass NET::WM2WindowClass to KWindowInfo";
+    kWarning((d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2WindowClass) == 0, 176)
+            << "Pass NET::WM2WindowClass to KWindowInfo";
     return d->info->windowClassName();
 }
 
 QByteArray KWindowInfo::windowRole() const
 {
-    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2WindowRole ) == 0, 176 )
-        << "Pass NET::WM2WindowRole to KWindowInfo";
+    kWarning((d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2WindowRole) == 0, 176)
+            << "Pass NET::WM2WindowRole to KWindowInfo";
     return d->info->windowRole();
 }
 
 QByteArray KWindowInfo::clientMachine() const
 {
-    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2ClientMachine ) == 0, 176 )
-        << "Pass NET::WM2ClientMachine to KWindowInfo";
+    kWarning((d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2ClientMachine) == 0, 176)
+            << "Pass NET::WM2ClientMachine to KWindowInfo";
     return d->info->clientMachine();
 }
 
-bool KWindowInfo::actionSupported( NET::Action action ) const
+bool KWindowInfo::actionSupported(NET::Action action) const
 {
-    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2AllowedActions ) == 0, 176 )
-        << "Pass NET::WM2AllowedActions to KWindowInfo";
-    if( KWindowSystem::allowedActionsSupported())
+    kWarning((d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2AllowedActions) == 0, 176)
+            << "Pass NET::WM2AllowedActions to KWindowInfo";
+    if (KWindowSystem::allowedActionsSupported()) {
         return d->info->allowedActions() & action;
-    else
-        return true; // no idea if it's supported or not -> pretend it is
+    } else {
+        return true;    // no idea if it's supported or not -> pretend it is
+    }
 }
 
 // see NETWM spec section 7.6
 bool KWindowInfo::isMinimized() const
 {
-    if( mappingState() != NET::Iconic )
+    if (mappingState() != NET::Iconic) {
         return false;
+    }
     // NETWM 1.2 compliant WM - uses NET::Hidden for minimized windows
-    if(( state() & NET::Hidden ) != 0
-	&& ( state() & NET::Shaded ) == 0 ) // shaded may have NET::Hidden too
+    if ((state() & NET::Hidden) != 0
+            && (state() & NET::Shaded) == 0) {  // shaded may have NET::Hidden too
         return true;
+    }
     // older WMs use WithdrawnState for other virtual desktops
     // and IconicState only for minimized
     return KWindowSystem::icccmCompliantMappingState() ? false : true;

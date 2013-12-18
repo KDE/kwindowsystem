@@ -29,8 +29,8 @@ public:
 
 static const int s_propertiesCount = 2;
 static const unsigned long s_properties[s_propertiesCount] = {
-        ~0ul,
-        ~0ul
+    ~0ul,
+    ~0ul
 };
 
 #define INFO NETWinInfo info(m_connection, m_testWindow, m_rootWindow, s_properties, s_propertiesCount, NET::WindowManager);
@@ -42,7 +42,7 @@ static const unsigned long s_properties[s_propertiesCount] = {
 
 #define GETPROP(type, length, formatSize) \
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, m_testWindow, \
-                                                                  atom, type, 0, length); \
+                                       atom, type, 0, length); \
     Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR)); \
     QVERIFY(!reply.isNull()); \
     QCOMPARE(reply->format, uint8_t(formatSize)); \
@@ -50,7 +50,7 @@ static const unsigned long s_properties[s_propertiesCount] = {
 
 #define VERIFYDELETED(t) \
     xcb_get_property_cookie_t cookieDeleted = xcb_get_property_unchecked(connection(), false, m_testWindow, \
-                                                                         atom, t, 0, 1); \
+            atom, t, 0, 1); \
     Property replyDeleted(xcb_get_property_reply(connection(), cookieDeleted, Q_NULLPTR)); \
     QVERIFY(!replyDeleted.isNull()); \
     QVERIFY(replyDeleted->type == XCB_ATOM_NONE);
@@ -80,9 +80,10 @@ private Q_SLOTS:
 
 private:
     bool hasAtomFlag(const xcb_atom_t *atoms, int atomsLenght, const QByteArray &actionName);
-    void testStrut(xcb_atom_t atom, NETStrut (NETWinInfo:: *getter)(void)const, void (NETWinInfo:: *setter)(NETStrut), NET::Property property, NET::Property2 property2 = NET::Property2(0));
+    void testStrut(xcb_atom_t atom, NETStrut(NETWinInfo:: *getter)(void)const, void (NETWinInfo:: *setter)(NETStrut), NET::Property property, NET::Property2 property2 = NET::Property2(0));
     void waitForPropertyChange(NETWinInfo *info, xcb_atom_t atom, NET::Property prop, NET::Property2 prop2 = NET::Property2(0));
-    xcb_connection_t *connection() {
+    xcb_connection_t *connection()
+    {
         return m_connection;
     }
     xcb_connection_t *m_connection;
@@ -156,7 +157,7 @@ void NetWinInfoTestWM::waitForPropertyChange(NETWinInfo *info, xcb_atom_t atom, 
         if ((event->response_type & ~0x80) != XCB_PROPERTY_NOTIFY) {
             continue;
         }
-        xcb_property_notify_event_t *pe = reinterpret_cast<xcb_property_notify_event_t*>(event.data());
+        xcb_property_notify_event_t *pe = reinterpret_cast<xcb_property_notify_event_t *>(event.data());
         if (pe->window != m_testWindow) {
             continue;
         }
@@ -238,9 +239,9 @@ void NetWinInfoTestWM::testAllowedActions_data()
                                     NET::ActionFullScreen |
                                     NET::ActionChangeDesktop |
                                     NET::ActionClose)
-                        << (QVector<QByteArray>() << move << resize << minimize << shade <<
-                                                     stick << maxVert << maxHoriz <<
-                                                     fullscreen << desktop << close);
+                         << (QVector<QByteArray>() << move << resize << minimize << shade <<
+                             stick << maxVert << maxHoriz <<
+                             fullscreen << desktop << close);
 }
 
 void NetWinInfoTestWM::testAllowedActions()
@@ -258,7 +259,7 @@ void NetWinInfoTestWM::testAllowedActions()
     QFETCH(QVector<QByteArray>, names);
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_ATOM, names.size(), 32)
-    xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t*>(xcb_get_property_value(reply.data()));
+    xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t *>(xcb_get_property_value(reply.data()));
     for (int i = 0; i < names.size(); ++i) {
         QVERIFY(hasAtomFlag(atoms, names.size(), names.at(i)));
     }
@@ -292,7 +293,7 @@ void NetWinInfoTestWM::testDesktop()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 1, 32)
-    QTEST(reinterpret_cast<uint32_t*>(xcb_get_property_value(reply.data()))[0], "propertyDesktop");
+    QTEST(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], "propertyDesktop");
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::WMDesktop);
@@ -308,7 +309,7 @@ void NetWinInfoTestWM::testDesktop()
     QCOMPARE(info.desktop(), 0);
 }
 
-void NetWinInfoTestWM::testStrut(xcb_atom_t atom, NETStrut (NETWinInfo:: *getter)(void)const, void (NETWinInfo:: *setter)(NETStrut), NET::Property property, NET::Property2 property2)
+void NetWinInfoTestWM::testStrut(xcb_atom_t atom, NETStrut(NETWinInfo:: *getter)(void)const, void (NETWinInfo:: *setter)(NETStrut), NET::Property property, NET::Property2 property2)
 {
     INFO
 
@@ -333,7 +334,7 @@ void NetWinInfoTestWM::testStrut(xcb_atom_t atom, NETStrut (NETWinInfo:: *getter
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 4, 32)
-    uint32_t *data = reinterpret_cast<uint32_t*>(xcb_get_property_value(reply.data()));
+    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()));
     QCOMPARE(data[0], uint32_t(newExtents.left));
     QCOMPARE(data[1], uint32_t(newExtents.right));
     QCOMPARE(data[2], uint32_t(newExtents.top));
@@ -393,7 +394,7 @@ void NetWinInfoTestWM::testOpacity()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 1, 32)
-    QCOMPARE(reinterpret_cast<uint32_t*>(xcb_get_property_value(reply.data()))[0], opacity);
+    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], opacity);
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2Opacity);
@@ -447,10 +448,10 @@ void NetWinInfoTestWM::testState_data()
                                    NET::Hidden |
                                    NET::FullScreen |
                                    NET::DemandsAttention)
-                          << (QVector<QByteArray>() << modal << sticky << maxVert << maxHoriz
-                                                    << shaded << skipTaskbar << keepAbove
-                                                    << skipPager << hidden << fullScreen
-                                                    << keepBelow << demandsAttention << staysOnTop);
+                         << (QVector<QByteArray>() << modal << sticky << maxVert << maxHoriz
+                             << shaded << skipTaskbar << keepAbove
+                             << skipPager << hidden << fullScreen
+                             << keepBelow << demandsAttention << staysOnTop);
 }
 
 void NetWinInfoTestWM::testState()
@@ -468,7 +469,7 @@ void NetWinInfoTestWM::testState()
     QFETCH(QVector<QByteArray>, names);
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_ATOM, names.size(), 32)
-    xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t*>(xcb_get_property_value(reply.data()));
+    xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t *>(xcb_get_property_value(reply.data()));
     for (int i = 0; i < names.size(); ++i) {
         QVERIFY(hasAtomFlag(atoms, names.size(), names.at(i)));
     }
@@ -493,7 +494,7 @@ void NetWinInfoTestWM::testVisibleIconName()
     QVERIFY(atom != XCB_ATOM_NONE);
     QVERIFY(utf8String != XCB_ATOM_NONE);
     GETPROP(utf8String, 3, 8)
-    QCOMPARE(reinterpret_cast<const char*>(xcb_get_property_value(reply.data())), "foo");
+    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.data())), "foo");
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::WMVisibleIconName);
@@ -523,7 +524,7 @@ void NetWinInfoTestWM::testVisibleName()
     QVERIFY(atom != XCB_ATOM_NONE);
     QVERIFY(utf8String != XCB_ATOM_NONE);
     GETPROP(utf8String, 3, 8)
-    QCOMPARE(reinterpret_cast<const char*>(xcb_get_property_value(reply.data())), "foo");
+    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.data())), "foo");
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::WMVisibleName);

@@ -60,55 +60,55 @@ class KXErrorHandlerPrivate;
  * @short Handler for X errors
  */
 class KXErrorHandler
-    {
-    public:
-        /**
-         * Creates error handler that will set error flag after encountering
-         * any X error.
-         */
-        explicit KXErrorHandler( Display* dpy = QX11Info::display());
-        /**
-         * This constructor takes pointer to a function whose prototype matches
-         * the one that's used with the XSetErrorHandler() Xlib function.
-         * NOTE: For the error flag to be set, the function must return a non-zero
-         * value.
-         */
-        explicit KXErrorHandler( int (*handler)( Display*, XErrorEvent* ), Display* dpy = QX11Info::display());
-        /**
-         * This function returns true if the error flag is set (i.e. no custom handler
-         * function was used and there was any error, or the custom handler indicated
-         * an error by its return value).
-         *
-         * @param sync if true, an explicit XSync() will be done. Not necessary
-         *             when the last X request required a roundtrip.
-         */
-        bool error( bool sync ) const;
-        /**
-         * This function returns the error event for the first X error that occurred.
-         * The return value is useful only if error() returned true.
-         * @since 4.0.1
-         */
-        XErrorEvent errorEvent() const;
-        /**
-         * Returns error message for the given error. The error message is not translated,
-         * as it is meant for debugging.
-         * @since 4.0.1
-         */
-        static QByteArray errorMessage( const XErrorEvent& e, Display* dpy = QX11Info::display());
-        ~KXErrorHandler();
-    private:
-        void addHandler();
-        int handle( Display* dpy, XErrorEvent* e );
-        bool (*user_handler1)( int request, int error_code, unsigned long resource_id );
-        int (*user_handler2)( Display*, XErrorEvent* );
-        int (*old_handler)( Display*, XErrorEvent* );
-        static int handler_wrapper( Display*, XErrorEvent* );
-        static KXErrorHandler** handlers;
-        static int pos;
-        static int size;
-        Q_DISABLE_COPY( KXErrorHandler )
-        KXErrorHandlerPrivate * const d;
-    };
+{
+public:
+    /**
+     * Creates error handler that will set error flag after encountering
+     * any X error.
+     */
+    explicit KXErrorHandler(Display *dpy = QX11Info::display());
+    /**
+     * This constructor takes pointer to a function whose prototype matches
+     * the one that's used with the XSetErrorHandler() Xlib function.
+     * NOTE: For the error flag to be set, the function must return a non-zero
+     * value.
+     */
+    explicit KXErrorHandler(int (*handler)(Display *, XErrorEvent *), Display *dpy = QX11Info::display());
+    /**
+     * This function returns true if the error flag is set (i.e. no custom handler
+     * function was used and there was any error, or the custom handler indicated
+     * an error by its return value).
+     *
+     * @param sync if true, an explicit XSync() will be done. Not necessary
+     *             when the last X request required a roundtrip.
+     */
+    bool error(bool sync) const;
+    /**
+     * This function returns the error event for the first X error that occurred.
+     * The return value is useful only if error() returned true.
+     * @since 4.0.1
+     */
+    XErrorEvent errorEvent() const;
+    /**
+     * Returns error message for the given error. The error message is not translated,
+     * as it is meant for debugging.
+     * @since 4.0.1
+     */
+    static QByteArray errorMessage(const XErrorEvent &e, Display *dpy = QX11Info::display());
+    ~KXErrorHandler();
+private:
+    void addHandler();
+    int handle(Display *dpy, XErrorEvent *e);
+    bool (*user_handler1)(int request, int error_code, unsigned long resource_id);
+    int (*user_handler2)(Display *, XErrorEvent *);
+    int (*old_handler)(Display *, XErrorEvent *);
+    static int handler_wrapper(Display *, XErrorEvent *);
+    static KXErrorHandler **handlers;
+    static int pos;
+    static int size;
+    Q_DISABLE_COPY(KXErrorHandler)
+    KXErrorHandlerPrivate *const d;
+};
 
 #endif // HAVE_X11
 

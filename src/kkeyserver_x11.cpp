@@ -36,8 +36,6 @@
 
 // #define KKEYSERVER_DEBUG 1
 
-
-
 namespace KKeyServer
 {
 
@@ -45,8 +43,7 @@ namespace KKeyServer
 // Data Structures
 //---------------------------------------------------------------------
 
-struct Mod
-{
+struct Mod {
     int m_mod;
 };
 
@@ -54,22 +51,19 @@ struct Mod
 // Array Structures
 //---------------------------------------------------------------------
 
-struct X11ModInfo
-{
+struct X11ModInfo {
     int modQt;
     int modX;
 };
 
-struct SymVariation
-{
+struct SymVariation {
     uint sym, symVariation;
     bool bActive;
 };
 
-struct SymName
-{
+struct SymName {
     uint sym;
-    const char* psName;
+    const char *psName;
 };
 
 struct TransKey {
@@ -81,8 +75,7 @@ struct TransKey {
 // Arrays
 //---------------------------------------------------------------------
 
-static X11ModInfo g_rgX11ModInfo[4] =
-{
+static X11ModInfo g_rgX11ModInfo[4] = {
     { Qt::SHIFT,   X11_ONLY(ShiftMask) },
     { Qt::CTRL,    X11_ONLY(ControlMask) },
     { Qt::ALT,     X11_ONLY(Mod1Mask) },
@@ -116,8 +109,7 @@ static const SymName g_rgSymNames[] = {
 };
 
 // These are the X equivalents to the Qt keycodes 0x1000 - 0x1026
-static const TransKey g_rgQtToSymX[] =
-{
+static const TransKey g_rgQtToSymX[] = {
     { Qt::Key_Escape,     XK_Escape },
     { Qt::Key_Tab,        XK_Tab },
     { Qt::Key_Backtab,    XK_ISO_Left_Tab },
@@ -335,7 +327,7 @@ static const TransKey g_rgQtToSymX[] =
 #define XF86XK_Suspend             0x1008FFA7
 #define XF86XK_Hibernate           0x1008FFA8
 // end of XF86keysyms.h
-        ,
+    ,
 
     // All of the stuff below really has to match qkeymapper_x11.cpp in Qt!
     { Qt::Key_Back,       XF86XK_Back },
@@ -478,7 +470,7 @@ static const TransKey g_rgQtToSymX[] =
 inline void checkDisplay()
 {
     // Some non-GUI apps might try to use us.
-    if ( !QX11Info::display() ) {
+    if (!QX11Info::display()) {
         qCritical() << "QX11Info::display() returns 0.  I'm probably going to crash now." << endl;
         qCritical() << "If this is a KApplication initialized without GUI stuff, change it to be "
                     "initialized with GUI stuff." << endl;
@@ -507,15 +499,15 @@ bool initializeMods()
     g_hyper_mask = 0;
 
     checkDisplay();
-    XModifierKeymap* xmk = XGetModifierMapping( QX11Info::display() );
+    XModifierKeymap *xmk = XGetModifierMapping(QX11Info::display());
 
     int min_keycode, max_keycode;
     int keysyms_per_keycode = 0;
 
-    XDisplayKeycodes( QX11Info::display(), &min_keycode, &max_keycode );
-    XFree( XGetKeyboardMapping( QX11Info::display(), min_keycode, 1, &keysyms_per_keycode ));
+    XDisplayKeycodes(QX11Info::display(), &min_keycode, &max_keycode);
+    XFree(XGetKeyboardMapping(QX11Info::display(), min_keycode, 1, &keysyms_per_keycode));
 
-    for( int i = Mod1MapIndex; i < 8; i++ ) {
+    for (int i = Mod1MapIndex; i < 8; i++) {
         uint mask = (1 << i);
         uint keySymX = NoSymbol;
 
@@ -523,28 +515,28 @@ bool initializeMods()
         // and X.org R6.7 , where for some reason only ( ... , 1 ) works. I have absolutely no
         // idea what the problem is, but searching all possibilities until something valid is
         // found fixes the problem.
-        for( int j = 0; j < xmk->max_keypermod; ++j ) {
+        for (int j = 0; j < xmk->max_keypermod; ++j) {
 
-            for( int k = 0; k < keysyms_per_keycode; ++k ) {
+            for (int k = 0; k < keysyms_per_keycode; ++k) {
 
-                keySymX = XKeycodeToKeysym( QX11Info::display(), xmk->modifiermap[xmk->max_keypermod * i + j], k );
+                keySymX = XKeycodeToKeysym(QX11Info::display(), xmk->modifiermap[xmk->max_keypermod * i + j], k);
 
-                switch( keySymX ) {
-                    case XK_Alt_L:
-                    case XK_Alt_R:       g_alt_mask |= mask; break;
+                switch (keySymX) {
+                case XK_Alt_L:
+                case XK_Alt_R:       g_alt_mask |= mask; break;
 
-                    case XK_Super_L:
-                    case XK_Super_R:     g_super_mask |= mask; break;
+                case XK_Super_L:
+                case XK_Super_R:     g_super_mask |= mask; break;
 
-                    case XK_Hyper_L:
-                    case XK_Hyper_R:     g_hyper_mask |= mask; break;
+                case XK_Hyper_L:
+                case XK_Hyper_R:     g_hyper_mask |= mask; break;
 
-                    case XK_Meta_L:
-                    case XK_Meta_R:      g_meta_mask |= mask; break;
+                case XK_Meta_L:
+                case XK_Meta_R:      g_meta_mask |= mask; break;
 
-                    case XK_Num_Lock:    g_modXNumLock |= mask; break;
-                    case XK_Scroll_Lock: g_modXScrollLock |= mask; break;
-                    case XK_Mode_switch: g_modXModeSwitch |= mask; break;
+                case XK_Num_Lock:    g_modXNumLock |= mask; break;
+                case XK_Scroll_Lock: g_modXScrollLock |= mask; break;
+                case XK_Mode_switch: g_modXModeSwitch |= mask; break;
                 }
             }
         }
@@ -561,26 +553,25 @@ bool initializeMods()
 #endif
 
     // Check if hyper overlaps with super or meta or alt
-    if (g_hyper_mask&(g_super_mask|g_meta_mask|g_alt_mask)) {
+    if (g_hyper_mask & (g_super_mask | g_meta_mask | g_alt_mask)) {
 #ifdef KKEYSERVER_DEBUG
         qDebug() << "Hyper conflicts with super, meta or alt.";
 #endif
         // Remove the conflicting masks
-        g_hyper_mask &= ~(g_super_mask|g_meta_mask|g_alt_mask);
+        g_hyper_mask &= ~(g_super_mask | g_meta_mask | g_alt_mask);
     }
 
     // Check if super overlaps with meta or alt
-    if (g_super_mask&(g_meta_mask|g_alt_mask)) {
+    if (g_super_mask & (g_meta_mask | g_alt_mask)) {
 #ifdef KKEYSERVER_DEBUG
         qDebug() << "Super conflicts with meta or alt.";
 #endif
         // Remove the conflicting masks
-        g_super_mask &= ~(g_meta_mask|g_alt_mask);
+        g_super_mask &= ~(g_meta_mask | g_alt_mask);
     }
 
-
     // Check if meta overlaps with alt
-    if (g_meta_mask|g_alt_mask) {
+    if (g_meta_mask | g_alt_mask) {
 #ifdef KKEYSERVER_DEBUG
         qDebug() << "Meta conflicts with alt.";
 #endif
@@ -627,63 +618,103 @@ bool initializeMods()
     g_rgX11ModInfo[2].modX = g_alt_mask;
     g_rgX11ModInfo[3].modX = g_meta_mask;
 
-    XFreeModifiermap( xmk );
+    XFreeModifiermap(xmk);
     g_bInitializedMods = true;
 
     return true;
 }
 
-
 //---------------------------------------------------------------------
 // Public functions
 //---------------------------------------------------------------------
 
+uint modXShift()
+{
+    return ShiftMask;
+}
+uint modXCtrl()
+{
+    return ControlMask;
+}
+uint modXAlt()
+{
+    if (!g_bInitializedMods) {
+        initializeMods();
+    } return g_alt_mask;
+}
+uint modXMeta()
+{
+    if (!g_bInitializedMods) {
+        initializeMods();
+    } return g_meta_mask;
+}
 
-uint modXShift()      { return ShiftMask; }
-uint modXCtrl()       { return ControlMask; }
-uint modXAlt()        { if( !g_bInitializedMods ) { initializeMods(); } return g_alt_mask; }
-uint modXMeta()       { if( !g_bInitializedMods ) { initializeMods(); } return g_meta_mask; }
+uint modXNumLock()
+{
+    if (!g_bInitializedMods) {
+        initializeMods();
+    } return g_modXNumLock;
+}
+uint modXLock()
+{
+    return LockMask;
+}
+uint modXScrollLock()
+{
+    if (!g_bInitializedMods) {
+        initializeMods();
+    } return g_modXScrollLock;
+}
+uint modXModeSwitch()
+{
+    if (!g_bInitializedMods) {
+        initializeMods();
+    } return g_modXModeSwitch;
+}
 
-uint modXNumLock()    { if( !g_bInitializedMods ) { initializeMods(); } return g_modXNumLock; }
-uint modXLock()       { return LockMask; }
-uint modXScrollLock() { if( !g_bInitializedMods ) { initializeMods(); } return g_modXScrollLock; }
-uint modXModeSwitch() { if( !g_bInitializedMods ) { initializeMods(); } return g_modXModeSwitch; }
-
-bool keyboardHasMetaKey() { return modXMeta() != 0; }
-
+bool keyboardHasMetaKey()
+{
+    return modXMeta() != 0;
+}
 
 uint getModsRequired(uint sym)
 {
     uint mod = 0;
 
     // FIXME: This might not be true on all keyboard layouts!
-    if( sym == XK_Sys_Req ) return Qt::ALT;
-    if( sym == XK_Break ) return Qt::CTRL;
-
-    if( sym < 0x3000 ) {
-        QChar c(sym);
-        if( c.isLetter() && c.toLower() != c.toUpper() && sym == c.toUpper().unicode() )
-            return Qt::SHIFT;
+    if (sym == XK_Sys_Req) {
+        return Qt::ALT;
+    }
+    if (sym == XK_Break) {
+        return Qt::CTRL;
     }
 
-    uchar code = XKeysymToKeycode( QX11Info::display(), sym );
-    if( code ) {
+    if (sym < 0x3000) {
+        QChar c(sym);
+        if (c.isLetter() && c.toLower() != c.toUpper() && sym == c.toUpper().unicode()) {
+            return Qt::SHIFT;
+        }
+    }
+
+    uchar code = XKeysymToKeycode(QX11Info::display(), sym);
+    if (code) {
         // need to check index 0 before the others, so that a null-mod
         //  can take precedence over the others, in case the modified
         //  key produces the same symbol.
-        if( sym == XKeycodeToKeysym( QX11Info::display(), code, 0 ) )
+        if (sym == XKeycodeToKeysym(QX11Info::display(), code, 0))
             ;
-        else if( sym == XKeycodeToKeysym( QX11Info::display(), code, 1 ) )
+        else if (sym == XKeycodeToKeysym(QX11Info::display(), code, 1)) {
             mod = Qt::SHIFT;
-        else if( sym == XKeycodeToKeysym( QX11Info::display(), code, 2 ) )
+        } else if (sym == XKeycodeToKeysym(QX11Info::display(), code, 2)) {
             mod = MODE_SWITCH;
-        else if( sym == XKeycodeToKeysym( QX11Info::display(), code, 3 ) )
+        } else if (sym == XKeycodeToKeysym(QX11Info::display(), code, 3)) {
             mod = Qt::SHIFT | MODE_SWITCH;
+        }
     }
     return mod;
 }
 
-bool keyQtToCodeX( int keyQt, int* keyCode )
+bool keyQtToCodeX(int keyQt, int *keyCode)
 {
     int sym;
     uint mod;
@@ -694,56 +725,57 @@ bool keyQtToCodeX( int keyQt, int* keyCode )
     //  E.g., XK_Plus requires SHIFT on the en layout.
     uint modExtra = getModsRequired(sym);
     // Get the X modifier equivalent.
-    if( !sym || !keyQtToModX( (keyQt & Qt::KeyboardModifierMask) | modExtra, &mod ) ) {
+    if (!sym || !keyQtToModX((keyQt & Qt::KeyboardModifierMask) | modExtra, &mod)) {
         *keyCode = 0;
         return false;
     }
 
-    *keyCode = XKeysymToKeycode( QX11Info::display(), sym );
+    *keyCode = XKeysymToKeycode(QX11Info::display(), sym);
     return true;
 }
 
-bool keyQtToSymX( int keyQt, int* keySym )
+bool keyQtToSymX(int keyQt, int *keySym)
 {
     int symQt = keyQt & ~Qt::KeyboardModifierMask;
 
-    if( symQt < 0x1000 ) {
+    if (symQt < 0x1000) {
         *keySym = QChar(symQt).toUpper().unicode();
         return true;
     }
 
-
-    for( uint i = 0; i < sizeof(g_rgQtToSymX)/sizeof(TransKey); i++ ) {
-        if( g_rgQtToSymX[i].keySymQt == symQt ) {
+    for (uint i = 0; i < sizeof(g_rgQtToSymX) / sizeof(TransKey); i++) {
+        if (g_rgQtToSymX[i].keySymQt == symQt) {
             *keySym = g_rgQtToSymX[i].keySymX;
             return true;
         }
     }
 
     *keySym = 0;
-    if( symQt != Qt::Key_Shift && symQt != Qt::Key_Control && symQt != Qt::Key_Alt &&
-        symQt != Qt::Key_Meta && symQt != Qt::Key_Direction_L && symQt != Qt::Key_Direction_R ) {
+    if (symQt != Qt::Key_Shift && symQt != Qt::Key_Control && symQt != Qt::Key_Alt &&
+            symQt != Qt::Key_Meta && symQt != Qt::Key_Direction_L && symQt != Qt::Key_Direction_R) {
         // qDebug() << "Sym::initQt( " << QString::number(keyQt,16) << " ): failed to convert key.";
     }
     return false;
 }
 
-bool symXToKeyQt( uint keySym, int* keyQt )
+bool symXToKeyQt(uint keySym, int *keyQt)
 {
     *keyQt = Qt::Key_unknown;
-    if( keySym < 0x1000 ) {
-        if( keySym >= 'a' && keySym <= 'z' )
+    if (keySym < 0x1000) {
+        if (keySym >= 'a' && keySym <= 'z') {
             *keyQt = QChar(keySym).toUpper().unicode();
-        else
+        } else {
             *keyQt = keySym;
+        }
     }
 
-    else if( keySym < 0x3000 )
+    else if (keySym < 0x3000) {
         *keyQt = keySym;
+    }
 
     else {
-        for( uint i = 0; i < sizeof(g_rgQtToSymX)/sizeof(TransKey); i++ )
-            if( g_rgQtToSymX[i].keySymX == keySym ) {
+        for (uint i = 0; i < sizeof(g_rgQtToSymX) / sizeof(TransKey); i++)
+            if (g_rgQtToSymX[i].keySymX == keySym) {
                 *keyQt = g_rgQtToSymX[i].keySymQt;
                 break;
             }
@@ -755,16 +787,17 @@ bool symXToKeyQt( uint keySym, int* keyQt )
 /* are these things actually used anywhere?  there's no way
    they can do anything on non-X11 */
 
-bool keyQtToModX( int modQt, uint* modX )
+bool keyQtToModX(int modQt, uint *modX)
 {
-    if( !g_bInitializedMods )
+    if (!g_bInitializedMods) {
         initializeMods();
+    }
 
     *modX = 0;
-    for( int i = 0; i < 4; i++ ) {
+    for (int i = 0; i < 4; i++) {
 
-        if( modQt & g_rgX11ModInfo[i].modQt ) {
-            if( g_rgX11ModInfo[i].modX ) {
+        if (modQt & g_rgX11ModInfo[i].modQt) {
+            if (g_rgX11ModInfo[i].modX) {
                 *modX |= g_rgX11ModInfo[i].modX;
             } else {
                 // The qt modifier has no x equivalent. Return false
@@ -775,14 +808,15 @@ bool keyQtToModX( int modQt, uint* modX )
     return true;
 }
 
-bool modXToQt( uint modX, int* modQt )
+bool modXToQt(uint modX, int *modQt)
 {
-    if( !g_bInitializedMods )
+    if (!g_bInitializedMods) {
         initializeMods();
+    }
 
     *modQt = 0;
-    for( int i = 0; i < 4; i++ ) {
-        if( modX & g_rgX11ModInfo[i].modX ) {
+    for (int i = 0; i < 4; i++) {
+        if (modX & g_rgX11ModInfo[i].modX) {
             *modQt |= g_rgX11ModInfo[i].modQt;
             continue;
         }
@@ -790,8 +824,7 @@ bool modXToQt( uint modX, int* modQt )
     return true;
 }
 
-
-bool codeXToSym( uchar codeX, uint modX, uint* sym )
+bool codeXToSym(uchar codeX, uint modX, uint *sym)
 {
     KeySym keySym;
     XKeyPressedEvent event;
@@ -803,19 +836,17 @@ bool codeXToSym( uchar codeX, uint modX, uint* sym )
     event.state = modX;
     event.keycode = codeX;
 
-    XLookupString( &event, 0, 0, &keySym, 0 );
+    XLookupString(&event, 0, 0, &keySym, 0);
     *sym = (uint) keySym;
     return true;
 }
-
 
 uint accelModMaskX()
 {
     return modXShift() | modXCtrl() | modXAlt() | modXMeta();
 }
 
-
-bool xEventToQt( XEvent* e, int* keyQt )
+bool xEventToQt(XEvent *e, int *keyQt)
 {
     Q_ASSERT(e->type == KeyPress || e->type == KeyRelease);
 
@@ -824,29 +855,30 @@ bool xEventToQt( XEvent* e, int* keyQt )
 
     KeySym keySym;
     char buffer[16];
-    XLookupString( (XKeyEvent*) e, buffer, 15, &keySym, 0 );
+    XLookupString((XKeyEvent *) e, buffer, 15, &keySym, 0);
     uint keySymX = (uint)keySym;
 
     // If numlock is active and a keypad key is pressed, XOR the SHIFT state.
     //  e.g., KP_4 => Shift+KP_Left, and Shift+KP_4 => KP_Left.
-    if( e->xkey.state & modXNumLock() ) {
-        uint sym = XKeycodeToKeysym( QX11Info::display(), keyCodeX, 0 );
+    if (e->xkey.state & modXNumLock()) {
+        uint sym = XKeycodeToKeysym(QX11Info::display(), keyCodeX, 0);
         // TODO: what's the xor operator in c++?
         // If this is a keypad key,
-        if( sym >= XK_KP_Space && sym <= XK_KP_9 ) {
-            switch( sym ) {
-                // Leave the following keys unaltered
-                // FIXME: The proper solution is to see which keysyms don't change when shifted.
-                case XK_KP_Multiply:
-                case XK_KP_Add:
-                case XK_KP_Subtract:
-                case XK_KP_Divide:
-                    break;
-                default:
-                    if( keyModX & modXShift() )
-                        keyModX &= ~modXShift();
-                    else
-                        keyModX |= modXShift();
+        if (sym >= XK_KP_Space && sym <= XK_KP_9) {
+            switch (sym) {
+            // Leave the following keys unaltered
+            // FIXME: The proper solution is to see which keysyms don't change when shifted.
+            case XK_KP_Multiply:
+            case XK_KP_Add:
+            case XK_KP_Subtract:
+            case XK_KP_Divide:
+                break;
+            default:
+                if (keyModX & modXShift()) {
+                    keyModX &= ~modXShift();
+                } else {
+                    keyModX |= modXShift();
+                }
             }
         }
     }
@@ -860,15 +892,15 @@ bool xEventToQt( XEvent* e, int* keyQt )
     return true;
 }
 
-bool xcbKeyPressEventToQt( xcb_generic_event_t* e, int* keyQt )
+bool xcbKeyPressEventToQt(xcb_generic_event_t *e, int *keyQt)
 {
     if ((e->response_type & ~0x80) != XCB_KEY_PRESS && (e->response_type & ~0x80) != XCB_KEY_RELEASE) {
         return false;
     }
-    return xcbKeyPressEventToQt(reinterpret_cast<xcb_key_press_event_t*>(e), keyQt);
+    return xcbKeyPressEventToQt(reinterpret_cast<xcb_key_press_event_t *>(e), keyQt);
 }
 
-bool xcbKeyPressEventToQt( xcb_key_press_event_t* e, int* keyQt )
+bool xcbKeyPressEventToQt(xcb_key_press_event_t *e, int *keyQt)
 {
     xcb_keycode_t keyCodeX = e->detail;
     uint keyModX = e->state & (accelModMaskX() | MODE_SWITCH);
@@ -880,20 +912,21 @@ bool xcbKeyPressEventToQt( xcb_key_press_event_t* e, int* keyQt )
     //  e.g., KP_4 => Shift+KP_Left, and Shift+KP_4 => KP_Left.
     if (e->state & modXNumLock()) {
         // If this is a keypad key,
-        if( keySymX >= XK_KP_Space && keySymX <= XK_KP_9 ) {
-            switch( keySymX ) {
-                // Leave the following keys unaltered
-                // FIXME: The proper solution is to see which keysyms don't change when shifted.
-                case XK_KP_Multiply:
-                case XK_KP_Add:
-                case XK_KP_Subtract:
-                case XK_KP_Divide:
-                    break;
-                default:
-                    if( keyModX & modXShift() )
-                        keyModX &= ~modXShift();
-                    else
-                        keyModX |= modXShift();
+        if (keySymX >= XK_KP_Space && keySymX <= XK_KP_9) {
+            switch (keySymX) {
+            // Leave the following keys unaltered
+            // FIXME: The proper solution is to see which keysyms don't change when shifted.
+            case XK_KP_Multiply:
+            case XK_KP_Add:
+            case XK_KP_Subtract:
+            case XK_KP_Divide:
+                break;
+            default:
+                if (keyModX & modXShift()) {
+                    keyModX &= ~modXShift();
+                } else {
+                    keyModX |= modXShift();
+                }
             }
         }
     }

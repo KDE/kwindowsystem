@@ -23,7 +23,6 @@
 
 */
 
-
 #ifndef   netwm_p_h
 #define   netwm_p_h
 
@@ -36,7 +35,8 @@
    @internal
 **/
 
-template <class Z> class NETRArray {
+template <class Z> class NETRArray
+{
 public:
     /**
        Constructs an empty (size == 0) array.
@@ -61,7 +61,10 @@ public:
        Returns the size of the array.
      **/
 
-    int size() const { return sz; }
+    int size() const
+    {
+        return sz;
+    }
 
     /**
        Resets the array (size == 0).
@@ -73,7 +76,6 @@ private:
     int capacity;
     Z *d;
 };
-
 
 /**
    Private data for the NETRootInfo class.
@@ -116,7 +118,6 @@ struct NETRootInfoPrivate {
     int ref;
 };
 
-
 /**
    Private data for the NETWinInfo class.
    @internal
@@ -132,7 +133,7 @@ struct NETWinInfoPrivate {
 
     NETRArray<NETIcon> icons;
     int icon_count;
-    int* icon_sizes; // for iconSizes() only
+    int *icon_sizes; // for iconSizes() only
 
     NETRect icon_geom, win_geom;
     unsigned long state;
@@ -146,11 +147,11 @@ struct NETWinInfoPrivate {
     int pid;
     bool handled_icons;
     xcb_timestamp_t user_time;
-    char* startup_id;
+    char *startup_id;
     unsigned long opacity;
     xcb_window_t transient_for, window_group;
     unsigned long allowed_actions;
-    char* class_class, *class_name, *window_role, *client_machine;
+    char *class_class, *class_name, *window_role, *client_machine;
 
     unsigned long properties[ 2 ];
     NETFullscreenMonitors fullscreen_monitors;
@@ -161,6 +162,5 @@ struct NETWinInfoPrivate {
 
     int ref;
 };
-
 
 #endif // netwm_p_h

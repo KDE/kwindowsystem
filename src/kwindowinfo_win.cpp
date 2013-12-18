@@ -27,25 +27,25 @@
 
 class KWindowInfo::Private
 {
-    public:
+public:
     Private()
-    : properties(0),properties2(0)
+        : properties(0), properties2(0)
     {}
-    
+
     ~Private() { }
-   
+
     HWND win_;
     int ref;
     unsigned long properties;
     unsigned long properties2;
-    private:
-    Private( const Private& );
-    void operator=( const Private& );
+private:
+    Private(const Private &);
+    void operator=(const Private &);
 };
 
 #include <QRect>
 
-KWindowInfo::KWindowInfo( WId win, unsigned long properties, unsigned long properties2) : d ( new Private ) 
+KWindowInfo::KWindowInfo(WId win, unsigned long properties, unsigned long properties2) : d(new Private)
 {
     d->ref = 1;
     d->win_ = reinterpret_cast<HWND>(win);
@@ -54,42 +54,44 @@ KWindowInfo::KWindowInfo( WId win, unsigned long properties, unsigned long prope
 }
 
 KWindowInfo::KWindowInfo()
-    : d( NULL )
+    : d(NULL)
 {
 
 }
 
 KWindowInfo::~KWindowInfo()
 {
-    if( d != NULL ) {
-    if( --d->ref == 0 ) {
-        delete d;
-    }
+    if (d != NULL) {
+        if (--d->ref == 0) {
+            delete d;
+        }
     }
 }
 
-KWindowInfo::KWindowInfo( const KWindowInfo& wininfo )
-    : d( wininfo.d )
+KWindowInfo::KWindowInfo(const KWindowInfo &wininfo)
+    : d(wininfo.d)
 {
-    if( d != NULL )
-    ++d->ref;
-}
-
-KWindowInfo& KWindowInfo::operator=( const KWindowInfo& wininfo )
-{
-    if( d != wininfo.d ) {
-    if( d != NULL )
-        if( --d->ref == 0 )
-        delete d;
-    d = wininfo.d;
-    if( d != NULL )
+    if (d != NULL) {
         ++d->ref;
+    }
+}
+
+KWindowInfo &KWindowInfo::operator=(const KWindowInfo &wininfo)
+{
+    if (d != wininfo.d) {
+        if (d != NULL)
+            if (--d->ref == 0) {
+                delete d;
+            }
+        d = wininfo.d;
+        if (d != NULL) {
+            ++d->ref;
+        }
     }
     return *this;
 }
 
-
-bool KWindowInfo::valid( bool withdrawn_is_valid ) const
+bool KWindowInfo::valid(bool withdrawn_is_valid) const
 {
     return true;
 }
@@ -103,22 +105,25 @@ unsigned long KWindowInfo::state() const
 {
     unsigned long state = 0;
 #ifndef _WIN32_WCE
-     if(IsZoomed(d->win_))
+    if (IsZoomed(d->win_)) {
         state |= NET::Max;
+    }
 #endif
-     if(!IsWindowVisible(d->win_))
+    if (!IsWindowVisible(d->win_)) {
         state |= NET::Hidden;
-     
-#ifndef _WIN32_WCE     
+    }
+
+#ifndef _WIN32_WCE
     LONG_PTR lp = GetWindowLongPtr(d->win_, GWL_EXSTYLE);
-    if(lp & WS_EX_TOOLWINDOW)
+    if (lp & WS_EX_TOOLWINDOW) {
         state |= NET::SkipTaskbar;
+    }
 #endif
-        
+
     return state;
 }
 
-bool KWindowInfo::hasState( unsigned long s ) const
+bool KWindowInfo::hasState(unsigned long s) const
 {
     return (state() & s);
 }
@@ -133,13 +138,15 @@ bool KWindowInfo::isMinimized() const
 }
 
 NET::MappingState KWindowInfo::mappingState() const
-{    
+{
 #ifndef _WIN32_WCE
-    if(IsIconic(d->win_))
-        return NET::Iconic;  
+    if (IsIconic(d->win_)) {
+        return NET::Iconic;
+    }
 #endif
-    if(!IsWindowVisible(d->win_)) 
+    if (!IsWindowVisible(d->win_)) {
         return NET::Withdrawn;
+    }
     return NET::Visible;
 }
 
@@ -148,28 +155,28 @@ NETExtendedStrut KWindowInfo::extendedStrut() const
     return NETExtendedStrut();
 }
 
-NET::WindowType KWindowInfo::windowType( int supported_types ) const
+NET::WindowType KWindowInfo::windowType(int supported_types) const
 {
     NET::WindowType wt(NET::Normal);
-    
-    
-    long windowStyle   = GetWindowLong(d->win_,GWL_STYLE);
-    long windowStyleEx = GetWindowLong(d->win_,GWL_EXSTYLE);  
 
-    if(windowStyle & WS_POPUP && supported_types & NET::PopupMenuMask)
+    long windowStyle   = GetWindowLong(d->win_, GWL_STYLE);
+    long windowStyleEx = GetWindowLong(d->win_, GWL_EXSTYLE);
+
+    if (windowStyle & WS_POPUP && supported_types & NET::PopupMenuMask) {
         return NET::PopupMenu;
-    else if(windowStyleEx & WS_EX_TOOLWINDOW && supported_types & NET::TooltipMask)
+    } else if (windowStyleEx & WS_EX_TOOLWINDOW && supported_types & NET::TooltipMask) {
         return NET::Tooltip;
-    else if(!(windowStyle & WS_CHILD) && supported_types & NET::NormalMask)
+    } else if (!(windowStyle & WS_CHILD) && supported_types & NET::NormalMask) {
         return NET::Normal;
-        
+    }
+
     return wt;
 }
 
 QString KWindowInfo::visibleNameWithState() const
 {
     QString s = visibleName();
-    if ( isMinimized() ) {
+    if (isMinimized()) {
         s.prepend(QLatin1Char('('));
         s.append(QLatin1Char(')'));
     }
@@ -183,9 +190,9 @@ QString KWindowInfo::visibleName() const
 
 QString KWindowInfo::name() const
 {
-    QByteArray windowText = QByteArray ( (GetWindowTextLength(d->win_)+1) * sizeof(wchar_t), 0 ) ;
+    QByteArray windowText = QByteArray((GetWindowTextLength(d->win_) + 1) * sizeof(wchar_t), 0);
     GetWindowTextW(d->win_, (LPWSTR)windowText.data(), windowText.size());
-    return QString::fromWCharArray((wchar_t*)windowText.data());
+    return QString::fromWCharArray((wchar_t *)windowText.data());
 }
 
 QString KWindowInfo::visibleIconNameWithState() const
@@ -208,7 +215,7 @@ bool KWindowInfo::isOnCurrentDesktop() const
     return true;
 }
 
-bool KWindowInfo::isOnDesktop( int desk ) const
+bool KWindowInfo::isOnDesktop(int desk) const
 {
     return desk == desktop();
 }
@@ -226,12 +233,12 @@ int KWindowInfo::desktop() const
 QRect KWindowInfo::geometry() const
 {
     RECT wndRect;
-    memset(&wndRect,0,sizeof(wndRect));
+    memset(&wndRect, 0, sizeof(wndRect));
 
     //fetch the geometry INCLUDING the frames
-    if (GetWindowRect(d->win_,&wndRect)) {
+    if (GetWindowRect(d->win_, &wndRect)) {
         QRect result;
-        result.setCoords ( wndRect.left, wndRect.top, wndRect.right, wndRect.bottom );
+        result.setCoords(wndRect.left, wndRect.top, wndRect.right, wndRect.bottom);
         return result;
     }
 
@@ -241,19 +248,19 @@ QRect KWindowInfo::geometry() const
 QRect KWindowInfo::frameGeometry() const
 {
     RECT wndRect;
-    memset(&wndRect,0,sizeof(wndRect));
-    
+    memset(&wndRect, 0, sizeof(wndRect));
+
     //fetch only client area geometries ... i hope thats right
-    if(GetClientRect(d->win_,&wndRect)){
-    QRect result;
-    result.setCoords ( wndRect.left, wndRect.top, wndRect.right, wndRect.bottom );
-    return result;
+    if (GetClientRect(d->win_, &wndRect)) {
+        QRect result;
+        result.setCoords(wndRect.left, wndRect.top, wndRect.right, wndRect.bottom);
+        return result;
     }
-    
+
     return QRect();
 }
 
-bool KWindowInfo::actionSupported( NET::Action action ) const
+bool KWindowInfo::actionSupported(NET::Action action) const
 {
     return true; // no idea if it's supported or not -> pretend it is
 }
@@ -261,15 +268,15 @@ bool KWindowInfo::actionSupported( NET::Action action ) const
 #if 0
 WId KWindowInfo::transientFor() const
 {
-    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2TransientFor ) == 0, 176 )
-        << "Pass NET::WM2TransientFor to KWindowInfo";
+    kWarning((d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2TransientFor) == 0, 176)
+            << "Pass NET::WM2TransientFor to KWindowInfo";
     return d->info->transientFor();
 }
 
 WId KWindowInfo::groupLeader() const
 {
-    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2GroupLeader ) == 0, 176 )
-        << "Pass NET::WM2GroupLeader to KWindowInfo";
+    kWarning((d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2GroupLeader) == 0, 176)
+            << "Pass NET::WM2GroupLeader to KWindowInfo";
     return d->info->groupLeader();
 }
 #endif
@@ -281,9 +288,9 @@ QByteArray KWindowInfo::windowClassClass() const
 //    return d->info->windowClassClass();
 
     // Implemented per http://tronche.com/gui/x/icccm/sec-4.html#WM_CLASS (but only 2nd and 3rd choices, -name ignored)
-    char* resourcenamevar;
+    char *resourcenamevar;
     resourcenamevar = getenv("RESOURCE_NAME");
-    if(resourcenamevar != NULL ) {
+    if (resourcenamevar != NULL) {
         return QByteArray(resourcenamevar);
     }
 
@@ -302,31 +309,32 @@ QByteArray KWindowInfo::windowClassName() const
     const int max = 256; // truncate to 255 characters
     TCHAR name[max];
     int count = GetClassName(d->win_, name, max);
-    return QString::fromUtf16((ushort*)name).toLocal8Bit();
+    return QString::fromUtf16((ushort *)name).toLocal8Bit();
 }
 
 #if 0
 QByteArray KWindowInfo::windowRole() const
 {
-    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2WindowRole ) == 0, 176 )
-        << "Pass NET::WM2WindowRole to KWindowInfo";
+    kWarning((d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2WindowRole) == 0, 176)
+            << "Pass NET::WM2WindowRole to KWindowInfo";
     return d->info->windowRole();
 }
 
 QByteArray KWindowInfo::clientMachine() const
 {
-    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2ClientMachine ) == 0, 176 )
-        << "Pass NET::WM2ClientMachine to KWindowInfo";
+    kWarning((d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2ClientMachine) == 0, 176)
+            << "Pass NET::WM2ClientMachine to KWindowInfo";
     return d->info->clientMachine();
 }
 
-bool KWindowInfo::actionSupported( NET::Action action ) const
+bool KWindowInfo::actionSupported(NET::Action action) const
 {
-    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2AllowedActions ) == 0, 176 )
-        << "Pass NET::WM2AllowedActions to KWindowInfo";
-    if( KWindowSystem::allowedActionsSupported())
+    kWarning((d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2AllowedActions) == 0, 176)
+            << "Pass NET::WM2AllowedActions to KWindowInfo";
+    if (KWindowSystem::allowedActionsSupported()) {
         return d->info->allowedActions() & action;
-    else
-        return true; // no idea if it's supported or not -> pretend it is
+    } else {
+        return true;    // no idea if it's supported or not -> pretend it is
+    }
 }
 #endif

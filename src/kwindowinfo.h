@@ -38,7 +38,7 @@ public:
     /**
      * Reads all the info about the given window.
      */
-    KWindowInfo( WId window, unsigned long properties, unsigned long properties2 = 0 );
+    KWindowInfo(WId window, unsigned long properties, unsigned long properties2 = 0);
     KWindowInfo(); // to make QList and others happy
     ~KWindowInfo();
     /**
@@ -47,7 +47,7 @@ public:
      * @param withdrawn_is_valid if true, windows in the withdrawn state
      *        (i.e. not managed) are also considered. This is usually not the case.
      */
-    bool valid( bool withdrawn_is_valid = false ) const;
+    bool valid(bool withdrawn_is_valid = false) const;
     /**
      * Returns the window identifier.
      */
@@ -61,7 +61,7 @@ public:
      * Returns true if the window has the given state flag set (see the NET::State enum for details).
      * Requires NET::WMState passed to KWin::windowInfo().
      */
-    bool hasState( unsigned long s ) const;
+    bool hasState(unsigned long s) const;
     /**
      * Returns true if the window is minimized. Note that it is true only if
      * the window is truly minimized, not shaded or on another virtual desktops,
@@ -87,7 +87,7 @@ public:
      * should be all window types your application supports (see NET::WindowTypeMask).
      * Requires NET::WMWindowType passed to KWin::windowInfo().
      */
-    NET::WindowType windowType( int supported_types ) const;
+    NET::WindowType windowType(int supported_types) const;
     /**
      * Returns the visible name of the window (i.e. including possible <2> appended
      * when there are two or more windows with the same name).
@@ -144,7 +144,7 @@ public:
      * Returns true if the window is on the given virtual desktop.
      * Requires NET::WMDesktop passed to KWin::windowInfo().
      */
-    bool isOnDesktop( int desktop ) const;
+    bool isOnDesktop(int desktop) const;
     /**
      * Returns true if the window is on all desktops
      * (equal to desktop()==NET::OnAllDesktops).
@@ -210,13 +210,13 @@ public:
      * by the window manager.
      * Requires NET::WM2AllowedActions passed to KWin::windowInfo().
      */
-    bool actionSupported( NET::Action action ) const;
+    bool actionSupported(NET::Action action) const;
 
-    KWindowInfo( const KWindowInfo& );
-    KWindowInfo& operator=( const KWindowInfo& );
+    KWindowInfo(const KWindowInfo &);
+    KWindowInfo &operator=(const KWindowInfo &);
 private:
     class Private;
-    Private * d; //krazy:exclude=dpointer (implicitly shared)
+    Private *d;  //krazy:exclude=dpointer (implicitly shared)
 #ifdef Q_OS_MAC
     // KWindowSystem needs access to the d-pointer
     friend class KWindowSystem;

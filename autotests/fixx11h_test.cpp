@@ -23,13 +23,16 @@
 #include <X11/Xlib.h>
 #include <fixx11h.h>
 
-static Bool foo() { return True; }
+static Bool foo()
+{
+    return True;
+}
 
 #include <X11/Xdefs.h>
 
-int main(int, char**)
+int main(int, char **)
 {
-        Bool b = foo();
-        return b;
+    Bool b = foo();
+    return b;
 }
 

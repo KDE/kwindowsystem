@@ -94,7 +94,7 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap)
     }
 
     const xcb_get_image_cookie_t imageCookie = xcb_get_image_unchecked(c, XCB_IMAGE_FORMAT_Z_PIXMAP, pixmap,
-                                                                       0, 0, geo->width, geo->height, ~0);
+            0, 0, geo->width, geo->height, ~0);
     ScopedCPointer<xcb_get_image_reply_t> xImage(xcb_get_image_reply(c, imageCookie, Q_NULLPTR));
     if (xImage.isNull()) {
         // request for image data failed
@@ -115,8 +115,8 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap)
 
             pixels[i] = qRgba(r, g, b, 0xff);
         }
-        QImage image(reinterpret_cast<uchar*>(pixels), geo->width, geo->height,
-                     xcb_get_image_data_length(xImage.data())/geo->height, QImage::Format_ARGB32_Premultiplied);
+        QImage image(reinterpret_cast<uchar *>(pixels), geo->width, geo->height,
+                     xcb_get_image_data_length(xImage.data()) / geo->height, QImage::Format_ARGB32_Premultiplied);
         if (image.isNull()) {
             return T();
         }
@@ -137,7 +137,7 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap)
         }
     }
     QImage image(xcb_get_image_data(xImage.data()), geo->width, geo->height,
-                 xcb_get_image_data_length(xImage.data())/geo->height, format);
+                 xcb_get_image_data_length(xImage.data()) / geo->height, format);
     if (image.isNull()) {
         return T();
     }
@@ -151,7 +151,7 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap)
 }
 
 // Create QPixmap from X pixmap. Take care of different depths if needed.
-QPixmap createPixmapFromHandle( WId pixmap, WId pixmap_mask )
+QPixmap createPixmapFromHandle(WId pixmap, WId pixmap_mask)
 {
     xcb_connection_t *c = QX11Info::connection();
 
@@ -180,35 +180,38 @@ QPixmap createPixmapFromHandle( WId pixmap, WId pixmap_mask )
 // (the #if 0 part), but on 64bit architectures Time is 64bit unsigned long,
 // so there special care needs to be taken to always use only the lower 32bits.
 #if 0
-int timestampCompare( Time time1, Time time2 ) // like strcmp()
-    {
-    if( time1 == time2 )
+int timestampCompare(Time time1, Time time2)   // like strcmp()
+{
+    if (time1 == time2) {
         return 0;
-    return ( time1 - time2 ) < 0x7fffffffU ? 1 : -1; // time1 > time2 -> 1, handle wrapping
     }
+    return (time1 - time2) < 0x7fffffffU ? 1 : -1;   // time1 > time2 -> 1, handle wrapping
+}
 
-Time timestampDiff( Time time1, Time time2 ) // returns time2 - time1
-    { // no need to handle wrapping?
+Time timestampDiff(Time time1, Time time2)   // returns time2 - time1
+{
+    // no need to handle wrapping?
     return time2 - time1;
-    }
+}
 #else
-int timestampCompare( unsigned long time1_, unsigned long time2_ ) // like strcmp()
-    {
+int timestampCompare(unsigned long time1_, unsigned long time2_)   // like strcmp()
+{
     quint32 time1 = time1_;
     quint32 time2 = time2_;
-    if( time1 == time2 )
+    if (time1 == time2) {
         return 0;
-    return quint32( time1 - time2 ) < 0x7fffffffU ? 1 : -1; // time1 > time2 -> 1, handle wrapping
     }
+    return quint32(time1 - time2) < 0x7fffffffU ? 1 : -1;   // time1 > time2 -> 1, handle wrapping
+}
 
-int timestampDiff( unsigned long time1_, unsigned long time2_ ) // returns time2 - time1
-    { // no need to handle wrapping?
+int timestampDiff(unsigned long time1_, unsigned long time2_)   // returns time2 - time1
+{
+    // no need to handle wrapping?
     quint32 time1 = time1_;
     quint32 time2 = time2_;
-    return quint32( time2 - time1 );
-    }
+    return quint32(time2 - time1);
+}
 #endif
-
 
 } // namespace
 

@@ -51,70 +51,70 @@ class KWINDOWSYSTEM_EXPORT KXMessages : public QObject
 {
     Q_OBJECT
 public:
-	/**
-	 * Creates an instance which will receive X messages.
-	 *
-	 * @param accept_broadcast if non-NULL, all broadcast messages with
-	 *                         this message type will be received.
-	 * @param parent the parent of this widget
-	 */
-        explicit KXMessages(const char* accept_broadcast = NULL, QObject* parent = NULL);
+    /**
+     * Creates an instance which will receive X messages.
+     *
+     * @param accept_broadcast if non-NULL, all broadcast messages with
+     *                         this message type will be received.
+     * @param parent the parent of this widget
+     */
+    explicit KXMessages(const char *accept_broadcast = NULL, QObject *parent = NULL);
 
-        virtual ~KXMessages();
-	/**
-	 * Broadcasts the given message with the given message type.
-	 * @param msg_type the type of the message
-	 * @param message the message itself
+    virtual ~KXMessages();
+    /**
+     * Broadcasts the given message with the given message type.
+     * @param msg_type the type of the message
+     * @param message the message itself
          * @param screen X11 screen to use, -1 for the default
-	 */
-        void broadcastMessage(const char* msg_type, const QString& message, int screen = -1);
-	/**
-	 * Broadcasts the given message with the given message type.
-	 *
-	 * @param disp X11 connection which will be used instead of
-	 *             QX11Info::display()
-	 * @param msg_type the type of the message
-	 * @param message the message itself
+     */
+    void broadcastMessage(const char *msg_type, const QString &message, int screen = -1);
+    /**
+     * Broadcasts the given message with the given message type.
+     *
+     * @param disp X11 connection which will be used instead of
+     *             QX11Info::display()
+     * @param msg_type the type of the message
+     * @param message the message itself
          * @param screen X11 screen to use, -1 for the default
-	 * @return false when an error occurred, true otherwise
-	 */
-        static bool broadcastMessageX(Display* disp, const char* msg_type,
-                                      const QString& message, int screen = -1);
+     * @return false when an error occurred, true otherwise
+     */
+    static bool broadcastMessageX(Display *disp, const char *msg_type,
+                                  const QString &message, int screen = -1);
 
 #if 0 // currently unused
-	/**
-	 * Sends the given message with the given message type only to given
+    /**
+     * Sends the given message with the given message type only to given
          * window.
          *
          * @param w X11 handle for the destination window
-	 * @param msg_type the type of the message
-	 * @param message the message itself
-	 */
-        void sendMessage( WId w, const char* msg_type, const QString& message );
-	/**
-	 * Sends the given message with the given message type only to given
+     * @param msg_type the type of the message
+     * @param message the message itself
+     */
+    void sendMessage(WId w, const char *msg_type, const QString &message);
+    /**
+     * Sends the given message with the given message type only to given
          * window.
          *
-	 * @param disp X11 connection which will be used instead of
-	 *             QX11Info::display()
+     * @param disp X11 connection which will be used instead of
+     *             QX11Info::display()
          * @param w X11 handle for the destination window
-	 * @param msg_type the type of the message
-	 * @param message the message itself
-	 * @return false when an error occurred, true otherwise
-	 */
-        static bool sendMessageX(Display* disp, WId w, const char* msg_type,
-                                 const QString& message);
+     * @param msg_type the type of the message
+     * @param message the message itself
+     * @return false when an error occurred, true otherwise
+     */
+    static bool sendMessageX(Display *disp, WId w, const char *msg_type,
+                             const QString &message);
 #endif
 
-    Q_SIGNALS:
-	/**
-	 * Emitted when a message was received.
-	 * @param message the message that has been received
-	 */
-        void gotMessage(const QString& message);
-    private:
-        friend class KXMessagesPrivate;
-        KXMessagesPrivate * const d;
+Q_SIGNALS:
+    /**
+     * Emitted when a message was received.
+     * @param message the message that has been received
+     */
+    void gotMessage(const QString &message);
+private:
+    friend class KXMessagesPrivate;
+    KXMessagesPrivate *const d;
 };
 
 #endif

@@ -12,7 +12,7 @@ template <typename T>
 class ScopedCPointer : public QScopedPointer<T, QScopedPointerPodDeleter>
 {
 public:
-   ScopedCPointer(T *p = 0) : QScopedPointer<T, QScopedPointerPodDeleter>(p) {}
+    ScopedCPointer(T *p = 0) : QScopedPointer<T, QScopedPointerPodDeleter>(p) {}
 };
 
 /**
@@ -53,31 +53,34 @@ public:
         , m_retrieved(false)
         , m_atom(XCB_ATOM_NONE)
         , m_name(name)
-        {
-            m_cookie.sequence = 0;
-        }
+    {
+        m_cookie.sequence = 0;
+    }
     explicit Atom(xcb_connection_t *c, const QByteArray &name, bool onlyIfExists = false)
         : m_connection(c)
         , m_retrieved(false)
         , m_cookie(xcb_intern_atom_unchecked(m_connection, onlyIfExists, name.length(), name.constData()))
         , m_atom(XCB_ATOM_NONE)
         , m_name(name)
-        {
-        }
+    {
+    }
     Atom() Q_DECL_EQ_DELETE;
     Atom(const Atom &) Q_DECL_EQ_DELETE;
 
-    ~Atom() {
+    ~Atom()
+    {
         if (!m_retrieved && m_cookie.sequence) {
             xcb_discard_reply(m_connection, m_cookie.sequence);
         }
     }
 
-    void setConnection(xcb_connection_t *c) {
+    void setConnection(xcb_connection_t *c)
+    {
         m_connection = c;
     }
 
-    void fetch(bool onlyIfExists = false) {
+    void fetch(bool onlyIfExists = false)
+    {
         if (!m_connection) {
             // set connection first!
             return;
@@ -89,17 +92,20 @@ public:
         m_cookie = xcb_intern_atom_unchecked(m_connection, onlyIfExists, m_name.length(), m_name.constData());
     }
 
-    operator xcb_atom_t() const {
-        (const_cast<Atom*>(this))->getReply();
+    operator xcb_atom_t() const
+    {
+        (const_cast<Atom *>(this))->getReply();
         return m_atom;
     }
 
-    const QByteArray &name() const {
+    const QByteArray &name() const
+    {
         return m_name;
     }
 
 private:
-    void getReply() {
+    void getReply()
+    {
         if (m_retrieved || !m_cookie.sequence) {
             return;
         }
@@ -118,7 +124,7 @@ private:
 
 inline xcb_window_t rootWindow(xcb_connection_t *c, int screen)
 {
-    xcb_screen_iterator_t iter = xcb_setup_roots_iterator (xcb_get_setup (c));
+    xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(c));
     for (xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(c));
             it.rem;
             --screen, xcb_screen_next(&it)) {

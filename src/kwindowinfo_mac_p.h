@@ -30,18 +30,26 @@
 #undef check
 #endif
 
-struct KWindowInfo::Private
-{
+struct KWindowInfo::Private {
     Private();
     ~Private();
     int ref;
     WId win;
     bool isLocal;
-    AXUIElementRef axElement() const { return m_axWin; }
-    void setAxElement(const AXUIElementRef& axWin);
-    ProcessSerialNumber psn() const { return m_psn; }
-    pid_t pid() const { return m_pid; }
-    void setProcessSerialNumber(const ProcessSerialNumber& psn);
+    AXUIElementRef axElement() const
+    {
+        return m_axWin;
+    }
+    void setAxElement(const AXUIElementRef &axWin);
+    ProcessSerialNumber psn() const
+    {
+        return m_psn;
+    }
+    pid_t pid() const
+    {
+        return m_pid;
+    }
+    void setProcessSerialNumber(const ProcessSerialNumber &psn);
     QString name;
 #ifdef Q_OS_MAC32
     FSSpec iconSpec;
@@ -51,11 +59,11 @@ struct KWindowInfo::Private
     bool loadedData;
     void updateData();
     AXUIElementRef m_axWin;
-    QList<KWindowInfo::Private*> children;
-    KWindowInfo::Private* parent;
+    QList<KWindowInfo::Private *> children;
+    KWindowInfo::Private *parent;
 private:
-    Private( const Private& );
-	void operator=( const Private& );
+    Private(const Private &);
+    void operator=(const Private &);
     ProcessSerialNumber m_psn;
     pid_t m_pid;
 };

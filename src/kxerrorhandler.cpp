@@ -34,132 +34,133 @@
 class KXErrorHandlerPrivate
 {
 public:
-    KXErrorHandlerPrivate( Display* dpy ) :
-        first_request( XNextRequest( dpy )),
-        display( dpy ),
-        was_error( false )
+    KXErrorHandlerPrivate(Display *dpy) :
+        first_request(XNextRequest(dpy)),
+        display(dpy),
+        was_error(false)
     {
     }
     unsigned long first_request;
-    Display* display;
+    Display *display;
     bool was_error;
     XErrorEvent error_event;
 };
 
-KXErrorHandler** KXErrorHandler::handlers = NULL;
+KXErrorHandler **KXErrorHandler::handlers = NULL;
 int KXErrorHandler::pos = 0;
 int KXErrorHandler::size = 0;
 
-KXErrorHandler::KXErrorHandler( Display* dpy )
-    :   user_handler1( NULL ),
-        user_handler2( NULL ),
-        old_handler( XSetErrorHandler( handler_wrapper )),
-        d( new KXErrorHandlerPrivate(dpy) )
-    {
+KXErrorHandler::KXErrorHandler(Display *dpy)
+    :   user_handler1(NULL),
+        user_handler2(NULL),
+        old_handler(XSetErrorHandler(handler_wrapper)),
+        d(new KXErrorHandlerPrivate(dpy))
+{
     addHandler();
-    }
+}
 
-KXErrorHandler::KXErrorHandler( int (*handler)( Display*, XErrorEvent* ), Display* dpy )
-    :   user_handler1( NULL ),
-        user_handler2( handler ),
-        old_handler( XSetErrorHandler( handler_wrapper )),
-        d( new KXErrorHandlerPrivate(dpy) )
-    {
+KXErrorHandler::KXErrorHandler(int (*handler)(Display *, XErrorEvent *), Display *dpy)
+    :   user_handler1(NULL),
+        user_handler2(handler),
+        old_handler(XSetErrorHandler(handler_wrapper)),
+        d(new KXErrorHandlerPrivate(dpy))
+{
     addHandler();
-    }
+}
 
 KXErrorHandler::~KXErrorHandler()
-    {
-    XSetErrorHandler( old_handler );
-    Q_ASSERT_X( this == handlers[ pos-1 ], "KXErrorHandler", "out of order" );
+{
+    XSetErrorHandler(old_handler);
+    Q_ASSERT_X(this == handlers[ pos - 1 ], "KXErrorHandler", "out of order");
     --pos;
     delete d;
-    }
+}
 
 void KXErrorHandler::addHandler()
-    {
-    if( size == pos )
-        {
+{
+    if (size == pos) {
         size += 16;
-        handlers = static_cast< KXErrorHandler** >( realloc( handlers, size * sizeof( KXErrorHandler* )));
-        }
+        handlers = static_cast< KXErrorHandler ** >(realloc(handlers, size * sizeof(KXErrorHandler *)));
+    }
     handlers[ pos++ ] = this;
-    }
+}
 
-bool KXErrorHandler::error( bool sync ) const
-    {
-    if( sync )
-        XSync( d->display, False );
-    return d->was_error;
+bool KXErrorHandler::error(bool sync) const
+{
+    if (sync) {
+        XSync(d->display, False);
     }
+    return d->was_error;
+}
 
 XErrorEvent KXErrorHandler::errorEvent() const
-    {
+{
     return d->error_event;
-    }
+}
 
-int KXErrorHandler::handler_wrapper( Display* dpy, XErrorEvent* e )
-    {
+int KXErrorHandler::handler_wrapper(Display *dpy, XErrorEvent *e)
+{
     --pos;
-    int ret = handlers[ pos ]->handle( dpy, e );
+    int ret = handlers[ pos ]->handle(dpy, e);
     ++pos;
     return ret;
-    }
+}
 
-int KXErrorHandler::handle( Display* dpy, XErrorEvent* e )
-    {
-    if( dpy == d->display
-        // e->serial >= d->first_request , compare like X timestamps to handle wrapping
-        && NET::timestampCompare( e->serial, d->first_request ) >= 0 )
-        { // it's for us
+int KXErrorHandler::handle(Display *dpy, XErrorEvent *e)
+{
+    if (dpy == d->display
+            // e->serial >= d->first_request , compare like X timestamps to handle wrapping
+            && NET::timestampCompare(e->serial, d->first_request) >= 0) {
+        // it's for us
         //qDebug( "Handling: %p", static_cast< void* >( this ));
         bool error = false;
-        if( user_handler1 != NULL )
-            {
-            if( user_handler1( e->request_code, e->error_code, e->resourceid ))
+        if (user_handler1 != NULL) {
+            if (user_handler1(e->request_code, e->error_code, e->resourceid)) {
                 error = true;
             }
-        else if( user_handler2 != NULL )
-            {
-            if( user_handler2( dpy, e ) != 0 )
+        } else if (user_handler2 != NULL) {
+            if (user_handler2(dpy, e) != 0) {
                 error = true;
             }
-        else // no handler set, simply set that there was an error
+        } else { // no handler set, simply set that there was an error
             error = true;
-        if( error && !d->was_error )
-            { // only remember the first
+        }
+        if (error && !d->was_error) {
+            // only remember the first
             d->was_error = true;
             d->error_event = *e;
-            }
-        return 0;
         }
-    //qDebug( "Going deeper: %p", static_cast< void* >( this ));
-    return old_handler( dpy, e );
+        return 0;
     }
+    //qDebug( "Going deeper: %p", static_cast< void* >( this ));
+    return old_handler(dpy, e);
+}
 
-QByteArray KXErrorHandler::errorMessage( const XErrorEvent& event, Display* dpy )
-    { // "Error: <error> (<value>), Request: <request>(<value>), Resource: <value>"
+QByteArray KXErrorHandler::errorMessage(const XErrorEvent &event, Display *dpy)
+{
+    // "Error: <error> (<value>), Request: <request>(<value>), Resource: <value>"
     QByteArray ret;
     char tmp[ 256 ];
     char num[ 256 ];
 #if 0 // see below
-    if( event.request_code < 128 ) // core request
+    if (event.request_code < 128)  // core request
 #endif
-        {
-        XGetErrorText( dpy, event.error_code, tmp, 255 );
-        if( char* paren = strchr( tmp, '(' )) // the explanation in parentheses just makes
-            *paren = '\0';                     // it more verbose and is not really useful
-        // the various casts are to get overloads non-ambiguous :-/
-        ret = QByteArray( "error: " ) + (const char*)tmp + '[' + QByteArray::number( event.error_code ) + ']';
-        sprintf( num, "%d", event.request_code );
-        XGetErrorDatabaseText( dpy, "XRequest", num, "<unknown>", tmp, 256 );
-        ret += QByteArray( ", request: " ) + (const char*)tmp + '[' + QByteArray::number( event.request_code ) + ']';
-        if( event.resourceid != 0 )
-            ret += QByteArray( ", resource: 0x" ) + QByteArray::number( (qlonglong)event.resourceid, 16 );
+    {
+        XGetErrorText(dpy, event.error_code, tmp, 255);
+        if (char *paren = strchr(tmp, '(')) { // the explanation in parentheses just makes
+            *paren = '\0';    // it more verbose and is not really useful
         }
+        // the various casts are to get overloads non-ambiguous :-/
+        ret = QByteArray("error: ") + (const char *)tmp + '[' + QByteArray::number(event.error_code) + ']';
+        sprintf(num, "%d", event.request_code);
+        XGetErrorDatabaseText(dpy, "XRequest", num, "<unknown>", tmp, 256);
+        ret += QByteArray(", request: ") + (const char *)tmp + '[' + QByteArray::number(event.request_code) + ']';
+        if (event.resourceid != 0) {
+            ret += QByteArray(", resource: 0x") + QByteArray::number((qlonglong)event.resourceid, 16);
+        }
+    }
 #if 0
-    else // extensions
-        {
+    else { // extensions
         // XGetErrorText() currently has a bug that makes it fail to find text
         // for some errors (when error==error_base), also XGetErrorDatabaseText()
         // requires the right extension name, so it is needed to get info about
@@ -169,82 +170,80 @@ QByteArray KXErrorHandler::errorMessage( const XErrorEvent& event, Display* dpy 
         // - Fetching it at startup means a bunch of roundtrips.
         // So if this becomes more useful in the future, do the roundtrips at startup,
         // or fetch it in kded and export as an env.var or something.
-        Display* dpy2 = XOpenDisplay( XDisplayString( dpy ));
+        Display *dpy2 = XOpenDisplay(XDisplayString(dpy));
         int nextensions;
-        char** extensions = XListExtensions( dpy2, &nextensions );
-        int* majors = NULL;
-        int* error_bases = NULL;
-        if( extensions == NULL )
+        char **extensions = XListExtensions(dpy2, &nextensions);
+        int *majors = NULL;
+        int *error_bases = NULL;
+        if (extensions == NULL) {
             nextensions = 0;
-        else
-            {
+        } else {
             majors = new int[ nextensions ];
             error_bases = new int[ nextensions ];
-            for( int i = 0;
-                 i < nextensions;
-                 ++i )
-                {
+            for (int i = 0;
+                    i < nextensions;
+                    ++i) {
                 int dummy;
-                if( !XQueryExtension( dpy2, extensions[ i ], &majors[ i ], &dummy, &error_bases[ i ] ))
-                    {
+                if (!XQueryExtension(dpy2, extensions[ i ], &majors[ i ], &dummy, &error_bases[ i ])) {
                     majors[ i ] = 0;
                     error_bases[ i ] = 0;
-                    }
                 }
             }
-        XGetErrorText( dpy, event.error_code, tmp, 255 );
+        }
+        XGetErrorText(dpy, event.error_code, tmp, 255);
         int index = -1;
         int base = 0;
-        for( int i = 0;
-             i < nextensions;
-             ++i )
-            if( error_bases[ i ] != 0
-                && event.error_code >= error_bases[ i ] && ( index == -1 || error_bases[ i ] > base ))
-                {
+        for (int i = 0;
+                i < nextensions;
+                ++i)
+            if (error_bases[ i ] != 0
+                    && event.error_code >= error_bases[ i ] && (index == -1 || error_bases[ i ] > base)) {
                 index = i;
                 base = error_bases[ i ];
-                }
-        if( tmp == QString::number( event.error_code )) // XGetErrorText() failed,
-            { // or it has a bug that causes not finding all errors, check ourselves
-            if( index != -1 )
-                {
-                qsnprintf( num, 255, "%s.%d", extensions[ index ], event.error_code - base );
-                XGetErrorDatabaseText( dpy, "XProtoError", num, "<unknown>", tmp, 255 );
-                }
-            else
-                strcpy( tmp, "<unknown>" );
             }
-        if( char* paren = strchr( tmp, '(' ))
+        if (tmp == QString::number(event.error_code)) { // XGetErrorText() failed,
+            // or it has a bug that causes not finding all errors, check ourselves
+            if (index != -1) {
+                qsnprintf(num, 255, "%s.%d", extensions[ index ], event.error_code - base);
+                XGetErrorDatabaseText(dpy, "XProtoError", num, "<unknown>", tmp, 255);
+            } else {
+                strcpy(tmp, "<unknown>");
+            }
+        }
+        if (char *paren = strchr(tmp, '(')) {
             *paren = '\0';
-        if( index != -1 )
-            ret = QByteArray( "error: " ) + (const char*)tmp + '[' + (const char*)extensions[ index ]
-                + '+' + QByteArray::number( event.error_code - base ) + ']';
-        else
-            ret = QByteArray( "error: " ) + (const char*)tmp + '[' + QByteArray::number( event.error_code ) + ']';
+        }
+        if (index != -1)
+            ret = QByteArray("error: ") + (const char *)tmp + '[' + (const char *)extensions[ index ]
+                  + '+' + QByteArray::number(event.error_code - base) + ']';
+        else {
+            ret = QByteArray("error: ") + (const char *)tmp + '[' + QByteArray::number(event.error_code) + ']';
+        }
         tmp[ 0 ] = '\0';
-        for( int i = 0;
-             i < nextensions;
-             ++i )
-            if( majors[ i ] == event.request_code )
-                {
-                qsnprintf( num, 255, "%s.%d", extensions[ i ], event.minor_code );
-                XGetErrorDatabaseText( dpy, "XRequest", num, "<unknown>", tmp, 255 );
-                ret += QByteArray( ", request: " ) + (const char*)tmp + '[' + (const char*)extensions[ i ] + '+'
-                    + QByteArray::number( event.minor_code ) + ']';
-                }
-        if( tmp[ 0 ] == '\0' ) // not found???
-            ret += QByteArray( ", request <unknown> [" ) + QByteArray::number( event.request_code ) + ':'
-                + QByteArray::number( event.minor_code ) + ']';
-        if( event.resourceid != 0 )
-            ret += QByteArray( ", resource: 0x" ) + QByteArray::number( (qlonglong)event.resourceid, 16 );
-        if( extensions != NULL )
-            XFreeExtensionList( extensions );
+        for (int i = 0;
+                i < nextensions;
+                ++i)
+            if (majors[ i ] == event.request_code) {
+                qsnprintf(num, 255, "%s.%d", extensions[ i ], event.minor_code);
+                XGetErrorDatabaseText(dpy, "XRequest", num, "<unknown>", tmp, 255);
+                ret += QByteArray(", request: ") + (const char *)tmp + '[' + (const char *)extensions[ i ] + '+'
+                       + QByteArray::number(event.minor_code) + ']';
+            }
+        if (tmp[ 0 ] == '\0')  // not found???
+            ret += QByteArray(", request <unknown> [") + QByteArray::number(event.request_code) + ':'
+                   + QByteArray::number(event.minor_code) + ']';
+        if (event.resourceid != 0) {
+            ret += QByteArray(", resource: 0x") + QByteArray::number((qlonglong)event.resourceid, 16);
+        }
+        if (extensions != NULL) {
+            XFreeExtensionList(extensions);
+        }
         delete[] majors;
         delete[] error_bases;
-        XCloseDisplay( dpy2 );
-        }
+        XCloseDisplay(dpy2);
+    }
 #endif
     return ret;
-    }
+}
 
 #endif

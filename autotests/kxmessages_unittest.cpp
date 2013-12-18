@@ -27,7 +27,8 @@ class KXMessages_UnitTest : public QObject
     Q_OBJECT
 public:
     KXMessages_UnitTest()
-        : m_msgs() {
+        : m_msgs()
+    {
     }
 
 private Q_SLOTS:
@@ -45,7 +46,7 @@ void KXMessages_UnitTest::testStart()
     // Check that all message sizes work, i.e. no bug when exactly 20 or 40 bytes,
     // despite the internal splitting.
     QString message;
-    for (int i = 1 ; i < 50 ; ++i) {
+    for (int i = 1; i < 50; ++i) {
         QSignalSpy spy(&receiver, SIGNAL(gotMessage(QString)));
         message += "a";
         m_msgs.broadcastMessage(type, message);

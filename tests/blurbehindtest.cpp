@@ -30,7 +30,7 @@ class BlurTestWindow: public QWidget
 public:
     BlurTestWindow();
 
-    virtual void resizeEvent(QResizeEvent*) Q_DECL_OVERRIDE;
+    virtual void resizeEvent(QResizeEvent *) Q_DECL_OVERRIDE;
 
 private:
     QPushButton *m_btnNothing;
@@ -107,8 +107,7 @@ void BlurTestWindow::enableBlurEllipse()
     repaint();
 }
 
-
-void BlurTestWindow::resizeEvent(QResizeEvent*)
+void BlurTestWindow::resizeEvent(QResizeEvent *)
 {
     if (m_state == Rect) {
         enableBlurRect();
@@ -116,7 +115,6 @@ void BlurTestWindow::resizeEvent(QResizeEvent*)
         enableBlurEllipse();
     }
 }
-
 
 void BlurTestWindow::setWindowAlpha(int alpha)
 {
@@ -126,7 +124,6 @@ void BlurTestWindow::setWindowAlpha(int alpha)
     pal.setColor(QPalette::Window, windowColor);
     this->setPalette(pal);
 }
-
 
 int main(int argc, char **argv)
 {

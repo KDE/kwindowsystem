@@ -36,9 +36,11 @@
 // private class
 // #define EXPERIMENTAL_WINDOW_TRACKING
 
-static bool operator<(const ProcessSerialNumber& a, const ProcessSerialNumber& b)
+static bool operator<(const ProcessSerialNumber &a, const ProcessSerialNumber &b)
 {
-    if (a.lowLongOfPSN != b.lowLongOfPSN) return a.lowLongOfPSN < b.lowLongOfPSN;
+    if (a.lowLongOfPSN != b.lowLongOfPSN) {
+        return a.lowLongOfPSN < b.lowLongOfPSN;
+    }
     return a.highLongOfPSN < b.highLongOfPSN;
 }
 
@@ -64,36 +66,40 @@ public:
     EventTypeSpec m_eventType[2];
     EventHandlerRef m_curHandler;
 
-    void applicationLaunched(const ProcessSerialNumber& psn);
-    void applicationTerminated(const ProcessSerialNumber& psn);
+    void applicationLaunched(const ProcessSerialNumber &psn);
+    void applicationTerminated(const ProcessSerialNumber &psn);
 
     bool m_noEmit;
     bool waitingForTimer;
 
 #ifdef EXPERIMENTAL_WINDOW_TRACKING
-    void newWindow(AXUIElementRef element, void* windowInfoPrivate);
-    void windowClosed(AXUIElementRef element, void* windowInfoPrivate);
+    void newWindow(AXUIElementRef element, void *windowInfoPrivate);
+    void windowClosed(AXUIElementRef element, void *windowInfoPrivate);
 #endif
 
-    static KWindowSystemPrivate* self() { return KWindowSystem::s_d_func(); }
+    static KWindowSystemPrivate *self()
+    {
+        return KWindowSystem::s_d_func();
+    }
 #ifdef EXPERIMENTAL_WINDOW_TRACKING
 public Q_SLOTS:
     void tryRegisterProcess();
 #endif
 };
 
-class KWindowSystemStaticContainer {
+class KWindowSystemStaticContainer
+{
 public:
-    KWindowSystemStaticContainer() : d (new KWindowSystemPrivate) { }
+    KWindowSystemStaticContainer() : d(new KWindowSystemPrivate) { }
     KWindowSystem kwm;
-    KWindowSystemPrivate* d;
+    KWindowSystemPrivate *d;
 };
 
 KWINDOWSYSTEM_GLOBAL_STATIC(KWindowSystemStaticContainer, g_kwmInstanceContainer)
 
-static OSStatus applicationEventHandler(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void * inUserData)
+static OSStatus applicationEventHandler(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData)
 {
-    KWindowSystemPrivate* d = (KWindowSystemPrivate*) inUserData;
+    KWindowSystemPrivate *d = (KWindowSystemPrivate *) inUserData;
 
     UInt32 kind;
 
@@ -114,12 +120,12 @@ static OSStatus applicationEventHandler(EventHandlerCallRef inHandlerCallRef, Ev
 }
 
 #ifdef EXPERIMENTAL_WINDOW_TRACKING
-static void windowClosedObserver(AXObserverRef observer, AXUIElementRef element, CFStringRef notification, void* refcon)
+static void windowClosedObserver(AXObserverRef observer, AXUIElementRef element, CFStringRef notification, void *refcon)
 {
     KWindowSystemPrivate::self()->windowClosed(element, refcon);
 }
 
-static void newWindowObserver(AXObserverRef observer, AXUIElementRef element, CFStringRef notification, void* refcon)
+static void newWindowObserver(AXObserverRef observer, AXUIElementRef element, CFStringRef notification, void *refcon)
 {
     KWindowSystemPrivate::self()->newWindow(element, refcon);
 }
@@ -153,7 +159,8 @@ KWindowSystemPrivate::KWindowSystemPrivate()
 #endif
 }
 
-void KWindowSystemPrivate::applicationLaunched(const ProcessSerialNumber& psn) {
+void KWindowSystemPrivate::applicationLaunched(const ProcessSerialNumber &psn)
+{
 #ifdef Q_OS_MAC32
     qDebug() << "new app: " << psn.lowLongOfPSN << ":" << psn.highLongOfPSN;
     ProcessInfoRec pinfo;
@@ -162,7 +169,9 @@ void KWindowSystemPrivate::applicationLaunched(const ProcessSerialNumber& psn) {
     pinfo.processName = 0;
     pinfo.processAppSpec = &appSpec;
     GetProcessInformation(&psn, &pinfo);
-    if ((pinfo.processMode & modeOnlyBackground) != 0) return;
+    if ((pinfo.processMode & modeOnlyBackground) != 0) {
+        return;
+    }
     // found a process, create a pseudo-window for it
 
     KWindowInfo winfo(0, 0);
@@ -174,7 +183,9 @@ void KWindowSystemPrivate::applicationLaunched(const ProcessSerialNumber& psn) {
     qDebug() << "  pid:" << pid;
     AXUIElementRef app = AXUIElementCreateApplication(pid);
     winfo.d->setAxElement(app);
-    if (!m_noEmit) emit KWindowSystem::self()->windowAdded(winfo.win());
+    if (!m_noEmit) {
+        emit KWindowSystem::self()->windowAdded(winfo.win());
+    }
 
 #ifdef EXPERIMENTAL_WINDOW_TRACKING
     // create an observer and listen for new window events
@@ -194,17 +205,17 @@ void KWindowSystemPrivate::applicationLaunched(const ProcessSerialNumber& psn) {
             QTimer::singleShot(500, this, SLOT(tryRegisterProcess()));
             nonProcessedWindows.append(winfo);
             return;
-        } else
+        } else {
             qDebug() << "Added notification and observer";
+        }
     } else {
         qDebug() << "Error creating observer";
     }
 
-
     CFIndex windowsInApp;
     AXUIElementGetAttributeValueCount(app, kAXWindowsAttribute, &windowsInApp);
     CFArrayRef array;
-    AXUIElementCopyAttributeValue(app, kAXWindowsAttribute, (CFTypeRef*)&array);
+    AXUIElementCopyAttributeValue(app, kAXWindowsAttribute, (CFTypeRef *)&array);
     for (CFIndex j = 0; j < windowsInApp; j++) {
         AXUIElementRef win = (AXUIElementRef) CFArrayGetValueAtIndex(array, j);
         newWindow(win, winfo.d);
@@ -231,15 +242,16 @@ void KWindowSystemPrivate::tryRegisterProcess()
         observer = newWindowObservers[pid];
         if ((err = AXObserverAddNotification(observer, app, kAXWindowCreatedNotification, winfo.d)) != noErr) {
             qDebug() << "Error " << err << " adding notification to observer";
-        } else
+        } else {
             qDebug() << "Added notification and observer";
+        }
 
         observer = windowClosedObservers[pid];
 
         CFIndex windowsInApp;
         AXUIElementGetAttributeValueCount(app, kAXWindowsAttribute, &windowsInApp);
         CFArrayRef array;
-        AXUIElementCopyAttributeValue(app, kAXWindowsAttribute, (CFTypeRef*)&array);
+        AXUIElementCopyAttributeValue(app, kAXWindowsAttribute, (CFTypeRef *)&array);
         for (CFIndex j = 0; j < windowsInApp; j++) {
             AXUIElementRef win = (AXUIElementRef) CFArrayGetValueAtIndex(array, j);
             newWindow(win, winfo.d);
@@ -248,13 +260,13 @@ void KWindowSystemPrivate::tryRegisterProcess()
 }
 #endif
 
-void KWindowSystemPrivate::applicationTerminated(const ProcessSerialNumber& psn)
+void KWindowSystemPrivate::applicationTerminated(const ProcessSerialNumber &psn)
 {
     qDebug() << "Terminated PSN: " << psn.lowLongOfPSN << ":" << psn.highLongOfPSN;
     WId id = processes[psn];
     if (windows.contains(id)) {
         KWindowInfo winfo = windows[id];
-        foreach (KWindowInfo::Private* wi, winfo.d->children) {
+        foreach (KWindowInfo::Private *wi, winfo.d->children) {
             winids.removeAll(wi->win);
             emit KWindowSystem::self()->windowRemoved(wi->win);
         }
@@ -264,22 +276,24 @@ void KWindowSystemPrivate::applicationTerminated(const ProcessSerialNumber& psn)
 }
 
 #ifdef EXPERIMENTAL_WINDOW_TRACKING
-void KWindowSystemPrivate::windowClosed(AXUIElementRef element, void* refcon)
+void KWindowSystemPrivate::windowClosed(AXUIElementRef element, void *refcon)
 {
     qDebug() << "Received window closed notification";
 
-    KWindowInfo::Private* wind = (KWindowInfo::Private*) refcon; // window being closed
-    KWindowInfo::Private* parent = wind->parent;
+    KWindowInfo::Private *wind = (KWindowInfo::Private *) refcon; // window being closed
+    KWindowInfo::Private *parent = wind->parent;
     parent->children.removeAll(wind);
     winids.removeAll(wind->win);
-    if (!m_noEmit) emit KWindowSystem::self()->windowRemoved(wind->win);
+    if (!m_noEmit) {
+        emit KWindowSystem::self()->windowRemoved(wind->win);
+    }
 }
 
-void KWindowSystemPrivate::newWindow(AXUIElementRef win, void* refcon)
+void KWindowSystemPrivate::newWindow(AXUIElementRef win, void *refcon)
 {
     qDebug() << "Received new window notification";
 
-    KWindowInfo::Private* winfod = (KWindowInfo::Private*) refcon;
+    KWindowInfo::Private *winfod = (KWindowInfo::Private *) refcon;
     pid_t pid = winfod->pid();
     ProcessSerialNumber psn = winfod->psn();
     AXObserverRef observer = windowClosedObservers[pid];
@@ -298,21 +312,23 @@ void KWindowSystemPrivate::newWindow(AXUIElementRef win, void* refcon)
     win2.d->setAxElement(win);
     winfod->children.append(win2.d);
     win2.d->parent = winfod;
-    if (!m_noEmit) emit KWindowSystem::self()->windowAdded(win2.win());
+    if (!m_noEmit) {
+        emit KWindowSystem::self()->windowAdded(win2.win());
+    }
 }
 #endif
 
-KWindowSystem* KWindowSystem::self()
+KWindowSystem *KWindowSystem::self()
 {
     return &(g_kwmInstanceContainer->kwm);
 }
 
-KWindowSystemPrivate* KWindowSystem::s_d_func()
+KWindowSystemPrivate *KWindowSystem::s_d_func()
 {
     return g_kwmInstanceContainer->d;
 }
 
-const QList<WId>& KWindowSystem::windows()
+const QList<WId> &KWindowSystem::windows()
 {
     KWindowSystemPrivate *d = KWindowSystem::s_d_func();
     return d->winids;
@@ -324,13 +340,13 @@ bool KWindowSystem::hasWId(WId id)
     return d->windows.contains(id);
 }
 
-KWindowInfo KWindowSystem::windowInfo( WId win, unsigned long properties, unsigned long properties2 )
+KWindowInfo KWindowSystem::windowInfo(WId win, unsigned long properties, unsigned long properties2)
 {
     KWindowSystemPrivate *d = KWindowSystem::s_d_func();
     if (d->windows.contains(win)) {
         return d->windows[win];
     } else {
-        return KWindowInfo( win, properties, properties2 );
+        return KWindowInfo(win, properties, properties2);
     }
 }
 
@@ -349,7 +365,7 @@ WId KWindowSystem::activeWindow()
     return 0;
 }
 
-void KWindowSystem::activateWindow( WId win, long time )
+void KWindowSystem::activateWindow(WId win, long time)
 {
     //TODO
     qDebug() << "KWindowSystem::activateWindow( WId win, long time )isn't yet implemented!";
@@ -360,14 +376,14 @@ void KWindowSystem::activateWindow( WId win, long time )
     }
 }
 
-void KWindowSystem::forceActiveWindow( WId win, long time )
+void KWindowSystem::forceActiveWindow(WId win, long time)
 {
     //TODO
     qDebug() << "KWindowSystem::forceActiveWindow( WId win, long time ) isn't yet implemented!";
     activateWindow(win, time);
 }
 
-void KWindowSystem::demandAttention( WId win, bool set )
+void KWindowSystem::demandAttention(WId win, bool set)
 {
     //TODO
     qDebug() << "KWindowSystem::demandAttention( WId win, bool set ) isn't yet implemented!";
@@ -388,31 +404,31 @@ int KWindowSystem::numberOfDesktops()
     return 1;
 }
 
-void KWindowSystem::setCurrentDesktop( int desktop )
+void KWindowSystem::setCurrentDesktop(int desktop)
 {
     qDebug() << "KWindowSystem::setCurrentDesktop( int desktop ) isn't yet implemented!";
     //TODO
 }
 
-void KWindowSystem::setOnAllDesktops( WId win, bool b )
+void KWindowSystem::setOnAllDesktops(WId win, bool b)
 {
     qDebug() << "KWindowSystem::setOnAllDesktops( WId win, bool b ) isn't yet implemented!";
     //TODO
 }
 
-void KWindowSystem::setOnDesktop( WId win, int desktop )
+void KWindowSystem::setOnDesktop(WId win, int desktop)
 {
     //TODO
     qDebug() << "KWindowSystem::setOnDesktop( WId win, int desktop ) isn't yet implemented!";
 }
 
-void KWindowSystem::setMainWindow( QWidget* subwindow, WId id )
+void KWindowSystem::setMainWindow(QWidget *subwindow, WId id)
 {
     qDebug() << "KWindowSystem::setMainWindow( QWidget*, WId ) isn't yet implemented!";
     //TODO
 }
 
-QPixmap KWindowSystem::icon( WId win, int width, int height, bool scale )
+QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale)
 {
     if (hasWId(win)) {
         KWindowInfo info = windowInfo(win, 0);
@@ -425,7 +441,7 @@ QPixmap KWindowSystem::icon( WId win, int width, int height, bool scale )
         OSErr err = GetIconRefFromFile(&info.d->iconSpec, &icon, &label);
 #else
         OSStatus err = GetIconRefFromFileInfo(&info.d->iconSpec, 0, 0,
-                kIconServicesCatalogInfoMask, 0, kIconServicesNormalUsageFlag, &icon, &label);
+                                              kIconServicesCatalogInfoMask, 0, kIconServicesNormalUsageFlag, &icon, &label);
 #endif
         if (err != noErr) {
             qDebug() << "Error getting icon from application";
@@ -442,7 +458,7 @@ QPixmap KWindowSystem::icon( WId win, int width, int height, bool scale )
             CGContextConcatCTM(ctx, CGAffineTransformIdentity);
 
             ::RGBColor b;
-            b.blue = b.green = b.red = 255*255;
+            b.blue = b.green = b.red = 255 * 255;
             PlotIconRefInContext(ctx, &rect, kAlignNone, kTransformNone, &b, kPlotIconRefNormalFlags, icon);
             CGContextRelease(ctx);
 
@@ -455,28 +471,30 @@ QPixmap KWindowSystem::icon( WId win, int width, int height, bool scale )
     }
 }
 
-QPixmap KWindowSystem::icon( WId win, int width, int height, bool scale, int flags )
+QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int flags)
 {
     return icon(win, width, height, scale);
 //    qDebug() << "QPixmap KWindowSystem::icon( WId win, int width, int height, bool scale, int flags ) isn't yet implemented!";
 }
 
-void KWindowSystem::setIcons( WId win, const QPixmap& icon, const QPixmap& miniIcon )
+void KWindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon)
 {
     //TODO
     qDebug() << "KWindowSystem::setIcons( WId win, const QPixmap& icon, const QPixmap& miniIcon ) isn't yet implemented!";
 }
 
-void KWindowSystem::setType( WId winid, NET::WindowType windowType )
+void KWindowSystem::setType(WId winid, NET::WindowType windowType)
 {
 #ifdef Q_OS_MAC32
     // not supported for 'global' windows; only for windows in the current process
-    if (hasWId(winid)) return;
+    if (hasWId(winid)) {
+        return;
+    }
 
     static WindowGroupRef desktopGroup = 0;
     static WindowGroupRef dockGroup = 0;
 
-    WindowRef win = HIViewGetWindow( (HIViewRef) winid );
+    WindowRef win = HIViewGetWindow((HIViewRef) winid);
     //TODO: implement other types than Desktop and Dock
     if (windowType != NET::Desktop && windowType != NET::Dock) {
         qDebug() << "setType( WId win, NET::WindowType windowType ) isn't yet implemented for the type you requested!";
@@ -500,40 +518,40 @@ void KWindowSystem::setType( WId winid, NET::WindowType windowType )
 #endif
 }
 
-void KWindowSystem::setState( WId win, unsigned long state )
+void KWindowSystem::setState(WId win, unsigned long state)
 {
-   //TODO
-   qDebug() << "KWindowSystem::setState( WId win, unsigned long state ) isn't yet implemented!";
+    //TODO
+    qDebug() << "KWindowSystem::setState( WId win, unsigned long state ) isn't yet implemented!";
 }
 
-void KWindowSystem::clearState( WId win, unsigned long state )
+void KWindowSystem::clearState(WId win, unsigned long state)
 {
     //TODO
     qDebug() << "KWindowSystem::clearState( WId win, unsigned long state ) isn't yet implemented!";
 }
 
-void KWindowSystem::minimizeWindow( WId win, bool animation)
+void KWindowSystem::minimizeWindow(WId win, bool animation)
 {
-     //TODO
-     qDebug() << "KWindowSystem::minimizeWindow( WId win, bool animation) isn't yet implemented!";
+    //TODO
+    qDebug() << "KWindowSystem::minimizeWindow( WId win, bool animation) isn't yet implemented!";
 }
 
-void KWindowSystem::unminimizeWindow( WId win, bool animation )
+void KWindowSystem::unminimizeWindow(WId win, bool animation)
 {
-     //TODO
-     qDebug() << "KWindowSystem::unminimizeWindow( WId win, bool animation ) isn't yet implemented!";
+    //TODO
+    qDebug() << "KWindowSystem::unminimizeWindow( WId win, bool animation ) isn't yet implemented!";
 }
 
-void KWindowSystem::raiseWindow( WId win )
+void KWindowSystem::raiseWindow(WId win)
 {
-     //TODO
-     qDebug() << "KWindowSystem::raiseWindow( WId win ) isn't yet implemented!";
+    //TODO
+    qDebug() << "KWindowSystem::raiseWindow( WId win ) isn't yet implemented!";
 }
 
-void KWindowSystem::lowerWindow( WId win )
+void KWindowSystem::lowerWindow(WId win)
 {
-     //TODO
-     qDebug() << "KWindowSystem::lowerWindow( WId win ) isn't yet implemented!";
+    //TODO
+    qDebug() << "KWindowSystem::lowerWindow( WId win ) isn't yet implemented!";
 }
 
 bool KWindowSystem::icccmCompliantMappingState()
@@ -541,28 +559,28 @@ bool KWindowSystem::icccmCompliantMappingState()
     return false;
 }
 
-QRect KWindowSystem::workArea( int desktop )
+QRect KWindowSystem::workArea(int desktop)
 {
     //TODO
     qDebug() << "QRect KWindowSystem::workArea( int desktop ) isn't yet implemented!";
     return QRect();
 }
 
-QRect KWindowSystem::workArea( const QList<WId>& exclude, int desktop )
+QRect KWindowSystem::workArea(const QList<WId> &exclude, int desktop)
 {
     //TODO
     qDebug() << "QRect KWindowSystem::workArea( const QList<WId>& exclude, int desktop ) isn't yet implemented!";
     return QRect();
 }
 
-QString KWindowSystem::desktopName( int desktop )
+QString KWindowSystem::desktopName(int desktop)
 {
     return tr("Desktop %1").arg(desktop);
 }
 
-void KWindowSystem::setDesktopName( int desktop, const QString& name )
+void KWindowSystem::setDesktopName(int desktop, const QString &name)
 {
-     qDebug() << "KWindowSystem::setDesktopName( int desktop, const QString& name ) isn't yet implemented!";
+    qDebug() << "KWindowSystem::setDesktopName( int desktop, const QString& name ) isn't yet implemented!";
     //TODO
 }
 
@@ -571,21 +589,21 @@ bool KWindowSystem::showingDesktop()
     return false;
 }
 
-void KWindowSystem::setUserTime( WId win, long time )
+void KWindowSystem::setUserTime(WId win, long time)
 {
     qDebug() << "KWindowSystem::setUserTime( WId win, long time ) isn't yet implemented!";
     //TODO
 }
 
-void KWindowSystem::setExtendedStrut( WId win, int left_width, int left_start, int left_end,
-                                      int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
-                                      int bottom_width, int bottom_start, int bottom_end )
+void KWindowSystem::setExtendedStrut(WId win, int left_width, int left_start, int left_end,
+                                     int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
+                                     int bottom_width, int bottom_start, int bottom_end)
 {
     qDebug() << "KWindowSystem::setExtendedStrut isn't yet implemented!";
     //TODO
 }
 
-void KWindowSystem::setStrut( WId win, int left, int right, int top, int bottom )
+void KWindowSystem::setStrut(WId win, int left, int right, int top, int bottom)
 {
     qDebug() << "KWindowSystem::setStrut isn't yet implemented!";
     //TODO
@@ -596,25 +614,25 @@ bool KWindowSystem::allowedActionsSupported()
     return false;
 }
 
-QString KWindowSystem::readNameProperty( WId window, unsigned long atom )
+QString KWindowSystem::readNameProperty(WId window, unsigned long atom)
 {
     //TODO
     qDebug() << "QString KWindowSystem::readNameProperty( WId window, unsigned long atom ) isn't yet implemented!";
     return QString();
 }
 
-void KWindowSystem::connectNotify( const char* signal )
+void KWindowSystem::connectNotify(const char *signal)
 {
     qDebug() << "connectNotify( const char* signal )  isn't yet implemented!";
     //TODO
 }
 
-void KWindowSystem::allowExternalProcessWindowActivation( int pid )
+void KWindowSystem::allowExternalProcessWindowActivation(int pid)
 {
     // Needed on mac ?
 }
 
-void KWindowSystem::setBlockingCompositing( WId window, bool active )
+void KWindowSystem::setBlockingCompositing(WId window, bool active)
 {
     //TODO
     qDebug() << "setBlockingCompositing( WId window, bool active ) isn't yet implemented!";
