@@ -63,6 +63,11 @@ void enableBlurBehind(WId window, bool enable, const QRegion &region)
     g_privateContainer->d->enableBlurBehind(window, enable, region);
 }
 
+void enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+{
+    g_privateContainer->d->enableBackgroundContrast(window, enable, contrast, intensity, saturation, region);
+}
+
 void highlightWindows(WId controller, const QList< WId > &ids)
 {
     g_privateContainer->d->highlightWindows(controller, ids);

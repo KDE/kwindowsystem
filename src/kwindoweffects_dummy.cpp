@@ -88,6 +88,16 @@ void KWindowEffectsPrivateDummy::enableBlurBehind(WId window, bool enable, const
     Q_UNUSED(region)
 }
 
+void KWindowEffectsPrivateDummy::enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+{
+    Q_UNUSED(window)
+    Q_UNUSED(enable)
+    Q_UNUSED(contrast)
+    Q_UNUSED(intensity)
+    Q_UNUSED(saturation)
+    Q_UNUSED(region)
+}
+
 void KWindowEffectsPrivateDummy::markAsDashboard(WId window)
 {
     Q_UNUSED(window)

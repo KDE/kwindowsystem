@@ -35,6 +35,7 @@ public:
     virtual void presentWindows(WId controller, int desktop = NET::OnAllDesktops) = 0;
     virtual void highlightWindows(WId controller, const QList<WId> &ids) = 0;
     virtual void enableBlurBehind(WId window, bool enable = true, const QRegion &region = QRegion()) = 0;
+    virtual void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion()) = 0;
     virtual void markAsDashboard(WId window) = 0;
 protected:
     KWindowEffectsPrivate();
@@ -54,6 +55,7 @@ public:
     void presentWindows(WId controller, int desktop = NET::OnAllDesktops) Q_DECL_OVERRIDE;
     void highlightWindows(WId controller, const QList<WId> &ids) Q_DECL_OVERRIDE;
     void enableBlurBehind(WId window, bool enable = true, const QRegion& region = QRegion()) Q_DECL_OVERRIDE;
+    void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion()) Q_DECL_OVERRIDE;
     void markAsDashboard(WId window) Q_DECL_OVERRIDE;
 };
 
@@ -72,6 +74,7 @@ public:
     void presentWindows(WId controller, int desktop = NET::OnAllDesktops) Q_DECL_OVERRIDE;
     void highlightWindows(WId controller, const QList<WId> &ids) Q_DECL_OVERRIDE;
     void enableBlurBehind(WId window, bool enable = true, const QRegion& region = QRegion()) Q_DECL_OVERRIDE;
+    void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion()) Q_DECL_OVERRIDE;
     void markAsDashboard(WId window) Q_DECL_OVERRIDE;
 };
 #endif
