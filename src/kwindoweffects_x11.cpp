@@ -26,6 +26,7 @@
 
 #include <xcb/xcb.h>
 #include <QX11Info>
+#include <QMatrix4x4>
 
 static const char *DASHBOARD_WIN_CLASS = "dashboard\0dashboard";
 
@@ -280,6 +281,70 @@ void enableBlurBehind(WId window, bool enable, const QRegion &region)
         QVector<uint32_t> data;
         Q_FOREACH (const QRect &r, rects) {
             data << r.x() << r.y() << r.width() << r.height();
+        }
+
+        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, XCB_ATOM_CARDINAL,
+                            32, data.size(), data.constData());
+    } else {
+        xcb_delete_property(c, window, atom->atom);
+    }
+}
+
+void enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+{
+    qDebug() << contrast << intensity << saturation;
+    xcb_connection_t *c = QX11Info::connection();
+    const QByteArray effectName = QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_CONTRAST_REGION");
+    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
+    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, NULL));
+    if (!atom) {
+        return;
+    }
+
+    if (enable) {
+        QVector<QRect> rects = region.rects();
+        QVector<long> data;
+        Q_FOREACH (const QRect &r, rects) {
+            data << r.x() << r.y() << r.width() << r.height();
+        }
+
+        QMatrix4x4 satMatrix; //saturation
+        QMatrix4x4 intMatrix; //intensity
+        QMatrix4x4 contMatrix; //contrast
+
+        //Saturation matrix
+        if (!qFuzzyCompare(saturation, 1.0)) {
+            const qreal rval = (1.0 - saturation) * .2126;
+            const qreal gval = (1.0 - saturation) * .7152;
+            const qreal bval = (1.0 - saturation) * .0722;
+
+            satMatrix = QMatrix4x4(rval + saturation, rval,     rval,     0.0,
+                gval,     gval + saturation, gval,     0.0,
+                bval,     bval,     bval + saturation, 0.0,
+                0,        0,        0,        1.0);
+        }
+
+        //IntensityMatrix
+        if (!qFuzzyCompare(intensity, 1.0)) {
+            intMatrix.scale(intensity, intensity, intensity);
+        }
+
+        //Contrast Matrix
+        if (!qFuzzyCompare(contrast, 1.0)) {
+            const float transl = (1.0 - contrast) / 2.0;
+
+            contMatrix = QMatrix4x4(contrast, 0,        0,        0.0,
+                0,        contrast, 0,        0.0,
+                0,        0,        contrast, 0.0,
+                transl,   transl,   transl,   1.0);
+        }
+
+        QMatrix4x4 colorMatrix = contMatrix * satMatrix * intMatrix;
+        colorMatrix = colorMatrix * 100;
+        colorMatrix = colorMatrix.transposed();
+
+        for (int i = 0; i < 16; ++i) {
+            data << (uint32_t)colorMatrix.data()[i];
         }
 
         xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, XCB_ATOM_CARDINAL,

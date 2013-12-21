@@ -82,6 +82,16 @@ void enableBlurBehind(WId window, bool enable, const QRegion &region)
     Q_UNUSED(region)
 }
 
+void enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+{
+    Q_UNUSED(window)
+    Q_UNUSED(enable)
+    Q_UNUSED(contrast)
+    Q_UNUSED(intensity)
+    Q_UNUSED(saturation)
+    Q_UNUSED(region)
+}
+
 void markAsDashboard(WId window)
 {
     Q_UNUSED(window)
