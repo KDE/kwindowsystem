@@ -12,7 +12,8 @@ set(kwindowsystem_SRCS
 
 if (HAVE_X11)
   set(kwindowsystem_SRCS ${kwindowsystem_SRCS}
-    kmanagerselection.cpp
+    kselectionowner.cpp
+    kselectionwatcher.cpp
   )
 endif()
 
@@ -50,6 +51,8 @@ add_library(KF5WindowSystem ${kwindowsystem_SRCS})
 generate_export_header(KF5WindowSystem BASE_NAME KWindowSystem)
 add_library(KF5::WindowSystem ALIAS KF5WindowSystem)
 
+target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}/kwindowsystem>" "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}/KWindowSystem>")
+
 target_link_libraries(KF5WindowSystem
   PUBLIC Qt5::Gui
   PRIVATE Qt5::Widgets ${platformLinkLibraries}
@@ -66,25 +69,34 @@ set_target_properties(KF5WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSI
                                                  EXPORT_NAME WindowSystem
 )
 
+ecm_generate_headers(
+  KKeyServer
+  KStartupInfo
+  KUserTimestamp
+  KWindowEffects
+  KWindowInfo
+  KWindowSystem
+  KXMessages
+  KSelectionOwner
+  KSelectionWatcher
+  NETWM # does not match the classnames in that file...
+  KWindowSystem
+
+  MODULE_NAME KWindowSystem
+  REQUIRED_HEADERS KWindowSystem_HEADERS
+)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/KWindowSystem DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel)
+
 install(TARGETS KF5WindowSystem EXPORT KF5WindowSystemTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
 
-install( FILES
-   fixx11h.h
-   kkeyserver.h
-   kstartupinfo.h
-   kusertimestamp.h
-   kwindoweffects.h
-   kwindowinfo.h
-   kwindowsystem.h
-   kxmessages.h
-   kmanagerselection.h
-   netwm_def.h
-   netwm.h
-
-   # FIXME: It seems odd to install this.
-   ${CMAKE_CURRENT_BINARY_DIR}/config-kwindowsystem.h
-   ${CMAKE_CURRENT_BINARY_DIR}/kwindowsystem_export.h
-   DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel
+install(FILES
+  # FIXME: It seems odd to install this.
+  ${CMAKE_CURRENT_BINARY_DIR}/config-kwindowsystem.h
+  ${CMAKE_CURRENT_BINARY_DIR}/kwindowsystem_export.h
+  ${KWindowSystem_HEADERS}
+  netwm_def.h
+  kmanagerselection.h
+  DESTINATION ${INCLUDE_INSTALL_DIR}/kwindowsystem COMPONENT Devel
 )
 
 if (APPLE)
