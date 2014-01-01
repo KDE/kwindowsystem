@@ -96,6 +96,7 @@ install(FILES
   ${KWindowSystem_HEADERS}
   netwm_def.h
   kmanagerselection.h
+  fixx11h.h
   DESTINATION ${INCLUDE_INSTALL_DIR}/kwindowsystem COMPONENT Devel
 )
 
