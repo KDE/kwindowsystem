@@ -101,9 +101,9 @@ install(FILES
 )
 
 if (APPLE)
-   install( FILES kkeyserver_mac.h DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel)
+   install( FILES kkeyserver_mac.h DESTINATION ${INCLUDE_INSTALL_DIR}/kwindowsystem COMPONENT Devel)
 elseif (WIN32)
-    install( FILES kkeyserver_win.h DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel )
+    install( FILES kkeyserver_win.h DESTINATION ${INCLUDE_INSTALL_DIR}/kwindowsystem COMPONENT Devel )
 else()
-   install( FILES kkeyserver_x11.h DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel)
+   install( FILES kkeyserver_x11.h DESTINATION ${INCLUDE_INSTALL_DIR}/kwindowsystem COMPONENT Devel)
 endif ()
