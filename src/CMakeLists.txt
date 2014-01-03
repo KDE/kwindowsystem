@@ -51,7 +51,7 @@ add_library(KF5WindowSystem ${kwindowsystem_SRCS})
 generate_export_header(KF5WindowSystem BASE_NAME KWindowSystem)
 add_library(KF5::WindowSystem ALIAS KF5WindowSystem)
 
-target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}/kwindowsystem>" "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}/KWindowSystem>")
+target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}/KWindowSystem>")
 
 target_link_libraries(KF5WindowSystem
   PUBLIC Qt5::Gui
@@ -97,13 +97,13 @@ install(FILES
   netwm_def.h
   kmanagerselection.h
   fixx11h.h
-  DESTINATION ${INCLUDE_INSTALL_DIR}/kwindowsystem COMPONENT Devel
+  DESTINATION ${INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel
 )
 
 if (APPLE)
-   install( FILES kkeyserver_mac.h DESTINATION ${INCLUDE_INSTALL_DIR}/kwindowsystem COMPONENT Devel)
+   install( FILES kkeyserver_mac.h DESTINATION ${INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel)
 elseif (WIN32)
-    install( FILES kkeyserver_win.h DESTINATION ${INCLUDE_INSTALL_DIR}/kwindowsystem COMPONENT Devel )
+    install( FILES kkeyserver_win.h DESTINATION ${INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel )
 else()
-   install( FILES kkeyserver_x11.h DESTINATION ${INCLUDE_INSTALL_DIR}/kwindowsystem COMPONENT Devel)
+   install( FILES kkeyserver_x11.h DESTINATION ${INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel)
 endif ()
