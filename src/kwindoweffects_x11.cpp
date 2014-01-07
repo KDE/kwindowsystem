@@ -89,6 +89,10 @@ bool isEffectAvailable(Effect effect)
 void slideWindow(WId id, SlideFromLocation location, int offset)
 {
     xcb_connection_t *c = QX11Info::connection();
+    if (!c) {
+        return;
+    }
+
     const QByteArray effectName = QByteArrayLiteral("_KDE_SLIDE");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
 
@@ -148,6 +152,10 @@ void showWindowThumbnails(WId parent, const QList<WId> &windows, const QList<QRe
         return;
     }
     xcb_connection_t *c = QX11Info::connection();
+    if (!c) {
+        return;
+    }
+
     const QByteArray effectName = QByteArrayLiteral("_KDE_WINDOW_PREVIEW");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
     QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, NULL));
@@ -189,6 +197,11 @@ void showWindowThumbnails(WId parent, const QList<WId> &windows, const QList<QRe
 
 void presentWindows(WId controller, const QList<WId> &ids)
 {
+    xcb_connection_t *c = QX11Info::connection();
+    if (!c) {
+        return;
+    }
+
     const int numWindows = ids.count();
     QVarLengthArray<int32_t, 32> data(numWindows);
     int actualCount = 0;
@@ -206,7 +219,7 @@ void presentWindows(WId controller, const QList<WId> &ids)
     if (data.isEmpty()) {
         return;
     }
-    xcb_connection_t *c = QX11Info::connection();
+
     const QByteArray effectName = QByteArrayLiteral("_KDE_PRESENT_WINDOWS_GROUP");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
     QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, NULL));
@@ -219,6 +232,9 @@ void presentWindows(WId controller, const QList<WId> &ids)
 void presentWindows(WId controller, int desktop)
 {
     xcb_connection_t *c = QX11Info::connection();
+    if (!c) {
+        return;
+    }
     const QByteArray effectName = QByteArrayLiteral("_KDE_PRESENT_WINDOWS_DESKTOP");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
     QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, NULL));
@@ -233,6 +249,9 @@ void presentWindows(WId controller, int desktop)
 void highlightWindows(WId controller, const QList<WId> &ids)
 {
     xcb_connection_t *c = QX11Info::connection();
+    if (!c) {
+        return;
+    }
     const QByteArray effectName = QByteArrayLiteral("_KDE_WINDOW_HIGHLIGHT");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
     QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, NULL));
@@ -268,6 +287,9 @@ void highlightWindows(WId controller, const QList<WId> &ids)
 void enableBlurBehind(WId window, bool enable, const QRegion &region)
 {
     xcb_connection_t *c = QX11Info::connection();
+    if (!c) {
+        return;
+    }
     const QByteArray effectName = QByteArrayLiteral("_KDE_NET_WM_BLUR_BEHIND_REGION");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
     QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, NULL));
@@ -291,7 +313,11 @@ void enableBlurBehind(WId window, bool enable, const QRegion &region)
 
 void markAsDashboard(WId window)
 {
-    xcb_change_property(QX11Info::connection(), XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLASS,
+    xcb_connection_t *c = QX11Info::connection();
+    if (!c) {
+        return;
+    }
+    xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLASS,
                         XCB_ATOM_STRING, 8, 19, DASHBOARD_WIN_CLASS);
 }
 
