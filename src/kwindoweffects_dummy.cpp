@@ -1,5 +1,6 @@
 /*
  *   Copyright 2009 Marco Martin <notmart@gmail.com>
+ *   Copyright 2014 Martin Gräßlin <mgraesslin@kde.org>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Library General Public License as
@@ -17,75 +18,77 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "kwindoweffects.h"
+#include "kwindoweffects_p.h"
 
-namespace KWindowEffects
+KWindowEffectsPrivateDummy::KWindowEffectsPrivateDummy()
 {
+}
 
-bool isEffectAvailable(Effect effect)
+KWindowEffectsPrivateDummy::~KWindowEffectsPrivateDummy()
+{
+}
+
+bool KWindowEffectsPrivateDummy::isEffectAvailable(KWindowEffects::Effect effect)
 {
     Q_UNUSED(effect)
     return false;
 }
 
-void slideWindow(WId id, SlideFromLocation location, int offset)
+void KWindowEffectsPrivateDummy::slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset)
 {
     Q_UNUSED(id)
     Q_UNUSED(location)
     Q_UNUSED(offset)
 }
 
-void slideWindow(QWidget *widget, SlideFromLocation location)
+void KWindowEffectsPrivateDummy::slideWindow(QWidget *widget, KWindowEffects::SlideFromLocation location)
 {
     Q_UNUSED(widget)
     Q_UNUSED(location)
 }
 
-QList<QSize> windowSizes(const QList<WId> &ids)
+QList<QSize> KWindowEffectsPrivateDummy::windowSizes(const QList<WId> &ids)
 {
     QList<QSize> windowSizes;
-    Q_FOREACH (WId id, ids) {
+    for (int i = 0; i < ids.size(); ++i) {
         windowSizes.append(QSize());
     }
     return windowSizes;
 }
 
-void showWindowThumbnails(WId parent, const QList<WId> &windows, const QList<QRect> &rects)
+void KWindowEffectsPrivateDummy::showWindowThumbnails(WId parent, const QList<WId> &windows, const QList<QRect> &rects)
 {
     Q_UNUSED(parent)
     Q_UNUSED(windows)
     Q_UNUSED(rects)
 }
 
-void presentWindows(WId controller, const QList<WId> &ids)
+void KWindowEffectsPrivateDummy::presentWindows(WId controller, const QList<WId> &ids)
 {
     Q_UNUSED(controller)
     Q_UNUSED(ids)
 }
 
-void presentWindows(WId controller, int desktop)
+void KWindowEffectsPrivateDummy::presentWindows(WId controller, int desktop)
 {
     Q_UNUSED(controller)
     Q_UNUSED(desktop)
 }
 
-void highlightWindows(WId controller, const QList<WId> &ids)
+void KWindowEffectsPrivateDummy::highlightWindows(WId controller, const QList<WId> &ids)
 {
     Q_UNUSED(controller)
     Q_UNUSED(ids)
 }
 
-void enableBlurBehind(WId window, bool enable, const QRegion &region)
+void KWindowEffectsPrivateDummy::enableBlurBehind(WId window, bool enable, const QRegion &region)
 {
     Q_UNUSED(window)
     Q_UNUSED(enable)
     Q_UNUSED(region)
 }
 
-void markAsDashboard(WId window)
+void KWindowEffectsPrivateDummy::markAsDashboard(WId window)
 {
     Q_UNUSED(window)
 }
-
-}
-

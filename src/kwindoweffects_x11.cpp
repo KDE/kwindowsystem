@@ -1,5 +1,6 @@
 /*
  *   Copyright 2009 Marco Martin <notmart@gmail.com>
+ *   Copyright 2014 Martin Gräßlin <mgraesslin@kde.org>
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU Library General Public License as
@@ -17,7 +18,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "kwindoweffects.h"
+#include "kwindoweffects_p.h"
 
 #include <QVarLengthArray>
 
@@ -28,11 +29,17 @@
 #include <QX11Info>
 
 static const char *DASHBOARD_WIN_CLASS = "dashboard\0dashboard";
+using namespace KWindowEffects;
 
-namespace KWindowEffects
+KWindowEffectsPrivateX11::KWindowEffectsPrivateX11()
 {
+}
 
-bool isEffectAvailable(Effect effect)
+KWindowEffectsPrivateX11::~KWindowEffectsPrivateX11()
+{
+}
+
+bool KWindowEffectsPrivateX11::isEffectAvailable(Effect effect)
 {
     if (!KWindowSystem::self()->compositingActive()) {
         return false;
@@ -86,7 +93,7 @@ bool isEffectAvailable(Effect effect)
     return false;
 }
 
-void slideWindow(WId id, SlideFromLocation location, int offset)
+void KWindowEffectsPrivateX11::slideWindow(WId id, SlideFromLocation location, int offset)
 {
     xcb_connection_t *c = QX11Info::connection();
     if (!c) {
@@ -127,12 +134,12 @@ void slideWindow(WId id, SlideFromLocation location, int offset)
     }
 }
 
-void slideWindow(QWidget *widget, SlideFromLocation location)
+void KWindowEffectsPrivateX11::slideWindow(QWidget *widget, SlideFromLocation location)
 {
     slideWindow(widget->effectiveWinId(), location, -1);
 }
 
-QList<QSize> windowSizes(const QList<WId> &ids)
+QList<QSize> KWindowEffectsPrivateX11::windowSizes(const QList<WId> &ids)
 {
     QList<QSize> windowSizes;
     Q_FOREACH (WId id, ids) {
@@ -146,7 +153,7 @@ QList<QSize> windowSizes(const QList<WId> &ids)
     return windowSizes;
 }
 
-void showWindowThumbnails(WId parent, const QList<WId> &windows, const QList<QRect> &rects)
+void KWindowEffectsPrivateX11::showWindowThumbnails(WId parent, const QList<WId> &windows, const QList<QRect> &rects)
 {
     if (windows.size() != rects.size()) {
         return;
@@ -195,7 +202,7 @@ void showWindowThumbnails(WId parent, const QList<WId> &windows, const QList<QRe
                         32, data.size(), data.constData());
 }
 
-void presentWindows(WId controller, const QList<WId> &ids)
+void KWindowEffectsPrivateX11::presentWindows(WId controller, const QList<WId> &ids)
 {
     xcb_connection_t *c = QX11Info::connection();
     if (!c) {
@@ -229,7 +236,7 @@ void presentWindows(WId controller, const QList<WId> &ids)
     xcb_change_property(c, XCB_PROP_MODE_REPLACE, controller, atom->atom, atom->atom, 32, data.size(), data.constData());
 }
 
-void presentWindows(WId controller, int desktop)
+void KWindowEffectsPrivateX11::presentWindows(WId controller, int desktop)
 {
     xcb_connection_t *c = QX11Info::connection();
     if (!c) {
@@ -246,7 +253,7 @@ void presentWindows(WId controller, int desktop)
     xcb_change_property(c, XCB_PROP_MODE_REPLACE, controller, atom->atom, atom->atom, 32, 1, &data);
 }
 
-void highlightWindows(WId controller, const QList<WId> &ids)
+void KWindowEffectsPrivateX11::highlightWindows(WId controller, const QList<WId> &ids)
 {
     xcb_connection_t *c = QX11Info::connection();
     if (!c) {
@@ -284,7 +291,7 @@ void highlightWindows(WId controller, const QList<WId> &ids)
                         32, data.size(), data.constData());
 }
 
-void enableBlurBehind(WId window, bool enable, const QRegion &region)
+void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const QRegion &region)
 {
     xcb_connection_t *c = QX11Info::connection();
     if (!c) {
@@ -311,7 +318,7 @@ void enableBlurBehind(WId window, bool enable, const QRegion &region)
     }
 }
 
-void markAsDashboard(WId window)
+void KWindowEffectsPrivateX11::markAsDashboard(WId window)
 {
     xcb_connection_t *c = QX11Info::connection();
     if (!c) {
@@ -319,7 +326,5 @@ void markAsDashboard(WId window)
     }
     xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLASS,
                         XCB_ATOM_STRING, 8, 19, DASHBOARD_WIN_CLASS);
-}
-
 }
 

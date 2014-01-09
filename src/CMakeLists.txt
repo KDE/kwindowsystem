@@ -8,6 +8,8 @@ set(kwindowsystem_SRCS
     kusertimestamp.cpp
     kxerrorhandler.cpp
     kxutils.cpp
+    kwindoweffects.cpp
+    kwindoweffects_dummy.cpp
     )
 
 if (HAVE_X11)
@@ -31,14 +33,12 @@ endif ()
 
 if (APPLE)
    set(kwindowsystem_SRCS ${kwindowsystem_SRCS} kkeyserver_mac.cpp
-                                                kwindoweffects_dummy.cpp
                                                 kwindowsystem_mac.cpp
                                                 kwindowinfo_mac.cpp)
 endif ()
 
 if (WIN32)
    set(kwindowsystem_SRCS ${kwindowsystem_SRCS} kkeyserver_win.cpp
-                                                kwindoweffects_dummy.cpp
                                                 kwindowsystem_win.cpp
                                                 kwindowinfo_win.cpp)
    set(platformLinkLibraries
