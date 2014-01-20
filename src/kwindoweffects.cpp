@@ -30,7 +30,7 @@ public:
 KWindowEffectsPrivateContainer::KWindowEffectsPrivateContainer()
     : d()
 {
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     if (d.isNull() && QGuiApplication::platformName() == QStringLiteral("xcb")) {
         d.reset(new KWindowEffectsPrivateX11());
     }

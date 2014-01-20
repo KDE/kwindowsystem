@@ -39,14 +39,14 @@ if(WIN32)
 endif()
 
 find_package(X11)
-set(HAVE_X11 ${X11_FOUND})
+set(KWINDOWSYSTEM_HAVE_X11 ${X11_FOUND})
 find_package(XCB COMPONENTS XCB KEYSYMS)
 if(X11_FOUND)
     set_package_properties(X11_Xrender PROPERTIES DESCRIPTION "X Rendering Extension (libXrender)"
                            URL "http://www.x.org" TYPE RECOMMENDED
                            PURPOSE "Support for compositing, rendering operations, and alpha-blending")
-    set(HAVE_XRENDER ${X11_Xrender_FOUND})
-    set(HAVE_XFIXES ${X11_Xfixes_FOUND})
+    set(KWINDOWSYSTEM_HAVE_XRENDER ${X11_Xrender_FOUND})
+    set(KWINDOWSYSTEM_HAVE_XFIXES ${X11_Xfixes_FOUND})
 endif()
 
 # Subdirectories

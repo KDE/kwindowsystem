@@ -39,7 +39,7 @@ DEALINGS IN THE SOFTWARE.
 #include <QWidget>
 #include <QDateTime>
 
-#include <config-kwindowsystem.h> // HAVE_X11
+#include <config-kwindowsystem.h> // KWINDOWSYSTEM_HAVE_X11
 
 // need to resolve INT32(qglobal.h)<>INT32(Xlibint.h) conflict
 #ifndef QT_CLEAN_NAMESPACE
@@ -56,7 +56,7 @@ DEALINGS IN THE SOFTWARE.
 #include <stdlib.h>
 #include <QtCore/QTimer>
 #include <QActionEvent>
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
 #include <qx11info_x11.h>
 #include <netwm.h>
 #endif
@@ -64,7 +64,7 @@ DEALINGS IN THE SOFTWARE.
 #include <QDebug>
 #include <signal.h>
 #include <qstandardpaths.h>
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
 #include <kwindowsystem.h>
 #include <kxmessages.h>
 #include <X11/Xlib.h>
@@ -89,7 +89,7 @@ static QByteArray get_cstr(const QString &item_P);
 static QStringList get_fields(const QString &txt_P);
 static QString escape_str(const QString &str_P);
 
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
 static Atom utf8_string_atom = None;
 #endif
 
@@ -172,7 +172,7 @@ public:
     QMap< KStartupInfoId, KStartupInfo::Data > silent_startups;
     // contains ASN's that had change: but no new: yet
     QMap< KStartupInfoId, KStartupInfo::Data > uninited_startups;
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     KXMessages msgs;
 #endif
     QTimer *cleanup;
@@ -181,7 +181,7 @@ public:
     Private(int flags_P, KStartupInfo *q)
         : q(q),
           timeout(60),
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
           msgs(NET_STARTUP_MSG),
 #endif
           flags(flags_P)
@@ -190,7 +190,7 @@ public:
 
     void createConnections()
     {
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
         // d == NULL means "disabled"
         if (!QX11Info::display()) {
             return;
@@ -231,7 +231,7 @@ KStartupInfo::~KStartupInfo()
 
 void KStartupInfo::Private::got_message(const QString &msg_P)
 {
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
 // TODO do something with SCREEN= ?
     //qDebug() << "got:" << msg_P;
     QString msg = msg_P.trimmed();
@@ -259,7 +259,7 @@ class DelayedWindowEvent
 public:
     DelayedWindowEvent(WId w_P)
         : QEvent(uniqueType()), w(w_P) {}
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     Window w;
 #else
     WId w;
@@ -278,7 +278,7 @@ void KStartupInfo::Private::slot_window_added(WId w_P)
 
 void KStartupInfo::customEvent(QEvent *e_P)
 {
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     if (e_P->type() == DelayedWindowEvent::uniqueType()) {
         d->window_added(static_cast< DelayedWindowEvent * >(e_P)->w);
     } else
@@ -455,7 +455,7 @@ bool KStartupInfo::sendStartup(const KStartupInfoId &id_P, const KStartupInfoDat
     if (id_P.none()) {
         return false;
     }
-#if  HAVE_X11
+#if  KWINDOWSYSTEM_HAVE_X11
     KXMessages msgs;
     QString msg = QString::fromLatin1("new: %1 %2")
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
@@ -472,7 +472,7 @@ bool KStartupInfo::sendStartupX(Display *disp_P, const KStartupInfoId &id_P,
     if (id_P.none()) {
         return false;
     }
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     QString msg = QString::fromLatin1("new: %1 %2")
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
     msg = Private::check_required_startup_fields(msg, data_P, DefaultScreen(disp_P));
@@ -508,7 +508,7 @@ bool KStartupInfo::sendChange(const KStartupInfoId &id_P, const KStartupInfoData
     if (id_P.none()) {
         return false;
     }
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     KXMessages msgs;
     QString msg = QString::fromLatin1("change: %1 %2")
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
@@ -524,7 +524,7 @@ bool KStartupInfo::sendChangeX(Display *disp_P, const KStartupInfoId &id_P,
     if (id_P.none()) {
         return false;
     }
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     QString msg = QString::fromLatin1("change: %1 %2")
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
@@ -541,7 +541,7 @@ bool KStartupInfo::sendFinish(const KStartupInfoId &id_P)
     if (id_P.none()) {
         return false;
     }
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     KXMessages msgs;
     QString msg = QString::fromLatin1("remove: %1").arg(id_P.d->to_text());
     //qDebug() << "sending " << msg;
@@ -555,7 +555,7 @@ bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P)
     if (id_P.none()) {
         return false;
     }
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     QString msg = QString::fromLatin1("remove: %1").arg(id_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qDebug() << "sending " << msg;
@@ -570,7 +570,7 @@ bool KStartupInfo::sendFinish(const KStartupInfoId &id_P, const KStartupInfoData
 {
 //    if( id_P.none()) // id may be none, the pids and hostname matter then
 //        return false;
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     KXMessages msgs;
     QString msg = QString::fromLatin1("remove: %1 %2")
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
@@ -585,7 +585,7 @@ bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P,
 {
 //    if( id_P.none()) // id may be none, the pids and hostname matter then
 //        return false;
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     QString msg = QString::fromLatin1("remove: %1 %2")
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
@@ -611,7 +611,7 @@ void KStartupInfo::appStarted(const QByteArray &startup_id)
         return;
     }
     if (!qgetenv("DISPLAY").isEmpty()) {  // don't rely on QX11Info::display()
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
         Display *disp = XOpenDisplay(NULL);
         if (disp != NULL) {
             KStartupInfo::sendFinishX(disp, id);
@@ -661,14 +661,14 @@ void KStartupInfo::setStartupId(const QByteArray &startup_id)
     if (startup_id == startupId()) {
         return;
     }
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     KStartupInfo::handleAutoAppStartedSending(); // finish old startup notification if needed
 #endif
     if (startup_id.isEmpty()) {
         s_startup_id = "0";
     } else {
         s_startup_id = startup_id;
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
         KStartupInfoId id;
         id.initId(startup_id);
         long timestamp = id.timestamp();
@@ -690,7 +690,7 @@ void KStartupInfo::setNewStartupId(QWidget *window, const QByteArray &startup_id
 {
     bool activate = true;
     setStartupId(startup_id);
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     if (window != NULL) {
         if (!startup_id.isEmpty() && startup_id != "0") {
             NETRootInfo i(QX11Info::connection(), NET::Supported);
@@ -755,7 +755,7 @@ KStartupInfo::startup_t KStartupInfo::Private::check_startup_internal(WId w_P, K
         }
         return find_id(id, id_O, data_O) ? Match : NoMatch;
     }
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     NETWinInfo info(QX11Info::connection(),  w_P, QX11Info::appRootWindow(),
                     NET::WMWindowType | NET::WMPid | NET::WMState);
     pid_t pid = info.pid();
@@ -873,7 +873,7 @@ bool KStartupInfo::Private::find_wclass(const QByteArray &_res_name, const QByte
     return false;
 }
 
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
 static Atom net_startup_atom = None;
 
 static QByteArray read_startup_id_property(WId w_P)
@@ -900,7 +900,7 @@ static QByteArray read_startup_id_property(WId w_P)
 
 QByteArray KStartupInfo::windowStartupId(WId w_P)
 {
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     if (net_startup_atom == None) {
         net_startup_atom = XInternAtom(QX11Info::display(), NET_STARTUP_WINDOW, False);
     }
@@ -926,7 +926,7 @@ QByteArray KStartupInfo::windowStartupId(WId w_P)
 
 void KStartupInfo::setWindowStartupId(WId w_P, const QByteArray &id_P)
 {
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     if (id_P.isNull()) {
         return;
     }
@@ -943,7 +943,7 @@ void KStartupInfo::setWindowStartupId(WId w_P, const QByteArray &id_P)
 
 QByteArray KStartupInfo::Private::get_window_hostname(WId w_P)
 {
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     XTextProperty tp;
     char **hh;
     int cnt;
@@ -1050,7 +1050,7 @@ QByteArray KStartupInfo::createNewStartupId()
     if (!gethostname(hostname, 255)) {
         hostname[sizeof(hostname) - 1] = '\0';
     }
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
     unsigned long qt_x_user_time = QX11Info::appUserTime();
 #else
     unsigned long qt_x_user_time = 0;
@@ -1230,7 +1230,7 @@ QString KStartupInfoData::Private::to_text() const
     }
     if (desktop != 0)
         ret += QString::fromLatin1(" DESKTOP=%1")
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
                .arg(desktop == NET::OnAllDesktops ? NET::OnAllDesktops : desktop - 1);   // spec counts from 0
 #else
                .arg(0);   // spec counts from 0
@@ -1297,7 +1297,7 @@ KStartupInfoData::KStartupInfoData(const QString &txt_P) : d(new Private)
             d->icon = get_str(*it);
         } else if ((*it).startsWith(desktop_str)) {
             d->desktop = get_num(*it);
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
             if (d->desktop != NET::OnAllDesktops)
 #endif
                 ++d->desktop; // spec counts from 0

@@ -34,7 +34,7 @@
 
 #include <QWidget>
 #include <config-kwindowsystem.h>
-#if HAVE_X11 //FIXME
+#if KWINDOWSYSTEM_HAVE_X11 //FIXME
 
 #include <qx11info_x11.h>
 

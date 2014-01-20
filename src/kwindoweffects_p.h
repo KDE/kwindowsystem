@@ -59,7 +59,7 @@ public:
     void markAsDashboard(WId window) Q_DECL_OVERRIDE;
 };
 
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
 class KWindowEffectsPrivateX11 : public KWindowEffectsPrivate
 {
 public:

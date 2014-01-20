@@ -25,7 +25,7 @@ DEALINGS IN THE SOFTWARE.
 
 #include "kxmessages.h"
 
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
 
 #include <qcoreapplication.h>
 #include <QDebug>

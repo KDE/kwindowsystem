@@ -29,8 +29,8 @@ DEALINGS IN THE SOFTWARE.
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 
-#include <config-kwindowsystem.h> // HAVE_X11
-#if HAVE_X11
+#include <config-kwindowsystem.h> // KWINDOWSYSTEM_HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
 typedef struct _XDisplay Display;
 
 class QString;

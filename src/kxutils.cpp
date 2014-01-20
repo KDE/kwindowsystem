@@ -21,7 +21,7 @@
 
 #include "kxutils_p.h"
 
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
 #include <qbitmap.h>
 #include <QX11Info>
 #include <QDebug>

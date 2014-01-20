@@ -25,7 +25,7 @@
 #include "kxerrorhandler_p.h"
 #include <config-kwindowsystem.h>
 
-#if HAVE_X11 //FIXME
+#if KWINDOWSYSTEM_HAVE_X11 //FIXME
 
 #include "netwm_def.h"
 

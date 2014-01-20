@@ -29,7 +29,7 @@
 #include <kwindowsystem_export.h>
 #include <QWidget>
 #include <config-kwindowsystem.h>
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
 #include <xcb/xcb.h>
 
 #include "netwm_def.h"

@@ -29,7 +29,7 @@
 #include <QWidgetList>
 #include <config-kwindowsystem.h>
 
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
 
 #include <QX11Info>
 #include <X11/Xlib.h>
@@ -110,6 +110,6 @@ private:
     KXErrorHandlerPrivate *const d;
 };
 
-#endif // HAVE_X11
+#endif // KWINDOWSYSTEM_HAVE_X11
 
 #endif

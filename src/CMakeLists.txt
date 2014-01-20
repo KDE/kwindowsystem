@@ -12,7 +12,7 @@ set(kwindowsystem_SRCS
     kwindoweffects_dummy.cpp
     )
 
-if (HAVE_X11)
+if (KWINDOWSYSTEM_HAVE_X11)
   set(kwindowsystem_SRCS ${kwindowsystem_SRCS}
     kselectionowner.cpp
     kselectionwatcher.cpp
@@ -21,7 +21,7 @@ endif()
 
 set(platformLinkLibraries)
 
-if (HAVE_X11)
+if (KWINDOWSYSTEM_HAVE_X11)
    set(platformLinkLibraries Qt5::X11Extras ${X11_LIBRARIES} ${X11_Xfixes_LIB} ${X11_Xrender_LIB} ${XCB_XCB_LIBRARY} ${XCB_KEYSYMS_LIBRARY})
    set(kwindowsystem_SRCS ${kwindowsystem_SRCS} kkeyserver_x11.cpp
                                                 kwindowsystem_x11.cpp

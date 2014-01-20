@@ -26,7 +26,7 @@
 #include <QPixmap>
 #include <config-kwindowsystem.h>
 
-#if HAVE_X11
+#if KWINDOWSYSTEM_HAVE_X11
 
 #include <kwindowsystem_export.h>
 
@@ -66,6 +66,6 @@ int timestampDiff(unsigned long time1, unsigned long time2);
 
 } // namespace
 
-#endif // HAVE_X11
+#endif // KWINDOWSYSTEM_HAVE_X11
 
 #endif

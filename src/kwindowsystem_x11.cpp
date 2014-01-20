@@ -43,7 +43,7 @@
 
 #include <config-kwindowsystem.h>
 
-#if HAVE_XFIXES
+#if KWINDOWSYSTEM_HAVE_XFIXES
 #include <X11/extensions/Xfixes.h>
 #endif
 
@@ -138,7 +138,7 @@ KWindowSystemPrivate::KWindowSystemPrivate(int _what)
     QCoreApplication::instance()->installNativeEventFilter(this);
     (void) qApp->desktop();  //trigger desktop widget creation to select root window events
 
-#if HAVE_XFIXES
+#if KWINDOWSYSTEM_HAVE_XFIXES
     int errorBase;
     if ((haveXfixes = XFixesQueryExtension(QX11Info::display(), &xfixesEventBase, &errorBase))) {
         create_atoms();
@@ -173,7 +173,7 @@ bool KWindowSystemPrivate::nativeEventFilter(xcb_generic_event_t *ev)
     KWindowSystem *s_q = KWindowSystem::self();
     const uint8_t eventType = ev->response_type & ~0x80;
 
-#ifdef HAVE_XFIXES
+#ifdef KWINDOWSYSTEM_HAVE_XFIXES
     if (eventType == xfixesEventBase + XCB_XFIXES_SELECTION_NOTIFY) {
         xcb_xfixes_selection_notify_event_t *event = reinterpret_cast<xcb_xfixes_selection_notify_event_t *>(ev);
         if (event->window == winId()) {
