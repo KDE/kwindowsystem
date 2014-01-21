@@ -37,6 +37,7 @@ if(X11_FOUND)
 
     kwindowsystem_unit_tests(
         kwindoweffectstest
+        kwindowinfox11test
         kwindowsystemx11test
         netrootinfotestwm
         netwininfotestclient
