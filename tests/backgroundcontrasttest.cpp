@@ -126,7 +126,7 @@ void ContrastTestWindow::disableContrast()
 void ContrastTestWindow::enableContrast()
 {
     m_state = FullWindow;
-    KWindowEffects::enableBackgroundContrast(winId(), true);
+    KWindowEffects::enableBackgroundContrast(winId(), true, m_contrast, m_intensity, m_saturation);
     repaint();
 }
 void ContrastTestWindow::enableContrastRect()

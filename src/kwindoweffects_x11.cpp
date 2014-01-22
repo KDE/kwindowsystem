@@ -378,7 +378,7 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
             data << rawData[i];
         }
         
-        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, XCB_ATOM_CARDINAL,
+        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, atom->atom,
                             32, data.size(), data.constData());
     } else {
         xcb_delete_property(c, window, atom->atom);
