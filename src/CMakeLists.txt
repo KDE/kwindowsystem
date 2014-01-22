@@ -10,6 +10,7 @@ set(kwindowsystem_SRCS
     kxutils.cpp
     kwindoweffects.cpp
     kwindoweffects_dummy.cpp
+    kwindowinfo.cpp
     )
 
 if (KWINDOWSYSTEM_HAVE_X11)
@@ -34,13 +35,17 @@ endif ()
 if (APPLE)
    set(kwindowsystem_SRCS ${kwindowsystem_SRCS} kkeyserver_mac.cpp
                                                 kwindowsystem_mac.cpp
-                                                kwindowinfo_mac.cpp)
+# FIXME: adjust kwindowinfo_mac to inherit from KWindowInfoPrivate
+#                                                 kwindowinfo_mac.cpp
+)
 endif ()
 
 if (WIN32)
    set(kwindowsystem_SRCS ${kwindowsystem_SRCS} kkeyserver_win.cpp
                                                 kwindowsystem_win.cpp
-                                                kwindowinfo_win.cpp)
+# FIXME: adjust kwindowinfo_win to inherit from KWindowInfoPrivate
+#                                                 kwindowinfo_win.cpp
+)
    set(platformLinkLibraries
       Qt5::WinExtras # QtWin::fromHICON(), QtWin::toHICON()
       Ws2_32 # gethostname()

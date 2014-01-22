@@ -26,8 +26,11 @@
 
 #include <kwindowsystem_export.h>
 #include <QWidgetList> //For WId
+#include <QExplicitlySharedDataPointer>
 
 #include <netwm_def.h>
+
+class KWindowInfoPrivate;
 
 /**
  * Information about a window.
@@ -39,7 +42,6 @@ public:
      * Reads all the info about the given window.
      */
     KWindowInfo(WId window, unsigned long properties, unsigned long properties2 = 0);
-    KWindowInfo(); // to make QList and others happy
     ~KWindowInfo();
     /**
      * Returns false if this window info is not valid (most probably the given
@@ -215,13 +217,7 @@ public:
     KWindowInfo(const KWindowInfo &);
     KWindowInfo &operator=(const KWindowInfo &);
 private:
-    class Private;
-    Private *d;  //krazy:exclude=dpointer (implicitly shared)
-#ifdef Q_OS_MAC
-    // KWindowSystem needs access to the d-pointer
-    friend class KWindowSystem;
-    friend class KWindowSystemPrivate;
-#endif
+    QExplicitlySharedDataPointer<KWindowInfoPrivate> d;
 };
 
 #endif // multiple inclusion guard
