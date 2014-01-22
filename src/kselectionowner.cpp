@@ -27,7 +27,8 @@ DEALINGS IN THE SOFTWARE.
 #include <config-kwindowsystem.h>
 
 #include <QtCore/QBasicTimer>
-#include <QtCore/QCoreApplication>
+#include <QDebug>
+#include <QGuiApplication>
 #include <QTimerEvent>
 #include <QAbstractNativeEventFilter>
 
@@ -99,6 +100,9 @@ public:
     static xcb_atom_t xa_targets;
     static xcb_atom_t xa_timestamp;
 
+    static Private *create(KSelectionOwner *owner, xcb_atom_t selection_P, int screen_P);
+    static Private *create(KSelectionOwner *owner, const char *selection_P, int screen_P);
+
 protected:
     bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) Q_DECL_OVERRIDE {
         Q_UNUSED(result);
@@ -113,25 +117,45 @@ private:
     KSelectionOwner *owner;
 };
 
+KSelectionOwner::Private* KSelectionOwner::Private::create(KSelectionOwner *owner, xcb_atom_t selection_P, int screen_P)
+{
+    if (QGuiApplication::platformName() == QStringLiteral("xcb")) {
+        return new Private(owner, selection_P, screen_P);
+    }
+    qWarning() << "Trying to use KSelectionOwner on a non-X11 platform! This is an application bug.";
+    return Q_NULLPTR;
+}
+
+KSelectionOwner::Private *KSelectionOwner::Private::create(KSelectionOwner *owner, const char *selection_P, int screen_P)
+{
+    if (QGuiApplication::platformName() == QStringLiteral("xcb")) {
+        return new Private(owner, intern_atom(QX11Info::connection(), selection_P), screen_P);
+    }
+    qWarning() << "Trying to use KSelectionOwner on a non-X11 platform! This is an application bug.";
+    return Q_NULLPTR;
+}
+
 KSelectionOwner::KSelectionOwner(xcb_atom_t selection_P, int screen_P, QObject *parent_P)
     :   QObject(parent_P),
-        d(new Private(this, selection_P, screen_P))
+        d(Private::create(this, selection_P, screen_P))
 {
 }
 
 KSelectionOwner::KSelectionOwner(const char *selection_P, int screen_P, QObject *parent_P)
     :   QObject(parent_P),
-        d(new Private(this, intern_atom(QX11Info::connection(), selection_P), screen_P))
+        d(Private::create(this, selection_P, screen_P))
 {
 }
 
 KSelectionOwner::~KSelectionOwner()
 {
-    release();
-    if (d->window != XCB_WINDOW_NONE) {
-        xcb_destroy_window(QX11Info::connection(), d->window); // also makes the selection not owned
+    if (d) {
+        release();
+        if (d->window != XCB_WINDOW_NONE) {
+            xcb_destroy_window(QX11Info::connection(), d->window); // also makes the selection not owned
+        }
+        delete d;
     }
-    delete d;
 }
 
 void KSelectionOwner::Private::claimSucceeded()
@@ -213,6 +237,9 @@ void KSelectionOwner::Private::timeout()
 
 void KSelectionOwner::claim(bool force_P, bool force_kill_P)
 {
+    if (!d) {
+        return;
+    }
     Q_ASSERT(d->state == Private::Idle);
 
     if (Private::manager_atom == XCB_NONE) {
@@ -258,6 +285,9 @@ void KSelectionOwner::claim(bool force_P, bool force_kill_P)
 // destroy resource first
 void KSelectionOwner::release()
 {
+    if (!d) {
+        return;
+    }
     if (d->timestamp == XCB_CURRENT_TIME) {
         return;
     }
@@ -272,6 +302,9 @@ void KSelectionOwner::release()
 
 xcb_window_t KSelectionOwner::ownerWindow() const
 {
+    if (!d) {
+        return XCB_WINDOW_NONE;
+    }
     if (d->timestamp == XCB_CURRENT_TIME) {
         return XCB_NONE;
     }
@@ -281,12 +314,18 @@ xcb_window_t KSelectionOwner::ownerWindow() const
 
 void KSelectionOwner::setData(uint32_t extra1_P, uint32_t extra2_P)
 {
+    if (!d) {
+        return;
+    }
     d->extra1 = extra1_P;
     d->extra2 = extra2_P;
 }
 
 bool KSelectionOwner::filterEvent(void *ev_P)
 {
+    if (!d) {
+        return false;
+    }
     xcb_generic_event_t *event = reinterpret_cast<xcb_generic_event_t *>(ev_P);
     const uint response_type = event->response_type & ~0x80;
 
@@ -368,6 +407,10 @@ bool KSelectionOwner::filterEvent(void *ev_P)
 
 void KSelectionOwner::timerEvent(QTimerEvent *event)
 {
+    if (!d) {
+        QObject::timerEvent(event);
+        return;
+    }
     if (event->timerId() == d->timer.timerId()) {
         d->timer.stop();
         d->timeout();
@@ -386,6 +429,9 @@ bool KSelectionOwner::handleMessage(XEvent *)
 
 void KSelectionOwner::filter_selection_request(void *event)
 {
+    if (!d) {
+        return;
+    }
     xcb_selection_request_event_t *ev = reinterpret_cast<xcb_selection_request_event_t *>(event);
 
     if (d->timestamp == XCB_CURRENT_TIME || ev->selection != d->selection) {
@@ -457,6 +503,9 @@ void KSelectionOwner::filter_selection_request(void *event)
 
 bool KSelectionOwner::handle_selection(xcb_atom_t target_P, xcb_atom_t property_P, xcb_window_t requestor_P)
 {
+    if (!d) {
+        return false;
+    }
     if (target_P == Private::xa_timestamp) {
         // qDebug() << "Handling timestamp request";
         xcb_change_property(QX11Info::connection(), requestor_P, property_P, XCB_ATOM_INTEGER, 32,
@@ -474,6 +523,9 @@ bool KSelectionOwner::handle_selection(xcb_atom_t target_P, xcb_atom_t property_
 
 void KSelectionOwner::replyTargets(xcb_atom_t property_P, xcb_window_t requestor_P)
 {
+    if (!d) {
+        return;
+    }
     xcb_atom_t atoms[3] = { Private::xa_multiple, Private::xa_timestamp, Private::xa_targets };
 
     xcb_change_property(QX11Info::connection(), requestor_P, property_P, XCB_ATOM_ATOM, 32, XCB_PROP_MODE_REPLACE,
@@ -489,6 +541,9 @@ bool KSelectionOwner::genericReply(xcb_atom_t, xcb_atom_t, xcb_window_t)
 
 void KSelectionOwner::getAtoms()
 {
+    if (!d) {
+        return;
+    }
     if (Private::manager_atom != XCB_NONE) {
         return;
     }

@@ -27,7 +27,7 @@ DEALINGS IN THE SOFTWARE.
 #include <config-kwindowsystem.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QCoreApplication>
+#include <QGuiApplication>
 #include <QAbstractNativeEventFilter>
 
 #include <qx11info_x11.h>
@@ -80,6 +80,9 @@ public:
     xcb_window_t selection_owner;
     static xcb_atom_t manager_atom;
 
+    static Private *create(KSelectionWatcher *watcher, xcb_atom_t selection_P, int screen_P);
+    static Private *create(KSelectionWatcher *watcher, const char *selection_P, int screen_P);
+
 protected:
     bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) Q_DECL_OVERRIDE {
         Q_UNUSED(result);
@@ -95,16 +98,32 @@ private:
     KSelectionWatcher *watcher;
 };
 
+KSelectionWatcher::Private *KSelectionWatcher::Private::create(KSelectionWatcher *watcher, xcb_atom_t selection_P, int screen_P)
+{
+    if (QGuiApplication::platformName() == QStringLiteral("xcb")) {
+        return new Private(watcher, selection_P, screen_P);
+    }
+    return Q_NULLPTR;
+}
+
+KSelectionWatcher::Private *KSelectionWatcher::Private::create(KSelectionWatcher *watcher, const char *selection_P, int screen_P)
+{
+    if (QGuiApplication::platformName() == QStringLiteral("xcb")) {
+        return new Private(watcher, intern_atom(QX11Info::connection(), selection_P), screen_P);
+    }
+    return Q_NULLPTR;
+}
+
 KSelectionWatcher::KSelectionWatcher(xcb_atom_t selection_P, int screen_P, QObject *parent_P)
     :   QObject(parent_P),
-        d(new Private(this, selection_P, screen_P))
+        d(Private::create(this, selection_P, screen_P))
 {
     init();
 }
 
 KSelectionWatcher::KSelectionWatcher(const char *selection_P, int screen_P, QObject *parent_P)
     :   QObject(parent_P),
-        d(new Private(this, intern_atom(QX11Info::connection(), selection_P), screen_P))
+        d(Private::create(this, selection_P, screen_P))
 {
     init();
 }
@@ -116,6 +135,9 @@ KSelectionWatcher::~KSelectionWatcher()
 
 void KSelectionWatcher::init()
 {
+    if (!d) {
+        return;
+    }
     if (Private::manager_atom == XCB_NONE) {
         xcb_connection_t *c = QX11Info::connection();
 
@@ -142,6 +164,9 @@ void KSelectionWatcher::init()
 
 xcb_window_t KSelectionWatcher::owner()
 {
+    if (!d) {
+        return XCB_WINDOW_NONE;
+    }
     xcb_connection_t *c = QX11Info::connection();
 
     xcb_window_t current_owner = get_selection_owner(c, d->selection);
@@ -178,6 +203,9 @@ xcb_window_t KSelectionWatcher::owner()
 
 void KSelectionWatcher::filterEvent(void *ev_P)
 {
+    if (!d) {
+        return;
+    }
     xcb_generic_event_t *event = reinterpret_cast<xcb_generic_event_t *>(ev_P);
     const uint response_type = event->response_type & ~0x80;
     if (response_type == XCB_CLIENT_MESSAGE) {

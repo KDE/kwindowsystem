@@ -38,6 +38,10 @@ DEALINGS IN THE SOFTWARE.
  the selection ownership. Signal lostOwnership() is emitted when the selection
  is claimed by another owner.
  @short ICCCM manager selection owner
+
+ This class is only useful on the xcb platform. On other platforms the code is not
+ functional. In case you inherit from this class ensure that you don't use xcb and/or
+ XLib without verifying the platform.
 */
 class KWINDOWSYSTEM_EXPORT KSelectionOwner
     : public QObject

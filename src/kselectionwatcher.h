@@ -37,6 +37,10 @@ DEALINGS IN THE SOFTWARE.
  and emits lostOwner() when the selection ownership is given up. To find
  out current owner of the selection, owner() can be used.
  @short ICCCM manager selection watching
+
+ This class is only useful on the xcb platform. On other platforms the code is not
+ functional. In case you inherit from this class ensure that you don't use xcb and/or
+ XLib without verifying the platform.
 */
 class KWINDOWSYSTEM_EXPORT KSelectionWatcher
     : public QObject
