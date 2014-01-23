@@ -45,6 +45,7 @@ public:
     Atom accept_atom1;
     QMap< WId, QByteArray > incoming_messages;
     KXMessages *q;
+    bool valid;
 
     bool nativeEventFilter(const QByteArray &eventType, void *message, long *result)
     {
@@ -101,7 +102,8 @@ KXMessages::KXMessages(const char *accept_broadcast_P, QObject *parent_P)
     , d(new KXMessagesPrivate)
 {
     d->q = this;
-    if (accept_broadcast_P != NULL) {
+    d->valid = QX11Info::isPlatformX11();
+    if (d->valid && accept_broadcast_P != NULL) {
         QCoreApplication::instance()->installNativeEventFilter(d);
         d->accept_atom1 = XInternAtom(QX11Info::display(), QByteArray(QByteArray(accept_broadcast_P) + "_BEGIN").constData(), false);
         d->accept_atom2 = XInternAtom(QX11Info::display(), accept_broadcast_P, false);
@@ -119,6 +121,10 @@ KXMessages::~KXMessages()
 
 void KXMessages::broadcastMessage(const char *msg_type_P, const QString &message_P, int screen_P)
 {
+    if (!d->valid) {
+        qWarning() << "KXMessages used on non-X11 platform! This is an application bug.";
+        return;
+    }
     Atom a2 = XInternAtom(QX11Info::display(), msg_type_P, false);
     Atom a1 = XInternAtom(QX11Info::display(), QByteArray(QByteArray(msg_type_P) + "_BEGIN").constData(), false);
     Window root = screen_P == -1 ? QX11Info::appRootWindow() : QX11Info::appRootWindow(screen_P);
@@ -130,6 +136,10 @@ bool KXMessages::broadcastMessageX(Display *disp, const char *msg_type_P,
                                    const QString &message_P, int screen_P)
 {
     if (disp == NULL) {
+        return false;
+    }
+    if (!QX11Info::isPlatformX11()) {
+        qWarning() << "KXMessages used on non-X11 platform! This is an application bug.";
         return false;
     }
     Atom a2 = XInternAtom(disp, msg_type_P, false);
