@@ -192,7 +192,7 @@ public:
     {
 #if KWINDOWSYSTEM_HAVE_X11
         // d == NULL means "disabled"
-        if (!QX11Info::display()) {
+        if (!QX11Info::isPlatformX11() || !QX11Info::display()) {
             return;
         }
 
@@ -610,7 +610,7 @@ void KStartupInfo::appStarted(const QByteArray &startup_id)
     if (id.none()) {
         return;
     }
-    if (!qgetenv("DISPLAY").isEmpty()) {  // don't rely on QX11Info::display()
+    if (QX11Info::isPlatformX11() && !qgetenv("DISPLAY").isEmpty()) {  // don't rely on QX11Info::display()
 #if KWINDOWSYSTEM_HAVE_X11
         Display *disp = XOpenDisplay(NULL);
         if (disp != NULL) {
@@ -669,17 +669,19 @@ void KStartupInfo::setStartupId(const QByteArray &startup_id)
     } else {
         s_startup_id = startup_id;
 #if KWINDOWSYSTEM_HAVE_X11
-        KStartupInfoId id;
-        id.initId(startup_id);
-        long timestamp = id.timestamp();
-        if (timestamp != 0) {
-            if (QX11Info::appUserTime() == 0
-                    || NET::timestampCompare(timestamp, QX11Info::appUserTime()) > 0) { // time > appUserTime
-                QX11Info::setAppUserTime(timestamp);
-            }
-            if (QX11Info::appTime() == 0
-                    || NET::timestampCompare(timestamp, QX11Info::appTime()) > 0) { // time > appTime
-                QX11Info::setAppTime(timestamp);
+        if (QX11Info::isPlatformX11()) {
+            KStartupInfoId id;
+            id.initId(startup_id);
+            long timestamp = id.timestamp();
+            if (timestamp != 0) {
+                if (QX11Info::appUserTime() == 0
+                        || NET::timestampCompare(timestamp, QX11Info::appUserTime()) > 0) { // time > appUserTime
+                    QX11Info::setAppUserTime(timestamp);
+                }
+                if (QX11Info::appTime() == 0
+                        || NET::timestampCompare(timestamp, QX11Info::appTime()) > 0) { // time > appTime
+                    QX11Info::setAppTime(timestamp);
+                }
             }
         }
 #endif
@@ -691,7 +693,7 @@ void KStartupInfo::setNewStartupId(QWidget *window, const QByteArray &startup_id
     bool activate = true;
     setStartupId(startup_id);
 #if KWINDOWSYSTEM_HAVE_X11
-    if (window != NULL) {
+    if (window != NULL && QX11Info::isPlatformX11()) {
         if (!startup_id.isEmpty() && startup_id != "0") {
             NETRootInfo i(QX11Info::connection(), NET::Supported);
             if (i.isSupported(NET::WM2StartupId)) {
@@ -756,6 +758,10 @@ KStartupInfo::startup_t KStartupInfo::Private::check_startup_internal(WId w_P, K
         return find_id(id, id_O, data_O) ? Match : NoMatch;
     }
 #if KWINDOWSYSTEM_HAVE_X11
+    if (!QX11Info::isPlatformX11()) {
+        qDebug() << "check_startup:cantdetect";
+        return CantDetect;
+    }
     NETWinInfo info(QX11Info::connection(),  w_P, QX11Info::appRootWindow(),
                     NET::WMWindowType | NET::WMPid | NET::WMState);
     pid_t pid = info.pid();
@@ -901,6 +907,9 @@ static QByteArray read_startup_id_property(WId w_P)
 QByteArray KStartupInfo::windowStartupId(WId w_P)
 {
 #if KWINDOWSYSTEM_HAVE_X11
+    if (!QX11Info::isPlatformX11()) {
+        return QByteArray();
+    }
     if (net_startup_atom == None) {
         net_startup_atom = XInternAtom(QX11Info::display(), NET_STARTUP_WINDOW, False);
     }
@@ -927,6 +936,9 @@ QByteArray KStartupInfo::windowStartupId(WId w_P)
 void KStartupInfo::setWindowStartupId(WId w_P, const QByteArray &id_P)
 {
 #if KWINDOWSYSTEM_HAVE_X11
+    if (!QX11Info::isPlatformX11()) {
+        return;
+    }
     if (id_P.isNull()) {
         return;
     }
@@ -944,6 +956,9 @@ void KStartupInfo::setWindowStartupId(WId w_P, const QByteArray &id_P)
 QByteArray KStartupInfo::Private::get_window_hostname(WId w_P)
 {
 #if KWINDOWSYSTEM_HAVE_X11
+    if (!QX11Info::isPlatformX11()) {
+        return QByteArray();
+    }
     XTextProperty tp;
     char **hh;
     int cnt;
@@ -1230,11 +1245,7 @@ QString KStartupInfoData::Private::to_text() const
     }
     if (desktop != 0)
         ret += QString::fromLatin1(" DESKTOP=%1")
-#if KWINDOWSYSTEM_HAVE_X11
                .arg(desktop == NET::OnAllDesktops ? NET::OnAllDesktops : desktop - 1);   // spec counts from 0
-#else
-               .arg(0);   // spec counts from 0
-#endif
     if (!wmclass.isEmpty()) {
         ret += QString::fromLatin1(" WMCLASS=\"%1\"").arg(QString(wmclass));
     }
@@ -1297,9 +1308,7 @@ KStartupInfoData::KStartupInfoData(const QString &txt_P) : d(new Private)
             d->icon = get_str(*it);
         } else if ((*it).startsWith(desktop_str)) {
             d->desktop = get_num(*it);
-#if KWINDOWSYSTEM_HAVE_X11
             if (d->desktop != NET::OnAllDesktops)
-#endif
                 ++d->desktop; // spec counts from 0
         } else if ((*it).startsWith(wmclass_str)) {
             d->wmclass = get_cstr(*it);
