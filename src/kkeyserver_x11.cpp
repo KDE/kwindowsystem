@@ -498,6 +498,11 @@ bool initializeMods()
     g_super_mask = 0;
     g_hyper_mask = 0;
 
+    if (!QX11Info::isPlatformX11()) {
+        qWarning() << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
+        return false;
+    }
+
     checkDisplay();
     XModifierKeymap *xmk = XGetModifierMapping(QX11Info::display());
 
@@ -679,6 +684,10 @@ bool keyboardHasMetaKey()
 
 uint getModsRequired(uint sym)
 {
+    if (!QX11Info::isPlatformX11()) {
+        qWarning() << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
+        return 0;
+    }
     uint mod = 0;
 
     // FIXME: This might not be true on all keyboard layouts!
@@ -716,6 +725,10 @@ uint getModsRequired(uint sym)
 
 bool keyQtToCodeX(int keyQt, int *keyCode)
 {
+    if (!QX11Info::isPlatformX11()) {
+        qWarning() << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
+        return false;
+    }
     int sym;
     uint mod;
     keyQtToSymX(keyQt, &sym);
@@ -826,6 +839,10 @@ bool modXToQt(uint modX, int *modQt)
 
 bool codeXToSym(uchar codeX, uint modX, uint *sym)
 {
+    if (!QX11Info::isPlatformX11()) {
+        qWarning() << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
+        return false;
+    }
     KeySym keySym;
     XKeyPressedEvent event;
 
