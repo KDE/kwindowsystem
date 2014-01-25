@@ -107,3 +107,7 @@ elseif (WIN32)
 else()
    install( FILES kkeyserver_x11.h DESTINATION ${INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel)
 endif ()
+
+include(ECMGeneratePriFile)
+ecm_generate_pri_file(BASE_NAME KWindowSystem LIB_NAME KF5WindowSystem DEPS "gui" FILENAME_VAR PRI_FILENAME)
+install(FILES ${PRI_FILENAME} DESTINATION ${ECM_MKSPECS_INSTALL_DIR})
