@@ -33,19 +33,67 @@
 class KWindowInfoPrivate;
 
 /**
- * Information about a window.
+ * This class provides information about a given window in the platform specific
+ * windowing system. It provides the information for the current state when a
+ * KWindowInfo instance gets created. The instance does not get updated when the
+ * window changes. To get update about window changes connect to the
+ * @link KWindowSystem::windowChanged windowChanged@endlink signal of KWindowSystem
+ * and create a new KWindowInfo instance to reflect the current state.
+ *
+ * KWindowInfo does not encapsulate all information about the window. One needs to
+ * request which information is required by passing the appropriate NET::Property and
+ * NET::Property2 flags to the constructor. Please refer to the documentation of the
+ * methods to see which flags are required. This is done to limit the interaction with
+ * the underlying windowing system as fetching the information can cause several context
+ * switches and roundtrips to a server instance (e.g. when using the X11 platform).
+ *
+ * Please note that KWindowInfo is an abstraction of the underlying windowing system
+ * inspired by the X11 platform. Thus not all concepts apply to all platforms and some
+ * methods might return a default value for some platforms.
+ *
+ * Example usage of this class illustrated by monitoring a QWidget for change of the
+ * demands attention window state:
+ *
+ * @code
+ * QWidget *widget = new QWidget(Q_NULLPTR);
+ * widget->show(); // ensures native window gets created
+ * connect(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId, unsigned int)>(&KWindowSystem::windowChanged),
+ *        [window](WId winId, unsigned int properties) {
+ *     if (widget->winId() != winId) {
+ *         return; // not our window
+ *     }
+ *     if (properties & NET::WMState) {
+ *         // let's check whether our window is demanding attention
+ *         KWindowInfo info(widget->winId(), NET::WMState);
+ *         qDebug() << "Has demands attention: " << info.hasState(NET::DemandsAttention);
+ *     }
+ * });
+ * @endcode
  */
 class KWINDOWSYSTEM_EXPORT KWindowInfo
 {
 public:
     /**
      * Reads all the info about the given window.
+     *
+     * Only the information requested through the @p properties and @p properties2
+     * parameters are fetched. Refer to the methods you are interested in to see
+     * which flags to pass.
+     *
+     * @param window The platform specific window identifier
+     * @param properties Bitmask of NET::Property
+     * @param properties2 Bitmask of NET::Property2
      */
     KWindowInfo(WId window, unsigned long properties, unsigned long properties2 = 0);
     ~KWindowInfo();
     /**
-     * Returns false if this window info is not valid (most probably the given
-     * window doesn't exist).
+     * Returns false if this window info is not valid.
+     *
+     * In case the window does not exist @c false is returned. Also if there is no
+     * appropriate implementation for KWindowInfo on the current windowing
+     * system platform this method returns @c false. In that case all methods return a
+     * default value and thus it is recommended to check whether valid returns @c true.
+     *
      * @param withdrawn_is_valid if true, windows in the withdrawn state
      *        (i.e. not managed) are also considered. This is usually not the case.
      */
@@ -55,45 +103,122 @@ public:
      */
     WId win() const;
     /**
-     * Returns the window's state flags (see the NET::State enum for details).
-     * Requires NET::WMState passed to KWin::windowInfo().
+     * Returns the window's state flags.
+     *
+     * Requires NET::WMState passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMState);
+     * if (info.valid())
+     *     info.state();
+     * @endcode
+     *
+     * @see NET::State
      */
     unsigned long state() const;
     /**
-     * Returns true if the window has the given state flag set (see the NET::State enum for details).
-     * Requires NET::WMState passed to KWin::windowInfo().
+     * Returns true if the window has the given state flag set.
+     *
+     * Requires NET::WMState passed as properties parameter to the constructor.
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMState);
+     * if (info.valid())
+     *     info.hasState(NET::DemandsAttention);
+     * @endcode
+     *
+     * @see NET::State
      */
     bool hasState(unsigned long s) const;
     /**
-     * Returns true if the window is minimized. Note that it is true only if
-     * the window is truly minimized, not shaded or on another virtual desktops,
+     * Returns true if the window is minimized.
+     *
+     * Note that it is true only if the window is truly minimized,
+     * not shaded or on another virtual desktops,
      * which makes it different from mappingState() == NET::Iconic
      * or QWidget::isMinimized().
-     * Requires NET::WMState and NET::XAWMState passed to KWin::windowInfo().
+     * Requires NET::WMState and NET::XAWMState passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMState | NET::XAWMState);
+     * if (info.valid())
+     *     info.isMinimized();
+     * @endcode
      */
     bool isMinimized() const;
     /**
-     * Returns the mapping state of the window (see NET::MappingState). Note that
-     * it's very likely that you don't want to use this function, and use isOnDesktop(),
-     * isMinimized() etc. instead.
-     * Requires NET::XAWMState passed to KWin::windowInfo().
+     * Returns the mapping state of the window.
+     *
+     * Note that it's very likely that you don't want to use this function,
+     * and use isOnDesktop(), isMinimized() etc. instead.
+     * Requires NET::XAWMState passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::XAWMState);
+     * if (info.valid())
+     *     info.mappingState();
+     * @endcode
+     *
+     * @see NET::MappingState
+     * @see isOnDesktop()
+     * @see isMinimzed()
      */
     NET::MappingState mappingState() const;
     /**
      * Returns the window extended (partial) strut.
-     * Requires NET::WM2ExtendedStrut passed to KWin::windowInfo().
+     *
+     * Requires NET::WM2ExtendedStrut passed as properties2 parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), 0, NET::WM2ExtendedStrut);
+     * if (info.valid())
+     *     info.extendedStrut();
+     * @endcode
      */
     NETExtendedStrut extendedStrut() const;
     /**
-     * Returns the window type of this window (see NET::WindowType). The argument
-     * should be all window types your application supports (see NET::WindowTypeMask).
-     * Requires NET::WMWindowType passed to KWin::windowInfo().
+     * Returns the window type of this window.
+     *
+     * The argument should be all window types your application supports.
+     * Requires NET::WMWindowType passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMWindowType);
+     * if (info.valid())
+     *     info.windowType(NET::NormalMask | NET::DialogMask);
+     * @endcode
+     *
+     * @see NET::WindowType
+     * @see NET::WindowTypeMask
      */
     NET::WindowType windowType(int supported_types) const;
     /**
-     * Returns the visible name of the window (i.e. including possible <2> appended
-     * when there are two or more windows with the same name).
-     * Requires NET::WMVisibleName passed to KWin::windowInfo().
+     * Returns the visible name of the window.
+     *
+     * The visible name differs from the name by including possible <2> appended
+     * when there are two or more windows with the same name.
+     * Requires NET::WMVisibleName passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMVisibleName);
+     * if (info.valid())
+     *     info.visibleName();
+     * @endcode
+     *
+     * @see name()
      */
     QString visibleName() const;
     /**
@@ -102,119 +227,302 @@ public:
      * This is a simple convenience function that returns the
      * visible name but with parentheses around minimized windows.
      * Requires NET::WMVisibleName, NET::WMState and NET::XAWMState passed
-     * to KWin::windowInfo().
+     * as properties parameter to the constructor.
      * @return the window name with state
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMVisibleName | NET::WMState | NET::XAWMState);
+     * if (info.valid())
+     *     info.visibleNameWithState();
+     * @endcode
+     *
+     * @see visibleName()
      */
     QString visibleNameWithState() const;
     /**
-     * Returns the name of the window, as specified by the application, without
-     * any modifications. You should often use visibleName() instead.
-     * Requires NET::WMName passed to KWin::windowInfo().
+     * Returns the name of the window, as specified by the application.
+     *
+     * The difference to visibleName() is that this is the name provided by
+     * the application without any modifications by the window manager.
+     * You should often use visibleName() instead.
+     * Requires NET::WMName passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMName);
+     * if (info.valid())
+     *     info.name();
+     * @endcode
+     *
+     * @see visibleName()
      */
     QString name() const;
     /**
-     * Returns the visible name of the window that should be shown in taskbar
-     * and all other "iconic" representations of the window. Note that this
-     * has nothing to do with normal icons.
-     * Requires NET::WMVisibleIconName passed to KWin::windowInfo().
+     * Returns the visible name of the window that should be shown in a taskbar.
+     *
+     * Note that this has nothing to do with normal icons but with an "iconic"
+     * representation of the window.
+     * Requires NET::WMVisibleIconName passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMVisibleIconName);
+     * if (info.valid())
+     *     info.visibleIconName();
+     * @endcode
      */
     QString visibleIconName() const;
     /**
-     * Returns a visible name with state.
+     * Returns a visible icon name with state.
      *
      * This is a simple convenience function that returns the
      * visible iconic name but with parentheses around minimized windows.
      * Note that this has nothing to do with normal icons.
      * Requires NET::WMVisibleIconName, NET::WMState and NET::XAWMState passed
-     * to KWin::windowInfo().
+     * as properties parameter to the constructor.
      * @return the window iconic name with state
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMVisibleIconName | NET::WMState | NET::XAWMState);
+     * if (info.valid())
+     *     info.visibleIconNameWithState();
+     * @endcode
+     *
+     * @see visibleIconName()
      */
     QString visibleIconNameWithState() const;
     /**
-     * Returns the name of the window that should be shown in taskbar and all other
-     * "iconic" representations of the window. Note that this has nothing to do
-     * with normal icons.
-     * Requires NET::WMIconName passed to KWin::windowInfo().
+     * Returns the name of the window that should be shown in taskbar.
+     *
+     * Note that this has nothing to do with normal icons but with an "iconic"
+     * representation of the window.
+     * Requires NET::WMIconName passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMIconName);
+     * if (info.valid())
+     *     info.iconName();
+     * @endcode
      */
     QString iconName() const;
     /**
      * Returns true if the window is on the currently active virtual desktop.
-     * Requires NET::WMDesktop passed to KWin::windowInfo().
+     *
+     * Requires NET::WMDesktop passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMDesktop);
+     * if (info.valid())
+     *     info.isOnCurrentDesktop();
+     * @endcode
      */
     bool isOnCurrentDesktop() const;
     /**
      * Returns true if the window is on the given virtual desktop.
-     * Requires NET::WMDesktop passed to KWin::windowInfo().
+     *
+     * Requires NET::WMDesktop passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMDesktop);
+     * if (info.valid())
+     *     info.isOnDesktop(KWindowSystem::currentDesktop());
+     * @endcode
      */
     bool isOnDesktop(int desktop) const;
     /**
-     * Returns true if the window is on all desktops
-     * (equal to desktop()==NET::OnAllDesktops).
-     * Requires NET::WMDesktop passed to KWin::windowInfo().
+     * Returns true if the window is on all desktops.
+     *
+     * A window is on all desktops if desktop() returns NET::OnAllDesktops.
+     * Requires NET::WMDesktop passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMDesktop);
+     * if (info.valid())
+     *     info.onAllDesktops();
+     * @endcode
+     *
+     * @see desktop()
      */
     bool onAllDesktops() const;
     /**
-     * Returns the virtual desktop this window is on (NET::OnAllDesktops if the window
-     * is on all desktops). You should prefer using isOnDesktop().
-     * Requires NET::WMDesktop passed to KWin::windowInfo().
+     * Returns the virtual desktop this window is on.
+     *
+     * If the window is on all desktops NET::OnAllDesktops is returned.
+     * You should prefer using isOnDesktop().
+     * Requires NET::WMDesktop passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMDesktop);
+     * if (info.valid())
+     *     info.desktop();
+     * @endcode
+     *
+     * @see isOnDesktop()
      */
     int desktop() const;
     /**
      * Returns the position and size of the window contents.
-     * Requires NET::WMGeometry passed to KWin::windowInfo().
+     *
+     * Requires NET::WMGeometry passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMGeometry);
+     * if (info.valid())
+     *     info.geometry();
+     * @endcode
      */
     QRect geometry() const;
     /**
      * Returns the frame geometry of the window, i.e. including the window decoration.
-     * Requires NET::WMFrameExtents passed to KWin::windowInfo().
+     *
+     * Requires NET::WMFrameExtents passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMFrameExtents);
+     * if (info.valid())
+     *     info.frameGeometry();
+     * @endcode
      */
     QRect frameGeometry() const;
     /**
-     * Returns the WM_TRANSIENT_FOR property for the window, i.e. the mainwindow
-     * for this window.
-     * Requires NET::WM2TransientFor passed to KWin::windowInfo().
+     * Returns the window identifier of the main window this window belongs to.
+     *
+     * On platform X11 this is the value of the WM_TRANSIENT_FOR property.
+     *
+     * Requires NET::WM2TransientFor passed as properties2 parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), 0, NET::WM2TransientFor);
+     * if (info.valid())
+     *     info.transientFor();
+     * @endcode
      */
     WId transientFor() const;
     /**
      * Returns the leader window for the group the window is in, if any.
-     * Requires NET::WM2GroupLeader passed to KWin::windowInfo().
+     *
+     * Requires NET::WM2GroupLeader passed as properties2 parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), 0, NET::WM2GroupLeader);
+     * if (info.valid())
+     *     info.groupLeader();
+     * @endcode
      */
     WId groupLeader() const;
 
     /**
-     * Returns the class component of the window class for the window
-     * (i.e. WM_CLASS property).
-     * Requires NET::WM2WindowClass passed to KWin::windowInfo().
+     * Returns the class component of the window class for the window.
+     *
+     * On platform X11 this is part of the WM_CLASS property.
+     * Requires NET::WM2WindowClass passed as properties2 parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), 0, NET::WM2WindowClass);
+     * if (info.valid())
+     *     info.windowClassClass();
+     * @endcode
      */
     QByteArray windowClassClass() const;
 
     /**
-     * Returns the name component of the window class for the window
-     * (i.e. WM_CLASS property).
-     * Requires NET::WM2WindowClass passed to KWin::windowInfo().
+     * Returns the name component of the window class for the window.
+     *
+     * On platform X11 this is part of the WM_CLASS property.
+     * Requires NET::WM2WindowClass passed as properties2 parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), 0, NET::WM2WindowClass);
+     * if (info.valid())
+     *     info.windowClassName();
+     * @endcode
      */
     QByteArray windowClassName() const;
 
     /**
-     * Returns the window role for the window (i.e. WM_WINDOW_ROLE property).
-     * Requires NET::WM2WindowRole passed to KWin::windowInfo().
+     * Returns the window role for the window.
+     *
+     * On platform X11 this is the value of the WM_WINDOW_ROLE property.
+     * Requires NET::WM2WindowRole passed as properties2 parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), 0, NET::WM2WindowRole);
+     * if (info.valid())
+     *     info.windowRole();
+     * @endcode
      */
     QByteArray windowRole() const;
 
     /**
-     * Returns the client machine for the window (i.e. WM_CLIENT_MACHINE property).
-     * Requires NET::WMClientMachine passed to KWin::windowInfo().
+     * Returns the client machine for the window.
+     *
+     * On platform X11 this is the value of the WM_CLIENT_MACHINE property.
+     * Requires NET::WMClientMachine passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMClientMachine);
+     * if (info.valid())
+     *     info.clientMachine();
+     * @endcode
      */
     QByteArray clientMachine() const;
 
     /**
-     * Returns true if the given action is currently supported for the window
-     * by the window manager.
-     * Requires NET::WM2AllowedActions passed to KWin::windowInfo().
+     * Returns true if the given action is currently supported for the window.
+     *
+     * On platform X11 the supported actions are set by the window manager and
+     * can differ depending on the window manager.
+     * Requires NET::WM2AllowedActions passed as properties2 parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), 0, NET::WM2AllowedActions);
+     * if (info.valid())
+     *     info.actionSupported(NET::ActionClose);
+     * @endcode
      */
     bool actionSupported(NET::Action action) const;
 
+    /**
+     * Copy constructor.
+     */
     KWindowInfo(const KWindowInfo &);
+    /**
+     * Assignment operator.
+     */
     KWindowInfo &operator=(const KWindowInfo &);
 private:
     QExplicitlySharedDataPointer<KWindowInfoPrivate> d;
