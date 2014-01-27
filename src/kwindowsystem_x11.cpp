@@ -671,16 +671,13 @@ void KWindowSystem::demandAttention(WId win, bool set)
     info.setState(set ? NET::DemandsAttention : 0, NET::DemandsAttention);
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 WId KWindowSystem::transientFor(WId win)
 {
-    KXErrorHandler handler; // ignore badwindow
-    Window transient_for = None;
-    if (XGetTransientForHint(QX11Info::display(), win, &transient_for)) {
-        return transient_for;
-    }
-    // XGetTransientForHint() did sync
-    return None;
+    KWindowInfo info(win, 0, NET::WM2TransientFor);
+    return info.transientFor();
 }
+#endif
 
 void KWindowSystem::setMainWindow(QWidget *subWidget, WId mainWindowId)
 {
@@ -696,20 +693,13 @@ void KWindowSystem::setMainWindow(QWidget *subWidget, WId mainWindowId)
     subWindow->setTransientParent(mainWindow);
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 WId KWindowSystem::groupLeader(WId win)
 {
-    KXErrorHandler handler; // ignore badwindow
-    XWMHints *hints = XGetWMHints(QX11Info::display(), win);
-    Window window_group = None;
-    if (hints) {
-        if (hints->flags & WindowGroupHint) {
-            window_group = hints->window_group;
-        }
-        XFree(reinterpret_cast< char * >(hints));
-    }
-    // XGetWMHints() did sync
-    return window_group;
+    KWindowInfo info(win, 0, NET::WM2GroupLeader);
+    return info.groupLeader();
 }
+#endif
 
 QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale)
 {

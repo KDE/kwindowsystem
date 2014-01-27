@@ -226,19 +226,23 @@ public:
      */
     static void setMainWindow(QWidget *subwindow, WId mainwindow);
 #if KWINDOWSYSTEM_HAVE_X11
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
     /**
      * Returns the WM_TRANSIENT_FOR property for the given window, i.e. the mainwindow
      * for this window.
      *
      * @param window the id of the window
+     * @deprecated Use KWindowInfo::transientFor
      */
-    static WId transientFor(WId window);
+    KWINDOWSYSTEM_DEPRECATED static WId transientFor(WId window);
 
     /**
      * Returns the leader window for the group the given window is in, if any.
      * @param window the id of the window
+     * @deprecated Use KWindowInfo::groupLeader
      */
-    static WId groupLeader(WId window);
+    KWINDOWSYSTEM_DEPRECATED static WId groupLeader(WId window);
+#endif
 #endif
     /**
      * Returns an icon for window @p win.
