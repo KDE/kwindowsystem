@@ -54,8 +54,8 @@ add_library(KF5::WindowSystem ALIAS KF5WindowSystem)
 target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}/KWindowSystem>")
 
 target_link_libraries(KF5WindowSystem
-  PUBLIC Qt5::Gui
-  PRIVATE Qt5::Widgets ${platformLinkLibraries}
+    PUBLIC Qt5::Widgets
+    PRIVATE ${platformLinkLibraries}
 )
 
 if(IS_ABSOLUTE "${INCLUDE_INSTALL_DIR}")
