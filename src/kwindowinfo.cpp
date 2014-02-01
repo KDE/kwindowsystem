@@ -267,7 +267,7 @@ QString KWindowInfo::visibleName() const
 
 QString KWindowInfo::visibleNameWithState() const
 {
-    DELEGATE(visibleIconNameWithState, )
+    DELEGATE(visibleNameWithState, )
 }
 
 QString KWindowInfo::name() const
