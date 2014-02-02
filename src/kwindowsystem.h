@@ -90,6 +90,7 @@ public:
      **/
     static bool hasWId(WId id);
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
     /**
      * Returns information about window @p win. It is recommended to check
      * whether the returned info is valid by calling the valid() method.
@@ -99,8 +100,10 @@ public:
      *    in the returned data, but make this function faster when not all data is needed.
      * @param properties2 additional properties (see NET::Property2 enum)
      * @return the window information
+     * @deprecated use KWindowInfo directly
      */
-    static KWindowInfo windowInfo(WId win, unsigned long properties, unsigned long properties2 = 0);
+    KWINDOWSYSTEM_DEPRECATED static KWindowInfo windowInfo(WId win, unsigned long properties, unsigned long properties2 = 0);
+#endif
 
     /**
      * Returns the list of all toplevel windows currently managed by the

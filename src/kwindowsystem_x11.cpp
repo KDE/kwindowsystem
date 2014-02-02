@@ -500,10 +500,12 @@ const QList<WId> &KWindowSystem::windows()
     return s_d_func()->windows;
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 KWindowInfo KWindowSystem::windowInfo(WId win, unsigned long properties, unsigned long properties2)
 {
     return KWindowInfo(win, properties, properties2);
 }
+#endif
 
 bool KWindowSystem::hasWId(WId w)
 {

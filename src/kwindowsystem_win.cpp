@@ -712,11 +712,13 @@ void KWindowSystem::setType(WId win, NET::WindowType windowType)
     qDebug() << "setType( WId win, NET::WindowType windowType ) isn't yet implemented!";
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 KWindowInfo KWindowSystem::windowInfo(WId win, unsigned long properties, unsigned long properties2)
 {
     KWindowSystem::init(INFO_WINDOWS);
     return KWindowInfo(win, properties, properties2);
 }
+#endif
 
 bool KWindowSystem::hasWId(WId w)
 {
