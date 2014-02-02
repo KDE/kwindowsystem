@@ -27,7 +27,7 @@ class NETWinInfo;
 class KWindowInfoPrivateX11 : public KWindowInfoPrivate
 {
 public:
-    KWindowInfoPrivateX11(WId window, long unsigned int properties, long unsigned int properties2);
+    KWindowInfoPrivateX11(WId window, NET::Properties properties, NET::Properties2 properties2);
     ~KWindowInfoPrivateX11();
 
     bool valid(bool withdrawn_is_valid) const;

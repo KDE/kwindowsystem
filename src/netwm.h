@@ -127,7 +127,7 @@ public:
         to the first element of the properties array in the above constructor,
         and therefore you cannot read all root window properties using it.
     **/
-    NETRootInfo(xcb_connection_t *connection, unsigned long properties, int screen = -1,
+    NETRootInfo(xcb_connection_t *connection, NET::Properties properties, int screen = -1,
                 bool doActivate = true);
 
     /**
@@ -910,7 +910,7 @@ public:
         in the above constructor.
     **/
     NETWinInfo(xcb_connection_t *connection, xcb_window_t window,
-               xcb_window_t rootWindow, unsigned long properties,
+               xcb_window_t rootWindow, NET::Properties properties,
                Role role = Client);
 
     /**

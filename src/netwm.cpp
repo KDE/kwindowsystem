@@ -767,7 +767,7 @@ NETRootInfo::NETRootInfo(xcb_connection_t *connection, const unsigned long prope
     }
 }
 
-NETRootInfo::NETRootInfo(xcb_connection_t *connection, unsigned long properties, int screen,
+NETRootInfo::NETRootInfo(xcb_connection_t *connection, NET::Properties properties, int screen,
                          bool doActivate)
 {
 
@@ -2838,7 +2838,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
 }
 
 NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_window_t rootWindow,
-                       unsigned long properties, Role role)
+                       NET::Properties properties, Role role)
 {
 
 #ifdef   NETWMDEBUG

@@ -30,7 +30,7 @@ typedef KWindowInfoPrivateDummy KWindowInfoPrivateX11;
 #include <QGuiApplication>
 
 // private
-KWindowInfoPrivate *KWindowInfoPrivate::create(WId window, unsigned long properties, unsigned long properties2)
+KWindowInfoPrivate *KWindowInfoPrivate::create(WId window, NET::Properties properties, NET::Properties2 properties2)
 {
     KWindowInfoPrivate *d = Q_NULLPTR;
 #if KWINDOWSYSTEM_HAVE_X11
@@ -44,7 +44,7 @@ KWindowInfoPrivate *KWindowInfoPrivate::create(WId window, unsigned long propert
     return d;
 }
 
-KWindowInfoPrivate::KWindowInfoPrivate(PlatformImplementation platform, WId window, unsigned long properties, unsigned long properties2)
+KWindowInfoPrivate::KWindowInfoPrivate(PlatformImplementation platform, WId window, NET::Properties properties, NET::Properties2 properties2)
     : m_window(window)
     , m_properties(properties)
     , m_properties2(properties2)
@@ -56,7 +56,7 @@ KWindowInfoPrivate::~KWindowInfoPrivate()
 {
 }
 
-KWindowInfoPrivateDummy::KWindowInfoPrivateDummy(WId window, unsigned long properties, unsigned long properties2)
+KWindowInfoPrivateDummy::KWindowInfoPrivateDummy(WId window, NET::Properties properties, NET::Properties2 properties2)
     : KWindowInfoPrivate(KWindowInfoPrivate::DummyPlatform, window, properties, properties2)
 {
 }
@@ -190,7 +190,7 @@ bool KWindowInfoPrivateDummy::actionSupported(NET::Action action) const
 }
 
 // public
-KWindowInfo::KWindowInfo(WId window, unsigned long properties, unsigned long properties2)
+KWindowInfo::KWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2)
     : d(KWindowInfoPrivate::create(window, properties, properties2))
 {
 }

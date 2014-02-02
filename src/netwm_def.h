@@ -26,6 +26,7 @@
 #ifndef   netwm_def_h
 #define   netwm_def_h
 #include <kwindowsystem_export.h>
+#include <QFlags>
 
 /**
   Simple point class for NET classes.
@@ -609,42 +610,44 @@ public:
 
     enum Property {
         // root
-        Supported             = 1 << 0,
-        ClientList            = 1 << 1,
-        ClientListStacking    = 1 << 2,
-        NumberOfDesktops      = 1 << 3,
-        DesktopGeometry       = 1 << 4,
-        DesktopViewport       = 1 << 5,
-        CurrentDesktop        = 1 << 6,
-        DesktopNames          = 1 << 7,
-        ActiveWindow          = 1 << 8,
-        WorkArea              = 1 << 9,
-        SupportingWMCheck     = 1 << 10,
-        VirtualRoots          = 1 << 11,
+        Supported             = 1u << 0,
+        ClientList            = 1u << 1,
+        ClientListStacking    = 1u << 2,
+        NumberOfDesktops      = 1u << 3,
+        DesktopGeometry       = 1u << 4,
+        DesktopViewport       = 1u << 5,
+        CurrentDesktop        = 1u << 6,
+        DesktopNames          = 1u << 7,
+        ActiveWindow          = 1u << 8,
+        WorkArea              = 1u << 9,
+        SupportingWMCheck     = 1u << 10,
+        VirtualRoots          = 1u << 11,
         //
-        CloseWindow           = 1 << 13,
-        WMMoveResize          = 1 << 14,
+        CloseWindow           = 1u << 13,
+        WMMoveResize          = 1u << 14,
 
         // window
-        WMName                = 1 << 15,
-        WMVisibleName         = 1 << 16,
-        WMDesktop             = 1 << 17,
-        WMWindowType          = 1 << 18,
-        WMState               = 1 << 19,
-        WMStrut               = 1 << 20,
-        WMIconGeometry        = 1 << 21,
-        WMIcon                = 1 << 22,
-        WMPid                 = 1 << 23,
-        WMHandledIcons        = 1 << 24,
-        WMPing                = 1 << 25,
-        XAWMState             = 1 << 27,
-        WMFrameExtents        = 1 << 28,
+        WMName                = 1u << 15,
+        WMVisibleName         = 1u << 16,
+        WMDesktop             = 1u << 17,
+        WMWindowType          = 1u << 18,
+        WMState               = 1u << 19,
+        WMStrut               = 1u << 20,
+        WMIconGeometry        = 1u << 21,
+        WMIcon                = 1u << 22,
+        WMPid                 = 1u << 23,
+        WMHandledIcons        = 1u << 24,
+        WMPing                = 1u << 25,
+        XAWMState             = 1u << 27,
+        WMFrameExtents        = 1u << 28,
 
         // Need to be reordered
-        WMIconName            = 1 << 29,
-        WMVisibleIconName     = 1 << 30,
-        WMGeometry        = 1 << 31
+        WMIconName            = 1u << 29,
+        WMVisibleIconName     = 1u << 30,
+        WMGeometry            = 1u << 31,
+        WMAllProperties       = ~1u
     };
+    Q_DECLARE_FLAGS(Properties, Property)
 
     /**
         Supported properties. This enum is an extension to NET::Property,
@@ -671,29 +674,31 @@ public:
         @li WM2FullscreenMonitors _NET_WM_FULLSCREEN_MONITORS
     **/
     enum Property2 {
-        WM2UserTime            = 1 << 0,
-        WM2StartupId           = 1 << 1,
-        WM2TransientFor        = 1 << 2,
-        WM2GroupLeader         = 1 << 3,
-        WM2AllowedActions      = 1 << 4,
-        WM2RestackWindow       = 1 << 5,
-        WM2MoveResizeWindow    = 1 << 6,
-        WM2ExtendedStrut       = 1 << 7,
-        WM2TakeActivity        = 1 << 8,
-        WM2KDETemporaryRules   = 1 << 9, // NOT STANDARD
-        WM2WindowClass         = 1 << 10,
-        WM2WindowRole          = 1 << 11,
-        WM2ClientMachine       = 1 << 12,
-        WM2ShowingDesktop      = 1 << 13,
-        WM2Opacity             = 1 << 14,
-        WM2DesktopLayout       = 1 << 15,
-        WM2FullPlacement       = 1 << 16,
-        WM2FullscreenMonitors  = 1 << 17,
-        WM2FrameOverlap        = 1 << 18, // NOT STANDARD
-        WM2Activities          = 1 << 19, // NOT STANDARD @since 4.6
-        WM2BlockCompositing    = 1 << 20, // NOT STANDARD @since 4.7
-        WM2KDEShadow           = 1 << 21 // NOT Standard @since 4.7
+        WM2UserTime            = 1u << 0,
+        WM2StartupId           = 1u << 1,
+        WM2TransientFor        = 1u << 2,
+        WM2GroupLeader         = 1u << 3,
+        WM2AllowedActions      = 1u << 4,
+        WM2RestackWindow       = 1u << 5,
+        WM2MoveResizeWindow    = 1u << 6,
+        WM2ExtendedStrut       = 1u << 7,
+        WM2TakeActivity        = 1u << 8,
+        WM2KDETemporaryRules   = 1u << 9, // NOT STANDARD
+        WM2WindowClass         = 1u << 10,
+        WM2WindowRole          = 1u << 11,
+        WM2ClientMachine       = 1u << 12,
+        WM2ShowingDesktop      = 1u << 13,
+        WM2Opacity             = 1u << 14,
+        WM2DesktopLayout       = 1u << 15,
+        WM2FullPlacement       = 1u << 16,
+        WM2FullscreenMonitors  = 1u << 17,
+        WM2FrameOverlap        = 1u << 18, // NOT STANDARD
+        WM2Activities          = 1u << 19, // NOT STANDARD @since 4.6
+        WM2BlockCompositing    = 1u << 20, // NOT STANDARD @since 4.7
+        WM2KDEShadow           = 1u << 21, // NOT Standard @since 4.7
+        WM2AllProperties       = ~1u
     };
+    Q_DECLARE_FLAGS(Properties2, Property2)
 
     /**
        Sentinel value to indicate that the client wishes to be visible on
@@ -752,5 +757,8 @@ public:
     static int timestampDiff(unsigned long time1, unsigned long time2);
 
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(NET::Properties)
+Q_DECLARE_OPERATORS_FOR_FLAGS(NET::Properties2)
 
 #endif // netwm_def_h

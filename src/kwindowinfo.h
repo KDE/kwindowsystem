@@ -84,7 +84,7 @@ public:
      * @param properties Bitmask of NET::Property
      * @param properties2 Bitmask of NET::Property2
      */
-    KWindowInfo(WId window, unsigned long properties, unsigned long properties2 = 0);
+    KWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2 = 0);
     ~KWindowInfo();
     /**
      * Returns false if this window info is not valid.

@@ -503,7 +503,7 @@ const QList<WId> &KWindowSystem::windows()
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED
 KWindowInfo KWindowSystem::windowInfo(WId win, unsigned long properties, unsigned long properties2)
 {
-    return KWindowInfo(win, properties, properties2);
+    return KWindowInfo(win, NET::Properties(uint(properties)), NET::Properties2(uint(properties2)));
 }
 #endif
 

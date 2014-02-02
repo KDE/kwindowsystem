@@ -103,13 +103,13 @@ public:
     template <class T>
     bool actionSupported(NET::Action action) const;
 
-    static KWindowInfoPrivate *create(WId window, unsigned long properties, unsigned long properties2);
+    static KWindowInfoPrivate *create(WId window, NET::Properties properties, NET::Properties2 properties2);
 
 protected:
-    KWindowInfoPrivate(PlatformImplementation platform, WId window, unsigned long properties, unsigned long properties2);
+    KWindowInfoPrivate(PlatformImplementation platform, WId window, NET::Properties properties, NET::Properties2 properties2);
     WId m_window;
-    unsigned long m_properties;
-    unsigned long m_properties2;
+    NET::Properties m_properties;
+    NET::Properties2 m_properties2;
 
 private:
     PlatformImplementation m_platform;
@@ -122,7 +122,7 @@ private:
 class KWindowInfoPrivateDummy : public KWindowInfoPrivate
 {
 public:
-    KWindowInfoPrivateDummy(WId window, unsigned long properties, unsigned long properties2);
+    KWindowInfoPrivateDummy(WId window, NET::Properties properties, NET::Properties2 properties2);
     ~KWindowInfoPrivateDummy();
 
     bool valid(bool withdrawn_is_valid) const;

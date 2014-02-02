@@ -30,7 +30,7 @@
 #include <X11/Xatom.h>
 
 // KWindowSystem::info() should be updated too if something has to be changed here
-KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, unsigned long properties, unsigned long properties2)
+KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, NET::Properties properties, NET::Properties2 properties2)
     : KWindowInfoPrivate(XcbPlatform, _win, properties, properties2)
 {
     KXErrorHandler handler;
