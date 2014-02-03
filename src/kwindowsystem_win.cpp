@@ -526,7 +526,7 @@ void KWindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIc
 
 }
 
-void KWindowSystem::setState(WId win, unsigned long state)
+void KWindowSystem::setState(WId win, NET::States state)
 {
     HWND hwnd = reinterpret_cast<HWND>(win);
     bool got = false;
@@ -554,7 +554,7 @@ void KWindowSystem::setState(WId win, unsigned long state)
     }
 }
 
-void KWindowSystem::clearState(WId win, unsigned long state)
+void KWindowSystem::clearState(WId win, NET::States state)
 {
     bool got = false;
     HWND hwnd = reinterpret_cast<HWND>(win);

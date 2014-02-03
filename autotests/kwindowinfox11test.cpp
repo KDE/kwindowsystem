@@ -28,6 +28,7 @@
 #include <QX11Info>
 Q_DECLARE_METATYPE(WId)
 Q_DECLARE_METATYPE(NET::State)
+Q_DECLARE_METATYPE(NET::States)
 Q_DECLARE_METATYPE(NET::WindowType)
 Q_DECLARE_METATYPE(NET::WindowTypeMask)
 Q_DECLARE_METATYPE(NET::WindowTypes)
@@ -159,16 +160,16 @@ void KWindowInfoX11Test::cleanup()
 
 void KWindowInfoX11Test::testState_data()
 {
-    QTest::addColumn<unsigned long>("state");
+    QTest::addColumn<NET::States>("state");
 
-    QTest::newRow("max")         << static_cast<unsigned long>(NET::Max);
-    QTest::newRow("maxHoriz")    << static_cast<unsigned long>(NET::MaxHoriz);
-    QTest::newRow("shaded")      << static_cast<unsigned long>(NET::Shaded);
-    QTest::newRow("skipTaskbar") << static_cast<unsigned long>(NET::SkipTaskbar);
-    QTest::newRow("skipPager")   << static_cast<unsigned long>(NET::SkipPager);
-    QTest::newRow("keep above")  << static_cast<unsigned long>(NET::KeepAbove);
-    QTest::newRow("keep below")  << static_cast<unsigned long>(NET::KeepBelow);
-    QTest::newRow("fullscreen")  << static_cast<unsigned long>(NET::FullScreen);
+    QTest::newRow("max")         << NET::States(NET::Max);
+    QTest::newRow("maxHoriz")    << NET::States(NET::MaxHoriz);
+    QTest::newRow("shaded")      << NET::States(NET::Shaded);
+    QTest::newRow("skipTaskbar") << NET::States(NET::SkipTaskbar);
+    QTest::newRow("skipPager")   << NET::States(NET::SkipPager);
+    QTest::newRow("keep above")  << NET::States(NET::KeepAbove);
+    QTest::newRow("keep below")  << NET::States(NET::KeepBelow);
+    QTest::newRow("fullscreen")  << NET::States(NET::FullScreen);
 
     // NOTE: modal, sticky and hidden cannot be tested with this variant
     // demands attention is not tested as that's already part of the first run adjustments
@@ -176,14 +177,14 @@ void KWindowInfoX11Test::testState_data()
 
 void KWindowInfoX11Test::testState()
 {
-    QFETCH(unsigned long, state);
+    QFETCH(NET::States, state);
     QX11Info::getTimestamp();
 
     KWindowInfo info(window->winId(), NET::WMState);
     QVERIFY(info.valid());
     // all states except demands attention
     for (int i = 0; i < 12; ++i) {
-        QVERIFY(!info.hasState(1 << i));
+        QVERIFY(!info.hasState(NET::States(1 << i)));
     }
 
     QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowChanged(WId,unsigned int)));
@@ -194,7 +195,7 @@ void KWindowInfoX11Test::testState()
 
     KWindowInfo info3(window->winId(), NET::WMState);
     QVERIFY(info3.valid());
-    QCOMPARE(info3.state(), static_cast<unsigned long>(state));
+    QCOMPARE(info3.state(), state);
     QVERIFY(info3.hasState(state));
 }
 

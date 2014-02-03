@@ -520,13 +520,13 @@ void KWindowSystem::setType(WId winid, NET::WindowType windowType)
 #endif
 }
 
-void KWindowSystem::setState(WId win, unsigned long state)
+void KWindowSystem::setState(WId win, NET::States state)
 {
     //TODO
     qDebug() << "KWindowSystem::setState( WId win, unsigned long state ) isn't yet implemented!";
 }
 
-void KWindowSystem::clearState(WId win, unsigned long state)
+void KWindowSystem::clearState(WId win, NET::States state)
 {
     //TODO
     qDebug() << "KWindowSystem::clearState( WId win, unsigned long state ) isn't yet implemented!";

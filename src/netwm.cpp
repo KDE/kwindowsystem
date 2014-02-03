@@ -3084,7 +3084,7 @@ void NETWinInfo::setFullscreenMonitors(NETFullscreenMonitors topology)
                         XCB_ATOM_CARDINAL, 32, 4, (const void *) data);
 }
 
-void NETWinInfo::setState(unsigned long state, unsigned long mask)
+void NETWinInfo::setState(NET::States state, NET::States mask)
 {
     if (p->mapping_state_dirty) {
         updateWMState();
@@ -3135,7 +3135,7 @@ void NETWinInfo::setState(unsigned long state, unsigned long mask)
 
         if ((mask & Max) && (((p->state & mask) & Max) != (state & Max))) {
 
-            unsigned long wishstate = (p->state & ~mask) | (state & mask);
+            NET::States wishstate = (p->state & ~mask) | (state & mask);
             if (((wishstate & MaxHoriz) != (p->state & MaxHoriz))
                     && ((wishstate & MaxVert) != (p->state & MaxVert))) {
                 if ((wishstate & Max) == Max) {
@@ -3831,7 +3831,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, unsigned long *properties, in
 #endif
 
             int i;
-            long state = 0, mask = 0;
+            NET::States state = 0, mask = 0;
 
             for (i = 1; i < 3; i++) {
 #ifdef NETWMDEBUG
@@ -4652,7 +4652,7 @@ NETRect NETWinInfo::iconGeometry() const
     return p->icon_geom;
 }
 
-unsigned long NETWinInfo::state() const
+NET::States NETWinInfo::state() const
 {
     return p->state;
 }

@@ -71,7 +71,7 @@ bool KWindowInfoPrivateDummy::valid(bool withdrawn_is_valid) const
     return false;
 }
 
-unsigned long KWindowInfoPrivateDummy::state() const
+NET::States KWindowInfoPrivateDummy::state() const
 {
     return 0;
 }
@@ -230,12 +230,12 @@ WId KWindowInfo::win() const
     return d->win();
 }
 
-unsigned long KWindowInfo::state() const
+NET::States KWindowInfo::state() const
 {
     DELEGATE(state, )
 }
 
-bool KWindowInfo::hasState(unsigned long s) const
+bool KWindowInfo::hasState(NET::States s) const
 {
     return (state() & s) == s;
 }

@@ -21,6 +21,9 @@
 #include <qtest_widgets.h>
 #include <QProcess>
 
+Q_DECLARE_METATYPE(NET::State)
+Q_DECLARE_METATYPE(NET::States)
+
 class Property : public QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>
 {
 public:
@@ -401,11 +404,9 @@ void NetWinInfoTestWM::testOpacity()
     QCOMPARE(info.opacity(), static_cast<unsigned long>(opacity));
 }
 
-Q_DECLARE_FLAGS(States, NET::State)
-Q_DECLARE_METATYPE(States)
 void NetWinInfoTestWM::testState_data()
 {
-    QTest::addColumn<States>("states");
+    QTest::addColumn<NET::States>("states");
     QTest::addColumn<QVector<QByteArray> >("names");
 
     const QByteArray modal            = QByteArrayLiteral("_NET_WM_STATE_MODAL");
@@ -422,22 +423,22 @@ void NetWinInfoTestWM::testState_data()
     const QByteArray keepBelow        = QByteArrayLiteral("_NET_WM_STATE_BELOW");
     const QByteArray demandsAttention = QByteArrayLiteral("_NET_WM_STATE_DEMANDS_ATTENTION");
 
-    QTest::newRow("modal")            << States(NET::Modal)            << (QVector<QByteArray>() << modal);
-    QTest::newRow("sticky")           << States(NET::Sticky)           << (QVector<QByteArray>() << sticky);
-    QTest::newRow("maxVert")          << States(NET::MaxVert)          << (QVector<QByteArray>() << maxVert);
-    QTest::newRow("maxHoriz")         << States(NET::MaxHoriz)         << (QVector<QByteArray>() << maxHoriz);
-    QTest::newRow("shaded")           << States(NET::Shaded)           << (QVector<QByteArray>() << shaded);
-    QTest::newRow("skipTaskbar")      << States(NET::SkipTaskbar)      << (QVector<QByteArray>() << skipTaskbar);
-    QTest::newRow("keepAbove")        << States(NET::KeepAbove)        << (QVector<QByteArray>() << keepAbove << staysOnTop);
-    QTest::newRow("staysOnTop")       << States(NET::StaysOnTop)       << (QVector<QByteArray>() << keepAbove << staysOnTop);
-    QTest::newRow("skipPager")        << States(NET::SkipPager)        << (QVector<QByteArray>() << skipPager);
-    QTest::newRow("hidden")           << States(NET::Hidden)           << (QVector<QByteArray>() << hidden);
-    QTest::newRow("fullScreen")       << States(NET::FullScreen)       << (QVector<QByteArray>() << fullScreen);
-    QTest::newRow("keepBelow")        << States(NET::KeepBelow)        << (QVector<QByteArray>() << keepBelow);
-    QTest::newRow("demandsAttention") << States(NET::DemandsAttention) << (QVector<QByteArray>() << demandsAttention);
+    QTest::newRow("modal")            << NET::States(NET::Modal)            << (QVector<QByteArray>() << modal);
+    QTest::newRow("sticky")           << NET::States(NET::Sticky)           << (QVector<QByteArray>() << sticky);
+    QTest::newRow("maxVert")          << NET::States(NET::MaxVert)          << (QVector<QByteArray>() << maxVert);
+    QTest::newRow("maxHoriz")         << NET::States(NET::MaxHoriz)         << (QVector<QByteArray>() << maxHoriz);
+    QTest::newRow("shaded")           << NET::States(NET::Shaded)           << (QVector<QByteArray>() << shaded);
+    QTest::newRow("skipTaskbar")      << NET::States(NET::SkipTaskbar)      << (QVector<QByteArray>() << skipTaskbar);
+    QTest::newRow("keepAbove")        << NET::States(NET::KeepAbove)        << (QVector<QByteArray>() << keepAbove << staysOnTop);
+    QTest::newRow("staysOnTop")       << NET::States(NET::StaysOnTop)       << (QVector<QByteArray>() << keepAbove << staysOnTop);
+    QTest::newRow("skipPager")        << NET::States(NET::SkipPager)        << (QVector<QByteArray>() << skipPager);
+    QTest::newRow("hidden")           << NET::States(NET::Hidden)           << (QVector<QByteArray>() << hidden);
+    QTest::newRow("fullScreen")       << NET::States(NET::FullScreen)       << (QVector<QByteArray>() << fullScreen);
+    QTest::newRow("keepBelow")        << NET::States(NET::KeepBelow)        << (QVector<QByteArray>() << keepBelow);
+    QTest::newRow("demandsAttention") << NET::States(NET::DemandsAttention) << (QVector<QByteArray>() << demandsAttention);
 
     // TODO: it's possible to be keep above and below at the same time?!?
-    QTest::newRow("all") << States(NET::Modal |
+    QTest::newRow("all") << NET::States(NET::Modal |
                                    NET::Sticky |
                                    NET::Max |
                                    NET::Shaded |
@@ -460,10 +461,10 @@ void NetWinInfoTestWM::testState()
     ATOM(_NET_WM_STATE)
     INFO
 
-    QCOMPARE(info.state(), 0ul);
-    QFETCH(States, states);
+    QCOMPARE(info.state(), NET::States(0));
+    QFETCH(NET::States, states);
     info.setState(states, 0);
-    QCOMPARE(info.state(), static_cast<unsigned long>(states));
+    QCOMPARE(info.state(), states);
 
     // compare with the X property
     QFETCH(QVector<QByteArray>, names);
@@ -476,7 +477,7 @@ void NetWinInfoTestWM::testState()
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::WMState);
-    QCOMPARE(info.state(), static_cast<unsigned long>(states));
+    QCOMPARE(info.state(), states);
 }
 
 void NetWinInfoTestWM::testVisibleIconName()

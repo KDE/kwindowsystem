@@ -428,21 +428,21 @@ public:
            MUST be set to indicate which window the dialog is a modal for, or set to
            the root window if the dialog is a modal for its window group.
         **/
-        Modal        = 1 << 0,
+        Modal        = 1u << 0,
         /**
            indicates that the Window Manager SHOULD keep the window's position
            fixed on the screen, even when the virtual desktop scrolls. Note that this is
            different from being kept on all desktops.
         **/
-        Sticky       = 1 << 1,
+        Sticky       = 1u << 1,
         /**
            indicates that the window is vertically maximized.
         **/
-        MaxVert      = 1 << 2,
+        MaxVert      = 1u << 2,
         /**
            indicates that the window is horizontally maximized.
         **/
-        MaxHoriz     = 1 << 3,
+        MaxHoriz     = 1u << 3,
         /**
            convenience value. Equal to MaxVert | MaxHoriz.
         **/
@@ -450,16 +450,16 @@ public:
         /**
            indicates that the window is shaded (rolled-up).
         **/
-        Shaded       = 1 << 4,
+        Shaded       = 1u << 4,
         /**
            indicates that a window should not be included on a taskbar.
         **/
-        SkipTaskbar  = 1 << 5,
+        SkipTaskbar  = 1u << 5,
         /**
            indicates that a window should on top of most windows (but below fullscreen
            windows).
         **/
-        KeepAbove    = 1 << 6,
+        KeepAbove    = 1u << 6,
         /**
            @deprecated This is an obsolete name for KeepAbove.
         **/
@@ -467,28 +467,29 @@ public:
         /**
            indicates that a window should not be included on a pager.
         **/
-        SkipPager    = 1 << 7,
+        SkipPager    = 1u << 7,
         /**
            indicates that a window should not be visible on the screen (e.g. when minimised).
            Only the window manager is allowed to change it.
         **/
-        Hidden       = 1 << 8,
+        Hidden       = 1u << 8,
         /**
            indicates that a window should fill the entire screen and have no window
            decorations.
         **/
-        FullScreen   = 1 << 9,
+        FullScreen   = 1u << 9,
         /**
            indicates that a window should be below most windows (but above any desktop windows).
         **/
-        KeepBelow    = 1 << 10,
+        KeepBelow    = 1u << 10,
         /**
            there was an attempt to activate this window, but the window manager prevented
            this. E.g. taskbar should mark such window specially to bring user's attention to
            this window. Only the window manager is allowed to change it.
         **/
-        DemandsAttention = 1 << 11
+        DemandsAttention = 1u << 11
     };
+    Q_DECLARE_FLAGS(States, State)
 
     /**
        Direction for WMMoveResize.
@@ -762,5 +763,6 @@ public:
 Q_DECLARE_OPERATORS_FOR_FLAGS(NET::Properties)
 Q_DECLARE_OPERATORS_FOR_FLAGS(NET::Properties2)
 Q_DECLARE_OPERATORS_FOR_FLAGS(NET::WindowTypes)
+Q_DECLARE_OPERATORS_FOR_FLAGS(NET::States)
 
 #endif // netwm_def_h

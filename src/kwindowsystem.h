@@ -319,7 +319,7 @@ public:
      * @param win the id of the window
      * @param state the new flags that will be set
      */
-    static void setState(WId win, unsigned long state);
+    static void setState(WId win, NET::States state);
 
     /**
      * Clears the state of window @p win from @p state.
@@ -332,7 +332,7 @@ public:
      * @param win the id of the window
      * @param state the flags that will be cleared
      */
-    static void clearState(WId win, unsigned long  state);
+    static void clearState(WId win, NET::States  state);
 
     /**
      * Iconifies a window. Compatible to XIconifyWindow but has an

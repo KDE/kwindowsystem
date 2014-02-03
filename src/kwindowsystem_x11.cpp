@@ -670,7 +670,7 @@ void KWindowSystem::forceActiveWindow(WId win, long time)
 void KWindowSystem::demandAttention(WId win, bool set)
 {
     NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMState);
-    info.setState(set ? NET::DemandsAttention : 0, NET::DemandsAttention);
+    info.setState(set ? NET::DemandsAttention : NET::States(0), NET::DemandsAttention);
 }
 
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED
@@ -835,13 +835,13 @@ void KWindowSystem::setType(WId win, NET::WindowType windowType)
     info.setWindowType(windowType);
 }
 
-void KWindowSystem::setState(WId win, unsigned long state)
+void KWindowSystem::setState(WId win, NET::States state)
 {
     NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMState);
     info.setState(state, state);
 }
 
-void KWindowSystem::clearState(WId win, unsigned long state)
+void KWindowSystem::clearState(WId win, NET::States state)
 {
     NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMState);
     info.setState(0, state);

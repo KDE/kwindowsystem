@@ -117,7 +117,7 @@ public:
      *
      * @see NET::State
      */
-    unsigned long state() const;
+    NET::States state() const;
     /**
      * Returns true if the window has the given state flag set.
      *
@@ -132,7 +132,7 @@ public:
      *
      * @see NET::State
      */
-    bool hasState(unsigned long s) const;
+    bool hasState(NET::States s) const;
     /**
      * Returns true if the window is minimized.
      *

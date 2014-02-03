@@ -31,7 +31,7 @@ public:
     ~KWindowInfoPrivateX11();
 
     bool valid(bool withdrawn_is_valid) const;
-    unsigned long state() const;
+    NET::States state() const;
     bool isMinimized() const;
     NET::MappingState mappingState() const;
     NETExtendedStrut extendedStrut() const;

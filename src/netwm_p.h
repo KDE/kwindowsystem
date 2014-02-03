@@ -136,7 +136,7 @@ struct NETWinInfoPrivate {
     int *icon_sizes; // for iconSizes() only
 
     NETRect icon_geom, win_geom;
-    unsigned long state;
+    NET::States state;
     NETExtendedStrut extended_strut;
     NETStrut strut;
     NETStrut frame_strut; // strut?

@@ -57,7 +57,7 @@ public:
     template <class T>
     bool valid(bool withdrawn_is_valid) const;
     template <class T>
-    unsigned long state() const;
+    NET::States state() const;
     template <class T>
     bool isMinimized() const;
     template <class T>
@@ -126,7 +126,7 @@ public:
     ~KWindowInfoPrivateDummy();
 
     bool valid(bool withdrawn_is_valid) const;
-    unsigned long state() const;
+    NET::States state() const;
     bool isMinimized() const;
     NET::MappingState mappingState() const;
     NETExtendedStrut extendedStrut() const;
@@ -171,7 +171,7 @@ type KWindowInfoPrivate::name() const \
     return static_cast<const T*>(this)->name(); \
 }
 
-DELGATE(unsigned long, state)
+DELGATE(NET::States, state)
 DELGATE(bool, isMinimized)
 DELGATE(NET::MappingState, mappingState)
 DELGATE(NETExtendedStrut, extendedStrut)

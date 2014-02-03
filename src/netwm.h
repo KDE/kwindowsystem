@@ -959,7 +959,7 @@ public:
 
        @return the state of the window
     **/
-    unsigned long state() const;
+    NET::States state() const;
 
     /**
        Returns the extended (partial) strut specified by this client.
@@ -1111,7 +1111,7 @@ public:
 
        @param mask the mask for the state
     **/
-    void setState(unsigned long state, unsigned long mask);
+    void setState(NET::States state, NET::States mask);
 
     /**
        Sets the window type for this client (see the NET base class
@@ -1423,7 +1423,7 @@ protected:
 
        @param mask the mask for the state
     **/
-    virtual void changeState(unsigned long state, unsigned long mask)
+    virtual void changeState(NET::States state, NET::States mask)
     {
         Q_UNUSED(state);
         Q_UNUSED(mask);

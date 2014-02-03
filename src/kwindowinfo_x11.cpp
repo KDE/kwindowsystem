@@ -90,7 +90,7 @@ bool KWindowInfoPrivateX11::valid(bool withdrawn_is_valid) const
     return true;
 }
 
-unsigned long KWindowInfoPrivateX11::state() const
+NET::States KWindowInfoPrivateX11::state() const
 {
 #if !defined(KDE_NO_WARNING_OUTPUT)
     if (!(m_info->passedProperties()[ NETWinInfo::PROTOCOLS ] & NET::WMState)) {
