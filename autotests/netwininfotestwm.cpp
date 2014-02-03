@@ -23,6 +23,7 @@
 
 Q_DECLARE_METATYPE(NET::State)
 Q_DECLARE_METATYPE(NET::States)
+Q_DECLARE_METATYPE(NET::Actions)
 
 class Property : public QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>
 {
@@ -200,12 +201,9 @@ bool NetWinInfoTestWM::hasAtomFlag(const xcb_atom_t *atoms, int atomsLength, con
     return false;
 }
 
-Q_DECLARE_FLAGS(Actions, NET::Action)
-Q_DECLARE_METATYPE(Actions)
-
 void NetWinInfoTestWM::testAllowedActions_data()
 {
-    QTest::addColumn<Actions>("actions");
+    QTest::addColumn<NET::Actions>("actions");
     QTest::addColumn<QVector<QByteArray> >("names");
 
     const QByteArray move       = QByteArrayLiteral("_NET_WM_ACTION_MOVE");
@@ -219,20 +217,20 @@ void NetWinInfoTestWM::testAllowedActions_data()
     const QByteArray desktop    = QByteArrayLiteral("_NET_WM_ACTION_CHANGE_DESKTOP");
     const QByteArray close      = QByteArrayLiteral("_NET_WM_ACTION_CLOSE");
 
-    QTest::newRow("move")       << Actions(NET::ActionMove)          << (QVector<QByteArray>() << move);
-    QTest::newRow("resize")     << Actions(NET::ActionResize)        << (QVector<QByteArray>() << resize);
-    QTest::newRow("minimize")   << Actions(NET::ActionMinimize)      << (QVector<QByteArray>() << minimize);
-    QTest::newRow("shade")      << Actions(NET::ActionShade)         << (QVector<QByteArray>() << shade);
-    QTest::newRow("stick")      << Actions(NET::ActionStick)         << (QVector<QByteArray>() << stick);
-    QTest::newRow("maxVert")    << Actions(NET::ActionMaxVert)       << (QVector<QByteArray>() << maxVert);
-    QTest::newRow("maxHoriz")   << Actions(NET::ActionMaxHoriz)      << (QVector<QByteArray>() << maxHoriz);
-    QTest::newRow("fullscreen") << Actions(NET::ActionFullScreen)    << (QVector<QByteArray>() << fullscreen);
-    QTest::newRow("desktop")    << Actions(NET::ActionChangeDesktop) << (QVector<QByteArray>() << desktop);
-    QTest::newRow("close")      << Actions(NET::ActionClose)         << (QVector<QByteArray>() << close);
+    QTest::newRow("move")       << NET::Actions(NET::ActionMove)          << (QVector<QByteArray>() << move);
+    QTest::newRow("resize")     << NET::Actions(NET::ActionResize)        << (QVector<QByteArray>() << resize);
+    QTest::newRow("minimize")   << NET::Actions(NET::ActionMinimize)      << (QVector<QByteArray>() << minimize);
+    QTest::newRow("shade")      << NET::Actions(NET::ActionShade)         << (QVector<QByteArray>() << shade);
+    QTest::newRow("stick")      << NET::Actions(NET::ActionStick)         << (QVector<QByteArray>() << stick);
+    QTest::newRow("maxVert")    << NET::Actions(NET::ActionMaxVert)       << (QVector<QByteArray>() << maxVert);
+    QTest::newRow("maxHoriz")   << NET::Actions(NET::ActionMaxHoriz)      << (QVector<QByteArray>() << maxHoriz);
+    QTest::newRow("fullscreen") << NET::Actions(NET::ActionFullScreen)    << (QVector<QByteArray>() << fullscreen);
+    QTest::newRow("desktop")    << NET::Actions(NET::ActionChangeDesktop) << (QVector<QByteArray>() << desktop);
+    QTest::newRow("close")      << NET::Actions(NET::ActionClose)         << (QVector<QByteArray>() << close);
 
-    QTest::newRow("none") << Actions() << QVector<QByteArray>();
+    QTest::newRow("none") << NET::Actions() << QVector<QByteArray>();
 
-    QTest::newRow("all") << Actions(NET::ActionMove |
+    QTest::newRow("all") << NET::Actions(NET::ActionMove |
                                     NET::ActionResize |
                                     NET::ActionMinimize |
                                     NET::ActionShade |
@@ -253,10 +251,10 @@ void NetWinInfoTestWM::testAllowedActions()
     ATOM(_NET_WM_ALLOWED_ACTIONS)
     INFO
 
-    QCOMPARE(info.allowedActions(), 0ul);
-    QFETCH(Actions, actions);
+    QCOMPARE(info.allowedActions(), NET::Actions(0));
+    QFETCH(NET::Actions, actions);
     info.setAllowedActions(actions);
-    QCOMPARE(info.allowedActions(), static_cast<unsigned long>(actions));
+    QCOMPARE(info.allowedActions(), actions);
 
     // compare with the X property
     QFETCH(QVector<QByteArray>, names);
@@ -269,7 +267,7 @@ void NetWinInfoTestWM::testAllowedActions()
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2AllowedActions);
-    QCOMPARE(info.allowedActions(), static_cast<unsigned long>(actions));
+    QCOMPARE(info.allowedActions(), actions);
 }
 
 void NetWinInfoTestWM::testDesktop_data()

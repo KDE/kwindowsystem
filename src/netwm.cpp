@@ -3581,7 +3581,7 @@ void NETWinInfo::setOpacity(unsigned long opacity)
                         XCB_ATOM_CARDINAL, 32, 1, (const void *) &p->opacity);
 }
 
-void NETWinInfo::setAllowedActions(unsigned long actions)
+void NETWinInfo::setAllowedActions(NET::Actions actions)
 {
     if (p->role != WindowManager) {
         return;
@@ -4769,7 +4769,7 @@ unsigned long NETWinInfo::opacity() const
     return p->opacity;
 }
 
-unsigned long NETWinInfo::allowedActions() const
+NET::Actions NETWinInfo::allowedActions() const
 {
     return p->allowed_actions;
 }

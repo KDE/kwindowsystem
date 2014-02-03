@@ -552,18 +552,19 @@ public:
       Actions that can be done with a window (_NET_WM_ALLOWED_ACTIONS).
     **/
     enum Action {
-        ActionMove           = 1 << 0,
-        ActionResize         = 1 << 1,
-        ActionMinimize       = 1 << 2,
-        ActionShade          = 1 << 3,
-        ActionStick          = 1 << 4,
-        ActionMaxVert        = 1 << 5,
-        ActionMaxHoriz       = 1 << 6,
+        ActionMove           = 1u << 0,
+        ActionResize         = 1u << 1,
+        ActionMinimize       = 1u << 2,
+        ActionShade          = 1u << 3,
+        ActionStick          = 1u << 4,
+        ActionMaxVert        = 1u << 5,
+        ActionMaxHoriz       = 1u << 6,
         ActionMax            = ActionMaxVert | ActionMaxHoriz,
-        ActionFullScreen     = 1 << 7,
-        ActionChangeDesktop  = 1 << 8,
-        ActionClose          = 1 << 9
+        ActionFullScreen     = 1u << 7,
+        ActionChangeDesktop  = 1u << 8,
+        ActionClose          = 1u << 9
     };
+    Q_DECLARE_FLAGS(Actions, Action)
 
     /**
        Supported properties.  Clients and Window Managers must define which
@@ -764,5 +765,6 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(NET::Properties)
 Q_DECLARE_OPERATORS_FOR_FLAGS(NET::Properties2)
 Q_DECLARE_OPERATORS_FOR_FLAGS(NET::WindowTypes)
 Q_DECLARE_OPERATORS_FOR_FLAGS(NET::States)
+Q_DECLARE_OPERATORS_FOR_FLAGS(NET::Actions)
 
 #endif // netwm_def_h

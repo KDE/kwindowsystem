@@ -1271,12 +1271,12 @@ public:
     /**
      * Sets actions that the window manager allows for the window.
      */
-    void setAllowedActions(unsigned long actions);
+    void setAllowedActions(NET::Actions actions);
 
     /**
      * Returns actions that the window manager allows for the window.
      */
-    unsigned long allowedActions() const;
+    NET::Actions allowedActions() const;
 
     /**
      * Returns the WM_TRANSIENT_FOR property for the window, i.e. the mainwindow
