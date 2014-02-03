@@ -988,7 +988,7 @@ public:
 
        @return the type of the window
     **/
-    WindowType windowType(unsigned long supported_types) const;
+    WindowType windowType(WindowTypes supported_types) const;
 
     /**
       This function returns false if the window has not window type

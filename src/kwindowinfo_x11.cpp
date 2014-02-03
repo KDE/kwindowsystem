@@ -146,7 +146,7 @@ NETExtendedStrut KWindowInfoPrivateX11::extendedStrut() const
     return ext;
 }
 
-NET::WindowType KWindowInfoPrivateX11::windowType(int supported_types) const
+NET::WindowType KWindowInfoPrivateX11::windowType(NET::WindowTypes supported_types) const
 {
 #if !defined(KDE_NO_WARNING_OUTPUT)
     if (!(m_info->passedProperties()[ NETWinInfo::PROTOCOLS ] & NET::WMWindowType)) {

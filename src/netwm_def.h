@@ -381,30 +381,31 @@ public:
         for the properties argument of the NETRootInfo constructor.
     **/
     enum WindowTypeMask {
-        NormalMask   = 1 << 0, ///< @see Normal
-        DesktopMask  = 1 << 1, ///< @see Desktop
-        DockMask     = 1 << 2, ///< @see Dock
-        ToolbarMask  = 1 << 3, ///< @see Toolbar
-        MenuMask     = 1 << 4, ///< @see Menu
-        DialogMask   = 1 << 5, ///< @see Dialog
-        OverrideMask = 1 << 6, ///< @see Override
-        TopMenuMask  = 1 << 7, ///< @see TopMenu
-        UtilityMask  = 1 << 8, ///< @see Utility
-        SplashMask   = 1 << 9, ///< @see Splash
-        DropdownMenuMask = 1 << 10, ///< @see DropdownMenu
-        PopupMenuMask    = 1 << 11, ///< @see PopupMenu
-        TooltipMask      = 1 << 12, ///< @see Tooltip
-        NotificationMask = 1 << 13, ///< @see Notification
-        ComboBoxMask     = 1 << 14, ///< @see ComboBox
-        DNDIconMask      = 1 << 15, ///< @see DNDIcon
-        AllTypesMask     = 0LU - 1 ///< All window types.
+        NormalMask   = 1u << 0, ///< @see Normal
+        DesktopMask  = 1u << 1, ///< @see Desktop
+        DockMask     = 1u << 2, ///< @see Dock
+        ToolbarMask  = 1u << 3, ///< @see Toolbar
+        MenuMask     = 1u << 4, ///< @see Menu
+        DialogMask   = 1u << 5, ///< @see Dialog
+        OverrideMask = 1u << 6, ///< @see Override
+        TopMenuMask  = 1u << 7, ///< @see TopMenu
+        UtilityMask  = 1u << 8, ///< @see Utility
+        SplashMask   = 1u << 9, ///< @see Splash
+        DropdownMenuMask = 1u << 10, ///< @see DropdownMenu
+        PopupMenuMask    = 1u << 11, ///< @see PopupMenu
+        TooltipMask      = 1u << 12, ///< @see Tooltip
+        NotificationMask = 1u << 13, ///< @see Notification
+        ComboBoxMask     = 1u << 14, ///< @see ComboBox
+        DNDIconMask      = 1u << 15, ///< @see DNDIcon
+        AllTypesMask     = 0U - 1 ///< All window types.
     };
+    Q_DECLARE_FLAGS(WindowTypes, WindowTypeMask)
 
     /**
      * Returns true if the given window type matches the mask given
      * using WindowTypeMask flags.
      */
-    static bool typeMatchesMask(WindowType type, unsigned long mask);
+    static bool typeMatchesMask(WindowType type, WindowTypes mask);
 
     /**
        Window state.
@@ -760,5 +761,6 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(NET::Properties)
 Q_DECLARE_OPERATORS_FOR_FLAGS(NET::Properties2)
+Q_DECLARE_OPERATORS_FOR_FLAGS(NET::WindowTypes)
 
 #endif // netwm_def_h

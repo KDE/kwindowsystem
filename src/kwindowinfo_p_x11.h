@@ -35,7 +35,7 @@ public:
     bool isMinimized() const;
     NET::MappingState mappingState() const;
     NETExtendedStrut extendedStrut() const;
-    NET::WindowType windowType(int supported_types) const;
+    NET::WindowType windowType(NET::WindowTypes supported_types) const;
     QString visibleName() const;
     QString visibleNameWithState() const;
     QString name() const;

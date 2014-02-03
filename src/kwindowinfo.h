@@ -202,7 +202,7 @@ public:
      * @see NET::WindowType
      * @see NET::WindowTypeMask
      */
-    NET::WindowType windowType(int supported_types) const;
+    NET::WindowType windowType(NET::WindowTypes supported_types) const;
     /**
      * Returns the visible name of the window.
      *

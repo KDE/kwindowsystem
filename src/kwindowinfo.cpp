@@ -91,7 +91,7 @@ NETExtendedStrut KWindowInfoPrivateDummy::extendedStrut() const
     return NETExtendedStrut();
 }
 
-NET::WindowType KWindowInfoPrivateDummy::windowType(int supported_types) const
+NET::WindowType KWindowInfoPrivateDummy::windowType(NET::WindowTypes supported_types) const
 {
     Q_UNUSED(supported_types)
     return NET::Unknown;
@@ -255,7 +255,7 @@ NETExtendedStrut KWindowInfo::extendedStrut() const
     DELEGATE(extendedStrut, )
 }
 
-NET::WindowType KWindowInfo::windowType(int supported_types) const
+NET::WindowType KWindowInfo::windowType(NET::WindowTypes supported_types) const
 {
     DELEGATE(windowType, supported_types)
 }

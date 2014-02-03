@@ -599,11 +599,11 @@ void NetWinInfoTestClient::testWindowType()
 
     QVERIFY(info.hasWindowType());
     QVERIFY(!info.hasNETSupport());
-    QCOMPARE(info.windowType(~0), NET::Unknown);
+    QCOMPARE(info.windowType(NET::AllTypesMask), NET::Unknown);
     QFETCH(NET::WindowType, type);
     info.setWindowType(type);
     // it does not update the internal type!
-    QCOMPARE(info.windowType(~0), NET::Unknown);
+    QCOMPARE(info.windowType(NET::AllTypesMask), NET::Unknown);
     QFETCH(int, length);
     QFETCH(QByteArray, typeAtom);
 
@@ -621,7 +621,7 @@ void NetWinInfoTestClient::testWindowType()
     }
 
     waitForPropertyChange(&info, atom, NET::WMWindowType);
-    QCOMPARE(info.windowType(~0), type);
+    QCOMPARE(info.windowType(NET::AllTypesMask), type);
     QVERIFY(info.hasNETSupport());
 }
 

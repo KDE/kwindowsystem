@@ -4672,7 +4672,7 @@ NETFullscreenMonitors NETWinInfo::fullscreenMonitors() const
     return p->fullscreen_monitors;
 }
 
-bool NET::typeMatchesMask(WindowType type, unsigned long mask)
+bool NET::typeMatchesMask(WindowType type, WindowTypes mask)
 {
     switch (type) {
 #define CHECK_TYPE_MASK( type ) \
@@ -4703,7 +4703,7 @@ case type: \
     return false;
 }
 
-NET::WindowType NETWinInfo::windowType(unsigned long supported_types) const
+NET::WindowType NETWinInfo::windowType(WindowTypes supported_types) const
 {
     for (int i = 0;
             i < p->types.size();

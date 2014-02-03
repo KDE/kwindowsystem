@@ -65,7 +65,7 @@ public:
     template <class T>
     NETExtendedStrut extendedStrut() const;
     template <class T>
-    NET::WindowType windowType(int supported_types) const;
+    NET::WindowType windowType(NET::WindowTypes supported_types) const;
     template <class T>
     QString visibleName() const;
     template <class T>
@@ -130,7 +130,7 @@ public:
     bool isMinimized() const;
     NET::MappingState mappingState() const;
     NETExtendedStrut extendedStrut() const;
-    NET::WindowType windowType(int supported_types) const;
+    NET::WindowType windowType(NET::WindowTypes supported_types) const;
     QString visibleName() const;
     QString visibleNameWithState() const;
     QString name() const;
@@ -203,7 +203,7 @@ type KWindowInfoPrivate::name( argType arg) const \
 }
 
 DELGATE(bool, valid, bool, withdrawn_is_valid)
-DELGATE(NET::WindowType, windowType, int, supported_types)
+DELGATE(NET::WindowType, windowType, NET::WindowTypes, supported_types)
 DELGATE(bool, isOnDesktop, int, desktop)
 DELGATE(bool, actionSupported, NET::Action, action)
 

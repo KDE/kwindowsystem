@@ -29,6 +29,8 @@
 Q_DECLARE_METATYPE(WId)
 Q_DECLARE_METATYPE(NET::State)
 Q_DECLARE_METATYPE(NET::WindowType)
+Q_DECLARE_METATYPE(NET::WindowTypeMask)
+Q_DECLARE_METATYPE(NET::WindowTypes)
 
 
 class KWindowInfoX11Test : public QObject
@@ -237,47 +239,47 @@ void KWindowInfoX11Test::testMappingState()
 
 void KWindowInfoX11Test::testWindowType_data()
 {
-    QTest::addColumn<int>("mask");
+    QTest::addColumn<NET::WindowTypeMask>("mask");
     QTest::addColumn<NET::WindowType>("type");
     QTest::addColumn<NET::WindowType>("expectedType");
 
-    QTest::newRow("desktop")            << int(NET::DesktopMask)      << NET::Desktop      << NET::Desktop;
-    QTest::newRow("dock")               << int(NET::DockMask)         << NET::Dock         << NET::Dock;
-    QTest::newRow("toolbar")            << int(NET::ToolbarMask)      << NET::Toolbar      << NET::Toolbar;
-    QTest::newRow("menu")               << int(NET::MenuMask)         << NET::Menu         << NET::Menu;
-    QTest::newRow("dialog")             << int(NET::DialogMask)       << NET::Dialog       << NET::Dialog;
-    QTest::newRow("override")           << int(NET::OverrideMask)     << NET::Override     << NET::Override;
-    QTest::newRow("override as normal") << int(NET::NormalMask)       << NET::Override     << NET::Normal;
-    QTest::newRow("topmenu")            << int(NET::TopMenuMask)      << NET::TopMenu      << NET::TopMenu;
-    QTest::newRow("topmenu as dock")    << int(NET::DockMask)         << NET::TopMenu      << NET::Dock;
-    QTest::newRow("utility")            << int(NET::UtilityMask)      << NET::Utility      << NET::Utility;
-    QTest::newRow("utility as dialog")  << int(NET::DialogMask)       << NET::Utility      << NET::Dialog;
-    QTest::newRow("splash")             << int(NET::SplashMask)       << NET::Splash       << NET::Splash;
-    QTest::newRow("splash as dock")     << int(NET::DockMask)         << NET::Splash       << NET::Dock;
-    QTest::newRow("dropdownmenu")       << int(NET::DropdownMenuMask) << NET::DropdownMenu << NET::DropdownMenu;
-    QTest::newRow("popupmenu")          << int(NET::PopupMenuMask)    << NET::PopupMenu    << NET::PopupMenu;
-    QTest::newRow("popupmenu as menu")  << int(NET::MenuMask)         << NET::Menu         << NET::Menu;
-    QTest::newRow("tooltip")            << int(NET::TooltipMask)      << NET::Tooltip      << NET::Tooltip;
-    QTest::newRow("notification")       << int(NET::NotificationMask) << NET::Notification << NET::Notification;
-    QTest::newRow("ComboBox")           << int(NET::ComboBoxMask)     << NET::ComboBox     << NET::ComboBox;
-    QTest::newRow("DNDIcon")            << int(NET::DNDIconMask)      << NET::DNDIcon      << NET::DNDIcon;
+    QTest::newRow("desktop")            << NET::DesktopMask      << NET::Desktop      << NET::Desktop;
+    QTest::newRow("dock")               << NET::DockMask         << NET::Dock         << NET::Dock;
+    QTest::newRow("toolbar")            << NET::ToolbarMask      << NET::Toolbar      << NET::Toolbar;
+    QTest::newRow("menu")               << NET::MenuMask         << NET::Menu         << NET::Menu;
+    QTest::newRow("dialog")             << NET::DialogMask       << NET::Dialog       << NET::Dialog;
+    QTest::newRow("override")           << NET::OverrideMask     << NET::Override     << NET::Override;
+    QTest::newRow("override as normal") << NET::NormalMask       << NET::Override     << NET::Normal;
+    QTest::newRow("topmenu")            << NET::TopMenuMask      << NET::TopMenu      << NET::TopMenu;
+    QTest::newRow("topmenu as dock")    << NET::DockMask         << NET::TopMenu      << NET::Dock;
+    QTest::newRow("utility")            << NET::UtilityMask      << NET::Utility      << NET::Utility;
+    QTest::newRow("utility as dialog")  << NET::DialogMask       << NET::Utility      << NET::Dialog;
+    QTest::newRow("splash")             << NET::SplashMask       << NET::Splash       << NET::Splash;
+    QTest::newRow("splash as dock")     << NET::DockMask         << NET::Splash       << NET::Dock;
+    QTest::newRow("dropdownmenu")       << NET::DropdownMenuMask << NET::DropdownMenu << NET::DropdownMenu;
+    QTest::newRow("popupmenu")          << NET::PopupMenuMask    << NET::PopupMenu    << NET::PopupMenu;
+    QTest::newRow("popupmenu as menu")  << NET::MenuMask         << NET::Menu         << NET::Menu;
+    QTest::newRow("tooltip")            << NET::TooltipMask      << NET::Tooltip      << NET::Tooltip;
+    QTest::newRow("notification")       << NET::NotificationMask << NET::Notification << NET::Notification;
+    QTest::newRow("ComboBox")           << NET::ComboBoxMask     << NET::ComboBox     << NET::ComboBox;
+    QTest::newRow("DNDIcon")            << NET::DNDIconMask      << NET::DNDIcon      << NET::DNDIcon;
 
     // incorrect masks
-    QTest::newRow("desktop-unknown")      << int(NET::NormalMask) << NET::Desktop      << NET::Unknown;
-    QTest::newRow("dock-unknown")         << int(NET::NormalMask) << NET::Dock         << NET::Unknown;
-    QTest::newRow("toolbar-unknown")      << int(NET::NormalMask) << NET::Toolbar      << NET::Unknown;
-    QTest::newRow("menu-unknown")         << int(NET::NormalMask) << NET::Menu         << NET::Unknown;
-    QTest::newRow("dialog-unknown")       << int(NET::NormalMask) << NET::Dialog       << NET::Unknown;
-    QTest::newRow("override-unknown")     << int(NET::DialogMask) << NET::Override     << NET::Unknown;
-    QTest::newRow("topmenu-unknown")      << int(NET::NormalMask) << NET::TopMenu      << NET::Unknown;
-    QTest::newRow("utility-unknown")      << int(NET::NormalMask) << NET::Utility      << NET::Unknown;
-    QTest::newRow("splash-unknown")       << int(NET::NormalMask) << NET::Splash       << NET::Unknown;
-    QTest::newRow("dropdownmenu-unknown") << int(NET::NormalMask) << NET::DropdownMenu << NET::Unknown;
-    QTest::newRow("popupmenu-unknown")    << int(NET::NormalMask) << NET::PopupMenu    << NET::Unknown;
-    QTest::newRow("tooltip-unknown")      << int(NET::NormalMask) << NET::Tooltip      << NET::Unknown;
-    QTest::newRow("notification-unknown") << int(NET::NormalMask) << NET::Notification << NET::Unknown;
-    QTest::newRow("ComboBox-unknown")     << int(NET::NormalMask) << NET::ComboBox     << NET::Unknown;
-    QTest::newRow("DNDIcon-unknown")      << int(NET::NormalMask) << NET::DNDIcon      << NET::Unknown;
+    QTest::newRow("desktop-unknown")      << NET::NormalMask << NET::Desktop      << NET::Unknown;
+    QTest::newRow("dock-unknown")         << NET::NormalMask << NET::Dock         << NET::Unknown;
+    QTest::newRow("toolbar-unknown")      << NET::NormalMask << NET::Toolbar      << NET::Unknown;
+    QTest::newRow("menu-unknown")         << NET::NormalMask << NET::Menu         << NET::Unknown;
+    QTest::newRow("dialog-unknown")       << NET::NormalMask << NET::Dialog       << NET::Unknown;
+    QTest::newRow("override-unknown")     << NET::DialogMask << NET::Override     << NET::Unknown;
+    QTest::newRow("topmenu-unknown")      << NET::NormalMask << NET::TopMenu      << NET::Unknown;
+    QTest::newRow("utility-unknown")      << NET::NormalMask << NET::Utility      << NET::Unknown;
+    QTest::newRow("splash-unknown")       << NET::NormalMask << NET::Splash       << NET::Unknown;
+    QTest::newRow("dropdownmenu-unknown") << NET::NormalMask << NET::DropdownMenu << NET::Unknown;
+    QTest::newRow("popupmenu-unknown")    << NET::NormalMask << NET::PopupMenu    << NET::Unknown;
+    QTest::newRow("tooltip-unknown")      << NET::NormalMask << NET::Tooltip      << NET::Unknown;
+    QTest::newRow("notification-unknown") << NET::NormalMask << NET::Notification << NET::Unknown;
+    QTest::newRow("ComboBox-unknown")     << NET::NormalMask << NET::ComboBox     << NET::Unknown;
+    QTest::newRow("DNDIcon-unknown")      << NET::NormalMask << NET::DNDIcon      << NET::Unknown;
 }
 
 void KWindowInfoX11Test::testWindowType()
@@ -285,7 +287,7 @@ void KWindowInfoX11Test::testWindowType()
     KWindowInfo info(window->winId(), NET::WMWindowType);
     QCOMPARE(info.windowType(NET::NormalMask), NET::Normal);
 
-    QFETCH(int, mask);
+    QFETCH(NET::WindowTypeMask, mask);
     QFETCH(NET::WindowType, type);
     QFETCH(NET::WindowType, expectedType);
 
