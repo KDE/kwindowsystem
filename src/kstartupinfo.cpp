@@ -611,15 +611,15 @@ void KStartupInfo::appStarted(const QByteArray &startup_id)
     if (id.none()) {
         return;
     }
-    if (QX11Info::isPlatformX11() && !qgetenv("DISPLAY").isEmpty()) {  // don't rely on QX11Info::display()
 #if KWINDOWSYSTEM_HAVE_X11
+    if (QX11Info::isPlatformX11() && !qgetenv("DISPLAY").isEmpty()) {  // don't rely on QX11Info::display()
         Display *disp = XOpenDisplay(NULL);
         if (disp != NULL) {
             KStartupInfo::sendFinishX(disp, id);
             XCloseDisplay(disp);
         }
-#endif
     }
+#endif
 }
 
 void KStartupInfo::disableAutoAppStartedSending(bool disable)
