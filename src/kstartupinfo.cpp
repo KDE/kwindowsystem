@@ -35,6 +35,7 @@ DEALINGS IN THE SOFTWARE.
 #endif
 
 #include "kstartupinfo.h"
+#include "netwm_def.h"
 
 #include <QWidget>
 #include <QDateTime>
