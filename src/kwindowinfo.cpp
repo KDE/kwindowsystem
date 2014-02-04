@@ -20,6 +20,9 @@
 #include "kwindowinfo.h"
 #include "kwindowinfo_p.h"
 #include "kwindowsystem.h"
+
+#include <config-kwindowsystem.h>
+
 #if KWINDOWSYSTEM_HAVE_X11
 #include "kwindowinfo_p_x11.h"
 #else

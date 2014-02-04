@@ -29,7 +29,6 @@
 #include <QWidgetList> //For WId
 #include <netwm_def.h>
 #include <kwindowinfo.h>
-#include <config-kwindowsystem.h>
 
 class KWindowSystemPrivate;
 
@@ -81,7 +80,7 @@ public:
       * \endcode
       * @return the list of all toplevel windows
       */
-    static const QList<WId> &windows();
+    static QList<WId> windows();
 
     /**
      * Test to see if @p id still managed at present.
@@ -228,7 +227,6 @@ public:
      * that belongs to another application.
      */
     static void setMainWindow(QWidget *subwindow, WId mainwindow);
-#if KWINDOWSYSTEM_HAVE_X11
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED
     /**
      * Returns the WM_TRANSIENT_FOR property for the given window, i.e. the mainwindow
@@ -245,7 +243,6 @@ public:
      * @deprecated Use KWindowInfo::groupLeader
      */
     KWINDOWSYSTEM_DEPRECATED static WId groupLeader(WId window);
-#endif
 #endif
     /**
      * Returns an icon for window @p win.
@@ -498,7 +495,6 @@ public:
      */
     static void setBlockingCompositing(WId window, bool active);
 
-#if KWINDOWSYSTEM_HAVE_X11
     /**
      * @internal
      * Returns true if viewports are mapped to virtual desktops.
@@ -526,7 +522,6 @@ public:
      * valid desktop area.
      */
     static QPoint constrainViewportRelativePosition(const QPoint &pos);
-#endif
 
 Q_SIGNALS:
 
@@ -638,15 +633,7 @@ private:
     friend class KWindowSystemStaticContainer;
 
     KWindowSystem() {}
-
-    enum { INFO_BASIC = 1, // desktop info, not per-window
-           INFO_WINDOWS = 2
-         }; // also per-window info
-
-    static void init(int);
-
-    friend class KWindowSystemPrivate;
-    static KWindowSystemPrivate *s_d_func();
+    static KWindowSystemPrivate *d_func();
 };
 
 #endif

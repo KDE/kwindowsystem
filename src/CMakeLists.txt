@@ -11,6 +11,7 @@ set(kwindowsystem_SRCS
     kwindoweffects.cpp
     kwindoweffects_dummy.cpp
     kwindowinfo.cpp
+    kwindowsystem.cpp
     )
 
 if (KWINDOWSYSTEM_HAVE_X11)
@@ -34,7 +35,7 @@ endif ()
 
 if (APPLE)
    set(kwindowsystem_SRCS ${kwindowsystem_SRCS} kkeyserver_mac.cpp
-                                                kwindowsystem_mac.cpp
+#                                                 kwindowsystem_mac.cpp
 # FIXME: adjust kwindowinfo_mac to inherit from KWindowInfoPrivate
 #                                                 kwindowinfo_mac.cpp
 )
@@ -42,7 +43,7 @@ endif ()
 
 if (WIN32)
    set(kwindowsystem_SRCS ${kwindowsystem_SRCS} kkeyserver_win.cpp
-                                                kwindowsystem_win.cpp
+#                                                 kwindowsystem_win.cpp
 # FIXME: adjust kwindowinfo_win to inherit from KWindowInfoPrivate
 #                                                 kwindowinfo_win.cpp
 )
