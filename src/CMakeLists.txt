@@ -6,8 +6,6 @@ set(kwindowsystem_SRCS
     kkeyserver.cpp
     kstartupinfo.cpp
     kusertimestamp.cpp
-    kxerrorhandler.cpp
-    kxutils.cpp
     kwindoweffects.cpp
     kwindoweffects_dummy.cpp
     kwindowinfo.cpp
@@ -18,6 +16,8 @@ if (KWINDOWSYSTEM_HAVE_X11)
   set(kwindowsystem_SRCS ${kwindowsystem_SRCS}
     kselectionowner.cpp
     kselectionwatcher.cpp
+    kxerrorhandler.cpp
+    kxutils.cpp
   )
 endif()
 

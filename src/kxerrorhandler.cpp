@@ -25,8 +25,6 @@
 #include "kxerrorhandler_p.h"
 #include <config-kwindowsystem.h>
 
-#if KWINDOWSYSTEM_HAVE_X11 //FIXME
-
 #include "netwm_def.h"
 
 #include <stdio.h>
@@ -246,4 +244,3 @@ QByteArray KXErrorHandler::errorMessage(const XErrorEvent &event, Display *dpy)
     return ret;
 }
 
-#endif

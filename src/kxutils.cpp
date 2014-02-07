@@ -21,7 +21,6 @@
 
 #include "kxutils_p.h"
 
-#if KWINDOWSYSTEM_HAVE_X11
 #include <qbitmap.h>
 #include <QX11Info>
 #include <QDebug>
@@ -214,5 +213,3 @@ int timestampDiff(unsigned long time1_, unsigned long time2_)   // returns time2
 #endif
 
 } // namespace
-
-#endif
