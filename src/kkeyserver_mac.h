@@ -22,6 +22,8 @@
 
 #include <kwindowsystem_export.h>
 
+#include <QList>
+
 namespace KKeyServer
 {
 /**
