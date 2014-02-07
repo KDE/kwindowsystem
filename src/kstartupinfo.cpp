@@ -243,6 +243,8 @@ void KStartupInfo::Private::got_message(const QString &msg_P)
     } else if (msg.startsWith(QLatin1String("remove:"))) { // must match length below
         got_remove_startup_info(msg.mid(7));
     }
+#else
+    Q_UNUSED(msg_P)
 #endif
 }
 
@@ -463,6 +465,8 @@ bool KStartupInfo::sendStartup(const KStartupInfoId &id_P, const KStartupInfoDat
     msg = Private::check_required_startup_fields(msg, data_P, QX11Info::appScreen());
     //qDebug() << "sending " << msg;
     msgs.broadcastMessage(NET_STARTUP_MSG, msg);
+#else
+    Q_UNUSED(data_P)
 #endif
     return true;
 }
@@ -482,6 +486,8 @@ bool KStartupInfo::sendStartupX(Display *disp_P, const KStartupInfoId &id_P,
 #endif
     return KXMessages::broadcastMessageX(disp_P, NET_STARTUP_MSG, msg);
 #else
+    Q_UNUSED(disp_P)
+    Q_UNUSED(data_P)
     return true;
 #endif
 }
@@ -515,6 +521,8 @@ bool KStartupInfo::sendChange(const KStartupInfoId &id_P, const KStartupInfoData
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
     //qDebug() << "sending " << msg;
     msgs.broadcastMessage(NET_STARTUP_MSG, msg);
+#else
+    Q_UNUSED(data_P)
 #endif
     return true;
 }
@@ -533,6 +541,8 @@ bool KStartupInfo::sendChangeX(Display *disp_P, const KStartupInfoId &id_P,
 #endif
     return KXMessages::broadcastMessageX(disp_P, NET_STARTUP_MSG, msg);
 #else
+    Q_UNUSED(disp_P)
+    Q_UNUSED(data_P)
     return true;
 #endif
 }
@@ -563,6 +573,7 @@ bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P)
 #endif
     return KXMessages::broadcastMessageX(disp_P, NET_STARTUP_MSG, msg);
 #else
+    Q_UNUSED(disp_P)
     return true;
 #endif
 }
@@ -577,6 +588,9 @@ bool KStartupInfo::sendFinish(const KStartupInfoId &id_P, const KStartupInfoData
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
     //qDebug() << "sending " << msg;
     msgs.broadcastMessage(NET_STARTUP_MSG, msg);
+#else
+    Q_UNUSED(id_P)
+    Q_UNUSED(data_P)
 #endif
     return true;
 }
@@ -594,6 +608,9 @@ bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P,
 #endif
     return KXMessages::broadcastMessageX(disp_P, NET_STARTUP_MSG, msg);
 #else
+    Q_UNUSED(disp_P)
+    Q_UNUSED(id_P)
+    Q_UNUSED(data_P)
     return true;
 #endif
 }
@@ -711,6 +728,9 @@ void KStartupInfo::setNewStartupId(QWidget *window, const QByteArray &startup_id
             KWindowSystem::forceActiveWindow(window->winId());
         }
     }
+#else
+    Q_UNUSED(activate)
+    Q_UNUSED(window)
 #endif
     KStartupInfo::handleAutoAppStartedSending();
 }
@@ -930,6 +950,7 @@ QByteArray KStartupInfo::windowStartupId(WId w_P)
     }
     return ret;
 #else
+    Q_UNUSED(w_P)
     return QByteArray();
 #endif
 }
@@ -951,6 +972,9 @@ void KStartupInfo::setWindowStartupId(WId w_P, const QByteArray &id_P)
     }
     XChangeProperty(QX11Info::display(), w_P, net_startup_atom, utf8_string_atom, 8,
                     PropModeReplace, reinterpret_cast< const unsigned char * >(id_P.data()), id_P.length());
+#else
+    Q_UNUSED(w_P)
+    Q_UNUSED(id_P)
 #endif
 }
 
@@ -972,6 +996,8 @@ QByteArray KStartupInfo::Private::get_window_hostname(WId w_P)
         }
         XFreeStringList(hh);
     }
+#else
+    Q_UNUSED(w_P)
 #endif
     // no hostname
     return QByteArray();

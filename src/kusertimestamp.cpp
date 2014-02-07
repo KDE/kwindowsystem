@@ -55,6 +55,8 @@ void KUserTimestamp::updateUserTimestamp(unsigned long time)
             || NET::timestampCompare(time, QX11Info::appTime()) > 0) { // time > appTime
         QX11Info::setAppTime(time);
     }
+#else
+    Q_UNUSED(time)
 #endif
 }
 
