@@ -26,10 +26,6 @@ include(KDEInstallDirs)
 include(KDEFrameworkCompilerSettings)
 include(KDECMakeSettings)
 
-if(NOT WIN32)
-    find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED X11Extras)
-endif()
-
 if (APPLE)
    find_package(Carbon REQUIRED)
 endif ()
@@ -42,6 +38,7 @@ find_package(X11)
 set(KWINDOWSYSTEM_HAVE_X11 ${X11_FOUND})
 find_package(XCB COMPONENTS XCB KEYSYMS)
 if(X11_FOUND)
+    find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED X11Extras)
     set_package_properties(X11_Xrender PROPERTIES DESCRIPTION "X Rendering Extension (libXrender)"
                            URL "http://www.x.org" TYPE RECOMMENDED
                            PURPOSE "Support for compositing, rendering operations, and alpha-blending")
