@@ -4744,7 +4744,7 @@ const char *NETWinInfo::visibleIconName() const
 int NETWinInfo::desktop(bool ignore_viewport) const
 {
     if (!ignore_viewport && KWindowSystem::mapViewport()) {
-        return KWindowSystem::windowInfo(p->window, NET::Desktop).desktop();
+        return KWindowSystem::windowInfo(p->window, NET::WMDesktop).desktop();
     }
     return p->desktop;
 }
