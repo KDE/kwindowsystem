@@ -5,8 +5,11 @@ remove_definitions(-DQT_NO_CAST_TO_ASCII)
 include(ECMMarkAsTest)
 
 find_package(Qt5 5.2.0 CONFIG REQUIRED Test)
-find_package(X11)
-find_package(XCB COMPONENTS XCB)
+
+if (NOT APPLE)
+    find_package(X11)
+    find_package(XCB COMPONENTS XCB)
+endif()
 
 macro(KWINDOWSYSTEM_UNIT_TESTS)
    foreach(_testname ${ARGN})

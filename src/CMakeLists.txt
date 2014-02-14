@@ -39,6 +39,7 @@ if (APPLE)
 # FIXME: adjust kwindowinfo_mac to inherit from KWindowInfoPrivate
 #                                                 kwindowinfo_mac.cpp
 )
+  set(platformLinkLibraries "-framework CoreFoundation -framework Carbon")
 endif ()
 
 if (WIN32)

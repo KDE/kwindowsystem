@@ -11,6 +11,7 @@ include(GenerateExportHeader)
 include(CMakePackageConfigHelpers)
 include(ECMSetupVersion)
 include(ECMGenerateHeaders)
+include(CMakeFindFrameworks)
 
 set(KF5_VERSION "4.96.0")
 
@@ -27,14 +28,18 @@ include(KDEFrameworkCompilerSettings)
 include(KDECMakeSettings)
 
 if (APPLE)
-   find_package(Carbon REQUIRED)
-endif ()
+    cmake_find_frameworks(Carbon)
+    cmake_find_frameworks(CoreFoundation)
+endif()
 
 if(WIN32)
    find_package(Qt5WinExtras REQUIRED)
 endif()
 
-find_package(X11)
+if (NOT APPLE)
+    find_package(X11)
+endif()
+
 set(KWINDOWSYSTEM_HAVE_X11 ${X11_FOUND})
 find_package(XCB COMPONENTS XCB KEYSYMS)
 if(X11_FOUND)
