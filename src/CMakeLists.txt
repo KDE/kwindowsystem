@@ -76,7 +76,8 @@ set_target_properties(KF5WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSI
                                                  EXPORT_NAME WindowSystem
 )
 
-ecm_generate_headers(
+ecm_generate_headers(KWindowSystem_HEADERS
+  HEADER_NAMES
   KKeyServer
   KStartupInfo
   KUserTimestamp
@@ -89,10 +90,8 @@ ecm_generate_headers(
   NETWM # does not match the classnames in that file...
   KWindowSystem
 
-  MODULE_NAME KWindowSystem
   REQUIRED_HEADERS KWindowSystem_HEADERS
 )
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/KWindowSystem DESTINATION ${INCLUDE_INSTALL_DIR} COMPONENT Devel)
 
 install(TARGETS KF5WindowSystem EXPORT KF5WindowSystemTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
 
