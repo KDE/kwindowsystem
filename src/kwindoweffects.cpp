@@ -88,11 +88,6 @@ void presentWindows(WId controller, int desktop)
     g_privateContainer->d->presentWindows(controller, desktop);
 }
 
-void showWindowThumbnails(WId parent, const QList< WId > &windows, const QList< QRect > &rects)
-{
-    g_privateContainer->d->showWindowThumbnails(parent, windows, rects);
-}
-
 void slideWindow(WId id, SlideFromLocation location, int offset)
 {
     g_privateContainer->d->slideWindow(id, location, offset);

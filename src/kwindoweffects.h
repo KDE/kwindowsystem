@@ -32,7 +32,6 @@ namespace KWindowEffects
 {
 enum Effect {
     Slide = 1,
-    WindowPreview = 2,
     PresentWindows = 3,
     PresentWindowsGroup = 4,
     HighlightWindows = 5,
@@ -81,18 +80,6 @@ KWINDOWSYSTEM_EXPORT void slideWindow(QWidget *widget, SlideFromLocation locatio
  * @param ids all the windows we want the size
  */
 KWINDOWSYSTEM_EXPORT QList<QSize> windowSizes(const QList<WId> &ids);
-
-/**
- * Paint inside the window parent the thumbnails of the windows list in
- * the respective rectangles of the rects list
- *
- * @param parent window where we should paint
- * @param windows windows we want a thumbnail of.
- *                If it is empty any thumbnail will be deleted
- * @param rects rectangles in parent coordinates where to paint the window thumbnails.
- *              If it is empty any thumbnail will be deleted
- */
-KWINDOWSYSTEM_EXPORT void showWindowThumbnails(WId parent, const QList<WId> &windows = QList<WId>(), const QList<QRect> &rects = QList<QRect>());
 
 /**
 * Activate the Present Windows effect for the given groups of windows.

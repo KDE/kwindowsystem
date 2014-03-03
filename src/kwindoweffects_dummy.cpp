@@ -56,13 +56,6 @@ QList<QSize> KWindowEffectsPrivateDummy::windowSizes(const QList<WId> &ids)
     return windowSizes;
 }
 
-void KWindowEffectsPrivateDummy::showWindowThumbnails(WId parent, const QList<WId> &windows, const QList<QRect> &rects)
-{
-    Q_UNUSED(parent)
-    Q_UNUSED(windows)
-    Q_UNUSED(rects)
-}
-
 void KWindowEffectsPrivateDummy::presentWindows(WId controller, const QList<WId> &ids)
 {
     Q_UNUSED(controller)

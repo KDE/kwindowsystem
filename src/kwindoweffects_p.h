@@ -30,7 +30,6 @@ public:
     virtual void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) = 0;
     virtual void slideWindow(QWidget *widget, KWindowEffects::SlideFromLocation location) = 0;
     virtual QList<QSize> windowSizes(const QList<WId> &ids) = 0;
-    virtual void showWindowThumbnails(WId parent, const QList<WId> &windows = QList<WId>(), const QList<QRect> &rects = QList<QRect>()) = 0;
     virtual void presentWindows(WId controller, const QList<WId> &ids) = 0;
     virtual void presentWindows(WId controller, int desktop = NET::OnAllDesktops) = 0;
     virtual void highlightWindows(WId controller, const QList<WId> &ids) = 0;
@@ -50,7 +49,6 @@ public:
     void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) Q_DECL_OVERRIDE;
     void slideWindow(QWidget* widget, KWindowEffects::SlideFromLocation location) Q_DECL_OVERRIDE;
     QList< QSize > windowSizes(const QList<WId> &ids) Q_DECL_OVERRIDE;
-    void showWindowThumbnails(WId parent, const QList<WId> &windows = QList<WId>(), const QList<QRect> &rects = QList<QRect>()) Q_DECL_OVERRIDE;
     void presentWindows(WId controller, const QList<WId> &ids) Q_DECL_OVERRIDE;
     void presentWindows(WId controller, int desktop = NET::OnAllDesktops) Q_DECL_OVERRIDE;
     void highlightWindows(WId controller, const QList<WId> &ids) Q_DECL_OVERRIDE;
@@ -69,7 +67,6 @@ public:
     void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) Q_DECL_OVERRIDE;
     void slideWindow(QWidget* widget, KWindowEffects::SlideFromLocation location) Q_DECL_OVERRIDE;
     QList< QSize > windowSizes(const QList<WId> &ids) Q_DECL_OVERRIDE;
-    void showWindowThumbnails(WId parent, const QList<WId> &windows = QList<WId>(), const QList<QRect> &rects = QList<QRect>()) Q_DECL_OVERRIDE;
     void presentWindows(WId controller, const QList<WId> &ids) Q_DECL_OVERRIDE;
     void presentWindows(WId controller, int desktop = NET::OnAllDesktops) Q_DECL_OVERRIDE;
     void highlightWindows(WId controller, const QList<WId> &ids) Q_DECL_OVERRIDE;

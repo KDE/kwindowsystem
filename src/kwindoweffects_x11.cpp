@@ -51,9 +51,6 @@ bool KWindowEffectsPrivateX11::isEffectAvailable(Effect effect)
     case Slide:
         effectName = QByteArrayLiteral("_KDE_SLIDE");
         break;
-    case WindowPreview:
-        effectName = QByteArrayLiteral("_KDE_WINDOW_PREVIEW");
-        break;
     case PresentWindows:
         effectName = QByteArrayLiteral("_KDE_PRESENT_WINDOWS_DESKTOP");
         break;
@@ -152,55 +149,6 @@ QList<QSize> KWindowEffectsPrivateX11::windowSizes(const QList<WId> &ids)
         }
     }
     return windowSizes;
-}
-
-void KWindowEffectsPrivateX11::showWindowThumbnails(WId parent, const QList<WId> &windows, const QList<QRect> &rects)
-{
-    if (windows.size() != rects.size()) {
-        return;
-    }
-    xcb_connection_t *c = QX11Info::connection();
-    if (!c) {
-        return;
-    }
-
-    const QByteArray effectName = QByteArrayLiteral("_KDE_WINDOW_PREVIEW");
-    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
-    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, NULL));
-    if (!atom) {
-        return;
-    }
-    if (windows.isEmpty()) {
-        xcb_delete_property(c, parent, atom->atom);
-        return;
-    }
-
-    int numWindows = windows.size();
-
-    // 64 is enough for 10 windows and is a nice base 2 number
-    QVarLengthArray<int32_t, 64> data(1 + (6 * numWindows));
-    data[0] = numWindows;
-
-    QList<WId>::const_iterator windowsIt;
-    QList<QRect>::const_iterator rectsIt = rects.constBegin();
-    int i = 0;
-    for (windowsIt = windows.constBegin(); windowsIt != windows.constEnd(); ++windowsIt) {
-
-        const int start = (i * 6) + 1;
-        const QRect thumbnailRect = (*rectsIt);
-
-        data[start] = 5;
-        data[start + 1] = (*windowsIt);
-        data[start + 2] = thumbnailRect.x();
-        data[start + 3] = thumbnailRect.y();
-        data[start + 4] = thumbnailRect.width();
-        data[start + 5] = thumbnailRect.height();
-        ++rectsIt;
-        ++i;
-    }
-
-    xcb_change_property(c, XCB_PROP_MODE_REPLACE, parent, atom->atom, atom->atom,
-                        32, data.size(), data.constData());
 }
 
 void KWindowEffectsPrivateX11::presentWindows(WId controller, const QList<WId> &ids)
