@@ -321,7 +321,6 @@ void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const Q
 
 void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
 {
-    qDebug() << contrast << intensity << saturation;
     xcb_connection_t *c = QX11Info::connection();
     const QByteArray effectName = QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_CONTRAST_REGION");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
