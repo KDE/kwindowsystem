@@ -153,7 +153,8 @@ struct NETWinInfoPrivate {
     NET::Actions allowed_actions;
     char *class_class, *class_name, *window_role, *client_machine;
 
-    unsigned long properties[ 2 ];
+    NET::Properties properties;
+    NET::Properties2 properties2;
     NETFullscreenMonitors fullscreen_monitors;
     bool has_net_support;
 

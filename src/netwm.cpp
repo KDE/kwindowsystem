@@ -2768,7 +2768,7 @@ xcb_window_t NETRootInfo::activeWindow() const
 const int NETWinInfo::OnAllDesktops = NET::OnAllDesktops;
 
 NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_window_t rootWindow,
-                       const unsigned long properties[], int properties_size,
+                       NET::Properties properties, NET::Properties2 properties2,
                        Role role)
 {
 
@@ -2812,19 +2812,8 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     // p->frame_strut.left = p->frame_strut.right = p->frame_strut.top =
     // p->frame_strut.bottom = 0;
 
-    for (int i = 0;
-            i < PROPERTIES_SIZE;
-            ++i) {
-        p->properties[ i ] = 0;
-    }
-    if (properties_size > PROPERTIES_SIZE) {
-        properties_size = PROPERTIES_SIZE;
-    }
-    for (int i = 0;
-            i < properties_size;
-            ++i) {
-        p->properties[ i ] = properties[ i ];
-    }
+    p->properties = properties;
+    p->properties2 = properties2;
 
     p->icon_count = 0;
 
@@ -2834,9 +2823,10 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
         create_netwm_atoms(p->conn);
     }
 
-    update(p->properties);
+    update(p->properties, p->properties2);
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_window_t rootWindow,
                        NET::Properties properties, Role role)
 {
@@ -2881,12 +2871,8 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     // p->frame_strut.left = p->frame_strut.right = p->frame_strut.top =
     // p->frame_strut.bottom = 0;
 
-    for (int i = 0;
-            i < PROPERTIES_SIZE;
-            ++i) {
-        p->properties[ i ] = 0;
-    }
-    p->properties[ PROTOCOLS ] = properties;
+    p->properties = properties;
+    p->properties2 = 0;
 
     p->icon_count = 0;
 
@@ -2898,6 +2884,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
 
     update(p->properties);
 }
+#endif
 
 NETWinInfo::NETWinInfo(const NETWinInfo &wininfo)
 {
@@ -3091,14 +3078,12 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
     }
 
     // setState() needs to know the current state, so read it even if not requested
-    if ((p->properties[PROTOCOLS] & WMState) == 0) {
-        p->properties[PROTOCOLS] |= WMState;
+    if ((p->properties & WMState) == 0) {
+        p->properties |= WMState;
 
-        unsigned long props[PROPERTIES_SIZE] = { WMState, 0 };
-        assert(PROPERTIES_SIZE == 2); // Add elements above
-        update(props);
+        update(WMState);
 
-        p->properties[PROTOCOLS] &= ~WMState;
+        p->properties &= ~WMState;
     }
 
     if (p->role == Client && p->mapping_state != Withdrawn) {
@@ -3797,19 +3782,17 @@ void NETWinInfo::setUserTime(xcb_timestamp_t time)
                         XCB_ATOM_CARDINAL, 32, 1, (const void *) &d);
 }
 
-unsigned long NETWinInfo::event(xcb_generic_event_t *ev)
+NET::Properties NETWinInfo::event(xcb_generic_event_t *ev)
 {
-    unsigned long props[ 1 ];
-    event(ev, props, 1);
-    return props[ 0 ];
+    NET::Properties properties;
+    event(ev, &properties);
+    return properties;
 }
 
-void NETWinInfo::event(xcb_generic_event_t *event, unsigned long *properties, int properties_size)
+void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, NET::Properties2 *properties2)
 {
-    unsigned long props[ PROPERTIES_SIZE ] = { 0, 0 };
-    assert(PROPERTIES_SIZE == 2);   // add elements above
-    unsigned long &dirty = props[ PROTOCOLS ];
-    unsigned long &dirty2 = props[ PROTOCOLS2 ];
+    NET::Properties dirty;
+    NET::Properties2 dirty2;
     bool do_update = false;
     const uint8_t eventType = event->response_type & ~0x80;
 
@@ -4012,8 +3995,25 @@ void NETWinInfo::event(xcb_generic_event_t *event, unsigned long *properties, in
     }
 
     if (do_update) {
-        update(props);
+        update(dirty, dirty2);
     }
+
+    if (properties) {
+        *properties = dirty;
+    }
+    if (properties2) {
+        *properties2 = dirty2;
+    }
+}
+
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+void NETWinInfo::event(xcb_generic_event_t *ev, unsigned long *properties, int properties_size)
+{
+    NET::Properties p;
+    NET::Properties2 p2;
+    event(ev, &p, &p2);
+    unsigned long props[ PROPERTIES_SIZE ] = { p, p2 };
+    assert(PROPERTIES_SIZE == 2);   // add elements above
 
     if (properties_size > PROPERTIES_SIZE) {
         properties_size = PROPERTIES_SIZE;
@@ -4024,27 +4024,21 @@ void NETWinInfo::event(xcb_generic_event_t *event, unsigned long *properties, in
         properties[ i ] = props[ i ];
     }
 }
+#endif
 
 void NETWinInfo::updateWMState()
 {
-    unsigned long props[ PROPERTIES_SIZE ] = { XAWMState, 0 };
-    assert(PROPERTIES_SIZE == 2);   // add elements above
-    update(props);
+    update(XAWMState);
 }
 
-void NETWinInfo::update(const unsigned long dirty_props[])
+void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyProperties2)
 {
-    unsigned long props[PROPERTIES_SIZE];
-    for (int i = 0; i < PROPERTIES_SIZE; ++i) {
-        props[ i ] = dirty_props[i] & p->properties[i];
-    }
-
-    const unsigned long &dirty  = props[PROTOCOLS];
-    const unsigned long &dirty2 = props[PROTOCOLS2];
+    Properties dirty = dirtyProperties & p->properties;
+    Properties2 dirty2 = dirtyProperties2 & p->properties2;
 
     // We *always* want to update WM_STATE if set in dirty_props
-    if (dirty_props[PROTOCOLS] & XAWMState) {
-        props[PROTOCOLS] |= XAWMState;
+    if (dirtyProperties & XAWMState) {
+        dirty |= XAWMState;
     }
 
     xcb_get_property_cookie_t cookies[255];
@@ -4840,9 +4834,14 @@ bool NETWinInfo::handledIcons() const
     return p->handled_icons;
 }
 
-const unsigned long *NETWinInfo::passedProperties() const
+NET::Properties NETWinInfo::passedProperties() const
 {
     return p->properties;
+}
+
+NET::Properties2 NETWinInfo::passedProperties2() const
+{
+    return p->properties2;
 }
 
 NET::MappingState NETWinInfo::mappingState() const

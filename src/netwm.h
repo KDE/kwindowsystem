@@ -887,31 +887,27 @@ public:
 
        @param rootWindow The Window id of the root window.
 
-       @param properties An array of elements listing all properties the client
-       is interested in.The elements contain OR'ed values of constants
-       from the NET base class, in the following order: [0]= NET::Property,
-       [1]= NET::Property2.
-       In future versions, the list may be extended. In case you pass less elements,
-       the missing ones will be replaced with default values.
+       @param properties The NET::Properties flags
 
-       @param properties_size The number of elements in the properties array.
+       @param properties2 The NET::Properties2 flags
 
        @param role Select the application role.  If this argument is omitted,
        the role will default to Client.
     **/
     NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_window_t rootWindow,
-               const unsigned long properties[], int properties_size,
+               NET::Properties properties, NET::Properties2 properties2,
                Role role = Client);
 
     /**
         This constructor differs from the above one only in the way it accepts
-        the list of properties the client is interested in. The properties argument
-        is equivalent to the first element of the properties array
-        in the above constructor.
+        the list of properties the client is interested in.
+        @deprecated since 5.0 use above ctor
     **/
-    NETWinInfo(xcb_connection_t *connection, xcb_window_t window,
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    KWINDOWSYSTEM_DEPRECATED NETWinInfo(xcb_connection_t *connection, xcb_window_t window,
                xcb_window_t rootWindow, NET::Properties properties,
                Role role = Client);
+#endif
 
     /**
        Creates a shared copy of the specified NETWinInfo object.
@@ -941,10 +937,16 @@ public:
     bool hasNETSupport() const;
 
     /**
-       Returns the properties argument passed to the constructor.
-       The size is the maximum array size the constructor accepts.
+       @returns the properties argument passed to the constructor.
+       @see passedProperties2()
     **/
-    const unsigned long *passedProperties() const;
+    NET::Properties passedProperties() const;
+    /**
+     * @returns the properties2 argument passed to the constructor.
+     * @see passedProperties()
+     * @since 5.0
+     **/
+    NET::Properties2 passedProperties2() const;
 
     /**
        Returns the icon geometry.
@@ -1377,8 +1379,26 @@ public:
        @param event the event
        @param properties properties that changed
        @param properties_size size of the passed properties array
+       @deprecated since 5.0 use event(xcb_generic_event_t*, NET::Properties*, NET::Properties2*)
     **/
-    void event(xcb_generic_event_t *event, unsigned long *properties, int properties_size);
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    KWINDOWSYSTEM_DEPRECATED void event(xcb_generic_event_t *event, unsigned long *properties, int properties_size);
+#endif
+    /**
+     * This function takes the passed in xcb_generic_event_t and returns the updated properties
+     * in the passed in arguments.
+     *
+     * The new information will be read immediately by the class. It is possible to pass in a
+     * null pointer in the arguments. In that case the passed in
+     * argument will obviously not be updated, but the class will process the information
+     * nevertheless.
+     *
+     * @param event the event
+     * @param properties The NET::Properties that changed
+     * @param properties2 The NET::Properties2 that changed
+     * @since 5.0
+     **/
+    void event(xcb_generic_event_t *event, NET::Properties *properties, NET::Properties2 *properties2 = Q_NULLPTR);
 
     /**
        This function takes the pass XEvent and returns an OR'ed list of NETWinInfo
@@ -1391,7 +1411,7 @@ public:
 
        @return the properties
     **/
-    unsigned long event(xcb_generic_event_t *event);
+    NET::Properties event(xcb_generic_event_t *event);
 
     /**
        Sentinel value to indicate that the client wishes to be visible on
@@ -1443,7 +1463,7 @@ protected:
     }
 
 private:
-    void update(const unsigned long[]);
+    void update(NET::Properties dirtyProperties, NET::Properties2 dirtyProperties2 = 0);
     void updateWMState();
     void setIconInternal(NETRArray<NETIcon> &icons, int &icon_count, xcb_atom_t property, NETIcon icon, bool replace);
     NETIcon iconInternal(NETRArray<NETIcon> &icons, int icon_count, int width, int height) const;
