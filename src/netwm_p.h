@@ -112,8 +112,13 @@ struct NETRootInfoPrivate {
     NET::DesktopLayoutCorner desktop_layout_corner;
     int desktop_layout_columns, desktop_layout_rows;
 
-    unsigned long properties[ 5 ];
-    unsigned long client_properties[ 5 ]; // properties the client is interested in
+    NET::Properties properties;
+    NET::Properties2 properties2;
+    NET::WindowTypes windowTypes;
+    NET::States states;
+    NET::Actions actions;
+    NET::Properties clientProperties;
+    NET::Properties2 clientProperties2;
 
     int ref;
 };

@@ -77,15 +77,15 @@ public:
        @param wmName A string which should be the window manager's name (ie. "KWin"
        or "Blackbox").
 
-       @param properties An array of elements listing all properties and protocols
-       the window manager supports. The elements contain OR'ed values of constants
-       from the NET base class, in the following order: [0]= NET::Property,
-       [1]= NET::WindowTypeMask (not NET::WindowType!), [2]= NET::State,
-       [3]= NET::Property2, [4]= NET::Action.
-       In future versions, the list may be extended. In case you pass less elements,
-       the missing ones will be replaced with default values.
+       @param properties The properties the window manager supports
 
-       @param properties_size The number of elements in the properties array.
+       @param windowTypes The window types the window manager supports
+
+       @param states The states the window manager supports
+
+       @param properties2 The properties2 the window manager supports
+
+       @param actions The actions the window manager supports
 
        @param screen For Window Managers that support multiple screen (ie.
        "multiheaded") displays, the screen number may be explicitly defined.  If
@@ -94,7 +94,8 @@ public:
        @param doActivate true to activate the window
     **/
     NETRootInfo(xcb_connection_t *connection, xcb_window_t supportWindow, const char *wmName,
-                const unsigned long properties[], int properties_size,
+                NET::Properties properties, NET::WindowTypes windowTypes, NET::States states,
+                NET::Properties2 properties2, NET::Actions actions,
                 int screen = -1, bool doActivate = true);
 
     /**
@@ -104,10 +105,9 @@ public:
 
        @param connection XCB connection
 
-       @param properties An array of elements listing all protocols the client
-       is interested in. The elements contain OR'ed values of constants
-       from the NET base class, in the following order: [0]= NET::Property,
-       [1]= NET::Property2.
+       @param properties The properties the client is interested in.
+
+       @param properties2 The properties2 the client is interested in.
 
        @param properties_size The number of elements in the properties array.
 
@@ -118,14 +118,12 @@ public:
        @param doActivate true to call activate() to do an initial data read/update
        of the query information.
     **/
-    NETRootInfo(xcb_connection_t *connection, const unsigned long properties[], int properties_size,
+    NETRootInfo(xcb_connection_t *connection, NET::Properties properties, NET::Properties2 properties2,
                 int screen = -1, bool doActivate = true);
 
     /**
         This constructor differs from the above one only in the way it accepts
-        the list of supported properties. The properties argument is equivalent
-        to the first element of the properties array in the above constructor,
-        and therefore you cannot read all root window properties using it.
+        the list of supported properties.
     **/
     NETRootInfo(xcb_connection_t *connection, NET::Properties properties, int screen = -1,
                 bool doActivate = true);
@@ -231,18 +229,111 @@ public:
        In the Window Manager mode, this is equivalent to the properties
        argument passed to the constructor. In the Client mode, if
        NET::Supported was passed in the properties argument, the returned
-       value is array of all protocols and properties supported
-       by the Window Manager. The elements of the array are the same
-       as they would be passed to the Window Manager mode constructor,
-       the size is the maximum array size the constructor accepts.
+       value are all properties supported by the Window Manager. Other supported
+       protocols and properties are returned by the specific methods.
+       @see supportedProperties2()
+       @see supportedStates()
+       @see supportedWindowTypes()
+       @see supportedActions()
     **/
-    const unsigned long *supportedProperties() const;
+    NET::Properties supportedProperties() const;
+    /**
+     * In the Window Manager mode, this is equivalent to the properties2
+     * argument passed to the constructor. In the Client mode, if
+     * NET::Supported was passed in the properties argument, the returned
+     * value are all properties2 supported by the Window Manager. Other supported
+     * protocols and properties are returned by the specific methods.
+     * @see supportedProperties()
+     * @see supportedStates()
+     * @see supportedWindowTypes()
+     * @see supportedActions()
+     * @since 5.0
+     **/
+    NET::Properties2 supportedProperties2() const;
+    /**
+     * In the Window Manager mode, this is equivalent to the states
+     * argument passed to the constructor. In the Client mode, if
+     * NET::Supported was passed in the properties argument, the returned
+     * value are all states supported by the Window Manager. Other supported
+     * protocols and properties are returned by the specific methods.
+     * @see supportedProperties()
+       @see supportedProperties2()
+     * @see supportedWindowTypes()
+     * @see supportedActions()
+     * @since 5.0
+     **/
+    NET::States supportedStates() const;
+    /**
+     * In the Window Manager mode, this is equivalent to the windowTypes
+     * argument passed to the constructor. In the Client mode, if
+     * NET::Supported was passed in the properties argument, the returned
+     * value are all window types supported by the Window Manager. Other supported
+     * protocols and properties are returned by the specific methods.
+     * @see supportedProperties()
+       @see supportedProperties2()
+     * @see supportedStates()
+     * @see supportedActions()
+     * @since 5.0
+     **/
+    NET::WindowTypes supportedWindowTypes() const;
+    /**
+     * In the Window Manager mode, this is equivalent to the actions
+     * argument passed to the constructor. In the Client mode, if
+     * NET::Supported was passed in the properties argument, the returned
+     * value are all actions supported by the Window Manager. Other supported
+     * protocols and properties are returned by the specific methods.
+     * @see supportedProperties()
+       @see supportedProperties2()
+     * @see supportedStates()
+     * @see supportedWindowTypes()
+     * @since 5.0
+     **/
+    NET::Actions supportedActions() const;
 
     /**
-       Returns the properties argument passed to the constructor.
-       The size is the maximum array size the constructor accepts.
-    **/
-    const unsigned long *passedProperties() const;
+     * @returns the properties argument passed to the constructor.
+     * @see passedProperties2()
+     * @see passedStates()
+     * @see passedWindowTypes()
+     * @see passedActions()
+     **/
+    NET::Properties passedProperties() const;
+    /**
+     * @returns the properties2 argument passed to the constructor.
+     * @see passedProperties()
+     * @see passedStates()
+     * @see passedWindowTypes()
+     * @see passedActions()
+     * @since 5.0
+     **/
+    NET::Properties2 passedProperties2() const;
+    /**
+     * @returns the states argument passed to the constructor.
+     * @see passedProperties()
+     * @see passedProperties2()
+     * @see passedWindowTypes()
+     * @see passedActions()
+     * @since 5.0
+     **/
+    NET::States passedStates() const;
+    /**
+     * @returns the windowTypes argument passed to the constructor.
+     * @see passedProperties()
+     * @see passedProperties2()
+     * @see passedStates()
+     * @see passedActions()
+     * @since 5.0
+     **/
+    NET::WindowTypes passedWindowTypes() const;
+    /**
+     * @returns the actions argument passed to the constructor.
+     * @see passedProperties()
+     * @see passedProperties2()
+     * @see passedStates()
+     * @see passedWindowTypes()
+     * @since 5.0
+     **/
+    NET::Actions passedActions() const;
 
     /**
        Returns an array of Window id's, which contain all managed windows.
@@ -614,9 +705,25 @@ public:
        @param event the event
        @param properties properties that changed
        @param properties_size size of the passed properties array
+       @deprecated since 5.0 use event(xcb_generic_event_t*, NET::Properties*, NET::Properties2*)
 
     **/
-    void event(xcb_generic_event_t *event, unsigned long *properties, int properties_size);
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    KWINDOWSYSTEM_DEPRECATED void event(xcb_generic_event_t *event, unsigned long *properties, int properties_size);
+#endif
+    /**
+     * This function takes the passed xcb_generic_event_t and returns the updated properties in the passed in arguments.
+     *
+     * The new information will be read immediately by the class. It is possible to pass in a
+     * null pointer in the arguments. In that case the passed in argument will obviously not
+     * be updated, but the class will process the information nevertheless.
+     *
+     * @param event the event
+     * @param properties The NET::Properties that changed
+     * @param properties2 The NET::Properties2 that changed
+     * @since 5.0
+     **/
+    void event(xcb_generic_event_t *event, NET::Properties *properties, NET::Properties2 *properties2 = Q_NULLPTR);
 
     /**
        This function takes the passed XEvent and returns an OR'ed list of
@@ -629,7 +736,7 @@ public:
 
        @return the properties
     **/
-    unsigned long event(xcb_generic_event_t *event);
+    NET::Properties event(xcb_generic_event_t *event);
 
 protected:
     /**
@@ -840,7 +947,7 @@ protected:
     }
 
 private:
-    void update(const unsigned long[]);
+    void update(NET::Properties properties, NET::Properties2 properties2);
     void setSupported();
     void setDefaultProperties();
     void updateSupportedProperties(xcb_atom_t atom);

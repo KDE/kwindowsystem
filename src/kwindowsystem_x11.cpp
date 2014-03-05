@@ -50,7 +50,7 @@
 static Atom net_wm_cm;
 static void create_atoms(Display *dpy = QX11Info::display());
 
-static unsigned long windows_properties[ 2 ] = { NET::ClientList | NET::ClientListStacking |
+static NET::Properties windowsProperties = NET::ClientList | NET::ClientListStacking |
                                                  NET::Supported |
                                                  NET::NumberOfDesktops |
                                                  NET::DesktopGeometry |
@@ -58,13 +58,12 @@ static unsigned long windows_properties[ 2 ] = { NET::ClientList | NET::ClientLi
                                                  NET::CurrentDesktop |
                                                  NET::DesktopNames |
                                                  NET::ActiveWindow |
-                                                 NET::WorkArea, /**/
-                                                 NET::WM2ShowingDesktop
-                                               };
+                                                 NET::WorkArea;
+static NET::Properties2 windowsProperties2 = NET::WM2ShowingDesktop;
 
 // ClientList and ClientListStacking is not per-window information, but a desktop information,
 // so track it even with only INFO_BASIC
-static unsigned long desktop_properties[ 2 ] = { NET::ClientList | NET::ClientListStacking |
+static NET::Properties desktopProperties = NET::ClientList | NET::ClientListStacking |
                                                  NET::Supported |
                                                  NET::NumberOfDesktops |
                                                  NET::DesktopGeometry |
@@ -72,16 +71,16 @@ static unsigned long desktop_properties[ 2 ] = { NET::ClientList | NET::ClientLi
                                                  NET::CurrentDesktop |
                                                  NET::DesktopNames |
                                                  NET::ActiveWindow |
-                                                 NET::WorkArea, /**/
-                                                 NET::WM2ShowingDesktop
-                                               };
+                                                 NET::WorkArea;
+static NET::Properties2 desktopProperties2 = NET::WM2ShowingDesktop;
 
 
 NETEventFilter::NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what)
     : QWidget(0),
       NETRootInfo(QX11Info::connection(),
-                  _what >= KWindowSystemPrivateX11::INFO_WINDOWS ? windows_properties : desktop_properties,
-                  2, -1, false),
+                  _what >= KWindowSystemPrivateX11::INFO_WINDOWS ? windowsProperties : desktopProperties,
+                  _what >= KWindowSystemPrivateX11::INFO_WINDOWS ? windowsProperties2 : desktopProperties2,
+                  -1, false),
       QAbstractNativeEventFilter(),
       strutSignalConnected(false),
       haveXfixes(false),

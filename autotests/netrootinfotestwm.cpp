@@ -31,10 +31,6 @@ Q_DECLARE_METATYPE(NET::Orientation)
 Q_DECLARE_METATYPE(NET::DesktopLayoutCorner)
 
 static const char *s_wmName = "netrootinfotest";
-static const int s_protocolsCount = 5;
-static const unsigned long s_protocols[s_protocolsCount] = {
-    ~0ul, ~0ul, ~0ul, ~0ul, ~0ul
-};
 
 class NetRootInfoTestWM : public QObject
 {
@@ -171,16 +167,23 @@ void NetRootInfoTestWM::waitForPropertyChange(NETRootInfo *info, xcb_atom_t atom
 void NetRootInfoTestWM::testCtor()
 {
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.xcbConnection(), connection());
     QCOMPARE(rootInfo.rootWindow(), m_rootWindow);
     QCOMPARE(rootInfo.supportWindow(), m_supportWindow);
     QCOMPARE(rootInfo.wmName(), s_wmName);
-    for (int i = 0; i < s_protocolsCount; ++i) {
-        QCOMPARE(rootInfo.supportedProperties()[i], s_protocols[i]);
-        QCOMPARE(rootInfo.passedProperties()[i], s_protocols[i]);
-    }
+    QCOMPARE(rootInfo.supportedProperties(), NET::WMAllProperties);
+    QCOMPARE(rootInfo.supportedProperties2(), NET::WM2AllProperties);
+    QCOMPARE(rootInfo.supportedActions(), NET::Actions(~0u));
+    QCOMPARE(rootInfo.supportedStates(), NET::States(~0u));
+    QCOMPARE(rootInfo.supportedWindowTypes(), NET::AllTypesMask);
 
+    QCOMPARE(rootInfo.passedProperties(), NET::WMAllProperties);
+    QCOMPARE(rootInfo.passedProperties2(), NET::WM2AllProperties);
+    QCOMPARE(rootInfo.passedActions(), NET::Actions(~0u));
+    QCOMPARE(rootInfo.passedStates(), NET::States(~0u));
+    QCOMPARE(rootInfo.passedWindowTypes(), NET::AllTypesMask);
 }
 
 void NetRootInfoTestWM::testSupported()
@@ -190,7 +193,8 @@ void NetRootInfoTestWM::testSupported()
     KXUtils::Atom wmName(connection(), QByteArrayLiteral("_NET_WM_NAME"));
     KXUtils::Atom utf8String(connection(), QByteArrayLiteral("UTF8_STRING"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     int count = 0;
     for (int i = 0; i < 32; ++i) {
         if (i == 12) {
@@ -310,7 +314,8 @@ void NetRootInfoTestWM::testClientList()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_CLIENT_LIST"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.clientListCount(), 0);
     QVERIFY(!rootInfo.clientList());
 
@@ -354,7 +359,8 @@ void NetRootInfoTestWM::testClientListStacking()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_CLIENT_LIST_STACKING"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.clientListStackingCount(), 0);
     QVERIFY(!rootInfo.clientListStacking());
 
@@ -397,7 +403,8 @@ void NetRootInfoTestWM::testVirtualRoots()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_VIRTUAL_ROOTS"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.virtualRootsCount(), 0);
     QVERIFY(!rootInfo.virtualRoots());
 
@@ -441,7 +448,8 @@ void NetRootInfoTestWM::testNumberOfDesktops()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_NUMBER_OF_DESKTOPS"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.numberOfDesktops(), 1);
     rootInfo.setNumberOfDesktops(4);
     QCOMPARE(rootInfo.numberOfDesktops(), 4);
@@ -466,7 +474,8 @@ void NetRootInfoTestWM::testCurrentDesktop()
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_CURRENT_DESKTOP"));
     // TODO: verify that current desktop cannot be higher than number of desktops
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.currentDesktop(), 1);
     rootInfo.setCurrentDesktop(5);
     QCOMPARE(rootInfo.currentDesktop(), 5);
@@ -492,7 +501,8 @@ void NetRootInfoTestWM::testDesktopNames()
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_DESKTOP_NAMES"));
     KXUtils::Atom utf8String(connection(), QByteArrayLiteral("UTF8_STRING"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QVERIFY(!rootInfo.desktopName(0));
     QVERIFY(!rootInfo.desktopName(1));
     QVERIFY(!rootInfo.desktopName(2));
@@ -527,7 +537,8 @@ void NetRootInfoTestWM::testActiveWindow()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_ACTIVE_WINDOW"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QVERIFY(rootInfo.activeWindow() == XCB_WINDOW_NONE);
     // rootinfo doesn't verify whether our window is a window, so we just generate an ID
     xcb_window_t activeWindow = xcb_generate_id(connection());
@@ -553,7 +564,8 @@ void NetRootInfoTestWM::testDesktopGeometry()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_DESKTOP_GEOMETRY"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.desktopGeometry().width, 0);
     QCOMPARE(rootInfo.desktopGeometry().height, 0);
 
@@ -602,7 +614,8 @@ void NetRootInfoTestWM::testDesktopLayout()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_DESKTOP_LAYOUT"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QFETCH(NET::Orientation, orientation);
     QFETCH(QSize, columnsRows);
     QFETCH(NET::DesktopLayoutCorner, corner);
@@ -637,7 +650,8 @@ void NetRootInfoTestWM::testDesktopViewports()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_DESKTOP_VIEWPORT"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     // we need to know the number of desktops, therefore setting it
     rootInfo.setNumberOfDesktops(4);
     NETPoint desktopOne;
@@ -707,7 +721,8 @@ void NetRootInfoTestWM::testShowingDesktop()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_SHOWING_DESKTOP"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QFETCH(bool, set);
     rootInfo.setShowingDesktop(set);
     QCOMPARE(rootInfo.showingDesktop(), set);
@@ -731,7 +746,8 @@ void NetRootInfoTestWM::testWorkArea()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_WORKAREA"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName, s_protocols, s_protocolsCount);
+    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
+                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     // we need to know the number of desktops, therefore setting it
     rootInfo.setNumberOfDesktops(4);
     NETRect desktopOne;
