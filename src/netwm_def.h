@@ -648,7 +648,7 @@ public:
         WMIconName            = 1u << 29,
         WMVisibleIconName     = 1u << 30,
         WMGeometry            = 1u << 31,
-        WMAllProperties       = ~1u
+        WMAllProperties       = ~0u
     };
     Q_DECLARE_FLAGS(Properties, Property)
 
@@ -699,7 +699,7 @@ public:
         WM2Activities          = 1u << 19, // NOT STANDARD @since 4.6
         WM2BlockCompositing    = 1u << 20, // NOT STANDARD @since 4.7
         WM2KDEShadow           = 1u << 21, // NOT Standard @since 4.7
-        WM2AllProperties       = ~1u
+        WM2AllProperties       = ~0u
     };
     Q_DECLARE_FLAGS(Properties2, Property2)
 
