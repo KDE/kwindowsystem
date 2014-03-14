@@ -44,6 +44,8 @@ public:
         if (d.isNull()) {
             d.reset(new KWindowSystemPrivateDummy());
         }
+
+        kwm.moveToThread(QCoreApplication::instance()->thread());
     }
     KWindowSystem kwm;
     QScopedPointer<KWindowSystemPrivate> d;

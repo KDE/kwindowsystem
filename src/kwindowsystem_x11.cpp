@@ -74,32 +74,55 @@ static NET::Properties desktopProperties = NET::ClientList | NET::ClientListStac
                                                  NET::WorkArea;
 static NET::Properties2 desktopProperties2 = NET::WM2ShowingDesktop;
 
+MainThreadInstantiator::MainThreadInstantiator(KWindowSystemPrivateX11::FilterInfo _what)
+    : QObject(),
+      m_what(_what)
+{
+}
+
+NETEventFilter *MainThreadInstantiator::createNETEventFilter()
+{
+    return new NETEventFilter(m_what);
+}
 
 NETEventFilter::NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what)
-    : QWidget(0),
-      NETRootInfo(QX11Info::connection(),
+    : NETRootInfo(QX11Info::connection(),
                   _what >= KWindowSystemPrivateX11::INFO_WINDOWS ? windowsProperties : desktopProperties,
                   _what >= KWindowSystemPrivateX11::INFO_WINDOWS ? windowsProperties2 : desktopProperties2,
                   -1, false),
       QAbstractNativeEventFilter(),
       strutSignalConnected(false),
       haveXfixes(false),
-      what(_what)
+      what(_what),
+      winId(XCB_WINDOW_NONE)
 {
     QCoreApplication::instance()->installNativeEventFilter(this);
-    (void) qApp->desktop();  //trigger desktop widget creation to select root window events
 
 #if KWINDOWSYSTEM_HAVE_XFIXES
     int errorBase;
     if ((haveXfixes = XFixesQueryExtension(QX11Info::display(), &xfixesEventBase, &errorBase))) {
         create_atoms();
-        XFixesSelectSelectionInput(QX11Info::display(), winId(), net_wm_cm,
+        winId = xcb_generate_id(QX11Info::connection());
+        uint32_t values[] = { true, XCB_EVENT_MASK_PROPERTY_CHANGE | XCB_EVENT_MASK_STRUCTURE_NOTIFY };
+        xcb_create_window(QX11Info::connection(), XCB_COPY_FROM_PARENT, winId,
+                          QX11Info::appRootWindow(), 0, 0, 1, 1, 0,
+                          XCB_WINDOW_CLASS_INPUT_ONLY, XCB_COPY_FROM_PARENT,
+                          XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK, values);
+        XFixesSelectSelectionInput(QX11Info::display(), winId, net_wm_cm,
                                    XFixesSetSelectionOwnerNotifyMask |
                                    XFixesSelectionWindowDestroyNotifyMask |
                                    XFixesSelectionClientCloseNotifyMask);
         compositingEnabled = XGetSelectionOwner(QX11Info::display(), net_wm_cm) != None;
     }
 #endif
+}
+
+NETEventFilter::~NETEventFilter()
+{
+    if (QX11Info::connection() && winId != XCB_WINDOW_NONE) {
+        xcb_destroy_window(QX11Info::connection(), winId);
+        winId = XCB_WINDOW_NONE;
+    }
 }
 
 // not virtual, but it's called directly only from init()
@@ -127,7 +150,7 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
 #ifdef KWINDOWSYSTEM_HAVE_XFIXES
     if (eventType == xfixesEventBase + XCB_XFIXES_SELECTION_NOTIFY) {
         xcb_xfixes_selection_notify_event_t *event = reinterpret_cast<xcb_xfixes_selection_notify_event_t *>(ev);
-        if (event->window == winId()) {
+        if (event->window == winId) {
             bool haveOwner = event->owner != XCB_WINDOW_NONE;
             if (compositingEnabled != haveOwner) {
                 compositingEnabled = haveOwner;
@@ -424,7 +447,21 @@ void KWindowSystemPrivateX11::init(FilterInfo what)
     }
 
     if (!s_d || s_d->what < what) {
-        d.reset(new NETEventFilter(what));
+        MainThreadInstantiator instantiator(what);
+        NETEventFilter *filter;
+        if (instantiator.thread() == QCoreApplication::instance()->thread()) {
+            filter = instantiator.createNETEventFilter();
+        } else {
+            // the instantiator is not in the main app thread, which implies
+            // we are being called in a thread that is not the main app thread
+            // so we move the instantiator to the main app thread and invoke
+            // the method with a blocking call
+            instantiator.moveToThread(QCoreApplication::instance()->thread());
+            QMetaObject::invokeMethod(&instantiator, "createNETEventFilter",
+                                      Qt::BlockingQueuedConnection,
+                                      Q_RETURN_ARG(NETEventFilter *, filter));
+        }
+        d.reset(filter);
         d->activate();
     }
 }
@@ -1125,3 +1162,5 @@ QPoint KWindowSystemPrivateX11::constrainViewportRelativePosition(const QPoint &
     }
     return QPoint(x - c.x, y - c.y);
 }
+
+#include "moc_kwindowsystem_p_x11.cpp"

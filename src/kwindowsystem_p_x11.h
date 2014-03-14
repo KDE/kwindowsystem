@@ -91,11 +91,24 @@ private:
     QScopedPointer<NETEventFilter> d;
 };
 
+class MainThreadInstantiator : public QObject
+{
+    Q_OBJECT
+
+public:
+    MainThreadInstantiator(KWindowSystemPrivateX11::FilterInfo _what);
+    Q_INVOKABLE NETEventFilter *createNETEventFilter();
+
+private:
+    KWindowSystemPrivateX11::FilterInfo m_what;
+};
+
 class NETEventFilter
-    : public QWidget, public NETRootInfo, public QAbstractNativeEventFilter
+    : public NETRootInfo, public QAbstractNativeEventFilter
 {
 public:
     NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what);
+    ~NETEventFilter();
     void activate();
     QList<WId> windows;
     QList<WId> stackingOrder;
@@ -127,6 +140,7 @@ protected:
 
 private:
     bool nativeEventFilter(xcb_generic_event_t *event);
+    xcb_window_t winId;
 };
 
 #endif
