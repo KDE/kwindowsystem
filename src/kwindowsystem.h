@@ -581,14 +581,31 @@ Q_SIGNALS:
     /**
      * The window changed.
      *
+     * Carries the NET::Properties and NET::Properties2 that were changed.
+     *
+     * @param id the id of the window
+     * @param properties the properties that were modified
+     * @param properties2 the properties2 that were modified
+     *
+     * @since 5.0
+     **/
+    void windowChanged(WId id, NET::Properties properties, NET::Properties2 properties2);
+
+    /**
+     * The window changed.
+     *
      * The properties parameter contains the NET properties that
      * were modified (see netwm_def.h). First element are NET::Property
      * values, second element are NET::Property2 values (i.e. the format
      * is the same like for the NETWinInfo class constructor).
      * @param id the id of the window
      * @param properties the properties that were modified
+     *
+     * @deprecated since 5.0 use windowChanged(WId, NET::Properties, NET::Properties2)
      */
-    void windowChanged(WId id, const unsigned long *properties);
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    QT_MOC_COMPAT void windowChanged(WId id, const unsigned long *properties);
+#endif
 
     /**
      * @deprecated
@@ -599,7 +616,9 @@ Q_SIGNALS:
      * @param id the id of the window
      * @param properties the properties that were modified
      */
-    void windowChanged(WId id, unsigned int properties);
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    QT_MOC_COMPAT void windowChanged(WId id, unsigned int properties);
+#endif
 
     /**
      * The window changed somehow.

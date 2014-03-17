@@ -227,35 +227,40 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
         }
     } else if (windows.contains(eventWindow)) {
         NETWinInfo ni(QX11Info::connection(), eventWindow, QX11Info::appRootWindow(), 0);
-        unsigned long dirty[ 2 ];
-        ni.event(ev, dirty, 2);
+        NET::Properties dirtyProperties;
+        NET::Properties2 dirtyProperties2;
+        ni.event(ev, &dirtyProperties, &dirtyProperties2);
         if (eventType == XCB_PROPERTY_NOTIFY) {
             xcb_property_notify_event_t *event = reinterpret_cast<xcb_property_notify_event_t *>(ev);
             if (event->atom == XCB_ATOM_WM_HINTS) {
-                dirty[ NETWinInfo::PROTOCOLS ] |= NET::WMIcon; // support for old icons
+                dirtyProperties |= NET::WMIcon; // support for old icons
             } else if (event->atom == XCB_ATOM_WM_NAME) {
-                dirty[ NETWinInfo::PROTOCOLS ] |= NET::WMName; // support for old name
+                dirtyProperties |= NET::WMName; // support for old name
             } else if (event->atom == XCB_ATOM_WM_ICON_NAME) {
-                dirty[ NETWinInfo::PROTOCOLS ] |= NET::WMIconName;    // support for old iconic name
+                dirtyProperties |= NET::WMIconName;    // support for old iconic name
             }
         }
-        if (mapViewport() && (dirty[ NETWinInfo::PROTOCOLS ] & (NET::WMState | NET::WMGeometry))) {
+        if (mapViewport() && (dirtyProperties & (NET::WMState | NET::WMGeometry))) {
             /* geometry change -> possible viewport change
              * state change -> possible NET::Sticky change
              */
-            dirty[ NETWinInfo::PROTOCOLS ] |= NET::WMDesktop;
+            dirtyProperties |= NET::WMDesktop;
         }
-        if ((dirty[ NETWinInfo::PROTOCOLS ] & NET::WMStrut) != 0) {
+        if ((dirtyProperties & NET::WMStrut) != 0) {
             removeStrutWindow(eventWindow);
             if (!possibleStrutWindows.contains(eventWindow)) {
                 possibleStrutWindows.append(eventWindow);
             }
         }
-        if (dirty[ NETWinInfo::PROTOCOLS ] || dirty[ NETWinInfo::PROTOCOLS2 ]) {
+        if (dirtyProperties || dirtyProperties2) {
             emit s_q->windowChanged(eventWindow);
+            emit s_q->windowChanged(eventWindow, dirtyProperties, dirtyProperties2);
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+            unsigned long dirty[ 2 ] = {dirtyProperties, dirtyProperties2};
             emit s_q->windowChanged(eventWindow, dirty);
-            emit s_q->windowChanged(eventWindow, dirty[ NETWinInfo::PROTOCOLS ]);
-            if ((dirty[ NETWinInfo::PROTOCOLS ] & NET::WMStrut) != 0) {
+            emit s_q->windowChanged(eventWindow, dirtyProperties);
+#endif
+            if ((dirtyProperties & NET::WMStrut) != 0) {
                 emit s_q->strutChanged();
             }
         }
@@ -419,11 +424,17 @@ void KWindowSystemPrivateX11::connectNotify(const QMetaMethod &signal)
         what = INFO_WINDOWS;
     } else if (signal == QMetaMethod::fromSignal(&KWindowSystem::strutChanged)) {
         what = INFO_WINDOWS;
-    } else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, const unsigned long *)>(&KWindowSystem::windowChanged))) {
+    } else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, NET::Properties, NET::Properties2)>(&KWindowSystem::windowChanged))) {
+        what = INFO_WINDOWS;
+    }
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, const unsigned long *)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     } else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, uint)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
-    } else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId)>(&KWindowSystem::windowChanged))) {
+    }
+#endif
+    else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     }
 
