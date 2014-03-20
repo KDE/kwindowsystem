@@ -119,7 +119,6 @@ static xcb_atom_t kde_net_wm_shadow                 = 0;
 // application protocols
 static xcb_atom_t wm_protocols = 0;
 static xcb_atom_t net_wm_ping = 0;
-static xcb_atom_t net_wm_take_activity = 0;
 
 // application window types
 static xcb_atom_t net_wm_window_type_normal  = 0;
@@ -383,7 +382,7 @@ static QByteArray get_atom_name(xcb_connection_t *c, xcb_atom_t atom)
 }
 #endif
 
-static const int netAtomCount = 89;
+static const int netAtomCount = 88;
 
 static void create_netwm_atoms(xcb_connection_t *c)
 {
@@ -428,7 +427,6 @@ static void create_netwm_atoms(xcb_connection_t *c)
         { "_NET_STARTUP_ID",                      &net_startup_id                   },
         { "_NET_WM_ALLOWED_ACTIONS",              &net_wm_allowed_actions           },
         { "_NET_WM_PING",                         &net_wm_ping                      },
-        { "_NET_WM_TAKE_ACTIVITY",                &net_wm_take_activity             },
         { "WM_WINDOW_ROLE",                       &wm_window_role                   },
         { "_NET_FRAME_EXTENTS",                   &net_frame_extents                },
         { "_NET_WM_WINDOW_OPACITY",               &net_wm_window_opacity            },
@@ -683,7 +681,7 @@ NETRootInfo::NETRootInfo(xcb_connection_t *connection, xcb_window_t supportWindo
     p->properties |= (Supported | SupportingWMCheck);
     p->clientProperties = DesktopNames // the only thing that can be changed by clients
                           | WMPing; // or they can reply to this
-    p->clientProperties2 = WM2TakeActivity | WM2DesktopLayout;
+    p->clientProperties2 = WM2DesktopLayout;
 
     p->role = WindowManager;
 
@@ -1301,10 +1299,6 @@ void NETRootInfo::setSupported()
         atoms[pnum++] = net_wm_ping;
     }
 
-    if (p->properties2 & WM2TakeActivity) {
-        atoms[pnum++] = net_wm_take_activity;
-    }
-
     if (p->properties2 & WM2UserTime) {
         atoms[pnum++] = net_wm_user_time;
     }
@@ -1606,10 +1600,6 @@ void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
         p->properties |= WMPing;
     }
 
-    else if (atom == net_wm_take_activity) {
-        p->properties2 |= WM2TakeActivity;
-    }
-
     else if (atom == net_wm_user_time) {
         p->properties2 |= WM2UserTime;
     }
@@ -1876,24 +1866,6 @@ void NETRootInfo::sendPing(xcb_window_t window, xcb_timestamp_t timestamp)
     send_client_message(p->conn, 0, window, window, net_restack_window, data);
 }
 
-void NETRootInfo::takeActivity(xcb_window_t window, xcb_timestamp_t timestamp, long flags)
-{
-    if (p->role != WindowManager) {
-        return;
-    }
-
-#ifdef NETWMDEBUG
-    fprintf(stderr, "NETRootInfo::takeActivity: window 0x%lx, timestamp %lu, flags 0x%lx\n",
-            window, timestamp, flags);
-#endif
-
-    const uint32_t data[5] = {
-        net_wm_take_activity, uint32_t(timestamp), uint32_t(window), uint32_t(flags), 0
-    };
-
-    send_client_message(p->conn, 0, window, window, wm_protocols, data);
-}
-
 // assignment operator
 
 const NETRootInfo &NETRootInfo::operator=(const NETRootInfo &rootinfo)
@@ -2093,16 +2065,6 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
                     message->window, message->data.data32[1]);
 #endif
             gotPing(message->data.data32[2], message->data.data32[1]);
-        } else if (message->type == wm_protocols
-                   && (xcb_atom_t)message->data.data32[ 0 ] == net_wm_take_activity) {
-            dirty2 = WM2TakeActivity;
-
-#ifdef   NETWMDEBUG
-            fprintf(stderr, "NETRootInfo::event: gotTakeActivity(0x%lx,%lu,0x%lx)\n",
-                    message->window, message->data.data32[1], message->data.data32[3]);
-#endif
-            gotTakeActivity(message->data.data32[2], message->data.data32[1],
-                            message->data.data32[3]);
         } else if (message->type == net_showing_desktop) {
             dirty2 = WM2ShowingDesktop;
 

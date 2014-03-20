@@ -685,20 +685,19 @@ public:
         WM2RestackWindow       = 1u << 5,
         WM2MoveResizeWindow    = 1u << 6,
         WM2ExtendedStrut       = 1u << 7,
-        WM2TakeActivity        = 1u << 8,
-        WM2KDETemporaryRules   = 1u << 9, // NOT STANDARD
-        WM2WindowClass         = 1u << 10,
-        WM2WindowRole          = 1u << 11,
-        WM2ClientMachine       = 1u << 12,
-        WM2ShowingDesktop      = 1u << 13,
-        WM2Opacity             = 1u << 14,
-        WM2DesktopLayout       = 1u << 15,
-        WM2FullPlacement       = 1u << 16,
-        WM2FullscreenMonitors  = 1u << 17,
-        WM2FrameOverlap        = 1u << 18, // NOT STANDARD
-        WM2Activities          = 1u << 19, // NOT STANDARD @since 4.6
-        WM2BlockCompositing    = 1u << 20, // NOT STANDARD @since 4.7
-        WM2KDEShadow           = 1u << 21, // NOT Standard @since 4.7
+        WM2KDETemporaryRules   = 1u << 8, // NOT STANDARD
+        WM2WindowClass         = 1u << 9,
+        WM2WindowRole          = 1u << 10,
+        WM2ClientMachine       = 1u << 11,
+        WM2ShowingDesktop      = 1u << 12,
+        WM2Opacity             = 1u << 13,
+        WM2DesktopLayout       = 1u << 14,
+        WM2FullPlacement       = 1u << 15,
+        WM2FullscreenMonitors  = 1u << 16,
+        WM2FrameOverlap        = 1u << 17, // NOT STANDARD
+        WM2Activities          = 1u << 18, // NOT STANDARD @since 4.6
+        WM2BlockCompositing    = 1u << 19, // NOT STANDARD @since 4.7
+        WM2KDEShadow           = 1u << 20, // NOT Standard @since 4.7
         WM2AllProperties       = ~0u
     };
     Q_DECLARE_FLAGS(Properties2, Property2)

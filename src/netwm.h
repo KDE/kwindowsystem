@@ -685,15 +685,6 @@ public:
     void sendPing(xcb_window_t window, xcb_timestamp_t timestamp);
 
     /**
-       Sends a take activity message with the given timestamp to the window, using
-       the _NET_WM_TAKE_ACTIVITY protocol (see the WM spec for details).
-       @param window the window to which the message should be sent
-       @param timestamp timestamp of the message
-       @param flags arbitrary flags
-    */
-    void takeActivity(xcb_window_t window, xcb_timestamp_t timestamp, long flags);
-
-    /**
        This function takes the passed XEvent and returns an OR'ed list of
        NETRootInfo properties that have changed in the properties argument.
        The new information will be read immediately by the class.
@@ -919,19 +910,6 @@ protected:
         Q_UNUSED(above);
         Q_UNUSED(detail);
         Q_UNUSED(timestamp);
-    }
-    /**
-       A Window Manager should subclass NETRootInfo and reimplement this function
-       when it wants to receive replies to the _NET_WM_TAKE_ACTIVITY protocol.
-       @param window the window from which the reply came
-       @param timestamp timestamp of the ping
-       @param flags flags passed in the original message
-     */
-    virtual void gotTakeActivity(xcb_window_t window, xcb_timestamp_t timestamp, long flags)
-    {
-        Q_UNUSED(window);
-        Q_UNUSED(timestamp);
-        Q_UNUSED(flags);
     }
 
     /**

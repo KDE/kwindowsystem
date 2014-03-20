@@ -203,7 +203,7 @@ void NetRootInfoTestWM::testSupported()
         QVERIFY(rootInfo.isSupported(NET::Property(1 << i)));
         count++;
     }
-    for (int i = 0; i < 22; ++i) {
+    for (int i = 0; i < 21; ++i) {
         QVERIFY(rootInfo.isSupported(NET::Property2(1 << i)));
         count++;
     }
@@ -297,7 +297,7 @@ void NetRootInfoTestWM::testSupported()
     }
 
     // turn something off, just to get another event
-    rootInfo.setSupported(NET::WM2TakeActivity, false);
+    rootInfo.setSupported(NET::WM2BlockCompositing, false);
     // lets get supported again
     supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
                       supported, XCB_ATOM_ATOM, 0, 89);
