@@ -79,8 +79,6 @@ static const char *const NET_STARTUP_WINDOW = "_NET_STARTUP_ID";
 // kdesu in both kdelibs and kdebase and who knows where else
 static const char *const NET_STARTUP_ENV = "DESKTOP_STARTUP_ID";
 
-static bool auto_app_started_sending = true;
-
 static QByteArray s_startup_id;
 
 static long get_num(const QString &item_P);
@@ -639,11 +637,6 @@ void KStartupInfo::appStarted(const QByteArray &startup_id)
 #endif
 }
 
-void KStartupInfo::disableAutoAppStartedSending(bool disable)
-{
-    auto_app_started_sending = !disable;
-}
-
 void KStartupInfo::silenceStartup(bool silence)
 {
     KStartupInfoId id;
@@ -654,13 +647,6 @@ void KStartupInfo::silenceStartup(bool silence)
     KStartupInfoData data;
     data.setSilent(silence ? KStartupInfoData::Yes : KStartupInfoData::No);
     sendChange(id, data);
-}
-
-void KStartupInfo::handleAutoAppStartedSending()
-{
-    if (auto_app_started_sending) {
-        appStarted();
-    }
 }
 
 QByteArray KStartupInfo::startupId()
@@ -679,9 +665,6 @@ void KStartupInfo::setStartupId(const QByteArray &startup_id)
     if (startup_id == startupId()) {
         return;
     }
-#if KWINDOWSYSTEM_HAVE_X11
-    KStartupInfo::handleAutoAppStartedSending(); // finish old startup notification if needed
-#endif
     if (startup_id.isEmpty()) {
         s_startup_id = "0";
     } else {
@@ -732,7 +715,6 @@ void KStartupInfo::setNewStartupId(QWidget *window, const QByteArray &startup_id
     Q_UNUSED(activate)
     Q_UNUSED(window)
 #endif
-    KStartupInfo::handleAutoAppStartedSending();
 }
 
 KStartupInfo::startup_t KStartupInfo::checkStartup(WId w_P, KStartupInfoId &id_O,

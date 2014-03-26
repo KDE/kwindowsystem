@@ -69,14 +69,6 @@ class KWINDOWSYSTEM_EXPORT KStartupInfo
 {
     Q_OBJECT
 public:
-    /**
-     * By default, the startup notification is ended for the application
-     * after it shows its first toplevel window. If you app e.g. has
-     * several toplevel windows after its startup, you can disable
-     * the automatic handling, and call appStarted() manually after
-     * all toplevel windows have been shown.
-     */
-    static void disableAutoAppStartedSending(bool disable = true);
 
     /**
      * Manual notification that the application has started.
@@ -319,10 +311,6 @@ public:
      * @return the startup notification id. Can be null if not found.
      */
     static QByteArray windowStartupId(WId w);
-    /**
-     * @internal
-     */
-    static void handleAutoAppStartedSending();
     /**
      * @internal
      */
