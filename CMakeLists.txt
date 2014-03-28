@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.12)
 project(KWindowSystem)
 
 # ECM setup
-find_package(ECM 0.0.11 REQUIRED NO_MODULE)
+find_package(ECM 0.0.12 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 
 include(FeatureSummary)
@@ -13,7 +13,7 @@ include(ECMSetupVersion)
 include(ECMGenerateHeaders)
 include(CMakeFindFrameworks)
 
-set(KF5_VERSION "4.97.0")
+set(KF5_VERSION "4.98.0")
 
 ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KWINDOWSYSTEM
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kwindowsystem_version.h"
