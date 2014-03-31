@@ -146,19 +146,20 @@ void NetRootInfoTestWM::waitForPropertyChange(NETRootInfo *info, xcb_atom_t atom
         if (pe->atom != atom) {
             continue;
         }
-        unsigned long dirty[NETRootInfo::PROPERTIES_SIZE];
-        info->event(event.data(), dirty, NETRootInfo::PROPERTIES_SIZE);
+        NET::Properties dirty;
+        NET::Properties2 dirty2;
+        info->event(event.data(), &dirty, &dirty2);
         if (prop != 0) {
-            QVERIFY(dirty[NETRootInfo::PROTOCOLS] & prop);
+            QVERIFY(dirty & prop);
         }
         if (prop2 != 0) {
-            QVERIFY(dirty[NETRootInfo::PROTOCOLS2] & prop2);
+            QVERIFY(dirty2 & prop2);
         }
         if (!prop) {
-            QCOMPARE(dirty[NETRootInfo::PROTOCOLS], 0ul);
+            QCOMPARE(dirty, NET::Properties());
         }
         if (!prop2) {
-            QCOMPARE(dirty[NETRootInfo::PROTOCOLS2], 0ul);
+            QCOMPARE(dirty2, NET::Properties2());
         }
         break;
     }

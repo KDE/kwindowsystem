@@ -142,7 +142,7 @@ QList<QSize> KWindowEffectsPrivateX11::windowSizes(const QList<WId> &ids)
     QList<QSize> windowSizes;
     Q_FOREACH (WId id, ids) {
         if (id > 0) {
-            KWindowInfo info = KWindowSystem::windowInfo(id, NET::WMGeometry | NET::WMFrameExtents);
+            KWindowInfo info(id, NET::WMGeometry | NET::WMFrameExtents);
             windowSizes.append(info.frameGeometry().size());
         } else {
             windowSizes.append(QSize());

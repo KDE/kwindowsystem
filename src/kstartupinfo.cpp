@@ -766,7 +766,7 @@ KStartupInfo::startup_t KStartupInfo::Private::check_startup_internal(WId w_P, K
         return CantDetect;
     }
     NETWinInfo info(QX11Info::connection(),  w_P, QX11Info::appRootWindow(),
-                    NET::WMWindowType | NET::WMPid | NET::WMState);
+                    NET::WMWindowType | NET::WMPid | NET::WMState, 0);
     pid_t pid = info.pid();
     if (pid > 0) {
         QByteArray hostname = get_window_hostname(w_P);

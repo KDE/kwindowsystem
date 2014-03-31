@@ -162,19 +162,20 @@ void NetWinInfoTestWM::waitForPropertyChange(NETWinInfo *info, xcb_atom_t atom, 
         if (pe->atom != atom) {
             continue;
         }
-        unsigned long dirty[ 2 ];
-        info->event(event.data(), dirty, 2);
+        NET::Properties dirty;
+        NET::Properties2 dirty2;
+        info->event(event.data(), &dirty, &dirty2);
         if (prop != 0) {
-            QVERIFY(dirty[0] & prop);
+            QVERIFY(dirty & prop);
         }
         if (prop2 != 0) {
-            QVERIFY(dirty[1] & prop2);
+            QVERIFY(dirty2 & prop2);
         }
         if (!prop) {
-            QCOMPARE(dirty[0], 0ul);
+            QCOMPARE(dirty, NET::Properties());
         }
         if (!prop2) {
-            QCOMPARE(dirty[1], 0ul);
+            QCOMPARE(dirty2, NET::Properties2());
         }
         break;
     }

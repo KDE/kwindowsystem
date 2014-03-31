@@ -81,7 +81,7 @@ bool KWindowInfoX11Test::waitForWindow(QSignalSpy& spy, WId winId, NET::Property
             if (it->first().value<WId>() != winId) {
                 continue;
             }
-            if (it->last().toInt() != property) {
+            if (it->last().toUInt() != property) {
                 continue;
             }
             foundOurWindow = true;
@@ -433,7 +433,7 @@ void KWindowInfoX11Test::testName()
     }
 
     // create a low level NETWinInfo to manipulate the name
-    NETWinInfo winInfo(QX11Info::connection(), window->winId(), QX11Info::appRootWindow(), NET::WMName);
+    NETWinInfo winInfo(QX11Info::connection(), window->winId(), QX11Info::appRootWindow(), NET::WMName, 0);
     winInfo.setName("foobar");
 
     QX11Info::getTimestamp();
