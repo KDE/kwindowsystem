@@ -1204,6 +1204,7 @@ unsigned long KStartupInfoId::timestamp() const
     if (none()) {
         return 0;
     }
+    // As per the spec, the ID must contain the _TIME followed by the timestamp
     int pos = d->id.lastIndexOf("_TIME");
     if (pos >= 0) {
         bool ok;
@@ -1215,25 +1216,6 @@ unsigned long KStartupInfoId::timestamp() const
             return time;
         }
     }
-    // libstartup-notification style :
-    // qsnprintf (s, len, "%s/%s/%lu/%d-%d-%s",
-    //   canonicalized_launcher, canonicalized_launchee, (unsigned long) timestamp,
-    //  (int) getpid (), (int) sequence_number, hostbuf);
-    int pos1 = d->id.lastIndexOf('/');
-    if (pos1 > 0) {
-        int pos2 = d->id.lastIndexOf('/', pos1 - 1);
-        if (pos2 >= 0) {
-            bool ok;
-            unsigned long time = QString(d->id.mid(pos2 + 1, pos1 - pos2 - 1)).toULong(&ok);
-            if (!ok && d->id[ pos2 + 1 ] == '-') {
-                time = QString(d->id.mid(pos2 + 1, pos1 - pos2 - 1)).toLong(&ok);
-            }
-            if (ok) {
-                return time;
-            }
-        }
-    }
-    // bah ... old KStartupInfo or a problem
     return 0;
 }
 
