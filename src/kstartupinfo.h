@@ -586,23 +586,6 @@ public:
     TriState silent() const;
 
     /**
-     * @obsolete Timestamp is already assigned in KStartupInfoId::initId().
-     * Sets timestamp for the startup notification. The timestamp is expressed
-     * as XServer time, and is used to prevent activation of the matching
-     * window if user interaction took place after this timestamp.
-     * Value -1 means no timestamp set, value 0 means that the window should
-     * not be activated.
-     */
-    void setTimestamp(unsigned long time);
-
-    /**
-     * @obsolete Use KStartupInfoId::timestamp().
-     * Return the timestamp for the startup notification, or -1 if no timestamp
-     * is set.
-     */
-    unsigned long timestamp() const;
-
-    /**
      * The X11 screen on which the startup notification is happening, -1 if unknown.
      */
     int screen() const;

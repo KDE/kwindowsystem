@@ -82,7 +82,6 @@ static const char *const NET_STARTUP_ENV = "DESKTOP_STARTUP_ID";
 static QByteArray s_startup_id;
 
 static long get_num(const QString &item_P);
-static unsigned long get_unum(const QString &item_P);
 static QString get_str(const QString &item_P);
 static QByteArray get_cstr(const QString &item_P);
 static QStringList get_fields(const QString &txt_P);
@@ -112,7 +111,7 @@ struct KStartupInfoId::Private {
 
 struct KStartupInfoData::Private {
     Private() : desktop(0), wmclass(""), hostname(""),
-        silent(KStartupInfoData::Unknown), timestamp(~0U), screen(-1), xinerama(-1), launched_by(0) {}
+        silent(KStartupInfoData::Unknown), screen(-1), xinerama(-1), launched_by(0) {}
 
     QString to_text() const;
     void remove_pid(pid_t pid);
@@ -126,7 +125,6 @@ struct KStartupInfoData::Private {
     QByteArray wmclass;
     QByteArray hostname;
     KStartupInfoData::TriState silent;
-    unsigned long timestamp;
     int screen;
     int xinerama;
     WId launched_by;
@@ -1251,9 +1249,6 @@ QString KStartupInfoData::Private::to_text() const
     if (silent != KStartupInfoData::Unknown) {
         ret += QString::fromLatin1(" SILENT=%1").arg(silent == KStartupInfoData::Yes ? 1 : 0);
     }
-    if (timestamp != ~0U) {
-        ret += QString::fromLatin1(" TIMESTAMP=%1").arg(timestamp);
-    }
     if (screen != -1) {
         ret += QString::fromLatin1(" SCREEN=%1").arg(screen);
     }
@@ -1309,8 +1304,6 @@ KStartupInfoData::KStartupInfoData(const QString &txt_P) : d(new Private)
             addPid(get_num(*it));
         } else if ((*it).startsWith(silent_str)) {
             d->silent = get_num(*it) != 0 ? Yes : No;
-        } else if ((*it).startsWith(timestamp_str)) {
-            d->timestamp = get_unum(*it);
         } else if ((*it).startsWith(screen_str)) {
             d->screen = get_num(*it);
         } else if ((*it).startsWith(xinerama_str)) {
@@ -1366,9 +1359,6 @@ void KStartupInfoData::update(const KStartupInfoData &data_P)
     }
     if (data_P.silent() != Unknown) {
         d->silent = data_P.silent();
-    }
-    if (data_P.timestamp() != ~0U && timestamp() == ~0U) { // don't overwrite
-        d->timestamp = data_P.timestamp();
     }
     if (data_P.screen() != -1) {
         d->screen = data_P.screen();
@@ -1536,16 +1526,6 @@ KStartupInfoData::TriState KStartupInfoData::silent() const
     return d->silent;
 }
 
-void KStartupInfoData::setTimestamp(unsigned long time)
-{
-    d->timestamp = time;
-}
-
-unsigned long KStartupInfoData::timestamp() const
-{
-    return d->timestamp;
-}
-
 void KStartupInfoData::setScreen(int _screen)
 {
     d->screen = _screen;
@@ -1603,13 +1583,6 @@ long get_num(const QString &item_P)
 {
     unsigned int pos = item_P.indexOf(QLatin1Char('='));
     return item_P.mid(pos + 1).toLong();
-}
-
-static
-unsigned long get_unum(const QString &item_P)
-{
-    unsigned int pos = item_P.indexOf(QLatin1Char('='));
-    return item_P.mid(pos + 1).toULong();
 }
 
 static
