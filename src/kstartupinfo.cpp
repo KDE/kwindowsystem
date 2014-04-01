@@ -307,7 +307,7 @@ void KStartupInfo::Private::window_added(WId w_P)
 void KStartupInfo::Private::got_startup_info(const QString &msg_P, bool update_P)
 {
     KStartupInfoId id(msg_P);
-    if (id.none()) {
+    if (id.isNull()) {
         return;
     }
     KStartupInfo::Data data(msg_P);
@@ -317,7 +317,7 @@ void KStartupInfo::Private::got_startup_info(const QString &msg_P, bool update_P
 void KStartupInfo::Private::new_startup_info_internal(const KStartupInfoId &id_P,
         KStartupInfo::Data &data_P, bool update_P)
 {
-    if (id_P.none()) {
+    if (id_P.isNull()) {
         return;
     }
     if (startups.contains(id_P)) {
@@ -380,7 +380,7 @@ void KStartupInfo::Private::got_remove_startup_info(const QString &msg_P)
     KStartupInfoId id(msg_P);
     KStartupInfoData data(msg_P);
     if (data.pids().count() > 0) {
-        if (!id.none()) {
+        if (!id.isNull()) {
             remove_startup_pids(id, data);
         } else {
             remove_startup_pids(data);
@@ -451,7 +451,7 @@ void KStartupInfo::Private::remove_startup_pids(const KStartupInfoId &id_P,
 
 bool KStartupInfo::sendStartup(const KStartupInfoId &id_P, const KStartupInfoData &data_P)
 {
-    if (id_P.none()) {
+    if (id_P.isNull()) {
         return false;
     }
 #if  KWINDOWSYSTEM_HAVE_X11
@@ -470,7 +470,7 @@ bool KStartupInfo::sendStartup(const KStartupInfoId &id_P, const KStartupInfoDat
 bool KStartupInfo::sendStartupX(Display *disp_P, const KStartupInfoId &id_P,
                                 const KStartupInfoData &data_P)
 {
-    if (id_P.none()) {
+    if (id_P.isNull()) {
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
@@ -508,7 +508,7 @@ QString KStartupInfo::Private::check_required_startup_fields(const QString &msg,
 
 bool KStartupInfo::sendChange(const KStartupInfoId &id_P, const KStartupInfoData &data_P)
 {
-    if (id_P.none()) {
+    if (id_P.isNull()) {
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
@@ -526,7 +526,7 @@ bool KStartupInfo::sendChange(const KStartupInfoId &id_P, const KStartupInfoData
 bool KStartupInfo::sendChangeX(Display *disp_P, const KStartupInfoId &id_P,
                                const KStartupInfoData &data_P)
 {
-    if (id_P.none()) {
+    if (id_P.isNull()) {
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
@@ -545,7 +545,7 @@ bool KStartupInfo::sendChangeX(Display *disp_P, const KStartupInfoId &id_P,
 
 bool KStartupInfo::sendFinish(const KStartupInfoId &id_P)
 {
-    if (id_P.none()) {
+    if (id_P.isNull()) {
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
@@ -559,7 +559,7 @@ bool KStartupInfo::sendFinish(const KStartupInfoId &id_P)
 
 bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P)
 {
-    if (id_P.none()) {
+    if (id_P.isNull()) {
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
@@ -576,7 +576,7 @@ bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P)
 
 bool KStartupInfo::sendFinish(const KStartupInfoId &id_P, const KStartupInfoData &data_P)
 {
-//    if( id_P.none()) // id may be none, the pids and hostname matter then
+//    if( id_P.isNull()) // id may be null, the pids and hostname matter then
 //        return false;
 #if KWINDOWSYSTEM_HAVE_X11
     KXMessages msgs;
@@ -594,7 +594,7 @@ bool KStartupInfo::sendFinish(const KStartupInfoId &id_P, const KStartupInfoData
 bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P,
                                const KStartupInfoData &data_P)
 {
-//    if( id_P.none()) // id may be none, the pids and hostname matter then
+//    if( id_P.isNull()) // id may be null, the pids and hostname matter then
 //        return false;
 #if KWINDOWSYSTEM_HAVE_X11
     QString msg = QString::fromLatin1("remove: %1 %2")
@@ -621,7 +621,7 @@ void KStartupInfo::appStarted(const QByteArray &startup_id)
 {
     KStartupInfoId id;
     id.initId(startup_id);
-    if (id.none()) {
+    if (id.isNull()) {
         return;
     }
 #if KWINDOWSYSTEM_HAVE_X11
@@ -639,7 +639,7 @@ void KStartupInfo::silenceStartup(bool silence)
 {
     KStartupInfoId id;
     id.initId(startupId());
-    if (id.none()) {
+    if (id.isNull()) {
         return;
     }
     KStartupInfoData data;
@@ -1129,7 +1129,7 @@ void KStartupInfoId::initId(const QByteArray &id_P)
 
 bool KStartupInfoId::setupStartupEnv() const
 {
-    if (none()) {
+    if (isNull()) {
         qunsetenv(NET_STARTUP_ENV);
         return false;
     }
@@ -1191,15 +1191,14 @@ bool KStartupInfoId::operator<(const KStartupInfoId &id_P) const
     return id() < id_P.id();
 }
 
-// KDE5 TODO: rename to isNull ?
-bool KStartupInfoId::none() const
+bool KStartupInfoId::isNull() const
 {
     return d->id.isEmpty() || d->id == "0";
 }
 
 unsigned long KStartupInfoId::timestamp() const
 {
-    if (none()) {
+    if (isNull()) {
         return 0;
     }
     // As per the spec, the ID must contain the _TIME followed by the timestamp

@@ -388,7 +388,11 @@ public:
      * Checks whether the identifier is valid.
      * @return true if this object doesn't represent a valid notification identification
      */
-    bool none() const;
+    bool isNull() const;
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    KWINDOWSYSTEM_DEPRECATED bool none() const { return isNull(); }
+#endif
+
     /**
      * Initializes this object with the given identification ( which may be also "0"
      * for no notification ), or if "" is given, tries to read it from the startup
