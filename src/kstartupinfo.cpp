@@ -1278,8 +1278,8 @@ KStartupInfoData::KStartupInfoData(const QString &txt_P) : d(new Private)
     const QString icon_str = QString::fromLatin1("ICON=");
     const QString desktop_str = QString::fromLatin1("DESKTOP=");
     const QString wmclass_str = QString::fromLatin1("WMCLASS=");
-    const QString hostname_str = QString::fromLatin1("HOSTNAME=");   // SELI nonstd
-    const QString pid_str = QString::fromLatin1("PID=");    // SELI nonstd
+    const QString hostname_str = QString::fromLatin1("HOSTNAME="); // added to version 1 (2014)
+    const QString pid_str = QString::fromLatin1("PID=");           // added to version 1 (2014)
     const QString silent_str = QString::fromLatin1("SILENT=");
     const QString timestamp_str = QString::fromLatin1("TIMESTAMP=");
     const QString screen_str = QString::fromLatin1("SCREEN=");
