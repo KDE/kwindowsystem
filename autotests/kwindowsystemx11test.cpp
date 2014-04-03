@@ -25,6 +25,9 @@
 #include <QWidget>
 #include <QX11Info>
 Q_DECLARE_METATYPE(WId)
+Q_DECLARE_METATYPE(NET::Properties)
+Q_DECLARE_METATYPE(NET::Properties2)
+Q_DECLARE_METATYPE(const unsigned long*)
 
 class KWindowSystemX11Test : public QObject
 {
@@ -39,6 +42,7 @@ private Q_SLOTS:
     void testDesktopNamesChanged();
     void testShowingDesktopChanged();
     void testWorkAreaChanged();
+    void testWindowTitleChanged();
 };
 
 void KWindowSystemX11Test::testActiveWindowChanged()
@@ -225,6 +229,116 @@ void KWindowSystemX11Test::testWorkAreaChanged()
     QVERIFY(spy.wait());
     QVERIFY(!spy.isEmpty());
     QVERIFY(!strutSpy.isEmpty());
+}
+
+void KWindowSystemX11Test::testWindowTitleChanged()
+{
+    qRegisterMetaType<WId>("WId");
+    qRegisterMetaType<NET::Properties>("NET::Properties");
+    qRegisterMetaType<NET::Properties2>("NET::Properties2");
+    qRegisterMetaType<const unsigned long*>("const ulong*");
+    QWidget widget;
+    widget.setWindowTitle(QStringLiteral("foo"));
+    widget.show();
+    QTest::qWaitForWindowExposed(&widget);
+
+    // wait till the window is mapped, etc.
+    QTest::qWait(200);
+
+    QSignalSpy propertiesChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,NET::Properties,NET::Properties2)));
+    QSignalSpy oldPropertiesChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,const unsigned long *)));
+    QSignalSpy propertyChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,unsigned int)));
+    QSignalSpy windowChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId)));
+
+    QVERIFY(propertiesChangedSpy.isValid());
+    QVERIFY(oldPropertiesChangedSpy.isValid());
+    QVERIFY(propertyChangedSpy.isValid());
+    QVERIFY(windowChangedSpy.isValid());
+
+    widget.setWindowTitle(QStringLiteral("bar"));
+    int counter = 0;
+    bool gotWMName = false;
+    while (propertiesChangedSpy.wait() && counter < 10) {
+        for (auto it = propertiesChangedSpy.constBegin(); it != propertiesChangedSpy.constEnd(); ++it) {
+            if ((*it).isEmpty()) {
+                continue;
+            }
+            if ((*it).at(0).toULongLong() == widget.winId()) {
+                NET::Properties props = (*it).at(1).value<NET::Properties>();
+                if (props.testFlag(NET::WMName)) {
+                    gotWMName = true;
+                }
+            }
+        }
+        if (gotWMName) {
+            break;
+        }
+        propertiesChangedSpy.clear();
+        counter++;
+    }
+    QVERIFY(gotWMName);
+
+    gotWMName = false;
+    QCOMPARE(oldPropertiesChangedSpy.isEmpty(), false);
+    for (auto it = oldPropertiesChangedSpy.constBegin(); it != oldPropertiesChangedSpy.constEnd(); ++it) {
+        if ((*it).isEmpty()) {
+            continue;
+        }
+        if ((*it).at(0).toULongLong() == widget.winId()) {
+            const unsigned long *props = (*it).at(1).value<const unsigned long *>();
+            if (props[0] & NET::WMName) {
+                gotWMName = true;
+            }
+        }
+        if (gotWMName) {
+            break;
+        }
+    }
+    QVERIFY(gotWMName);
+
+    gotWMName = false;
+    QCOMPARE(propertyChangedSpy.isEmpty(), false);
+    for (auto it = propertyChangedSpy.constBegin(); it != propertyChangedSpy.constEnd(); ++it) {
+        if ((*it).isEmpty()) {
+            continue;
+        }
+        if ((*it).at(0).toULongLong() == widget.winId()) {
+            unsigned int props = (*it).at(1).value<unsigned int>();
+            if (props & NET::WMName) {
+                gotWMName = true;
+            }
+        }
+        if (gotWMName) {
+            break;
+        }
+    }
+    QVERIFY(gotWMName);
+
+    QCOMPARE(windowChangedSpy.isEmpty(), false);
+    bool gotWindow = false;
+    for (auto it = windowChangedSpy.constBegin(); it != windowChangedSpy.constEnd(); ++it) {
+        if ((*it).isEmpty()) {
+            continue;
+        }
+        if ((*it).at(0).toULongLong() == widget.winId()) {
+            gotWindow = true;
+        }
+        if (gotWindow) {
+            break;
+        }
+    }
+    QVERIFY(gotWindow);
+
+    // now let's verify the info in KWindowInfo
+    // we wait a little bit more as openbox is updating the visible name
+    QTest::qWait(500);
+    KWindowInfo info(widget.winId(), NET::WMName | NET::WMVisibleName | NET::WMVisibleIconName | NET::WMIconName, 0);
+    QVERIFY(info.valid());
+    const QString expectedName = QStringLiteral("bar");
+    QCOMPARE(info.name(), expectedName);
+    QCOMPARE(info.visibleName(), expectedName);
+    QCOMPARE(info.visibleIconName(), expectedName);
+    QCOMPARE(info.iconName(), expectedName);
 }
 
 QTEST_MAIN(KWindowSystemX11Test)
