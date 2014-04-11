@@ -487,12 +487,12 @@ public:
      * Returns the client machine for the window.
      *
      * On platform X11 this is the value of the WM_CLIENT_MACHINE property.
-     * Requires NET::WMClientMachine passed as properties parameter to the constructor.
+     * Requires NET::WM2ClientMachine passed as properties2 parameter to the constructor.
      *
      * @code
      * QWidget *window = new QWidget(Q_NULLPTR);
      * window->show();
-     * KWindowInfo info(window->winId(), NET::WMClientMachine);
+     * KWindowInfo info(window->winId(), 0, NET::WM2ClientMachine);
      * if (info.valid())
      *     info.clientMachine();
      * @endcode
