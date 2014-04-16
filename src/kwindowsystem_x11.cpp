@@ -951,7 +951,7 @@ QString KWindowSystemPrivateX11::desktopName(int desktop)
         return QString::fromUtf8(name);
     }
 
-    return QObject::tr("Desktop %1").arg(desktop);
+    return KWindowSystem::tr("Desktop %1").arg(desktop);
 }
 
 void KWindowSystemPrivateX11::setDesktopName(int desktop, const QString &name)
