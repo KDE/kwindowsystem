@@ -2,6 +2,8 @@
 
 configure_file(config-kwindowsystem.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-kwindowsystem.h )
 
+ecm_create_qm_loader(kwindowsystem_QM_LOADER kwindowsystem5)
+
 set(kwindowsystem_SRCS
     kkeyserver.cpp
     kstartupinfo.cpp
@@ -10,6 +12,7 @@ set(kwindowsystem_SRCS
     kwindoweffects_dummy.cpp
     kwindowinfo.cpp
     kwindowsystem.cpp
+    ${kwindowsystem_QM_LOADER}
     )
 
 if (KWINDOWSYSTEM_HAVE_X11)
