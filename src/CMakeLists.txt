@@ -2,7 +2,7 @@
 
 configure_file(config-kwindowsystem.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-kwindowsystem.h )
 
-ecm_create_qm_loader(kwindowsystem_QM_LOADER kwindowsystem5)
+ecm_create_qm_loader(kwindowsystem_QM_LOADER kwindowsystem5_qt)
 
 set(kwindowsystem_SRCS
     kkeyserver.cpp

@@ -57,7 +57,7 @@ endif()
 # Subdirectories
 file(GLOB PO_FILES "po/*.po")
 if (PO_FILES)
-  ecm_create_qm_from_po_files(PO_FILES ${PO_FILES} CATALOG_NAME kwindowsystem5)
+  ecm_create_qm_from_po_files(PO_FILES ${PO_FILES} CATALOG_NAME kwindowsystem5_qt)
 endif()
 add_subdirectory(src)
 add_subdirectory(autotests)
