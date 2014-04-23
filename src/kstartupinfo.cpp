@@ -147,6 +147,11 @@ public:
     void new_startup_info_internal(const KStartupInfoId &id_P,
                                    Data &data_P, bool update_only_P);
     void remove_startup_info_internal(const KStartupInfoId &id_P);
+    /**
+     * Emits the gotRemoveStartup signal and erases the @p it from the startups map.
+     * @returns Iterator to next item in the startups map.
+     **/
+    QMap< KStartupInfoId, Data >::iterator removeStartupInfoInternal(QMap< KStartupInfoId, Data >::iterator it);
     void remove_startup_pids(const KStartupInfoId &id, const KStartupInfoData &data);
     void remove_startup_pids(const KStartupInfoData &data);
     startup_t check_startup_internal(WId w, KStartupInfoId *id, KStartupInfoData *data);
@@ -404,6 +409,12 @@ void KStartupInfo::Private::remove_startup_info_internal(const KStartupInfoId &i
         uninited_startups.remove(id_P);
     }
     return;
+}
+
+QMap< KStartupInfoId, KStartupInfo::Data >::iterator KStartupInfo::Private::removeStartupInfoInternal(QMap< KStartupInfoId, Data >::iterator it)
+{
+    emit q->gotRemoveStartup(it.key(), it.value());
+    return startups.erase(it);
 }
 
 void KStartupInfo::Private::remove_startup_pids(const KStartupInfoData &data_P)
@@ -845,7 +856,7 @@ bool KStartupInfo::Private::find_pid(pid_t pid_P, const QByteArray &hostname_P,
                 *data_O = *it;
             }
             // non-compliant, remove on first match
-            remove_startup_info_internal(it.key());
+            removeStartupInfoInternal(it);
             //qDebug() << "check_startup_pid:match";
             return true;
         }
@@ -872,7 +883,7 @@ bool KStartupInfo::Private::find_wclass(const QByteArray &_res_name, const QByte
                 *data_O = *it;
             }
             // non-compliant, remove on first match
-            remove_startup_info_internal(it.key());
+            removeStartupInfoInternal(it);
             //qDebug() << "check_startup_wclass:match";
             return true;
         }
@@ -1046,10 +1057,7 @@ void KStartupInfo::Private::clean_all_noncompliant()
             ++it;
             continue;
         }
-        const KStartupInfoId &key = it.key();
-        ++it;
-        //qDebug() << "entry cleaning:" << key.id();
-        remove_startup_info_internal(key);
+        it = removeStartupInfoInternal(it);
     }
 }
 
