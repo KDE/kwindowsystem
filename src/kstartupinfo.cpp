@@ -213,12 +213,14 @@ KStartupInfo::KStartupInfo(int flags_P, QObject *parent_P)
     d->createConnections();
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 KStartupInfo::KStartupInfo(bool clean_on_cantdetect_P, QObject *parent_P)
     : QObject(parent_P),
       d(new Private(clean_on_cantdetect_P ? CleanOnCantDetect : 0, this))
 {
     d->createConnections();
 }
+#endif
 
 KStartupInfo::~KStartupInfo()
 {

@@ -161,8 +161,11 @@ public:
      * @param parent the parent of this QObject (can be 0 for no parent)
      *
      * @obsolete
+     * @deprecated since 5.0
      */
-    explicit KStartupInfo(bool clean_on_cantdetect, QObject *parent = 0);
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    KWINDOWSYSTEM_DEPRECATED explicit KStartupInfo(bool clean_on_cantdetect, QObject *parent = 0);
+#endif
     virtual ~KStartupInfo();
     /**
      * Sends given notification data about started application

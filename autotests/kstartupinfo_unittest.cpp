@@ -35,7 +35,7 @@ class KStartupInfo_UnitTest : public QObject
     Q_OBJECT
 public:
     KStartupInfo_UnitTest()
-        : m_listener(true, this),
+        : m_listener(KStartupInfo::CleanOnCantDetect, this),
           m_receivedCount(0)
     {
         qRegisterMetaType<KStartupInfoId>();
