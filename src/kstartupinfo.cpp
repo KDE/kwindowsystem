@@ -69,7 +69,6 @@ DEALINGS IN THE SOFTWARE.
 #include <kwindowsystem.h>
 #include <kxmessages.h>
 #include <X11/Xlib.h>
-#include <X11/Xutil.h>
 #include <fixx11h.h>
 #endif
 
@@ -86,10 +85,6 @@ static QString get_str(const QString &item_P);
 static QByteArray get_cstr(const QString &item_P);
 static QStringList get_fields(const QString &txt_P);
 static QString escape_str(const QString &str_P);
-
-#if KWINDOWSYSTEM_HAVE_X11
-static Atom utf8_string_atom = None;
-#endif
 
 class KStartupInfo::Data
     : public KStartupInfoData
@@ -161,7 +156,6 @@ public:
                   KStartupInfoData *data_O);
     bool find_wclass(const QByteArray &res_name_P, const QByteArray &res_class_P,
                      KStartupInfoId *id_O, KStartupInfoData *data_O);
-    static QByteArray get_window_hostname(WId w_P);
     void startups_cleanup_internal(bool age_P);
     void clean_all_noncompliant();
     static QString check_required_startup_fields(const QString &msg,
@@ -775,26 +769,19 @@ KStartupInfo::startup_t KStartupInfo::Private::check_startup_internal(WId w_P, K
         return CantDetect;
     }
     NETWinInfo info(QX11Info::connection(),  w_P, QX11Info::appRootWindow(),
-                    NET::WMWindowType | NET::WMPid | NET::WMState, 0);
+                    NET::WMWindowType | NET::WMPid | NET::WMState,
+                    NET::WM2WindowClass | NET::WM2ClientMachine | NET::WM2TransientFor);
     pid_t pid = info.pid();
     if (pid > 0) {
-        QByteArray hostname = get_window_hostname(w_P);
+        QByteArray hostname = info.clientMachine();
         if (!hostname.isEmpty()
                 && find_pid(pid, hostname, id_O, data_O)) {
             return Match;
         }
         // try XClass matching , this PID stuff sucks :(
     }
-    XClassHint hint;
-    if (XGetClassHint(QX11Info::display(), w_P, &hint) != 0) {
-        // We managed to read the class hint
-        QByteArray res_name = hint.res_name;
-        QByteArray res_class = hint.res_class;
-        XFree(hint.res_name);
-        XFree(hint.res_class);
-        if (find_wclass(res_name, res_class, id_O, data_O)) {
-            return Match;
-        }
+    if (find_wclass(info.windowClassName(), info.windowClassClass(), id_O, data_O)) {
+        return Match;
     }
     // ignore NET::Tool and other special window types, if they can't be matched
     NET::WindowType type = info.windowType(NET::NormalMask | NET::DesktopMask
@@ -810,10 +797,8 @@ KStartupInfo::startup_t KStartupInfo::Private::check_startup_internal(WId w_P, K
         return NoMatch;
     }
     // lets see if this is a transient
-    Window transient_for;
-    if (XGetTransientForHint(QX11Info::display(), static_cast< Window >(w_P), &transient_for)
-            && static_cast< WId >(transient_for) != QX11Info::appRootWindow()
-            && transient_for != None) {
+    xcb_window_t transient_for = info.transientFor();
+    if (transient_for != QX11Info::appRootWindow() && transient_for != XCB_WINDOW_NONE) {
         return NoMatch;
     }
 #endif
@@ -891,53 +876,18 @@ bool KStartupInfo::Private::find_wclass(const QByteArray &_res_name, const QByte
     return false;
 }
 
-#if KWINDOWSYSTEM_HAVE_X11
-static Atom net_startup_atom = None;
-
-static QByteArray read_startup_id_property(WId w_P)
-{
-    QByteArray ret;
-    unsigned char *name_ret;
-    Atom type_ret;
-    int format_ret;
-    unsigned long nitems_ret = 0, after_ret = 0;
-    if (XGetWindowProperty(QX11Info::display(), w_P, net_startup_atom, 0l, 4096,
-                           False, utf8_string_atom, &type_ret, &format_ret, &nitems_ret, &after_ret, &name_ret)
-            == Success) {
-        if (type_ret == utf8_string_atom && format_ret == 8 && name_ret != NULL) {
-            ret = reinterpret_cast< char * >(name_ret);
-        }
-        if (name_ret != NULL) {
-            XFree(name_ret);
-        }
-    }
-    return ret;
-}
-
-#endif
-
 QByteArray KStartupInfo::windowStartupId(WId w_P)
 {
 #if KWINDOWSYSTEM_HAVE_X11
     if (!QX11Info::isPlatformX11()) {
         return QByteArray();
     }
-    if (net_startup_atom == None) {
-        net_startup_atom = XInternAtom(QX11Info::display(), NET_STARTUP_WINDOW, False);
-    }
-    if (utf8_string_atom == None) {
-        utf8_string_atom = XInternAtom(QX11Info::display(), "UTF8_STRING", False);
-    }
-    QByteArray ret = read_startup_id_property(w_P);
-    if (ret.isEmpty()) {
+    NETWinInfo info(QX11Info::connection(), w_P, QX11Info::appRootWindow(), 0, NET::WM2StartupId | NET::WM2GroupLeader);
+    QByteArray ret = info.startupId();
+    if (ret.isEmpty() && info.groupLeader() != XCB_WINDOW_NONE) {
         // retry with window group leader, as the spec says
-        XWMHints *hints = XGetWMHints(QX11Info::display(), w_P);
-        if (hints && (hints->flags & WindowGroupHint) != 0) {
-            ret = read_startup_id_property(hints->window_group);
-        }
-        if (hints) {
-            XFree(hints);
-        }
+        NETWinInfo groupLeaderInfo(QX11Info::connection(), info.groupLeader(), QX11Info::appRootWindow(), 0, NET::WM2StartupId);
+        ret = groupLeaderInfo.startupId();
     }
     return ret;
 #else
@@ -955,43 +905,12 @@ void KStartupInfo::setWindowStartupId(WId w_P, const QByteArray &id_P)
     if (id_P.isNull()) {
         return;
     }
-    if (net_startup_atom == None) {
-        net_startup_atom = XInternAtom(QX11Info::display(), NET_STARTUP_WINDOW, False);
-    }
-    if (utf8_string_atom == None) {
-        utf8_string_atom = XInternAtom(QX11Info::display(), "UTF8_STRING", False);
-    }
-    XChangeProperty(QX11Info::display(), w_P, net_startup_atom, utf8_string_atom, 8,
-                    PropModeReplace, reinterpret_cast< const unsigned char * >(id_P.data()), id_P.length());
+    NETWinInfo info(QX11Info::connection(), w_P, QX11Info::appRootWindow(), 0, 0);
+    info.setStartupId(id_P.constData());
 #else
     Q_UNUSED(w_P)
     Q_UNUSED(id_P)
 #endif
-}
-
-QByteArray KStartupInfo::Private::get_window_hostname(WId w_P)
-{
-#if KWINDOWSYSTEM_HAVE_X11
-    if (!QX11Info::isPlatformX11()) {
-        return QByteArray();
-    }
-    XTextProperty tp;
-    char **hh;
-    int cnt;
-    if (XGetWMClientMachine(QX11Info::display(), w_P, &tp) != 0
-            && XTextPropertyToStringList(&tp, &hh, &cnt) != 0) {
-        if (cnt == 1) {
-            QByteArray hostname = hh[ 0 ];
-            XFreeStringList(hh);
-            return hostname;
-        }
-        XFreeStringList(hh);
-    }
-#else
-    Q_UNUSED(w_P)
-#endif
-    // no hostname
-    return QByteArray();
 }
 
 void KStartupInfo::setTimeout(unsigned int secs_P)
