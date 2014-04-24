@@ -141,7 +141,7 @@ public:
     void got_remove_startup_info(const QString &msg_P);
     void new_startup_info_internal(const KStartupInfoId &id_P,
                                    Data &data_P, bool update_only_P);
-    void remove_startup_info_internal(const KStartupInfoId &id_P);
+    void removeAllStartupInfoInternal(const KStartupInfoId &id_P);
     /**
      * Emits the gotRemoveStartup signal and erases the @p it from the startups map.
      * @returns Iterator to next item in the startups map.
@@ -388,23 +388,27 @@ void KStartupInfo::Private::got_remove_startup_info(const QString &msg_P)
         }
         return;
     }
-    remove_startup_info_internal(id);
+    removeAllStartupInfoInternal(id);
 }
 
-void KStartupInfo::Private::remove_startup_info_internal(const KStartupInfoId &id_P)
+void KStartupInfo::Private::removeAllStartupInfoInternal(const KStartupInfoId &id_P)
 {
-    if (startups.contains(id_P)) {
+    auto it = startups.find(id_P);
+    if (it != startups.end()) {
         //qDebug() << "removing";
-        emit q->gotRemoveStartup(id_P, startups[ id_P ]);
-        startups.remove(id_P);
-    } else if (silent_startups.contains(id_P)) {
-        //qDebug() << "removing silent";
-        silent_startups.remove(id_P);
-    } else if (uninited_startups.contains(id_P)) {
-        //qDebug() << "removing uninited";
-        uninited_startups.remove(id_P);
+        emit q->gotRemoveStartup(it.key(), it.value());
+        startups.erase(it);
+        return;
     }
-    return;
+    it = silent_startups.find(id_P);
+    if (it != silent_startups.end()) {
+        silent_startups.erase(it);
+        return;
+    }
+    it = uninited_startups.find(id_P);
+    if (it != uninited_startups.end()) {
+        uninited_startups.erase(it);
+    }
 }
 
 QMap< KStartupInfoId, KStartupInfo::Data >::iterator KStartupInfo::Private::removeStartupInfoInternal(QMap< KStartupInfoId, Data >::iterator it)
@@ -452,7 +456,7 @@ void KStartupInfo::Private::remove_startup_pids(const KStartupInfoId &id_P,
         data->d->remove_pid(*it2);    // remove all pids from the info
     }
     if (data->pids().count() == 0) { // all pids removed -> remove info
-        remove_startup_info_internal(id_P);
+        removeAllStartupInfoInternal(id_P);
     }
 }
 
