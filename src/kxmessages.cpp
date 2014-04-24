@@ -24,6 +24,7 @@ DEALINGS IN THE SOFTWARE.
 ****************************************************************************/
 
 #include "kxmessages.h"
+#include "kxutils_p.h"
 
 #if KWINDOWSYSTEM_HAVE_X11
 
@@ -36,14 +37,97 @@ DEALINGS IN THE SOFTWARE.
 #include <qx11info_x11.h>
 #include <X11/Xlib.h>
 
+
+class XcbAtom
+{
+public:
+    explicit XcbAtom(const QByteArray &name, bool onlyIfExists = false)
+        : m_name(name)
+        , m_atom(XCB_ATOM_NONE)
+        , m_connection(Q_NULLPTR)
+        , m_retrieved(false)
+        , m_onlyIfExists(onlyIfExists)
+    {
+        m_cookie.sequence = 0;
+    }
+    explicit XcbAtom(xcb_connection_t *c, const QByteArray &name, bool onlyIfExists = false)
+        : m_name(name)
+        , m_atom(XCB_ATOM_NONE)
+        , m_cookie(xcb_intern_atom_unchecked(c, onlyIfExists, name.length(), name.constData()))
+        , m_connection(c)
+        , m_retrieved(false)
+        , m_onlyIfExists(onlyIfExists)
+    {
+    }
+
+    ~XcbAtom() {
+        if (!m_retrieved && m_cookie.sequence && m_connection) {
+            xcb_discard_reply(m_connection, m_cookie.sequence);
+        }
+    }
+
+    operator xcb_atom_t() {
+        getReply();
+        return m_atom;
+    }
+
+    inline const QByteArray &name() const {
+        return m_name;
+    }
+
+    inline void setConnection(xcb_connection_t *c) {
+        m_connection = c;
+    }
+
+    inline void fetch() {
+        if (!m_connection || m_name.isEmpty()) {
+            return;
+        }
+        m_cookie = xcb_intern_atom_unchecked(m_connection, m_onlyIfExists, m_name.length(), m_name.constData());
+    }
+
+private:
+    void getReply() {
+        if (m_retrieved || !m_cookie.sequence || !m_connection) {
+            return;
+        }
+        KXUtils::ScopedCPointer<xcb_intern_atom_reply_t> reply(xcb_intern_atom_reply(m_connection, m_cookie, Q_NULLPTR));
+        if (!reply.isNull()) {
+            m_atom = reply->atom;
+        }
+        m_retrieved = true;
+    }
+    QByteArray m_name;
+    xcb_atom_t m_atom;
+    xcb_intern_atom_cookie_t m_cookie;
+    xcb_connection_t *m_connection;
+    bool m_retrieved;
+    bool m_onlyIfExists;
+};
+
 class KXMessagesPrivate
     : public QAbstractNativeEventFilter
 {
 public:
-    QWidget *handle;
-    Atom accept_atom2;
-    Atom accept_atom1;
+    KXMessagesPrivate(KXMessages *parent, const char *acceptBroadcast)
+        : accept_atom1(acceptBroadcast ? QByteArray(acceptBroadcast) + QByteArrayLiteral("_BEGIN") : QByteArray())
+        , accept_atom2(acceptBroadcast ? QByteArray(acceptBroadcast) : QByteArray())
+        , handle(new QWidget)
+        , q(parent)
+        , valid(QX11Info::isPlatformX11())
+        {
+            if (acceptBroadcast) {
+                accept_atom1.setConnection(QX11Info::connection());
+                accept_atom1.fetch();
+                accept_atom2.setConnection(QX11Info::connection());
+                accept_atom2.fetch();
+                QCoreApplication::instance()->installNativeEventFilter(this);
+            }
+        }
+    XcbAtom accept_atom1;
+    XcbAtom accept_atom2;
     QMap< WId, QByteArray > incoming_messages;
+    QScopedPointer<QWidget> handle;
     KXMessages *q;
     bool valid;
 
@@ -90,32 +174,24 @@ public:
     }
 };
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 static void send_message_internal(WId w_P, const QString &msg_P, long mask_P,
                                   Display *disp, Atom atom1_P, Atom atom2_P, Window handle_P);
-
 // for broadcasting
 static const long BROADCAST_MASK = PropertyChangeMask;
 // CHECKME
+#endif
+static void send_message_internal(xcb_window_t w, const QString &msg, xcb_connection_t *c,
+                                  xcb_atom_t leadingMessage, xcb_atom_t followingMessage, xcb_window_t handle);
 
 KXMessages::KXMessages(const char *accept_broadcast_P, QObject *parent_P)
     : QObject(parent_P)
-    , d(new KXMessagesPrivate)
+    , d(new KXMessagesPrivate(this, accept_broadcast_P))
 {
-    d->q = this;
-    d->valid = QX11Info::isPlatformX11();
-    if (d->valid && accept_broadcast_P != NULL) {
-        QCoreApplication::instance()->installNativeEventFilter(d);
-        d->accept_atom1 = XInternAtom(QX11Info::display(), QByteArray(QByteArray(accept_broadcast_P) + "_BEGIN").constData(), false);
-        d->accept_atom2 = XInternAtom(QX11Info::display(), accept_broadcast_P, false);
-    } else {
-        d->accept_atom1 = d->accept_atom2 = None;
-    }
-    d->handle = new QWidget;
 }
 
 KXMessages::~KXMessages()
 {
-    delete d->handle;
     delete d;
 }
 
@@ -125,13 +201,15 @@ void KXMessages::broadcastMessage(const char *msg_type_P, const QString &message
         qWarning() << "KXMessages used on non-X11 platform! This is an application bug.";
         return;
     }
-    Atom a2 = XInternAtom(QX11Info::display(), msg_type_P, false);
-    Atom a1 = XInternAtom(QX11Info::display(), QByteArray(QByteArray(msg_type_P) + "_BEGIN").constData(), false);
-    Window root = screen_P == -1 ? QX11Info::appRootWindow() : QX11Info::appRootWindow(screen_P);
-    send_message_internal(root, message_P, BROADCAST_MASK, QX11Info::display(),
+    const QByteArray msg(msg_type_P);
+    XcbAtom a2(QX11Info::connection(), msg);
+    XcbAtom a1(QX11Info::connection(), msg + QByteArrayLiteral("_BEGIN"));
+    xcb_window_t root = screen_P == -1 ? QX11Info::appRootWindow() : QX11Info::appRootWindow(screen_P);
+    send_message_internal(root, message_P, QX11Info::connection(),
                           a1, a2, d->handle->winId());
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 bool KXMessages::broadcastMessageX(Display *disp, const char *msg_type_P,
                                    const QString &message_P, int screen_P)
 {
@@ -151,6 +229,44 @@ bool KXMessages::broadcastMessageX(Display *disp, const char *msg_type_P,
     send_message_internal(root, message_P, BROADCAST_MASK, disp,
                           a1, a2, win);
     XDestroyWindow(disp, win);
+    return true;
+}
+#endif
+
+xcb_screen_t *defaultScreen(xcb_connection_t *c, int screen)
+{
+    for (xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(c));
+            it.rem;
+            --screen, xcb_screen_next(&it)) {
+        if (screen == 0) {
+            return it.data;
+        }
+    }
+    return Q_NULLPTR;
+}
+
+bool KXMessages::broadcastMessageX(xcb_connection_t *c, const char *msg_type_P, const QString &message, int screenNumber)
+{
+    if (!c) {
+        return false;
+    }
+    if (!QX11Info::isPlatformX11()) {
+        qWarning() << "KXMessages used on non-X11 platform! This is an application bug.";
+        return false;
+    }
+    const QByteArray msg(msg_type_P);
+    XcbAtom a2(QX11Info::connection(), msg);
+    XcbAtom a1(QX11Info::connection(), msg + QByteArrayLiteral("_BEGIN"));
+    const xcb_screen_t *screen = defaultScreen(c, screenNumber);
+    if (!screen) {
+        return false;
+    }
+    const xcb_window_t root = screen->root;
+    const xcb_window_t win = xcb_generate_id(c);
+    xcb_create_window(c, XCB_COPY_FROM_PARENT, win, root, 0, 0, 1, 1,
+                      0, XCB_COPY_FROM_PARENT, XCB_COPY_FROM_PARENT, 0, Q_NULLPTR);
+    send_message_internal(root, message, c, a1, a2, win);
+    xcb_destroy_window(c, win);
     return true;
 }
 
@@ -179,6 +295,7 @@ bool KXMessages::sendMessageX(Display *disp, WId w_P, const char *msg_type_P,
 }
 #endif
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 static void send_message_internal(WId w_P, const QString &msg_P, long mask_P,
                                   Display *disp, Atom atom1_P, Atom atom2_P, Window handle_P)
 {
@@ -204,6 +321,39 @@ static void send_message_internal(WId w_P, const QString &msg_P, long mask_P,
         pos += i;
     } while (pos <= len);
     XFlush(disp);
+}
+#endif
+
+static void send_message_internal(xcb_window_t w, const QString &msg_P, xcb_connection_t *c,
+                                  xcb_atom_t leadingMessage, xcb_atom_t followingMessage, xcb_window_t handle)
+{
+    unsigned int pos = 0;
+    QByteArray msg = msg_P.toUtf8();
+    const size_t len = strlen(msg.constData());
+
+    xcb_client_message_event_t event;
+    event.response_type = XCB_CLIENT_MESSAGE;
+    event.format = 8;
+    event.sequence = 0;
+    event.window = handle;
+    event.type = leadingMessage;
+
+    do {
+        unsigned int i;
+        for (i = 0;
+                i < 20 && i + pos <= len;
+                ++i) {
+            event.data.data8[i] = msg[ i + pos ];
+        }
+        for (unsigned int j = i; j < 20; ++j) {
+            event.data.data8[j] = 0;
+        }
+        xcb_send_event(c, false, w, XCB_EVENT_MASK_PROPERTY_CHANGE, (const char *) &event);
+        event.type = followingMessage;
+        pos += i;
+    } while (pos <= len);
+
+    xcb_flush(c);
 }
 
 #endif

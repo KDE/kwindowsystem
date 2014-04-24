@@ -20,26 +20,45 @@
 
 #include <kxmessages.h>
 #include <QSignalSpy>
+#include <QX11Info>
 #include <qtest_widgets.h>
 
 class KXMessages_UnitTest : public QObject
 {
     Q_OBJECT
 public:
+    enum BroadcastType {
+        BroadcastMessageObject,
+        BroadcastStaticDisplay,
+        BroadcastStaticConnection
+    };
     KXMessages_UnitTest()
         : m_msgs()
     {
     }
 
 private Q_SLOTS:
+    void testStart_data();
     void testStart();
 
 private:
     KXMessages m_msgs;
 };
 
+Q_DECLARE_METATYPE(KXMessages_UnitTest::BroadcastType)
+
+void KXMessages_UnitTest::testStart_data()
+{
+    QTest::addColumn<KXMessages_UnitTest::BroadcastType>("broadcastType");
+
+    QTest::newRow("object")     << BroadcastMessageObject;
+    QTest::newRow("display")    << BroadcastStaticDisplay;
+    QTest::newRow("connection") << BroadcastStaticConnection;
+}
+
 void KXMessages_UnitTest::testStart()
 {
+    QFETCH(KXMessages_UnitTest::BroadcastType, broadcastType);
     const QByteArray type = "kxmessage_unittest";
     KXMessages receiver(type);
 
@@ -49,7 +68,17 @@ void KXMessages_UnitTest::testStart()
     for (int i = 1; i < 50; ++i) {
         QSignalSpy spy(&receiver, SIGNAL(gotMessage(QString)));
         message += "a";
-        m_msgs.broadcastMessage(type, message);
+        switch (broadcastType) {
+        case KXMessages_UnitTest::BroadcastMessageObject:
+            m_msgs.broadcastMessage(type, message);
+            break;
+        case KXMessages_UnitTest::BroadcastStaticDisplay:
+            QVERIFY(KXMessages::broadcastMessageX(QX11Info::display(), type.constData(), message));
+            break;
+        case KXMessages_UnitTest::BroadcastStaticConnection:
+            QVERIFY(KXMessages::broadcastMessageX(QX11Info::connection(), type.constData(), message, QX11Info::appScreen()));
+            break;
+        }
 
         QVERIFY(spy.wait());
         QCOMPARE(spy.count(), 1);

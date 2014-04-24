@@ -32,6 +32,7 @@ DEALINGS IN THE SOFTWARE.
 #include <config-kwindowsystem.h> // KWINDOWSYSTEM_HAVE_X11
 #if KWINDOWSYSTEM_HAVE_X11
 typedef struct _XDisplay Display;
+struct xcb_connection_t;
 
 class QString;
 
@@ -77,9 +78,24 @@ public:
      * @param message the message itself
          * @param screen X11 screen to use, -1 for the default
      * @return false when an error occurred, true otherwise
+     * @deprecated since 5.0 use xcb variant
      */
-    static bool broadcastMessageX(Display *disp, const char *msg_type,
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    KWINDOWSYSTEM_DEPRECATED static bool broadcastMessageX(Display *disp, const char *msg_type,
                                   const QString &message, int screen = -1);
+#endif
+    /**
+     * Broadcasts the given message with the given message type.
+     *
+     * @param c X11 connection which will be used instead of
+     *             QX11Info::connection()
+     * @param msg_type the type of the message
+     * @param message the message itself
+     * @param screenNumber X11 screen to use
+     * @return false when an error occurred, true otherwise
+     */
+    static bool broadcastMessageX(xcb_connection_t *c, const char *msg_type,
+                                  const QString &message, int screenNumber);
 
 #if 0 // currently unused
     /**
