@@ -61,17 +61,17 @@ add_library(KF5WindowSystem ${kwindowsystem_SRCS})
 generate_export_header(KF5WindowSystem BASE_NAME KWindowSystem)
 add_library(KF5::WindowSystem ALIAS KF5WindowSystem)
 
-target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}/KWindowSystem>")
+target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${KF5_INCLUDE_INSTALL_DIR}/KWindowSystem>")
 
 target_link_libraries(KF5WindowSystem
     PUBLIC Qt5::Widgets
     PRIVATE ${platformLinkLibraries}
 )
 
-if(IS_ABSOLUTE "${INCLUDE_INSTALL_DIR}")
-  target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${INCLUDE_INSTALL_DIR}>" )
+if(IS_ABSOLUTE "${KF5_INCLUDE_INSTALL_DIR}")
+  target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${KF5_INCLUDE_INSTALL_DIR}>" )
 else()
-  target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/${INCLUDE_INSTALL_DIR}>" )
+  target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/${KF5_INCLUDE_INSTALL_DIR}>" )
 endif()
 
 set_target_properties(KF5WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSION_STRING}
@@ -96,7 +96,7 @@ ecm_generate_headers(KWindowSystem_HEADERS
   REQUIRED_HEADERS KWindowSystem_HEADERS
 )
 
-install(TARGETS KF5WindowSystem EXPORT KF5WindowSystemTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS KF5WindowSystem EXPORT KF5WindowSystemTargets ${KF5_INSTALL_TARGETS_DEFAULT_ARGS})
 
 install(FILES
   # FIXME: It seems odd to install this.
@@ -106,15 +106,15 @@ install(FILES
   netwm_def.h
   kmanagerselection.h
   fixx11h.h
-  DESTINATION ${INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel
+  DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel
 )
 
 if (APPLE)
-   install( FILES kkeyserver_mac.h DESTINATION ${INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel)
+   install( FILES kkeyserver_mac.h DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel)
 elseif (WIN32)
-    install( FILES kkeyserver_win.h DESTINATION ${INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel )
+    install( FILES kkeyserver_win.h DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel )
 else()
-   install( FILES kkeyserver_x11.h DESTINATION ${INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel)
+   install( FILES kkeyserver_x11.h DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KWindowSystem COMPONENT Devel)
 endif ()
 
 include(ECMGeneratePriFile)
