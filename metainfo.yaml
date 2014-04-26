@@ -1,1 +1,9 @@
+maintainer: graesslin
+description: Integration with X11 and window managers
 tier: 1
+type: integration
+platforms:
+    - name: Linux
+portingAid: false
+deprecated: false
+release: true
