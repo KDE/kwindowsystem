@@ -15,7 +15,7 @@ include(CMakeFindFrameworks)
 
 include(ECMCreateQmFromPoFiles)
 
-set(KF5_VERSION "4.98.0")
+set(KF5_VERSION "4.98.0") # handled by release scripts # handled by release scripts
 
 ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KWINDOWSYSTEM
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kwindowsystem_version.h"
