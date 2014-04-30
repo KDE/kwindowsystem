@@ -256,6 +256,8 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     QVERIFY(windowChangedSpy.isValid());
 
     widget.setWindowTitle(QStringLiteral("bar"));
+    QX11Info::setAppTime(QX11Info::getTimestamp());
+
     int counter = 0;
     bool gotWMName = false;
     while (propertiesChangedSpy.wait() && counter < 10) {
