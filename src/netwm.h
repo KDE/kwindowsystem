@@ -118,15 +118,9 @@ public:
        @param doActivate true to call activate() to do an initial data read/update
        of the query information.
     **/
-    NETRootInfo(xcb_connection_t *connection, NET::Properties properties, NET::Properties2 properties2,
+    NETRootInfo(xcb_connection_t *connection, NET::Properties properties, NET::Properties2 properties2 = 0,
                 int screen = -1, bool doActivate = true);
 
-    /**
-        This constructor differs from the above one only in the way it accepts
-        the list of supported properties.
-    **/
-    NETRootInfo(xcb_connection_t *connection, NET::Properties properties, int screen = -1,
-                bool doActivate = true);
 
     /**
        Creates a shared copy of the specified NETRootInfo object.

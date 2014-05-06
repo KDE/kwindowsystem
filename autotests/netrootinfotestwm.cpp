@@ -645,6 +645,9 @@ void NetRootInfoTestWM::testDesktopLayout()
     QCOMPARE(rootInfo.desktopLayoutOrientation(), orientation);
     QCOMPARE(rootInfo.desktopLayoutColumnsRows(), columnsRows);
     QCOMPARE(rootInfo.desktopLayoutCorner(), corner);
+
+    NETRootInfo info2(connection(), NET::WMAllProperties, NET::WM2AllProperties);
+    QCOMPARE(info2.desktopLayoutColumnsRows(), columnsRows);
 }
 
 void NetRootInfoTestWM::testDesktopViewports()

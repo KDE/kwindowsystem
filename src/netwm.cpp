@@ -754,64 +754,7 @@ NETRootInfo::NETRootInfo(xcb_connection_t *connection, NET::Properties propertie
     }
 }
 
-NETRootInfo::NETRootInfo(xcb_connection_t *connection, NET::Properties properties, int screen,
-                         bool doActivate)
-{
 
-#ifdef    NETWMDEBUG
-    fprintf(stderr, "NETRootInfo::NETRootInfo: using Client constructor\n");
-#endif
-
-    p = new NETRootInfoPrivate;
-    p->ref = 1;
-
-    p->name = 0;
-
-    p->conn = connection;
-
-    p->temp_buf = 0;
-    p->temp_buf_size = 0;
-
-    const xcb_setup_t *setup = xcb_get_setup(p->conn);
-    xcb_screen_iterator_t it = xcb_setup_roots_iterator(setup);
-
-    if (screen != -1 && screen < setup->roots_len) {
-        for (int i = 0; i < screen; i++) {
-            xcb_screen_next(&it);
-        }
-    }
-
-    p->root = it.data->root;
-    p->rootSize.width = it.data->width_in_pixels;
-    p->rootSize.height = it.data->height_in_pixels;
-
-    p->supportwindow = XCB_WINDOW_NONE;
-    p->number_of_desktops = p->current_desktop = 0;
-    p->active = XCB_WINDOW_NONE;
-    p->clients = p->stacking = p->virtual_roots = (xcb_window_t *) 0;
-    p->clients_count = p->stacking_count = p->virtual_roots_count = 0;
-    p->showing_desktop = false;
-    p->desktop_layout_orientation = OrientationHorizontal;
-    p->desktop_layout_corner = DesktopLayoutCornerTopLeft;
-    p->desktop_layout_columns = p->desktop_layout_rows = 0;
-    setDefaultProperties();
-    p->clientProperties = properties;
-    p->properties = 0;
-    p->properties2 = 0;
-    p->states = 0;
-    p->windowTypes = 0;
-    p->actions = 0;
-
-    p->role = Client;
-
-    if (! netwm_atoms_created) {
-        create_netwm_atoms(p->conn);
-    }
-
-    if (doActivate) {
-        activate();
-    }
-}
 
 // Copy an existing NETRootInfo object.
 
