@@ -1806,7 +1806,7 @@ void NETRootInfo::sendPing(xcb_window_t window, xcb_timestamp_t timestamp)
         net_wm_ping, timestamp, window, 0, 0
     };
 
-    send_client_message(p->conn, 0, window, window, net_restack_window, data);
+    send_client_message(p->conn, 0, window, window, wm_protocols, data);
 }
 
 // assignment operator
