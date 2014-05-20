@@ -171,16 +171,14 @@ void KWindowSystemPrivateDummy::clearState(WId win, NET::States state)
     Q_UNUSED(state)
 }
 
-void KWindowSystemPrivateDummy::minimizeWindow(WId win, bool animation)
+void KWindowSystemPrivateDummy::minimizeWindow(WId win)
 {
     Q_UNUSED(win)
-    Q_UNUSED(animation)
 }
 
-void KWindowSystemPrivateDummy::unminimizeWindow(WId win, bool animation)
+void KWindowSystemPrivateDummy::unminimizeWindow(WId win)
 {
     Q_UNUSED(win)
-    Q_UNUSED(animation)
 }
 
 void KWindowSystemPrivateDummy::raiseWindow(WId win)
@@ -480,17 +478,33 @@ void KWindowSystem::clearState(WId win, NET::States state)
     d->clearState(win, state);
 }
 
-void KWindowSystem::minimizeWindow(WId win, bool animation)
+void KWindowSystem::minimizeWindow(WId win)
 {
     Q_D(KWindowSystem);
-    d->minimizeWindow(win, animation);
+    d->minimizeWindow(win);
 }
 
-void KWindowSystem::unminimizeWindow(WId win, bool animation)
+void KWindowSystem::unminimizeWindow(WId win)
 {
     Q_D(KWindowSystem);
-    d->unminimizeWindow(win, animation);
+    d->unminimizeWindow(win);
 }
+
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+void KWindowSystem::minimizeWindow(WId win, bool animation)
+{
+    Q_UNUSED(animation)
+    minimizeWindow(win);
+}
+#endif
+
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+void KWindowSystem::unminimizeWindow(WId win, bool animation)
+{
+    Q_UNUSED(animation)
+    unminimizeWindow(win);
+}
+#endif
 
 void KWindowSystem::raiseWindow(WId win)
 {

@@ -48,8 +48,8 @@ public:
     virtual void setType(WId win, NET::WindowType windowType) = 0;
     virtual void setState(WId win, NET::States state) = 0;
     virtual void clearState(WId win, NET::States state) = 0;
-    virtual void minimizeWindow(WId win, bool animation) = 0;
-    virtual void unminimizeWindow(WId win, bool animation) = 0;
+    virtual void minimizeWindow(WId win) = 0;
+    virtual void unminimizeWindow(WId win) = 0;
     virtual void raiseWindow(WId win) = 0;
     virtual void lowerWindow(WId win) = 0;
     virtual bool icccmCompliantMappingState() = 0;
@@ -100,8 +100,8 @@ public:
     void setType(WId win, NET::WindowType windowType) Q_DECL_OVERRIDE;
     void setState(WId win, NET::States state) Q_DECL_OVERRIDE;
     void clearState(WId win, NET::States state) Q_DECL_OVERRIDE;
-    void minimizeWindow(WId win, bool animation) Q_DECL_OVERRIDE;
-    void unminimizeWindow(WId win, bool animation) Q_DECL_OVERRIDE;
+    void minimizeWindow(WId win) Q_DECL_OVERRIDE;
+    void unminimizeWindow(WId win) Q_DECL_OVERRIDE;
     void raiseWindow(WId win) Q_DECL_OVERRIDE;
     void lowerWindow(WId win) Q_DECL_OVERRIDE;
     bool icccmCompliantMappingState() Q_DECL_OVERRIDE;

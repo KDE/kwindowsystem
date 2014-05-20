@@ -362,7 +362,6 @@ bool NETEventFilter::mapViewport()
 
 static bool atoms_created = false;
 
-static Atom kde_wm_change_state;
 static Atom _wm_protocols;
 static Atom kwm_utf8_string;
 
@@ -374,9 +373,6 @@ static void create_atoms(Display *dpy)
         const char *names[max];
         Atom atoms_return[max];
         int n = 0;
-
-        atoms[n] = &kde_wm_change_state;
-        names[n++] = "_KDE_WM_CHANGE_STATE";
 
         atoms[n] = &_wm_protocols;
         names[n++] = "WM_PROTOCOLS";
@@ -397,23 +393,6 @@ static void create_atoms(Display *dpy)
 
         atoms_created = True;
     }
-}
-
-static void sendClientMessageToRoot(Window w, Atom a, long x, long y = 0, long z = 0)
-{
-    XEvent ev;
-    long mask;
-
-    memset(&ev, 0, sizeof(ev));
-    ev.xclient.type = ClientMessage;
-    ev.xclient.window = w;
-    ev.xclient.message_type = a;
-    ev.xclient.format = 32;
-    ev.xclient.data.l[0] = x;
-    ev.xclient.data.l[1] = y;
-    ev.xclient.data.l[2] = z;
-    mask = SubstructureRedirectMask;
-    XSendEvent(QX11Info::display(), QX11Info::appRootWindow(), False, mask, &ev);
 }
 
 // optimalization - create KWindowSystemPrivate only when needed and only for what is needed
@@ -798,21 +777,13 @@ void KWindowSystemPrivateX11::clearState(WId win, NET::States state)
     info.setState(0, state);
 }
 
-void KWindowSystemPrivateX11::minimizeWindow(WId win, bool animation)
+void KWindowSystemPrivateX11::minimizeWindow(WId win)
 {
-    if (!animation) {
-        create_atoms();
-        sendClientMessageToRoot(win, kde_wm_change_state, IconicState, 1);
-    }
     XIconifyWindow(QX11Info::display(), win, QX11Info::appScreen());
 }
 
-void KWindowSystemPrivateX11::unminimizeWindow(WId win, bool animation)
+void KWindowSystemPrivateX11::unminimizeWindow(WId win)
 {
-    if (!animation) {
-        create_atoms();
-        sendClientMessageToRoot(win, kde_wm_change_state, NormalState, 1);
-    }
     XMapWindow(QX11Info::display(), win);
 }
 

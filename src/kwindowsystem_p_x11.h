@@ -51,8 +51,8 @@ public:
     void setType(WId win, NET::WindowType windowType) Q_DECL_OVERRIDE;
     void setState(WId win, NET::States state) Q_DECL_OVERRIDE;
     void clearState(WId win, NET::States state) Q_DECL_OVERRIDE;
-    void minimizeWindow(WId win, bool animation) Q_DECL_OVERRIDE;
-    void unminimizeWindow(WId win, bool animation) Q_DECL_OVERRIDE;
+    void minimizeWindow(WId win) Q_DECL_OVERRIDE;
+    void unminimizeWindow(WId win) Q_DECL_OVERRIDE;
     void raiseWindow(WId win) Q_DECL_OVERRIDE;
     void lowerWindow(WId win) Q_DECL_OVERRIDE;
     bool icccmCompliantMappingState() Q_DECL_OVERRIDE;

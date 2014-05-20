@@ -332,24 +332,35 @@ public:
     static void clearState(WId win, NET::States  state);
 
     /**
-     * Iconifies a window. Compatible to XIconifyWindow but has an
-     * additional parameter @p animation.
+     * Minimizes the window with id @p win.
+     * On X11 this follows the protocol described in ICCCM section 4.1.4.
      *
-     * @param win the id of the window
-     * @param animation true to show an animation
-     * @see deIconifyWindow()
+     * @param win The window to minimize
+     * @see unminimizeWindow()
      */
-    static void minimizeWindow(WId win, bool animation = true);
+    static void minimizeWindow(WId win);
+    /**
+     * Unminimizes the window with id @p win.
+     * On X11 this follows the protocol described in ICCCM section 4.1.4.
+     *
+     * @param win The window to unminimize
+     * @see minimizeWindow()
+     **/
+    static void unminimizeWindow(WId win);
 
     /**
-     * DeIconifies a window. Compatible to XMapWindow but has an
-     * additional parameter @p animation.
-     *
-     * @param win the id of the window
-     * @param animation true to show an animation
-     * @see iconifyWindow()
+     * @deprecated since 5.0 the @p animation is ignored.
      */
-    static void unminimizeWindow(WId win, bool animation = true);
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    static void minimizeWindow(WId win, bool animation);
+#endif
+
+    /**
+     * @deprecated since 5.0 the @p animation is ignored.
+     */
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    static void unminimizeWindow(WId win, bool animation);
+#endif
 
     /**
      * Raises the given window. This call is only for pagers and similar
