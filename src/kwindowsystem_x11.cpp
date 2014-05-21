@@ -363,6 +363,7 @@ bool NETEventFilter::mapViewport()
 static bool atoms_created = false;
 
 static Atom _wm_protocols;
+static Atom _wm_change_state;
 static Atom kwm_utf8_string;
 
 static void create_atoms(Display *dpy)
@@ -376,6 +377,9 @@ static void create_atoms(Display *dpy)
 
         atoms[n] = &_wm_protocols;
         names[n++] = "WM_PROTOCOLS";
+
+        atoms[n] = &_wm_change_state;
+        names[n++] = "WM_CHANGE_STATE";
 
         atoms[n] = &kwm_utf8_string;
         names[n++] = "UTF8_STRING";
@@ -777,14 +781,36 @@ void KWindowSystemPrivateX11::clearState(WId win, NET::States state)
     info.setState(0, state);
 }
 
+// enum values for ICCCM 4.1.2.4 and 4.1.4, defined to not depend on xcb-icccm
+enum {
+  _ICCCM_WM_STATE_WITHDRAWN = 0,
+  _ICCCM_WM_STATE_NORMAL = 1,
+  _ICCCM_WM_STATE_ICONIC = 3
+};
+
 void KWindowSystemPrivateX11::minimizeWindow(WId win)
 {
-    XIconifyWindow(QX11Info::display(), win, QX11Info::appScreen());
+    create_atoms();
+    // as described in ICCCM 4.1.4
+    xcb_client_message_event_t ev;
+    memset(&ev, 0, sizeof(ev));
+    ev.response_type = XCB_CLIENT_MESSAGE;
+    ev.window = win;
+    ev.type = _wm_change_state;
+    ev.format = 32;
+    ev.data.data32[0] = _ICCCM_WM_STATE_ICONIC;
+    ev.data.data32[1] = 0;
+    ev.data.data32[2] = 0;
+    ev.data.data32[3] = 0;
+    ev.data.data32[4] = 0;
+    xcb_send_event(QX11Info::connection(), false, QX11Info::appRootWindow(),
+                   XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
+                   reinterpret_cast<const char*>(&ev));
 }
 
 void KWindowSystemPrivateX11::unminimizeWindow(WId win)
 {
-    XMapWindow(QX11Info::display(), win);
+    xcb_map_window(QX11Info::connection(), win);
 }
 
 void KWindowSystemPrivateX11::raiseWindow(WId win)

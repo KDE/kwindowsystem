@@ -43,6 +43,7 @@ private Q_SLOTS:
     void testShowingDesktopChanged();
     void testWorkAreaChanged();
     void testWindowTitleChanged();
+    void testMinimizeWindow();
 };
 
 void KWindowSystemX11Test::testActiveWindowChanged()
@@ -341,6 +342,37 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     QCOMPARE(info.visibleName(), expectedName);
     QCOMPARE(info.visibleIconName(), expectedName);
     QCOMPARE(info.iconName(), expectedName);
+}
+
+void KWindowSystemX11Test::testMinimizeWindow()
+{
+    NETRootInfo rootInfo(QX11Info::connection(), NET::Supported | NET::SupportingWMCheck);
+    if (qstrcmp(rootInfo.wmName(), "Openbox") != 0 &&
+        qstrcmp(rootInfo.wmName(), "KWin") != 0) {
+        QSKIP("Test minimize window might not be supported on the used window manager.");
+    }
+    QWidget widget;
+    widget.show();
+    QTest::qWaitForWindowExposed(&widget);
+
+    KWindowInfo info(widget.winId(), NET::WMState | NET::XAWMState);
+    QVERIFY(!info.isMinimized());
+
+    KWindowSystem::minimizeWindow(widget.winId());
+    // create a roundtrip, updating minimized state is done by the window manager and wait a short time
+    QX11Info::setAppTime(QX11Info::getTimestamp());
+    QTest::qWait(200);
+
+    KWindowInfo info2(widget.winId(), NET::WMState | NET::XAWMState);
+    QVERIFY(info2.isMinimized());
+
+    KWindowSystem::unminimizeWindow(widget.winId());
+    // create a roundtrip, updating minimized state is done by the window manager and wait a short time
+    QX11Info::setAppTime(QX11Info::getTimestamp());
+    QTest::qWait(200);
+
+    KWindowInfo info3(widget.winId(), NET::WMState | NET::XAWMState);
+    QVERIFY(!info3.isMinimized());
 }
 
 QTEST_MAIN(KWindowSystemX11Test)
