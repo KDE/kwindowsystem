@@ -817,9 +817,10 @@ void KWindowSystemPrivateX11::raiseWindow(WId win)
 {
     NETRootInfo info(QX11Info::connection(), NET::Supported);
     if (info.isSupported(NET::WM2RestackWindow)) {
-        info.restackRequest(win, NET::FromTool, None, Above, QX11Info::appUserTime());
+        info.restackRequest(win, NET::FromTool, XCB_WINDOW_NONE, XCB_STACK_MODE_ABOVE, QX11Info::appUserTime());
     } else {
-        XRaiseWindow(QX11Info::display(), win);
+        const uint32_t values[] = { XCB_STACK_MODE_ABOVE };
+        xcb_configure_window(QX11Info::connection(), win, XCB_CONFIG_WINDOW_STACK_MODE, values);
     }
 }
 
@@ -827,9 +828,10 @@ void KWindowSystemPrivateX11::lowerWindow(WId win)
 {
     NETRootInfo info(QX11Info::connection(), NET::Supported);
     if (info.isSupported(NET::WM2RestackWindow)) {
-        info.restackRequest(win, NET::FromTool, None, Below, QX11Info::appUserTime());
+        info.restackRequest(win, NET::FromTool, XCB_WINDOW_NONE, XCB_STACK_MODE_BELOW, QX11Info::appUserTime());
     } else {
-        XLowerWindow(QX11Info::display(), win);
+        const uint32_t values[] = { XCB_STACK_MODE_BELOW };
+        xcb_configure_window(QX11Info::connection(), win, XCB_CONFIG_WINDOW_STACK_MODE, values);
     }
 }
 
