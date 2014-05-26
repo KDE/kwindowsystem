@@ -1,9 +1,14 @@
 maintainer: graesslin
-description: Integration with X11 and window managers
+description: Access to the windowing system
 tier: 1
 type: integration
 platforms:
     - name: Linux
+      note: Only platform X11 is supported
+    - name: MacOSX
+      note: Not all features supported
+    - name: Windows
+      note: Not all features supported
 portingAid: false
 deprecated: false
 release: true
