@@ -82,16 +82,15 @@ set_target_properties(KF5WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSI
 ecm_generate_headers(KWindowSystem_HEADERS
   HEADER_NAMES
   KKeyServer
+  KSelectionOwner
+  KSelectionWatcher
   KStartupInfo
   KUserTimestamp
   KWindowEffects
   KWindowInfo
   KWindowSystem
   KXMessages
-  KSelectionOwner
-  KSelectionWatcher
   NETWM # does not match the classnames in that file...
-  KWindowSystem
 
   REQUIRED_HEADERS KWindowSystem_HEADERS
 )
