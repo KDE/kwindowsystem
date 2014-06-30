@@ -298,7 +298,7 @@ QStringList KWindowInfoPrivateX11::activities() const
         qWarning() << "Pass NET::WM2Activities to KWindowInfo";
     }
 #endif
-    return QString::fromLatin1(m_info->activities()).split(QChar::fromLatin1(','));
+    return QString::fromLatin1(m_info->activities()).split(QLatin1Char(','));
 }
 
 QRect KWindowInfoPrivateX11::geometry() const
