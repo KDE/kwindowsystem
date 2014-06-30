@@ -146,6 +146,11 @@ int KWindowInfoPrivateDummy::desktop() const
     return 0;
 }
 
+QStringList KWindowInfoPrivateDummy::activities() const
+{
+    return QStringList();
+}
+
 QRect KWindowInfoPrivateDummy::geometry() const
 {
     return QRect();
@@ -311,6 +316,11 @@ bool KWindowInfo::onAllDesktops() const
 int KWindowInfo::desktop() const
 {
     DELEGATE(desktop, )
+}
+
+QStringList KWindowInfo::activities() const
+{
+    DELEGATE(activities, )
 }
 
 QRect KWindowInfo::geometry() const

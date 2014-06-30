@@ -27,6 +27,7 @@
 #include <kwindowsystem_export.h>
 #include <QWidgetList> //For WId
 #include <QExplicitlySharedDataPointer>
+#include <QStringList>
 
 #include <netwm_def.h>
 
@@ -376,6 +377,34 @@ public:
      * @see isOnDesktop()
      */
     int desktop() const;
+    /**
+     * Returns the list of activity UUIDs this window belongs to.
+     *
+     * The Plasma workspace allows the user to separate her work into
+     * different activities, by assigning windows, documents etc. to
+     * the specific ones. An activity is an abstract concept whose meaning
+     * can differ from one user to another. Typical examples of activities
+     * are "developing a KDE project", "studying the 19th century art",
+     * "composing music", "lazing on a Sunday afternoon" etc.
+     *
+     * If the list is empty, or contains a null UUID, the window is on
+     * all activities.
+     *
+     * Requires NET::WM2Activities passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), 0, NET::WM2Activities);
+     * if (info.valid())
+     *     info.desktop();
+     * @endcode
+     *
+     * @note Activities are only supported on Plasma Workspace on X11
+     *
+     * @since 5.0
+     */
+    QStringList activities() const;
     /**
      * Returns the position and size of the window contents.
      *

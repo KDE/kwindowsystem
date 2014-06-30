@@ -45,6 +45,7 @@ public:
     bool onAllDesktops() const;
     bool isOnDesktop(int desktop) const;
     int desktop() const;
+    QStringList activities() const;
     QRect geometry() const;
     QRect frameGeometry() const;
     WId transientFor() const;

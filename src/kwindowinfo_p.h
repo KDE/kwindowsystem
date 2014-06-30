@@ -24,6 +24,7 @@
 #include <QByteArray>
 #include <QRect>
 #include <QString>
+#include <QStringList>
 #include <QSharedData>
 #include <QWidgetList> //For WId
 
@@ -85,6 +86,8 @@ public:
     template <class T>
     int desktop() const;
     template <class T>
+    QStringList activities() const;
+    template <class T>
     QRect geometry() const;
     template <class T>
     QRect frameGeometry() const;
@@ -140,6 +143,7 @@ public:
     bool onAllDesktops() const;
     bool isOnDesktop(int desktop) const;
     int desktop() const;
+    QStringList activities() const;
     QRect geometry() const;
     QRect frameGeometry() const;
     WId transientFor() const;
@@ -183,6 +187,7 @@ DELGATE(QString, visibleIconNameWithState)
 DELGATE(QString, iconName)
 DELGATE(bool, onAllDesktops)
 DELGATE(int, desktop)
+DELGATE(QStringList, activities)
 DELGATE(QRect, geometry)
 DELGATE(QRect, frameGeometry)
 DELGATE(WId, transientFor)

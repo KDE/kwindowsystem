@@ -291,6 +291,16 @@ int KWindowInfoPrivateX11::desktop() const
     return m_info->desktop();
 }
 
+QStringList KWindowInfoPrivateX11::activities() const
+{
+#if !defined(KDE_NO_WARNING_OUTPUT)
+    if (!(m_info->passedProperties2() & NET::WM2Activities)) {
+        qWarning() << "Pass NET::WM2Activities to KWindowInfo";
+    }
+#endif
+    return QString::fromLatin1(m_info->activities()).split(QChar::fromLatin1(','));
+}
+
 QRect KWindowInfoPrivateX11::geometry() const
 {
 #if !defined(KDE_NO_WARNING_OUTPUT)
