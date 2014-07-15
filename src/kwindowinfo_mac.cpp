@@ -48,7 +48,9 @@ void KWindowInfo::Private::setProcessSerialNumber(const ProcessSerialNumber &psn
 
 KWindowInfo::Private::~Private()
 {
-    CFRelease(m_axWin);
+    if (m_axWin) {
+        CFRelease(m_axWin);
+    }
 }
 
 void KWindowInfo::Private::updateData()
