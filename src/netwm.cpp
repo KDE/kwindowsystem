@@ -4765,6 +4765,25 @@ const char *NETWinInfo::activities() const
     return p->activities;
 }
 
+void NETWinInfo::setActivities(const char *activities)
+{
+    delete [] p->activities;
+
+    if (activities == (char *) NULL || activities[0] == '\0') {
+        // on all activities
+        static const char *nulluuid = KDE_ALL_ACTIVITIES_UUID;
+
+        p->activities = nstrdup(nulluuid);
+
+    } else {
+        p->activities = nstrdup(activities);
+
+    }
+
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, kde_net_wm_activities,
+                        XCB_ATOM_STRING, 8, strlen(p->activities), p->activities);
+}
+
 void NETWinInfo::setBlockingCompositing(bool active)
 {
     if (p->role != Client) {

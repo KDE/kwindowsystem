@@ -298,7 +298,12 @@ QStringList KWindowInfoPrivateX11::activities() const
         qWarning() << "Pass NET::WM2Activities to KWindowInfo";
     }
 #endif
-    return QString::fromLatin1(m_info->activities()).split(QLatin1Char(','));
+
+    const QStringList result = QString::fromLatin1(m_info->activities()).split(
+        QLatin1Char(','), QString::SkipEmptyParts);
+
+    return result.contains(QStringLiteral(KDE_ALL_ACTIVITIES_UUID)) ?
+        QStringList() : result;
 }
 
 QRect KWindowInfoPrivateX11::geometry() const

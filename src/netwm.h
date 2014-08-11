@@ -34,6 +34,8 @@
 
 #include "netwm_def.h"
 
+#define KDE_ALL_ACTIVITIES_UUID "00000000-0000-0000-0000-000000000000"
+
 // forward declaration
 struct NETRootInfoPrivate;
 struct NETWinInfoPrivate;
@@ -1398,6 +1400,12 @@ public:
      * @since 4.6
      */
     const char *activities() const;
+
+    /**
+     * Sets the comma-separated list of activities the window is associated with.
+     * @since 5.1
+     */
+    void setActivities(const char *activities);
 
     /**
      * Sets whether the client wishes to block compositing (for better performance)

@@ -122,6 +122,12 @@ void KWindowSystemPrivateDummy::setOnDesktop(WId win, int desktop)
     Q_UNUSED(desktop)
 }
 
+void KWindowSystemPrivateDummy::setOnActivities(WId win, const QStringList &activities)
+{
+    Q_UNUSED(win)
+    Q_UNUSED(activities)
+}
+
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED
 WId KWindowSystemPrivateDummy::transientFor(WId window)
 {
@@ -387,6 +393,12 @@ void KWindowSystem::setOnDesktop(WId win, int desktop)
 {
     Q_D(KWindowSystem);
     d->setOnDesktop(win, desktop);
+}
+
+void KWindowSystem::setOnActivities(WId win, const QStringList &activities)
+{
+    Q_D(KWindowSystem);
+    d->setOnActivities(win, activities);
 }
 
 WId KWindowSystem::activeWindow()

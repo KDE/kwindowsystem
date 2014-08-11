@@ -163,7 +163,7 @@ struct NETWinInfoPrivate {
     NETFullscreenMonitors fullscreen_monitors;
     bool has_net_support;
 
-    char *activities;
+    const char *activities;
     bool blockCompositing;
 
     int ref;

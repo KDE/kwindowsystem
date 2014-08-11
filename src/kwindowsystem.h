@@ -216,6 +216,17 @@ public:
     static void setOnDesktop(WId win, int desktop);
 
     /**
+     * Moves window @p win to activities @p activities.
+     *
+     * @param win the id of the window
+     * @param activities the list of activity UUIDs
+     *
+     * @since 5.1
+     * @see KWindowInfo::activities
+     */
+    static void setOnActivities(WId win, const QStringList &activities);
+
+    /**
      * Sets the parent window of @p subwindow to be @p mainwindow.
      * This overrides the parent set the usual way as the QWidget parent,
      * but only for the window manager - e.g. stacking order and window grouping

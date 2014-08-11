@@ -39,6 +39,7 @@ public:
     virtual void setCurrentDesktop(int desktop) = 0;
     virtual void setOnAllDesktops(WId win, bool b) = 0;
     virtual void setOnDesktop(WId win, int desktop) = 0;
+    virtual void setOnActivities(WId win, const QStringList &activities) = 0;
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED
     virtual WId transientFor(WId window) = 0;
     virtual WId groupLeader(WId window) = 0;
@@ -91,6 +92,7 @@ public:
     void setCurrentDesktop(int desktop) Q_DECL_OVERRIDE;
     void setOnAllDesktops(WId win, bool b) Q_DECL_OVERRIDE;
     void setOnDesktop(WId win, int desktop) Q_DECL_OVERRIDE;
+    virtual void setOnActivities(WId win, const QStringList &activities) Q_DECL_OVERRIDE;
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED
     WId transientFor(WId window) Q_DECL_OVERRIDE;
     WId groupLeader(WId window) Q_DECL_OVERRIDE;

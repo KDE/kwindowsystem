@@ -48,6 +48,7 @@ private Q_SLOTS:
     void testWindowType_data();
     void testWindowType();
     void testDesktop();
+    void testActivities();
     void testWindowClass();
     void testWindowRole();
     void testClientMachine();
@@ -346,6 +347,40 @@ void KWindowInfoX11Test::testDesktop()
             QVERIFY(!info3.isOnDesktop(i));
         }
     }
+}
+
+void KWindowInfoX11Test::testActivities()
+{
+    qRegisterMetaType<unsigned int>("NET::Properties");
+    qRegisterMetaType<unsigned int>("NET::Properties2");
+    QSignalSpy spyReal(KWindowSystem::self(), SIGNAL(windowChanged(WId,NET::Properties,NET::Properties2)));
+
+    KWindowInfo info(window->winId(), 0, NET::WM2Activities);
+
+    QStringList startingActivities = info.activities();
+    QVERIFY(startingActivities.size() == 1);
+
+    // Window on all activities
+    KWindowSystem::self()->setOnActivities(window->winId(), QStringList());
+
+    QVERIFY(waitForWindow(spyReal, window->winId(), (NET::Property)NET::WM2Activities));
+
+    QX11Info::getTimestamp();
+
+    KWindowInfo info2(window->winId(), 0, NET::WM2Activities);
+
+    QVERIFY(info2.activities().size() == 0);
+
+    // Window on all activities
+    KWindowSystem::self()->setOnActivities(window->winId(), startingActivities);
+
+    QVERIFY(waitForWindow(spyReal, window->winId(), NET::Property(NET::WM2Activities)));
+
+    QX11Info::getTimestamp();
+
+    KWindowInfo info3(window->winId(), 0, NET::WM2Activities);
+
+    QVERIFY(info3.activities() == startingActivities);
 }
 
 void KWindowInfoX11Test::testWindowClass()

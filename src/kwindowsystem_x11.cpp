@@ -591,6 +591,12 @@ void KWindowSystemPrivateX11::setOnDesktop(WId win, int desktop)
     info.setDesktop(desktop, true);
 }
 
+void KWindowSystemPrivateX11::setOnActivities(WId win, const QStringList &activities)
+{
+    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), 0, NET::WM2Activities);
+    info.setActivities(activities.join(QLatin1Char(',')).toLatin1().constData());
+}
+
 WId KWindowSystemPrivateX11::activeWindow()
 {
     NETEventFilter *const s_d = s_d_func();
