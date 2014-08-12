@@ -37,8 +37,7 @@ DEALINGS IN THE SOFTWARE.
 typedef struct _XDisplay Display;
 
 #ifdef Q_CC_MSVC
-//GetProcessId returns a DWORD
-typedef unsigned int pid_t;
+typedef int pid_t;
 #endif
 
 class KStartupInfoId;
