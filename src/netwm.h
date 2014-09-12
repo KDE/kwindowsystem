@@ -1381,6 +1381,16 @@ public:
     bool urgency() const;
 
     /**
+     * Returns whether the Input flag is set in WM_HINTS.
+     * See ICCCM 4.1.2.4 and 4.1.7.
+     *
+     * The default value is @c true in case the Client is mapped without a WM_HINTS property.
+     *
+     * @since 5.3
+     **/
+    bool input() const;
+
+    /**
      * Returns the class component of the window class for the window
      * (i.e. WM_CLASS property).
      */

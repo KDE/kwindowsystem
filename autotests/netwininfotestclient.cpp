@@ -80,6 +80,8 @@ private Q_SLOTS:
     void testGroupLeader();
     void testUrgency_data();
     void testUrgency();
+    void testInput_data();
+    void testInput();
     void testTransientFor();
 
 private:
@@ -705,6 +707,50 @@ void NetWinInfoTestClient::testUrgency()
     // only updated after event
     waitForPropertyChange(&info, XCB_ATOM_WM_HINTS, NET::Property(0), NET::WM2Urgency);
     QTEST(info.urgency(), "expected");
+}
+
+void NetWinInfoTestClient::testInput_data()
+{
+    QTest::addColumn<quint32>("flags");
+    QTest::addColumn<quint32>("input");
+    QTest::addColumn<bool>("expected");
+
+    QTest::newRow("flag_input")      << quint32(1) << quint32(1) << true;
+    QTest::newRow("flag_noinput")    << quint32(1) << quint32(0) << false;
+    QTest::newRow("noflag_input")    << quint32(0) << quint32(1) << true;
+    QTest::newRow("noflag_noinput")  << quint32(0) << quint32(0) << true;
+    QTest::newRow("flag_with_other_input")   << quint32(1 | 1 << 8) << quint32(1) << true;
+    QTest::newRow("flag_with_other_noinput") << quint32(1 | 1 << 8) << quint32(0) << false;
+}
+
+void NetWinInfoTestClient::testInput()
+{
+    QVERIFY(connection());
+    INFO
+
+    QVERIFY(info.input());
+    QFETCH(quint32, flags);
+    QFETCH(quint32, input);
+
+    // group leader needs to be changed through wm hints
+    uint32_t values[] = {
+        flags,
+        input, /* Input */
+        1, /* Normal State */
+        XCB_NONE, /* icon pixmap */
+        XCB_NONE, /* icon window */
+        XCB_NONE, /* icon x */
+        XCB_NONE, /* icon y */
+        XCB_NONE, /* icon mask */
+        XCB_NONE /* group leader */
+    };
+    xcb_change_property(connection(), XCB_PROP_MODE_REPLACE, m_testWindow,
+                        XCB_ATOM_WM_HINTS, XCB_ATOM_WM_HINTS, 32, 9, values);
+    xcb_flush(connection());
+
+    // only updated after event
+    waitForPropertyChange(&info, XCB_ATOM_WM_HINTS, NET::Property(0), NET::WM2Urgency);
+    QTEST(info.input(), "expected");
 }
 
 void NetWinInfoTestClient::testTransientFor()

@@ -676,6 +676,7 @@ public:
         @li WM2FullPlacement _NET_WM_FULL_PLACEMENT
         @li WM2FullscreenMonitors _NET_WM_FULLSCREEN_MONITORS
         @li WM2Urgency urgency hint in WM_HINTS (see ICCCM 4.1.2.4)
+        @li WM2Input input hint (input in WM_HINTS, see ICCCM 4.1.2.4)
     **/
     enum Property2 {
         WM2UserTime            = 1u << 0,
@@ -700,6 +701,7 @@ public:
         WM2BlockCompositing    = 1u << 19, // NOT STANDARD @since 4.7
         WM2KDEShadow           = 1u << 20, // NOT Standard @since 4.7
         WM2Urgency             = 1u << 21, // @since 5.3
+        WM2Input               = 1u << 22, // @since 5.3
         WM2AllProperties       = ~0u
     };
     Q_DECLARE_FLAGS(Properties2, Property2)
