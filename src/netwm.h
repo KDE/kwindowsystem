@@ -1519,6 +1519,19 @@ public:
     NET::Properties event(xcb_generic_event_t *event);
 
     /**
+     * @returns The window manager protocols this Client supports.
+     * @since 5.3
+     **/
+    NET::Protocols protocols() const;
+
+    /**
+     * @returns @c true if the Client supports the @p protocol.
+     * @param protocol The window manager protocol to test for
+     * @since 5.3
+     **/
+    bool supportsProtocol(NET::Protocol protocol) const;
+
+    /**
        Sentinel value to indicate that the client wishes to be visible on
        all desktops.
 
