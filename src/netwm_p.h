@@ -165,6 +165,7 @@ struct NETWinInfoPrivate {
 
     const char *activities;
     bool blockCompositing;
+    bool urgency;
 
     int ref;
 };

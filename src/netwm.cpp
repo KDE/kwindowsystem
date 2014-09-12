@@ -2763,6 +2763,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->icon_sizes = NULL;
     p->activities = (char *) 0;
     p->blockCompositing = false;
+    p->urgency = false;
 
     // p->strut.left = p->strut.right = p->strut.top = p->strut.bottom = 0;
     // p->frame_strut.left = p->frame_strut.right = p->frame_strut.top =
@@ -2822,6 +2823,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->icon_sizes = NULL;
     p->activities = (char *) 0;
     p->blockCompositing = false;
+    p->urgency = false;
 
     // p->strut.left = p->strut.right = p->strut.top = p->strut.bottom = 0;
     // p->frame_strut.left = p->frame_strut.right = p->frame_strut.top =
@@ -3917,6 +3919,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             dirty2 |= WM2UserTime;
         } else if (pe->atom == XCB_ATOM_WM_HINTS) {
             dirty2 |= WM2GroupLeader;
+            dirty2 |= WM2Urgency;
         } else if (pe->atom == XCB_ATOM_WM_TRANSIENT_FOR) {
             dirty2 |= WM2TransientFor;
         } else if (pe->atom == XCB_ATOM_WM_CLASS) {
@@ -4093,7 +4096,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         cookies[c++] = xcb_get_property(p->conn, false, p->window, XCB_ATOM_WM_TRANSIENT_FOR, XCB_ATOM_WINDOW, 0, 1);
     }
 
-    if (dirty2 & WM2GroupLeader) {
+    if (dirty2 & (WM2GroupLeader | WM2Urgency)) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, XCB_ATOM_WM_HINTS, XCB_ATOM_WM_HINTS, 0, 9);
     }
 
@@ -4547,7 +4550,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         p->transient_for = get_value_reply<xcb_window_t>(p->conn, cookies[c++], XCB_ATOM_WINDOW, 0);
     }
 
-    if (dirty2 & WM2GroupLeader) {
+    if (dirty2 & (WM2GroupLeader | WM2Urgency)) {
         xcb_get_property_reply_t *reply = xcb_get_property_reply(p->conn, cookies[c++], 0);
 
         if (reply && reply->format == 32 && reply->value_len == 9 && reply->type == XCB_ATOM_WM_HINTS) {
@@ -4556,6 +4559,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
             if (hints->flags & (1 << 6)/*WindowGroupHint*/) {
                 p->window_group = hints->window_group;
             }
+            p->urgency = (hints->flags & (1 << 8)/*UrgencyHint*/);
         }
 
         if (reply) {
@@ -4738,6 +4742,11 @@ xcb_window_t NETWinInfo::transientFor() const
 xcb_window_t NETWinInfo::groupLeader() const
 {
     return p->window_group;
+}
+
+bool NETWinInfo::urgency() const
+{
+    return p->urgency;
 }
 
 const char *NETWinInfo::windowClassClass() const

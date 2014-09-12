@@ -1373,6 +1373,14 @@ public:
     xcb_window_t groupLeader() const;
 
     /**
+     * Returns whether the UrgencyHint is set in the WM_HINTS.flags.
+     * See ICCCM 4.1.2.4.
+     *
+     * @since 5.3
+     **/
+    bool urgency() const;
+
+    /**
      * Returns the class component of the window class for the window
      * (i.e. WM_CLASS property).
      */

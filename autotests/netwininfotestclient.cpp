@@ -78,6 +78,8 @@ private Q_SLOTS:
     void testWindowClass();
     void testClientMachine();
     void testGroupLeader();
+    void testUrgency_data();
+    void testUrgency();
     void testTransientFor();
 
 private:
@@ -663,6 +665,46 @@ void NetWinInfoTestClient::testGroupLeader()
     // only updated after event
     waitForPropertyChange(&info, XCB_ATOM_WM_HINTS, NET::Property(0), NET::WM2GroupLeader);
     QCOMPARE(info.groupLeader(), m_rootWindow);
+}
+
+void NetWinInfoTestClient::testUrgency_data()
+{
+    QTest::addColumn<quint32>("flags");
+    QTest::addColumn<bool>("expected");
+
+    QTest::newRow("urgency") << quint32(1 << 8) << true;
+    QTest::newRow("none") << quint32(0) << false;
+    QTest::newRow("group_urgency") << quint32((1 << 6) | (1 << 8)) << true;
+    QTest::newRow("input") << quint32(1) << false;
+}
+
+void NetWinInfoTestClient::testUrgency()
+{
+    QVERIFY(connection());
+    INFO
+
+    QVERIFY(!info.urgency());
+    QFETCH(quint32, flags);
+
+    // group leader needs to be changed through wm hints
+    uint32_t values[] = {
+        flags,
+        1, /* Input */
+        1, /* Normal State */
+        XCB_NONE, /* icon pixmap */
+        XCB_NONE, /* icon window */
+        XCB_NONE, /* icon x */
+        XCB_NONE, /* icon y */
+        XCB_NONE, /* icon mask */
+        XCB_NONE /* group leader */
+    };
+    xcb_change_property(connection(), XCB_PROP_MODE_REPLACE, m_testWindow,
+                        XCB_ATOM_WM_HINTS, XCB_ATOM_WM_HINTS, 32, 9, values);
+    xcb_flush(connection());
+
+    // only updated after event
+    waitForPropertyChange(&info, XCB_ATOM_WM_HINTS, NET::Property(0), NET::WM2Urgency);
+    QTEST(info.urgency(), "expected");
 }
 
 void NetWinInfoTestClient::testTransientFor()
