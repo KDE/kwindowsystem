@@ -4771,7 +4771,7 @@ void NETWinInfo::setActivities(const char *activities)
 
     if (activities == (char *) NULL || activities[0] == '\0') {
         // on all activities
-        static const char *nulluuid = KDE_ALL_ACTIVITIES_UUID;
+        static const char nulluuid[] = KDE_ALL_ACTIVITIES_UUID;
 
         p->activities = nstrdup(nulluuid);
 

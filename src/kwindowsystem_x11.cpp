@@ -50,7 +50,7 @@
 static Atom net_wm_cm;
 static void create_atoms(Display *dpy = QX11Info::display());
 
-static NET::Properties windowsProperties = NET::ClientList | NET::ClientListStacking |
+static const NET::Properties windowsProperties = NET::ClientList | NET::ClientListStacking |
                                                  NET::Supported |
                                                  NET::NumberOfDesktops |
                                                  NET::DesktopGeometry |
@@ -59,11 +59,11 @@ static NET::Properties windowsProperties = NET::ClientList | NET::ClientListStac
                                                  NET::DesktopNames |
                                                  NET::ActiveWindow |
                                                  NET::WorkArea;
-static NET::Properties2 windowsProperties2 = NET::WM2ShowingDesktop;
+static const NET::Properties2 windowsProperties2 = NET::WM2ShowingDesktop;
 
 // ClientList and ClientListStacking is not per-window information, but a desktop information,
 // so track it even with only INFO_BASIC
-static NET::Properties desktopProperties = NET::ClientList | NET::ClientListStacking |
+static const NET::Properties desktopProperties = NET::ClientList | NET::ClientListStacking |
                                                  NET::Supported |
                                                  NET::NumberOfDesktops |
                                                  NET::DesktopGeometry |
@@ -72,7 +72,7 @@ static NET::Properties desktopProperties = NET::ClientList | NET::ClientListStac
                                                  NET::DesktopNames |
                                                  NET::ActiveWindow |
                                                  NET::WorkArea;
-static NET::Properties2 desktopProperties2 = NET::WM2ShowingDesktop;
+static const NET::Properties2 desktopProperties2 = NET::WM2ShowingDesktop;
 
 MainThreadInstantiator::MainThreadInstantiator(KWindowSystemPrivateX11::FilterInfo _what)
     : QObject(),

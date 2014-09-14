@@ -29,7 +29,7 @@
 #include <QX11Info>
 #include <QMatrix4x4>
 
-static const char *DASHBOARD_WIN_CLASS = "dashboard\0dashboard";
+static const char DASHBOARD_WIN_CLASS[] = "dashboard\0dashboard";
 using namespace KWindowEffects;
 
 KWindowEffectsPrivateX11::KWindowEffectsPrivateX11()
