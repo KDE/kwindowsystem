@@ -73,6 +73,7 @@ private Q_SLOTS:
     void testWindowType_data();
     void testWindowType();
 
+    void testActivities_data();
     void testActivities();
     void testWindowRole();
     void testWindowClass();
@@ -806,6 +807,19 @@ void NetWinInfoTestClient::testWindowRole()
     QCOMPARE(info.windowRole(), "bar");
 }
 
+void NetWinInfoTestClient::testActivities_data()
+{
+    QTest::addColumn<QByteArray>("activities");
+    QTest::addColumn<QByteArray>("expectedActivities");
+
+    const QByteArray testActivities = QByteArrayLiteral("foo,bar");
+    const QByteArray allActivities = QByteArrayLiteral(KDE_ALL_ACTIVITIES_UUID);
+
+    QTest::newRow("activites") << testActivities << testActivities;
+    QTest::newRow("empty") << QByteArray() << allActivities;
+    QTest::newRow("\\0") << QByteArrayLiteral("\0") << allActivities;
+}
+
 void NetWinInfoTestClient::testActivities()
 {
     QVERIFY(connection());
@@ -813,15 +827,15 @@ void NetWinInfoTestClient::testActivities()
     INFO
 
     QVERIFY(!info.activities());
+    QFETCH(QByteArray, activities);
 
     // activities needs to be changed using xcb
-    xcb_change_property(connection(), XCB_PROP_MODE_REPLACE, m_testWindow,
-                        atom, XCB_ATOM_STRING, 8, 7, "foo,bar");
+    info.setActivities(activities.isNull() ? Q_NULLPTR : activities.constData());
     xcb_flush(connection());
 
     // only updated after event
     waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2Activities);
-    QCOMPARE(info.activities(), "foo,bar");
+    QTEST(QByteArray(info.activities()), "expectedActivities");
 }
 
 QTEST_MAIN(NetWinInfoTestClient)
