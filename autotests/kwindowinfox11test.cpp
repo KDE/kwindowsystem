@@ -43,6 +43,7 @@ private Q_SLOTS:
 
     void testState_data();
     void testState();
+    void testDemandsAttention();
     void testMinimized();
     void testMappingState();
     void testWindowType_data();
@@ -63,6 +64,7 @@ private Q_SLOTS:
     // build.kde.org as we use OpenBox there.
 
 private:
+    void showWidget(QWidget *widget);
     bool waitForWindow(QSignalSpy &spy, WId winId, NET::Property property) const;
     bool verifyMinimized(WId window) const;
 
@@ -106,6 +108,11 @@ void KWindowInfoX11Test::init()
 {
     // create the window and ensure it has been managed
     window.reset(new QWidget());
+    showWidget(window.data());
+}
+
+void KWindowInfoX11Test::showWidget(QWidget *window)
+{
     qRegisterMetaType<WId>("WId");
     QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowAdded(WId)));
     window->show();
@@ -198,6 +205,108 @@ void KWindowInfoX11Test::testState()
     QVERIFY(info3.valid());
     QCOMPARE(info3.state(), state);
     QVERIFY(info3.hasState(state));
+}
+
+// This struct is defined here to avoid a dependency on xcb-icccm
+struct kde_wm_hints {
+    uint32_t      flags;
+    uint32_t      input;
+    int32_t       initial_state;
+    xcb_pixmap_t  icon_pixmap;
+    xcb_window_t  icon_window;
+    int32_t       icon_x;
+    int32_t       icon_y;
+    xcb_pixmap_t  icon_mask;
+    xcb_window_t  window_group;
+};
+
+void KWindowInfoX11Test::testDemandsAttention()
+{
+    // we force activate as KWin's focus stealing prevention might kick in
+    KWindowSystem::forceActiveWindow(window->winId());
+    // need a second window for proper interaction
+    QWidget win2;
+    showWidget(&win2);
+    KWindowSystem::forceActiveWindow(win2.winId());
+
+    // to ensure that win2 is the active window
+    QTest::qWait(200);
+
+    KWindowInfo info(window->winId(), NET::WMState);
+    QVERIFY(info.valid());
+    QVERIFY(!info.hasState(NET::DemandsAttention));
+
+    QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowChanged(WId,unsigned int)));
+    // now we have a clean window and can do fun stuff
+    KWindowSystem::demandAttention(window->winId());
+
+    QVERIFY(waitForWindow(spy, window->winId(), NET::WMState));
+
+    KWindowInfo info2(window->winId(), NET::WMState);
+    QVERIFY(info2.valid());
+    QCOMPARE(info2.state(), NET::DemandsAttention);
+    QVERIFY(info2.hasState(NET::DemandsAttention));
+
+    // now activate win1, that should remove demands attention
+    spy.clear();
+    KWindowSystem::forceActiveWindow(window->winId());
+    QTest::qWait(200);
+    QVERIFY(waitForWindow(spy, window->winId(), NET::WMState));
+
+    KWindowInfo info3(window->winId(), NET::WMState);
+    QVERIFY(info3.valid());
+    QVERIFY(!info3.hasState(NET::DemandsAttention));
+
+    // we should be able to demand attention on win2
+    spy.clear();
+    KWindowSystem::demandAttention(win2.winId());
+    QVERIFY(waitForWindow(spy, win2.winId(), NET::WMState));
+    KWindowInfo info4(win2.winId(), NET::WMState);
+    QVERIFY(info4.valid());
+    QCOMPARE(info4.state(), NET::DemandsAttention);
+    QVERIFY(info4.hasState(NET::DemandsAttention));
+    // and to remove demand attention on win2
+    spy.clear();
+    QTest::qWait(200);
+    KWindowSystem::demandAttention(win2.winId(), false);
+    QVERIFY(waitForWindow(spy, win2.winId(), NET::WMState));
+    KWindowInfo info5(win2.winId(), NET::WMState);
+    QVERIFY(info5.valid());
+    QVERIFY(!info5.hasState(NET::DemandsAttention));
+
+    // WM2Urgency should be mapped to state NET::DemandsAttention
+    kde_wm_hints hints;
+    hints.flags = (1 << 8);
+    hints.icon_mask = XCB_PIXMAP_NONE;
+    hints.icon_pixmap = XCB_PIXMAP_NONE;
+    hints.icon_window = XCB_WINDOW_NONE;
+    hints.input = 0;
+    hints.window_group = XCB_WINDOW_NONE;
+    hints.icon_x = 0;
+    hints.icon_y = 0;
+    hints.initial_state = 0;
+    xcb_change_property(QX11Info::connection(), XCB_PROP_MODE_REPLACE, win2.winId(),
+                        XCB_ATOM_WM_HINTS, XCB_ATOM_WM_HINTS, 32, 9, &hints);
+    xcb_flush(QX11Info::connection());
+
+    // window managers map urgency to demands attention
+    spy.clear();
+    QVERIFY(waitForWindow(spy, win2.winId(), NET::WMState));
+
+    // a window info with NET::WM2Urgency should show demands attention
+    KWindowInfo urgencyInfo(win2.winId(), NET::WMState);
+    QVERIFY(urgencyInfo.valid());
+    QVERIFY(urgencyInfo.hasState(NET::DemandsAttention));
+
+    // remove urgency again
+    hints.flags = 0;
+    xcb_change_property(QX11Info::connection(), XCB_PROP_MODE_REPLACE, win2.winId(),
+                        XCB_ATOM_WM_HINTS, XCB_ATOM_WM_HINTS, 32, 9, &hints);
+    xcb_flush(QX11Info::connection());
+    // TODO: test whether it gets removed again. At least KWin does not remove demands attention
+
+    // prevent openbox crash (see https://bugzilla.icculus.org/show_bug.cgi?id=6315 )
+    QTest::qWait(600);
 }
 
 void KWindowInfoX11Test::testMinimized()
