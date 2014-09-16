@@ -351,6 +351,10 @@ void KWindowInfoX11Test::testDesktop()
 
 void KWindowInfoX11Test::testActivities()
 {
+    NETRootInfo rootInfo(QX11Info::connection(), NET::Supported | NET::SupportingWMCheck);
+    if (!rootInfo.isSupported(NET::WM2Activities)) {
+        QSKIP("Window Manager doesn't support activities");
+    }
     qRegisterMetaType<unsigned int>("NET::Properties");
     qRegisterMetaType<unsigned int>("NET::Properties2");
     QSignalSpy spyReal(KWindowSystem::self(), SIGNAL(windowChanged(WId,NET::Properties,NET::Properties2)));
