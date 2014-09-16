@@ -222,15 +222,23 @@ struct kde_wm_hints {
 
 void KWindowInfoX11Test::testDemandsAttention()
 {
-    // we force activate as KWin's focus stealing prevention might kick in
-    KWindowSystem::forceActiveWindow(window->winId());
+    QSignalSpy activeWindowSpy(KWindowSystem::self(), SIGNAL(activeWindowChanged(WId)));
+    QVERIFY(activeWindowSpy.isValid());
+    if (KWindowSystem::activeWindow() != window->winId()) {
+        // we force activate as KWin's focus stealing prevention might kick in
+        KWindowSystem::forceActiveWindow(window->winId());
+        QVERIFY(activeWindowSpy.wait());
+        QCOMPARE(activeWindowSpy.first().first().toULongLong(), window->winId());
+        activeWindowSpy.clear();
+    }
+
     // need a second window for proper interaction
     QWidget win2;
     showWidget(&win2);
     KWindowSystem::forceActiveWindow(win2.winId());
-
-    // to ensure that win2 is the active window
-    QTest::qWait(200);
+    if (activeWindowSpy.isEmpty()) {
+        QVERIFY(activeWindowSpy.wait());
+    }
 
     KWindowInfo info(window->winId(), NET::WMState);
     QVERIFY(info.valid());
