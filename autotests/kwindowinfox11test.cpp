@@ -268,6 +268,7 @@ void KWindowInfoX11Test::testDemandsAttention()
     // we should be able to demand attention on win2
     spy.clear();
     KWindowSystem::demandAttention(win2.winId());
+    xcb_flush(QX11Info::connection());
     QVERIFY(waitForWindow(spy, win2.winId(), NET::WMState));
     KWindowInfo info4(win2.winId(), NET::WMState);
     QVERIFY(info4.valid());
@@ -277,6 +278,7 @@ void KWindowInfoX11Test::testDemandsAttention()
     spy.clear();
     QTest::qWait(200);
     KWindowSystem::demandAttention(win2.winId(), false);
+    xcb_flush(QX11Info::connection());
     QVERIFY(waitForWindow(spy, win2.winId(), NET::WMState));
     KWindowInfo info5(win2.winId(), NET::WMState);
     QVERIFY(info5.valid());
