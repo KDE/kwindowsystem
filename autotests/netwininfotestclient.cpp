@@ -83,6 +83,8 @@ private Q_SLOTS:
     void testUrgency();
     void testInput_data();
     void testInput();
+    void testInitialMappingState_data();
+    void testInitialMappingState();
     void testTransientFor();
     void testProtocols_data();
     void testProtocols();
@@ -761,6 +763,51 @@ void NetWinInfoTestClient::testInput()
     // only updated after event
     waitForPropertyChange(&info, XCB_ATOM_WM_HINTS, NET::Property(0), NET::WM2Urgency);
     QTEST(info.input(), "expected");
+}
+
+Q_DECLARE_METATYPE(NET::MappingState)
+
+void NetWinInfoTestClient::testInitialMappingState_data()
+{
+    QTest::addColumn<quint32>("flags");
+    QTest::addColumn<quint32>("state");
+    QTest::addColumn<NET::MappingState>("expected");
+
+    QTest::newRow("flag-iconic") << quint32(2) << quint32(3) << NET::Iconic;
+    QTest::newRow("flag-normal") << quint32(2) << quint32(1) << NET::Visible;
+    QTest::newRow("flag-invalid") << quint32(2) << quint32(8) << NET::Withdrawn;
+    QTest::newRow("noflag-iconic") << quint32(256) << quint32(3) << NET::Withdrawn;
+    QTest::newRow("noflag-normal") << quint32(256) << quint32(1) << NET::Withdrawn;
+}
+
+void NetWinInfoTestClient::testInitialMappingState()
+{
+    QVERIFY(connection());
+    INFO
+
+    QCOMPARE(info.initialMappingState(), NET::Withdrawn);
+    QFETCH(quint32, flags);
+    QFETCH(quint32, state);
+
+    // group leader needs to be changed through wm hints
+    uint32_t values[] = {
+        flags,
+        1, /* Input */
+        state, /* Normal State */
+        XCB_NONE, /* icon pixmap */
+        XCB_NONE, /* icon window */
+        XCB_NONE, /* icon x */
+        XCB_NONE, /* icon y */
+        XCB_NONE, /* icon mask */
+        XCB_NONE /* group leader */
+    };
+    xcb_change_property(connection(), XCB_PROP_MODE_REPLACE, m_testWindow,
+                        XCB_ATOM_WM_HINTS, XCB_ATOM_WM_HINTS, 32, 9, values);
+    xcb_flush(connection());
+
+    // only updated after event
+    waitForPropertyChange(&info, XCB_ATOM_WM_HINTS, NET::Property(0), NET::WM2InitialMappingState);
+    QTEST(info.initialMappingState(), "expected");
 }
 
 void NetWinInfoTestClient::testTransientFor()

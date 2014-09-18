@@ -167,6 +167,7 @@ struct NETWinInfoPrivate {
     bool blockCompositing;
     bool urgency;
     bool input;
+    NET::MappingState initialMappingState;
     NET::Protocols protocols;
 
     int ref;

@@ -1391,6 +1391,17 @@ public:
     bool input() const;
 
     /**
+     * Returns the initial mapping state as set in WM_HINTS.
+     * See ICCCM 4.1.2.4 and 4.1.4.
+     *
+     * The default value if @c Withdrawn in case the Client is mapped without
+     * a WM_HINTS property or without the initial state hint set.
+     *
+     * @since 5.5
+     **/
+    MappingState initialMappingState() const;
+
+    /**
      * Returns the class component of the window class for the window
      * (i.e. WM_CLASS property).
      */
