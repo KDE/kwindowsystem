@@ -58,7 +58,7 @@ public:
     {
         // simulate some activity in another thread gathering window information
         const QList<WId> windows = KWindowSystem::stackingOrder();
-        for (auto wid: windows) {
+        foreach (auto wid, windows) {
             KWindowInfo info(wid, NET::WMVisibleName);
             if (info.valid()) {
                 m_names << info.visibleName();
