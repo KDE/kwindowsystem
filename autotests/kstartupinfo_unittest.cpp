@@ -106,7 +106,7 @@ void KStartupInfo_UnitTest::testStart()
     //qDebug() << m_receivedData.bin() << m_receivedData.name() << m_receivedData.description() << m_receivedData.icon() << m_receivedData.pids() << m_receivedData.hostname() << m_receivedData.applicationId();
 }
 
-static void sync()
+static void doSync()
 {
     auto *c = QX11Info::connection();
     const auto cookie = xcb_get_input_focus(c);
@@ -160,7 +160,7 @@ void KStartupInfo_UnitTest::dontCrashCleanup()
     }
 
     // let's do a roundtrip to the X server
-    sync();
+    doSync();
 
     QTest::qWait(2100);
     QTEST(spy.count(), "countRemoveStartup");
@@ -194,7 +194,7 @@ void KStartupInfo_UnitTest::checkCleanOnCantDetectTest()
 
     int previousCount = m_receivedCount;
 
-    sync();
+    doSync();
     QTest::qWait(10);
 
     xcb_map_window(c, window);
@@ -260,7 +260,7 @@ void KStartupInfo_UnitTest::checkStartupTest()
     KStartupInfo::sendStartup(id, data);
     KStartupInfo::sendStartup(id2, data);
 
-    sync();
+    doSync();
     QTest::qWait(100);
 
     QCOMPARE(info.checkStartup(window), KStartupInfo::Match);
