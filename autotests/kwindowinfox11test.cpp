@@ -471,9 +471,6 @@ void KWindowInfoX11Test::testDesktop()
 void KWindowInfoX11Test::testActivities()
 {
     NETRootInfo rootInfo(QX11Info::connection(), NET::Supported | NET::SupportingWMCheck);
-    if (!rootInfo.isSupported(NET::WM2Activities)) {
-        QSKIP("Window Manager doesn't support activities");
-    }
     qRegisterMetaType<unsigned int>("NET::Properties");
     qRegisterMetaType<unsigned int>("NET::Properties2");
     QSignalSpy spyReal(KWindowSystem::self(), SIGNAL(windowChanged(WId,NET::Properties,NET::Properties2)));
@@ -481,29 +478,50 @@ void KWindowInfoX11Test::testActivities()
     KWindowInfo info(window->winId(), 0, NET::WM2Activities);
 
     QStringList startingActivities = info.activities();
-    QVERIFY(startingActivities.size() == 1);
+
+    // The window is either on a specific activity when created,
+    // or on all of them (aka startingActivities is empty or contains
+    // just one element)
+    QVERIFY(startingActivities.size() <= 1);
 
     // Window on all activities
     KWindowSystem::self()->setOnActivities(window->winId(), QStringList());
 
     QVERIFY(waitForWindow(spyReal, window->winId(), (NET::Property)NET::WM2Activities));
 
-    QX11Info::getTimestamp();
-
     KWindowInfo info2(window->winId(), 0, NET::WM2Activities);
 
     QVERIFY(info2.activities().size() == 0);
 
-    // Window on all activities
+    // Window on a specific activity
+    KWindowSystem::self()->setOnActivities(window->winId(), QStringList() << "test-activity");
+
+    QVERIFY(waitForWindow(spyReal, window->winId(), (NET::Property)NET::WM2Activities));
+
+    KWindowInfo info3(window->winId(), 0, NET::WM2Activities);
+
+    QVERIFY(info3.activities().size() == 1);
+    QVERIFY(info3.activities()[0] == "test-activity");
+
+    // Window on a two activities
+    KWindowSystem::self()->setOnActivities(window->winId(), QStringList() << "test-activity" << "test-activity2");
+
+    QVERIFY(waitForWindow(spyReal, window->winId(), (NET::Property)NET::WM2Activities));
+
+    KWindowInfo info4(window->winId(), 0, NET::WM2Activities);
+
+    QVERIFY(info4.activities().size() == 2);
+    QVERIFY(info4.activities()[0] == "test-activity");
+    QVERIFY(info4.activities()[1] == "test-activity2");
+
+    // Window on the starting activity
     KWindowSystem::self()->setOnActivities(window->winId(), startingActivities);
 
     QVERIFY(waitForWindow(spyReal, window->winId(), NET::Property(NET::WM2Activities)));
 
-    QX11Info::getTimestamp();
+    KWindowInfo info5(window->winId(), 0, NET::WM2Activities);
 
-    KWindowInfo info3(window->winId(), 0, NET::WM2Activities);
-
-    QVERIFY(info3.activities() == startingActivities);
+    QVERIFY(info5.activities() == startingActivities);
 }
 
 void KWindowInfoX11Test::testWindowClass()
