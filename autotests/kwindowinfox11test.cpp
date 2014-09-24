@@ -302,6 +302,7 @@ void KWindowInfoX11Test::testDemandsAttention()
     // window managers map urgency to demands attention
     spy.clear();
     QVERIFY(waitForWindow(spy, win2.winId(), NET::WMState));
+    QTest::qWait(100);
 
     // a window info with NET::WM2Urgency should show demands attention
     KWindowInfo urgencyInfo(win2.winId(), NET::WMState);
