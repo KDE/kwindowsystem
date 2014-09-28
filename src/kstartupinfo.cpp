@@ -72,11 +72,11 @@ DEALINGS IN THE SOFTWARE.
 #include <fixx11h.h>
 #endif
 
-static const char *const NET_STARTUP_MSG = "_NET_STARTUP_INFO";
-static const char *const NET_STARTUP_WINDOW = "_NET_STARTUP_ID";
+static const char NET_STARTUP_MSG[] = "_NET_STARTUP_INFO";
+static const char NET_STARTUP_WINDOW[] = "_NET_STARTUP_ID";
 // DESKTOP_STARTUP_ID is used also in kinit/wrapper.c ,
 // kdesu in both kdelibs and kdebase and who knows where else
-static const char *const NET_STARTUP_ENV = "DESKTOP_STARTUP_ID";
+static const char NET_STARTUP_ENV[] = "DESKTOP_STARTUP_ID";
 
 static QByteArray s_startup_id;
 
