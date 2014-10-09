@@ -386,7 +386,7 @@ static QByteArray get_atom_name(xcb_connection_t *c, xcb_atom_t atom)
 }
 #endif
 
-static const int netAtomCount = 91;
+static const int netAtomCount = 92;
 
 static void create_netwm_atoms(xcb_connection_t *c)
 {
@@ -498,6 +498,7 @@ static void create_netwm_atoms(xcb_connection_t *c)
     };
 
     assert(!netwm_atoms_created);
+    assert(sizeof(atoms)/sizeof(atoms[0]) == netAtomCount + 1);
 
     // Send the intern atom requests
     xcb_intern_atom_cookie_t cookies[netAtomCount];
