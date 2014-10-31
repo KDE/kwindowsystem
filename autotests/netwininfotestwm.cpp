@@ -534,6 +534,6 @@ void NetWinInfoTestWM::testVisibleName()
     QVERIFY(!info.visibleName());
 }
 
-QTEST_MAIN(NetWinInfoTestWM)
+QTEST_GUILESS_MAIN(NetWinInfoTestWM)
 
 #include "netwininfotestwm.moc"

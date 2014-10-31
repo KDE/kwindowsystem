@@ -834,6 +834,6 @@ void NetRootInfoTestWM::testWorkArea()
     QCOMPARE(compareThree2.size.height, 0);
 }
 
-QTEST_MAIN(NetRootInfoTestWM)
+QTEST_GUILESS_MAIN(NetRootInfoTestWM)
 
 #include "netrootinfotestwm.moc"

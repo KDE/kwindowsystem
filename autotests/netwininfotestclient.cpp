@@ -961,6 +961,6 @@ void NetWinInfoTestClient::testProtocols()
     QCOMPARE(info.protocols(), NET::Protocols(NET::NoProtocol));
 }
 
-QTEST_MAIN(NetWinInfoTestClient)
+QTEST_GUILESS_MAIN(NetWinInfoTestClient)
 
 #include "netwininfotestclient.moc"
