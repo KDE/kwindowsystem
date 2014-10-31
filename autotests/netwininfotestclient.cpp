@@ -339,6 +339,13 @@ void NetWinInfoTestClient::performNameTest(xcb_atom_t atom, const char *(NETWinI
     // and wait for our event
     waitForPropertyChange(&info, atom, property);
     QVERIFY(!(info.*getter)());
+
+    // set it again, to ensure that we don't leak on tear-down
+    (info.*setter)("bar");
+    QCOMPARE((info.*getter)(), "bar");
+    xcb_flush(connection());
+    waitForPropertyChange(&info, atom, property);
+    QCOMPARE((info.*getter)(), "bar");
 }
 
 void NetWinInfoTestClient::testIconName()

@@ -264,6 +264,7 @@ static void refdec_nwi(NETWinInfoPrivate *p)
         delete [] p->class_class;
         delete [] p->class_name;
         delete [] p->activities;
+        delete [] p->client_machine;
 
         int i;
         for (i = 0; i < p->icons.size(); i++) {

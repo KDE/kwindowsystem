@@ -501,6 +501,12 @@ void NetWinInfoTestWM::testVisibleIconName()
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::WMVisibleIconName);
     QVERIFY(!info.visibleIconName());
+
+    // set again, to ensure we don't leak on tear down
+    info.setVisibleIconName("bar");
+    xcb_flush(connection());
+    waitForPropertyChange(&info, atom, NET::WMVisibleIconName);
+    QCOMPARE(info.visibleIconName(), "bar");
 }
 
 void NetWinInfoTestWM::testVisibleName()
@@ -532,6 +538,12 @@ void NetWinInfoTestWM::testVisibleName()
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::WMVisibleName);
     QVERIFY(!info.visibleName());
+
+    // set again, to ensure we don't leak on tear down
+    info.setVisibleName("bar");
+    xcb_flush(connection());
+    waitForPropertyChange(&info, atom, NET::WMVisibleName);
+    QCOMPARE(info.visibleName(), "bar");
 }
 
 QTEST_GUILESS_MAIN(NetWinInfoTestWM)
