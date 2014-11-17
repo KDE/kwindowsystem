@@ -30,57 +30,6 @@
 namespace KXUtils
 {
 
-static uint8_t defaultDepth()
-{
-    xcb_connection_t *c = QX11Info::connection();
-    int screen = QX11Info::appScreen();
-
-    xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(c));
-    for (; it.rem; --screen, xcb_screen_next(&it)) {
-        if (screen == 0) {
-            return it.data->root_depth;
-        }
-    }
-    return 0;
-}
-
-static QImage::Format findFormat()
-{
-    xcb_connection_t *c = QX11Info::connection();
-    int screen = QX11Info::appScreen();
-
-    xcb_screen_iterator_t screenIt = xcb_setup_roots_iterator(xcb_get_setup(c));
-    for (; screenIt.rem; --screen, xcb_screen_next(&screenIt)) {
-        if (screen != 0) {
-            continue;
-        }
-        xcb_depth_iterator_t depthIt = xcb_screen_allowed_depths_iterator(screenIt.data);
-        for (; depthIt.rem; xcb_depth_next(&depthIt)) {
-            xcb_visualtype_iterator_t visualIt = xcb_depth_visuals_iterator(depthIt.data);
-            for (; visualIt.rem; xcb_visualtype_next(&visualIt)) {
-                if (screenIt.data->root_visual != visualIt.data->visual_id) {
-                    continue;
-                }
-                xcb_visualtype_t *visual = visualIt.data;
-                if ((depthIt.data->depth == 24 || depthIt.data->depth == 32) &&
-                        visual->red_mask   == 0x00ff0000 &&
-                        visual->green_mask == 0x0000ff00 &&
-                        visual->blue_mask  == 0x000000ff) {
-                    return QImage::Format_ARGB32_Premultiplied;
-                }
-                if (depthIt.data->depth == 16 &&
-                        visual->red_mask   == 0xf800 &&
-                        visual->green_mask == 0x07e0 &&
-                        visual->blue_mask  == 0x001f) {
-                    return QImage::Format_RGB16;
-                }
-                break;
-            }
-        }
-    }
-    return QImage::Format_Invalid;
-}
-
 template <typename T> T fromNative(xcb_pixmap_t pixmap)
 {
     xcb_connection_t *c = QX11Info::connection();
@@ -99,10 +48,16 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap)
         // request for image data failed
         return T();
     }
-    QImage::Format format = QImage::Format_ARGB32_Premultiplied;
+    QImage::Format format = QImage::Format_Invalid;
     switch (xImage->depth) {
     case 1:
         format = QImage::Format_MonoLSB;
+        break;
+    case 16:
+        format = QImage::Format_RGB16;
+        break;
+    case 24:
+        format = QImage::Format_RGB32;
         break;
     case 30: {
         // Qt doesn't have a matching image format. We need to convert manually
@@ -120,15 +75,7 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap)
         format = QImage::Format_ARGB32_Premultiplied;
         break;
     default:
-        if (xImage->depth == defaultDepth()) {
-            format = findFormat();
-            if (format == QImage::Format_Invalid) {
-                return T();
-            }
-        } else {
-            // we don't know
-            return T();
-        }
+        return T(); // we don't know
     }
     QImage image(xcb_get_image_data(xImage.data()), geo->width, geo->height,
                  xcb_get_image_data_length(xImage.data()) / geo->height, format, free, xImage.data());
