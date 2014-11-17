@@ -107,19 +107,14 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap)
     case 30: {
         // Qt doesn't have a matching image format. We need to convert manually
         uint32_t *pixels = reinterpret_cast<uint32_t *>(xcb_get_image_data(xImage.data()));
-        for (int i = 0; i < xImage.data()->length; ++i) {
+        for (uint i = 0; i < xImage.data()->length; ++i) {
             int r = (pixels[i] >> 22) & 0xff;
             int g = (pixels[i] >> 12) & 0xff;
             int b = (pixels[i] >>  2) & 0xff;
 
             pixels[i] = qRgba(r, g, b, 0xff);
         }
-        QImage image(reinterpret_cast<uchar *>(pixels), geo->width, geo->height,
-                     xcb_get_image_data_length(xImage.data()) / geo->height, QImage::Format_ARGB32_Premultiplied);
-        if (image.isNull()) {
-            return T();
-        }
-        return T::fromImage(image);
+        // fall through, Qt format is still Format_ARGB32_Premultiplied
     }
     case 32:
         format = QImage::Format_ARGB32_Premultiplied;
@@ -136,7 +131,8 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap)
         }
     }
     QImage image(xcb_get_image_data(xImage.data()), geo->width, geo->height,
-                 xcb_get_image_data_length(xImage.data()) / geo->height, format);
+                 xcb_get_image_data_length(xImage.data()) / geo->height, format, free, xImage.data());
+    xImage.take();
     if (image.isNull()) {
         return T();
     }
