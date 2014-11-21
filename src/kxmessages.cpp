@@ -216,10 +216,6 @@ bool KXMessages::broadcastMessageX(Display *disp, const char *msg_type_P,
     if (disp == NULL) {
         return false;
     }
-    if (!QX11Info::isPlatformX11()) {
-        qWarning() << "KXMessages used on non-X11 platform! This is an application bug.";
-        return false;
-    }
     Atom a2 = XInternAtom(disp, msg_type_P, false);
     Atom a1 = XInternAtom(disp, QByteArray(QByteArray(msg_type_P) + "_BEGIN").constData(), false);
     Window root = screen_P == -1 ? DefaultRootWindow(disp) : RootWindow(disp, screen_P);
@@ -250,13 +246,9 @@ bool KXMessages::broadcastMessageX(xcb_connection_t *c, const char *msg_type_P, 
     if (!c) {
         return false;
     }
-    if (!QX11Info::isPlatformX11()) {
-        qWarning() << "KXMessages used on non-X11 platform! This is an application bug.";
-        return false;
-    }
     const QByteArray msg(msg_type_P);
-    XcbAtom a2(QX11Info::connection(), msg);
-    XcbAtom a1(QX11Info::connection(), msg + QByteArrayLiteral("_BEGIN"));
+    XcbAtom a2(c, msg);
+    XcbAtom a1(c, msg + QByteArrayLiteral("_BEGIN"));
     const xcb_screen_t *screen = defaultScreen(c, screenNumber);
     if (!screen) {
         return false;
