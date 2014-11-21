@@ -988,6 +988,17 @@ void KStartupInfo::Private::clean_all_noncompliant()
 
 QByteArray KStartupInfo::createNewStartupId()
 {
+    quint32 timestamp = 0;
+#if KWINDOWSYSTEM_HAVE_X11
+    if (QX11Info::isPlatformX11()) {
+        timestamp = QX11Info::getTimestamp();
+    }
+#endif
+    return KStartupInfo::createNewStartupIdForTimestamp(timestamp);
+}
+
+QByteArray KStartupInfo::createNewStartupIdForTimestamp(quint32 timestamp)
+{
     // Assign a unique id, use hostname+time+pid, that should be 200% unique.
     // Also append the user timestamp (for focus stealing prevention).
     struct timeval tm;
@@ -1005,13 +1016,8 @@ QByteArray KStartupInfo::createNewStartupId()
     if (!gethostname(hostname, 255)) {
         hostname[sizeof(hostname) - 1] = '\0';
     }
-#if KWINDOWSYSTEM_HAVE_X11
-    unsigned long qt_x_user_time = QX11Info::appUserTime();
-#else
-    unsigned long qt_x_user_time = 0;
-#endif
     QByteArray id = QString::fromLatin1("%1;%2;%3;%4_TIME%5").arg(hostname).arg(tm.tv_sec)
-                    .arg(tm.tv_usec).arg(getpid()).arg(qt_x_user_time).toUtf8();
+                    .arg(tm.tv_usec).arg(getpid()).arg(timestamp).toUtf8();
     //qDebug() << "creating: " << id << ":" << (qApp ? qAppName() : QString("unnamed app") /* e.g. kdeinit */);
     return id;
 }

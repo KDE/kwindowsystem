@@ -62,6 +62,8 @@ private Q_SLOTS:
     void checkCleanOnCantDetectTest();
     void checkStartupTest_data();
     void checkStartupTest();
+    void createNewStartupIdTest();
+    void createNewStartupIdForTimestampTest();
 
 private:
     KStartupInfo m_listener;
@@ -265,6 +267,25 @@ void KStartupInfo_UnitTest::checkStartupTest()
 
     QCOMPARE(info.checkStartup(window), KStartupInfo::Match);
     QCOMPARE(info.checkStartup(window), KStartupInfo::Match);
+}
+
+void KStartupInfo_UnitTest::createNewStartupIdTest()
+{
+    const QByteArray &id = KStartupInfo::createNewStartupId();
+    QVERIFY(!id.isEmpty());
+    const int index = id.indexOf(QByteArrayLiteral("TIME"));
+    QVERIFY(index != -1);
+    const QByteArray time = id.mid(index + 4);
+    QVERIFY(time.toULongLong() != 0u);
+}
+
+void KStartupInfo_UnitTest::createNewStartupIdForTimestampTest()
+{
+    const QByteArray &id = KStartupInfo::createNewStartupIdForTimestamp(5);
+    QVERIFY(!id.isEmpty());
+    const int index = id.indexOf(QByteArrayLiteral("TIME"));
+    QVERIFY(index != -1);
+    QCOMPARE(id.mid(index + 4).toULongLong(), 5u);
 }
 
 QTEST_MAIN(KStartupInfo_UnitTest)

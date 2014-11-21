@@ -122,8 +122,23 @@ public:
     /**
      * Creates and returns new startup id. The id includes properly setup
      * user timestamp.
+     *
+     * On the X11 platform the current timestamp will be fetched from the
+     * X-Server. If the caller has an adaquat timestamp (e.g. from a QMouseEvent)
+     * it should prefer using createNewStartupIdForTimestamp to not trigger a
+     * roundtrip to the X-Server
+     *
+     * @see createNewStartupIdForTimestamp
      */
     static QByteArray createNewStartupId();
+    /**
+     * Creates and returns new startup id with @p timestamp as user timestamp part.
+     *
+     * @param timestamp The timestamp for the startup id.
+     * @see createNewStartupId
+     * @since 5.5
+     **/
+    static QByteArray createNewStartupIdForTimestamp(quint32 timestamp);
     /**
      *
      */
