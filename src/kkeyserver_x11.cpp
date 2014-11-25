@@ -300,10 +300,14 @@ static const TransKey g_rgQtToSymX[] = {
 #define XF86XK_TopMenu             0x1008FFA2
 #define XF86XK_Suspend             0x1008FFA7
 #define XF86XK_Hibernate           0x1008FFA8
+#define XF86XK_TouchpadToggle      0x1008FFA9
+#define XF86XK_TouchpadOn          0x1008FFB0
+#define XF86XK_TouchpadOff         0x1008FFB1
+#define XF86XK_AudioMicMute        0x1008FFB2
 // end of XF86keysyms.h
     ,
 
-    // All of the stuff below really has to match qkeymapper_x11.cpp in Qt!
+    // All of the stuff below really has to match qxcbkeyboard.cpp in Qt!
     { Qt::Key_Back,       XF86XK_Back },
     { Qt::Key_Forward,    XF86XK_Forward },
     { Qt::Key_Stop,       XF86XK_Stop },
@@ -421,6 +425,10 @@ static const TransKey g_rgQtToSymX[] = {
     { Qt::Key_Bluetooth,  XF86XK_Bluetooth },
     { Qt::Key_Suspend,  XF86XK_Suspend },
     { Qt::Key_Hibernate,  XF86XK_Hibernate },
+    { Qt::Key_TouchpadToggle, XF86XK_TouchpadToggle },
+    { Qt::Key_TouchpadOn, XF86XK_TouchpadOn },
+    { Qt::Key_TouchpadOff, XF86XK_TouchpadOff },
+    { Qt::Key_MicMute, XF86XK_AudioMicMute },
     { Qt::Key_Launch2,    XF86XK_Launch0 },
     { Qt::Key_Launch3,    XF86XK_Launch1 },
     { Qt::Key_Launch4,    XF86XK_Launch2 },
