@@ -74,6 +74,13 @@ target_link_libraries(KF5WindowSystem
     PRIVATE ${platformLinkLibraries}
 )
 
+if(KWINDOWSYSTEM_HAVE_X11)
+    # we install kkeyserver_x11.h which needs the X11 headers available
+    # if we don't add the include path here code that includes kkeyserver.h will fail
+    # to compile unless X11 is installed in /usr/include
+    target_include_directories(KF5WindowSystem PUBLIC ${XCB_XCB_INCLUDE_DIR} ${X11_X11_INCLUDE_PATH})
+endif()
+
 if(IS_ABSOLUTE "${KF5_INCLUDE_INSTALL_DIR}")
   target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${KF5_INCLUDE_INSTALL_DIR}>" )
 else()
