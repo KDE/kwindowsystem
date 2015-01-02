@@ -236,7 +236,7 @@ void NetRootInfoTestWM::testSupported()
 
     // get the cookies of the things to check
     xcb_get_property_cookie_t supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-            supported, XCB_ATOM_ATOM, 0, 100);
+            supported, XCB_ATOM_ATOM, 0, 101);
     xcb_get_property_cookie_t wmCheckRootCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
             wmCheck, XCB_ATOM_WINDOW, 0, 1);
     xcb_get_property_cookie_t wmCheckSupportWinCookie = xcb_get_property_unchecked(connection(), false, m_supportWindow,
