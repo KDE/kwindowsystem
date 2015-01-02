@@ -288,7 +288,7 @@ void NetRootInfoTestWM::testSupported()
 
     // lets get supported again
     supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                      supported, XCB_ATOM_ATOM, 0, 89);
+                      supported, XCB_ATOM_ATOM, 0, 90);
     supportedReply.reset(xcb_get_property_reply(connection(), supportedCookie, Q_NULLPTR));
     QVERIFY(!supportedReply.isNull());
     QCOMPARE(supportedReply->format, uint8_t(32));
@@ -304,7 +304,7 @@ void NetRootInfoTestWM::testSupported()
     rootInfo.setSupported(NET::WM2BlockCompositing, false);
     // lets get supported again
     supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                      supported, XCB_ATOM_ATOM, 0, 89);
+                      supported, XCB_ATOM_ATOM, 0, 90);
     supportedReply.reset(xcb_get_property_reply(connection(), supportedCookie, Q_NULLPTR));
     QVERIFY(!supportedReply.isNull());
     QCOMPARE(supportedReply->format, uint8_t(32));
