@@ -373,7 +373,12 @@ public:
         /**
            indicates a window that represents the dragged object during DND operation
         **/
-        DNDIcon = 15
+        DNDIcon = 15,
+        /**
+            indicates an On Screen Display window (such as volume feedback)
+            @since 5.6
+        **/
+        OnScreenDisplay = 16 // NON STANDARD
     };
 
     /**
@@ -397,6 +402,7 @@ public:
         NotificationMask = 1u << 13, ///< @see Notification
         ComboBoxMask     = 1u << 14, ///< @see ComboBox
         DNDIconMask      = 1u << 15, ///< @see DNDIcon
+        OnScreenDisplayMask = 1u << 16, ///< NON STANDARD @see OnScreenDisplay @since 5.6
         AllTypesMask     = 0U - 1 ///< All window types.
     };
     Q_DECLARE_FLAGS(WindowTypes, WindowTypeMask)

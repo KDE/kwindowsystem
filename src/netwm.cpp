@@ -24,7 +24,6 @@
 */
 
 //#define NETWMDEBUG
-
 #include "netwm.h"
 
 #include <xcb/xcb.h>
@@ -110,6 +109,7 @@ static xcb_atom_t net_wm_fullscreen_monitors = 0;
 // KDE extensions
 static xcb_atom_t kde_net_wm_window_type_override   = 0;
 static xcb_atom_t kde_net_wm_window_type_topmenu    = 0;
+static xcb_atom_t kde_net_wm_window_type_on_screen_display = 0;
 static xcb_atom_t kde_net_wm_temporary_rules        = 0;
 static xcb_atom_t kde_net_wm_frame_overlap          = 0;
 static xcb_atom_t kde_net_wm_activities             = 0;
@@ -387,7 +387,7 @@ static QByteArray get_atom_name(xcb_connection_t *c, xcb_atom_t atom)
 }
 #endif
 
-static const int netAtomCount = 92;
+static const int netAtomCount = 93;
 
 static void create_netwm_atoms(xcb_connection_t *c)
 {
@@ -481,6 +481,7 @@ static void create_netwm_atoms(xcb_connection_t *c)
         { "_KDE_NET_WM_FRAME_STRUT",              &kde_net_wm_frame_strut           },
         { "_KDE_NET_WM_WINDOW_TYPE_OVERRIDE",     &kde_net_wm_window_type_override  },
         { "_KDE_NET_WM_WINDOW_TYPE_TOPMENU",      &kde_net_wm_window_type_topmenu   },
+        { "_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY", &kde_net_wm_window_type_on_screen_display },
         { "_KDE_NET_WM_TEMPORARY_RULES",          &kde_net_wm_temporary_rules       },
         { "_NET_WM_FRAME_OVERLAP",                &kde_net_wm_frame_overlap         },
 
@@ -1176,6 +1177,9 @@ void NETRootInfo::setSupported()
         if (p->windowTypes & TopMenuMask) {
             atoms[pnum++] = kde_net_wm_window_type_topmenu;
         }
+        if (p->windowTypes & OnScreenDisplayMask) {
+            atoms[pnum++] = kde_net_wm_window_type_on_screen_display;
+        }
     }
 
     if (p->properties & WMState) {
@@ -1488,6 +1492,8 @@ void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
         p->windowTypes |= OverrideMask;
     } else if (atom == kde_net_wm_window_type_topmenu) {
         p->windowTypes |= TopMenuMask;
+    } else if (atom == kde_net_wm_window_type_on_screen_display) {
+        p->windowTypes |= OnScreenDisplayMask;
     }
 
     else if (atom == net_wm_state) {
@@ -3373,6 +3379,12 @@ void NETWinInfo::setWindowType(WindowType type)
         len = 1;
         break;
 
+    case OnScreenDisplay:
+        data[0] = kde_net_wm_window_type_on_screen_display;
+        data[1] = net_wm_window_type_notification;
+        len = 1;
+        break;
+
     default:
     case Normal:
         data[0] = net_wm_window_type_normal;
@@ -4370,6 +4382,10 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
                 else if (type == kde_net_wm_window_type_topmenu) {
                     p->types[pos++] = TopMenu;
                 }
+
+                else if (type == kde_net_wm_window_type_on_screen_display) {
+                    p->types[pos++] = OnScreenDisplay;
+                }
             }
         }
     }
@@ -4711,6 +4727,7 @@ case type: \
         CHECK_TYPE_MASK(Notification)
         CHECK_TYPE_MASK(ComboBox)
         CHECK_TYPE_MASK(DNDIcon)
+        CHECK_TYPE_MASK(OnScreenDisplay)
 #undef CHECK_TYPE_MASK
     default:
         break;

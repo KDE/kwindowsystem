@@ -600,6 +600,7 @@ void NetWinInfoTestClient::testWindowType_data()
     QTest::newRow("ComboBox")     << NET::ComboBox     << 1 << QByteArrayLiteral("_NET_WM_WINDOW_TYPE_COMBOBOX") << QByteArray();
     QTest::newRow("DNDIcon")      << NET::DNDIcon      << 1 << QByteArrayLiteral("_NET_WM_WINDOW_TYPE_DND")      << QByteArray();
     QTest::newRow("Normal")       << NET::Normal       << 1 << QByteArrayLiteral("_NET_WM_WINDOW_TYPE_NORMAL")   << QByteArray();
+    QTest::newRow("OnScreenDisplay") << NET::OnScreenDisplay << 1 << QByteArrayLiteral("_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY") << QByteArray();
 }
 
 void NetWinInfoTestClient::testWindowType()

@@ -273,14 +273,17 @@ void NetRootInfoTestWM::testSupported()
     rootInfo.setSupported(NET::ActionChangeDesktop, false);
     rootInfo.setSupported(NET::FullScreen, false);
     QVERIFY(rootInfo.isSupported(NET::ToolbarMask));
+    QVERIFY(rootInfo.isSupported(NET::OnScreenDisplayMask));
     QVERIFY(rootInfo.isSupported(NET::DockMask));
     rootInfo.setSupported(NET::ToolbarMask, false);
+    rootInfo.setSupported(NET::OnScreenDisplayMask, false);
 
     QVERIFY(!rootInfo.isSupported(NET::WMFrameExtents));
     QVERIFY(!rootInfo.isSupported(NET::WM2KDETemporaryRules));
     QVERIFY(!rootInfo.isSupported(NET::ActionChangeDesktop));
     QVERIFY(!rootInfo.isSupported(NET::FullScreen));
     QVERIFY(!rootInfo.isSupported(NET::ToolbarMask));
+    QVERIFY(!rootInfo.isSupported(NET::OnScreenDisplayMask));
     QVERIFY(rootInfo.isSupported(NET::DockMask));
 
     // lets get supported again
