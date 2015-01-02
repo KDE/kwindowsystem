@@ -292,7 +292,7 @@ void NetRootInfoTestWM::testSupported()
     supportedReply.reset(xcb_get_property_reply(connection(), supportedCookie, Q_NULLPTR));
     QVERIFY(!supportedReply.isNull());
     QCOMPARE(supportedReply->format, uint8_t(32));
-    QCOMPARE(supportedReply->value_len, uint32_t(count - 6));
+    QCOMPARE(supportedReply->value_len, uint32_t(count - 7));
 
     for (int i = 0; i < 5; ++i) {
         // we should have got some events
@@ -308,7 +308,7 @@ void NetRootInfoTestWM::testSupported()
     supportedReply.reset(xcb_get_property_reply(connection(), supportedCookie, Q_NULLPTR));
     QVERIFY(!supportedReply.isNull());
     QCOMPARE(supportedReply->format, uint8_t(32));
-    QCOMPARE(supportedReply->value_len, uint32_t(count - 7));
+    QCOMPARE(supportedReply->value_len, uint32_t(count - 8));
     NETRootInfo clientInfo(connection(), NET::Supported | NET::SupportingWMCheck);
     waitForPropertyChange(&clientInfo, supported, NET::Supported);
     waitForPropertyChange(&clientInfo, wmCheck, NET::SupportingWMCheck);
