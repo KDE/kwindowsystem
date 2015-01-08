@@ -59,7 +59,7 @@ if (WIN32)
 )
    set(platformLinkLibraries
       Qt5::WinExtras # QtWin::fromHICON(), QtWin::toHICON()
-      Ws2_32 # gethostname()
+      ws2_32 # gethostname()
    )
 endif ()
 
