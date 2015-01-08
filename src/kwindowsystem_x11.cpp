@@ -982,6 +982,12 @@ bool KWindowSystemPrivateX11::showingDesktop()
     return s_d_func()->showingDesktop();
 }
 
+void KWindowSystemPrivateX11::setShowingDesktop(bool showing)
+{
+    NETRootInfo info(QX11Info::connection(), 0, NET::WM2ShowingDesktop);
+    info.setShowingDesktop(showing);
+}
+
 void KWindowSystemPrivateX11::setUserTime(WId win, long time)
 {
     NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), 0, 0);

@@ -437,6 +437,17 @@ public:
     static bool showingDesktop();
 
     /**
+     * Sets the state of the "showing desktop" mode of the window manager. If on,
+     * windows are hidden and desktop background is shown and focused.
+     *
+     * @param showing if true, the window manager is put in "showing desktop" mode.
+     * If false, the window manager is put out of that mode.
+     *
+     * @since 5.7.0
+     */
+    static void setShowingDesktop(bool showing);
+
+    /**
      * Sets user timestamp @p time on window @p win. The timestamp
      * is expressed as XServer time. If a window
      * is shown with user timestamp older than the time of the last

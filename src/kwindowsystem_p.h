@@ -59,6 +59,7 @@ public:
     virtual QString desktopName(int desktop) = 0;
     virtual void setDesktopName(int desktop, const QString &name) = 0;
     virtual bool showingDesktop() = 0;
+    virtual void setShowingDesktop(bool showing) = 0;
     virtual void setUserTime(WId win, long time) = 0;
     virtual void setExtendedStrut(WId win, int left_width, int left_start, int left_end,
                                   int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
@@ -112,6 +113,7 @@ public:
     QString desktopName(int desktop) Q_DECL_OVERRIDE;
     void setDesktopName(int desktop, const QString &name) Q_DECL_OVERRIDE;
     bool showingDesktop() Q_DECL_OVERRIDE;
+    void setShowingDesktop(bool showing) Q_DECL_OVERRIDE;
     void setUserTime(WId win, long time) Q_DECL_OVERRIDE;
     void setExtendedStrut(WId win, int left_width, int left_start, int left_end,
                           int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,

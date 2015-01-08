@@ -232,6 +232,11 @@ bool KWindowSystemPrivateDummy::showingDesktop()
     return false;
 }
 
+void KWindowSystemPrivateDummy::setShowingDesktop(bool showing)
+{
+    Q_UNUSED(showing);
+}
+
 void KWindowSystemPrivateDummy::setUserTime(WId win, long time)
 {
     Q_UNUSED(win)
@@ -564,6 +569,12 @@ bool KWindowSystem::showingDesktop()
 {
     Q_D(KWindowSystem);
     return d->showingDesktop();
+}
+
+void KWindowSystem::setShowingDesktop(bool showing)
+{
+    Q_D(KWindowSystem);
+    return d->setShowingDesktop(showing);
 }
 
 void KWindowSystem::setUserTime(WId win, long time)
