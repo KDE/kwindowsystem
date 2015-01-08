@@ -1741,7 +1741,7 @@ void NETRootInfo::setShowingDesktop(bool showing)
         uint32_t data[5] = {
             uint32_t(showing ? 1 : 0), 0, 0, 0, 0
         };
-        send_client_message(p->conn, netwm_sendevent_mask, p->root, 0, net_showing_desktop, data);
+        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, net_showing_desktop, data);
     }
 }
 

@@ -185,10 +185,6 @@ void KWindowSystemX11Test::testDesktopNamesChanged()
 
 void KWindowSystemX11Test::testShowingDesktopChanged()
 {
-    NETRootInfo rootInfo(QX11Info::connection(), NET::Supported | NET::SupportingWMCheck);
-    if (qstrcmp(rootInfo.wmName(), "Openbox") == 0) {
-        QSKIP("setting name test fails on openbox");
-    }
     QX11Info::setAppTime(QX11Info::getTimestamp());
     const bool showingDesktop = KWindowSystem::showingDesktop();
 
