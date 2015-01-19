@@ -85,6 +85,8 @@ private Q_SLOTS:
     void testInput();
     void testInitialMappingState_data();
     void testInitialMappingState();
+    void testIconPixmap_data();
+    void testIconPixmap();
     void testTransientFor();
     void testProtocols_data();
     void testProtocols();
@@ -809,6 +811,52 @@ void NetWinInfoTestClient::testInitialMappingState()
     // only updated after event
     waitForPropertyChange(&info, XCB_ATOM_WM_HINTS, NET::Property(0), NET::WM2InitialMappingState);
     QTEST(info.initialMappingState(), "expected");
+}
+
+void NetWinInfoTestClient::testIconPixmap_data()
+{
+    QTest::addColumn<quint32>("flags");
+    QTest::addColumn<quint32>("icon");
+    QTest::addColumn<quint32>("mask");
+    QTest::addColumn<quint32>("expectedPixmap");
+    QTest::addColumn<quint32>("expectedMask");
+
+    QTest::newRow("invalid-flags") << 1u << 2u << 3u << 0u << 0u;
+    QTest::newRow("pixmap-flags") << 4u << 2u << 3u << 2u << 0u;
+    QTest::newRow("mask-flags") << 32u << 2u << 3u << 0u << 3u;
+    QTest::newRow("pixmap-mask-flags") << 36u << 2u << 3u << 2u << 3u;
+}
+
+void NetWinInfoTestClient::testIconPixmap()
+{
+    QVERIFY(connection());
+    INFO
+
+    QCOMPARE(info.icccmIconPixmap(), 0u);
+    QCOMPARE(info.icccmIconPixmapMask(), 0u);
+    QFETCH(quint32, flags);
+    QFETCH(quint32, icon);
+    QFETCH(quint32, mask);
+
+    // icon pixmap needs to be changed through wm hints
+    uint32_t values[] = {
+        flags,
+        1, /* Input */
+        XCB_NONE, /* Normal State */
+        icon,     /* icon pixmap */
+        XCB_NONE, /* icon window */
+        XCB_NONE, /* icon x */
+        XCB_NONE, /* icon y */
+        mask,     /* icon mask */
+        XCB_NONE  /* group leader */
+    };
+    xcb_change_property(connection(), XCB_PROP_MODE_REPLACE, m_testWindow,
+                        XCB_ATOM_WM_HINTS, XCB_ATOM_WM_HINTS, 32, 9, values);
+    xcb_flush(connection());
+    // only updated after event
+    waitForPropertyChange(&info, XCB_ATOM_WM_HINTS, NET::Property(0), NET::WM2IconPixmap);
+    QTEST(info.icccmIconPixmap(), "expectedPixmap");
+    QTEST(info.icccmIconPixmapMask(), "expectedMask");
 }
 
 void NetWinInfoTestClient::testTransientFor()

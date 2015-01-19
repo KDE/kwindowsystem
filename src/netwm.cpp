@@ -2770,6 +2770,8 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->transient_for = XCB_NONE;
     p->opacity = 0xffffffffU;
     p->window_group = XCB_NONE;
+    p->icon_pixmap = XCB_PIXMAP_NONE;
+    p->icon_mask = XCB_PIXMAP_NONE;
     p->allowed_actions = 0;
     p->has_net_support = false;
     p->class_class = (char *) 0;
@@ -2833,6 +2835,8 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->transient_for = XCB_NONE;
     p->opacity = 0xffffffffU;
     p->window_group = XCB_NONE;
+    p->icon_pixmap = XCB_PIXMAP_NONE;
+    p->icon_mask = XCB_PIXMAP_NONE;
     p->allowed_actions = 0;
     p->has_net_support = false;
     p->class_class = (char *) 0;
@@ -3950,6 +3954,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             dirty2 |= WM2Urgency;
             dirty2 |= WM2Input;
             dirty2 |= WM2InitialMappingState;
+            dirty2 |= WM2IconPixmap;
         } else if (pe->atom == XCB_ATOM_WM_TRANSIENT_FOR) {
             dirty2 |= WM2TransientFor;
         } else if (pe->atom == XCB_ATOM_WM_CLASS) {
@@ -4128,7 +4133,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         cookies[c++] = xcb_get_property(p->conn, false, p->window, XCB_ATOM_WM_TRANSIENT_FOR, XCB_ATOM_WINDOW, 0, 1);
     }
 
-    if (dirty2 & (WM2GroupLeader | WM2Urgency | WM2Input | WM2InitialMappingState)) {
+    if (dirty2 & (WM2GroupLeader | WM2Urgency | WM2Input | WM2InitialMappingState | WM2IconPixmap)) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, XCB_ATOM_WM_HINTS, XCB_ATOM_WM_HINTS, 0, 9);
     }
 
@@ -4590,7 +4595,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         p->transient_for = get_value_reply<xcb_window_t>(p->conn, cookies[c++], XCB_ATOM_WINDOW, 0);
     }
 
-    if (dirty2 & (WM2GroupLeader | WM2Urgency | WM2Input | WM2InitialMappingState)) {
+    if (dirty2 & (WM2GroupLeader | WM2Urgency | WM2Input | WM2InitialMappingState | WM2IconPixmap)) {
         xcb_get_property_reply_t *reply = xcb_get_property_reply(p->conn, cookies[c++], 0);
 
         if (reply && reply->format == 32 && reply->value_len == 9 && reply->type == XCB_ATOM_WM_HINTS) {
@@ -4614,6 +4619,12 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
                     p->initialMappingState = Withdrawn;
                     break;
                 }
+            }
+            if (hints->flags & (1 << 2)/*IconPixmapHint*/) {
+                p->icon_pixmap = hints->icon_pixmap;
+            }
+            if (hints->flags & (1 << 5)/*IconMaskHint*/) {
+                p->icon_mask = hints->icon_mask;
             }
             if (hints->flags & (1 << 6)/*WindowGroupHint*/) {
                 p->window_group = hints->window_group;
@@ -4835,6 +4846,16 @@ bool NETWinInfo::input() const
 NET::MappingState NETWinInfo::initialMappingState() const
 {
     return p->initialMappingState;
+}
+
+xcb_pixmap_t NETWinInfo::icccmIconPixmap() const
+{
+    return p->icon_pixmap;
+}
+
+xcb_pixmap_t NETWinInfo::icccmIconPixmapMask() const
+{
+    return p->icon_mask;
 }
 
 const char *NETWinInfo::windowClassClass() const
