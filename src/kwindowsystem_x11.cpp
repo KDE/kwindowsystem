@@ -650,10 +650,18 @@ WId KWindowSystemPrivateX11::groupLeader(WId win)
 
 QPixmap KWindowSystemPrivateX11::icon(WId win, int width, int height, bool scale, int flags)
 {
-    QPixmap result;
     NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMIcon, NET::WM2WindowClass | NET::WM2IconPixmap);
+    return icon(width, height, scale, flags, &info);
+}
+
+QPixmap KWindowSystemPrivateX11::icon(int width, int height, bool scale, int flags, NETWinInfo *info)
+{
+    QPixmap result;
+    if (!info) {
+        return result;
+    }
     if (flags & KWindowSystem::NETWM) {
-        NETIcon ni = info.icon(width, height);
+        NETIcon ni = info->icon(width, height);
         if (ni.data && ni.size.width > 0 && ni.size.height > 0) {
             QImage img((uchar *) ni.data, (int) ni.size.width, (int) ni.size.height, QImage::Format_ARGB32);
             if (scale && width > 0 && height > 0 && img.size() != QSize(width, height) && !img.isNull()) {
@@ -667,8 +675,8 @@ QPixmap KWindowSystemPrivateX11::icon(WId win, int width, int height, bool scale
     }
 
     if (flags & KWindowSystem::WMHints) {
-        xcb_pixmap_t p = info.icccmIconPixmap();
-        xcb_pixmap_t p_mask = info.icccmIconPixmapMask();
+        xcb_pixmap_t p = info->icccmIconPixmap();
+        xcb_pixmap_t p_mask = info->icccmIconPixmapMask();
 
         if (p != XCB_PIXMAP_NONE) {
             QPixmap pm = KXUtils::createPixmapFromHandle(p, p_mask);
@@ -697,7 +705,7 @@ QPixmap KWindowSystemPrivateX11::icon(WId win, int width, int height, bool scale
         // Try to load the icon from the classhint if the app didn't specify
         // its own:
         if (result.isNull()) {
-            const QIcon icon = QIcon::fromTheme(QString::fromUtf8(info.windowClassClass()).toLower());
+            const QIcon icon = QIcon::fromTheme(QString::fromUtf8(info->windowClassClass()).toLower());
             const QPixmap pm = icon.isNull() ? QPixmap() : icon.pixmap(iconWidth, iconWidth);
             if (scale && !pm.isNull()) {
                 result = QPixmap::fromImage(pm.toImage().scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));

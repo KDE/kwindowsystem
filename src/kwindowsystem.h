@@ -31,6 +31,7 @@
 #include <kwindowinfo.h>
 
 class KWindowSystemPrivate;
+class NETWinInfo;
 
 /**
  *
@@ -301,6 +302,28 @@ public:
      * @param flags OR-ed flags from the IconSource enum
      */
     static QPixmap icon(WId win, int width, int height, bool scale, int flags);
+
+    /**
+     * @overload
+     *
+     * Overloaded variant that allows passing in the NETWinInfo to use for reading the
+     * information. This variant is only useful on the X11 platform, other platforms do not
+     * use NETWinInfo and delegate to the variant without NETWinInfo.
+     *
+     * The NETWinInfo must be constructed with property NET::WMIcon in order to use the
+     * IconSource flag NETWM. NET::WM2IconPixmap for IconSource flag WMHints and
+     * NET::WM2WindowClass for IconSource flag ClassHint.
+     *
+     * @param win the id of the window
+     * @param width the desired width, or -1
+     * @param height the desired height, or -1
+     * @param scale if true the icon will be scaled to the desired size. Otherwise the
+     *        icon will not be modified.
+     * @param flags OR-ed flags from the IconSource enum
+     * @param into the NETWinInfo to use for reading properties.
+     * @since 5.7
+     **/
+    static QPixmap icon(WId win, int width, int height, bool scale, int flags, NETWinInfo *info);
 
     /**
      * Sets an @p icon and a  @p miniIcon on window @p win

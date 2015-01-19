@@ -471,6 +471,19 @@ QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int flag
     return d->icon(win, width, height, scale, flags);
 }
 
+QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int flags, NETWinInfo *info)
+{
+    Q_D(KWindowSystem);
+#if KWINDOWSYSTEM_HAVE_X11
+    if (KWindowSystemPrivateX11 *xd = dynamic_cast<KWindowSystemPrivateX11*>(d)) {
+        return xd->icon(width, height, scale, flags, info);
+    }
+#else
+    Q_UNUSED(info)
+#endif
+    return d->icon(win, width, height, scale, flags);
+}
+
 void KWindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon)
 {
     Q_D(KWindowSystem);
