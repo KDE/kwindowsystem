@@ -204,7 +204,7 @@ void NetRootInfoTestWM::testSupported()
         QVERIFY(rootInfo.isSupported(NET::Property(1 << i)));
         count++;
     }
-    for (int i = 0; i < 21; ++i) {
+    for (int i = 0; i < 22; ++i) {
         QVERIFY(rootInfo.isSupported(NET::Property2(1 << i)));
         count++;
     }

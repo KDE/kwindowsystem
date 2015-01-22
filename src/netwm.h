@@ -1570,6 +1570,12 @@ public:
     bool supportsProtocol(NET::Protocol protocol) const;
 
     /**
+     * @returns The opaque region as specified by the Client.
+     * @since 5.7
+     **/
+    std::vector<NETRect> opaqueRegion() const;
+
+    /**
        Sentinel value to indicate that the client wishes to be visible on
        all desktops.
 

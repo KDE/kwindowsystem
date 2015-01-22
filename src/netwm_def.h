@@ -686,6 +686,7 @@ public:
         @li WM2Protocols see NET::Protocol
         @li WM2InitialMappingState initial state hint of WM_HINTS (see ICCCM 4.1.2.4)
         @li WM2IconPixmap icon pixmap and mask in WM_HINTS (see ICCCM 4.1.2.4)
+        @li WM2OpaqueRegion
     **/
     enum Property2 {
         WM2UserTime            = 1u << 0,
@@ -714,6 +715,7 @@ public:
         WM2Protocols           = 1u << 23, // @since 5.3
         WM2InitialMappingState = 1u << 24, // @since 5.5
         WM2IconPixmap          = 1u << 25, // @since 5.7
+        WM2OpaqueRegion        = 1u << 25, // @since 5.7
         WM2AllProperties       = ~0u
     };
     Q_DECLARE_FLAGS(Properties2, Property2)

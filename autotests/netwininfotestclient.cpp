@@ -90,6 +90,8 @@ private Q_SLOTS:
     void testTransientFor();
     void testProtocols_data();
     void testProtocols();
+    void testOpaqueRegion_data();
+    void testOpaqueRegion();
 
 private:
     void performNameTest(xcb_atom_t atom, const char *(NETWinInfo:: *getter)(void)const, void (NETWinInfo:: *setter)(const char *), NET::Property property);
@@ -1062,6 +1064,61 @@ void NetWinInfoTestClient::testProtocols()
     QVERIFY(!info.supportsProtocol(NET::SyncRequestProtocol));
     QVERIFY(!info.supportsProtocol(NET::ContextHelpProtocol));
     QCOMPARE(info.protocols(), NET::Protocols(NET::NoProtocol));
+}
+
+void NetWinInfoTestClient::testOpaqueRegion_data()
+{
+    QTest::addColumn<QVector<QRect> >("geometries");
+
+    QTest::newRow("none") << QVector<QRect>();
+    QTest::newRow("empty") << QVector<QRect>({QRect(0, 0, 0, 0)});
+    QTest::newRow("one rect") << QVector<QRect>({QRect(10, 20, 30, 40)});
+    QTest::newRow("two rect") << QVector<QRect>({QRect(10, 20, 30, 40), QRect(1, 2, 4, 5)});
+    QTest::newRow("multiple") << QVector<QRect>({QRect(10, 20, 30, 40),
+                                                 QRect(1, 2, 4, 5),
+                                                 QRect(100, 0, 200, 400),
+                                                 QRect(1, 2, 4, 5)});
+}
+
+void NetWinInfoTestClient::testOpaqueRegion()
+{
+    QVERIFY(connection());
+    ATOM(_NET_WM_OPAQUE_REGION)
+    INFO
+
+    QCOMPARE(info.opaqueRegion().size(), std::size_t(0));
+
+    QFETCH(QVector<QRect>, geometries);
+    QVector<qint32> data;
+    for (auto it = geometries.constBegin(); it != geometries.constEnd(); ++it) {
+        const QRect &r = *it;
+        data << r.x();
+        data << r.y();
+        data << r.width();
+        data << r.height();
+    }
+
+    xcb_change_property(connection(), XCB_PROP_MODE_REPLACE, m_testWindow, atom, XCB_ATOM_CARDINAL, 32, data.size(), data.constData());
+    xcb_flush(connection());
+
+    // only updated after event
+    waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2OpaqueRegion);
+    const auto opaqueRegion = info.opaqueRegion();
+    QCOMPARE(opaqueRegion.size(), std::size_t(geometries.size()));
+
+    for (std::size_t i = 0; i < opaqueRegion.size(); ++i) {
+        auto r1 = opaqueRegion.at(i);
+        auto r2 = geometries.at(i);
+        QCOMPARE(r1.pos.x, r2.x());
+        QCOMPARE(r1.pos.y, r2.y());
+        QCOMPARE(r1.size.width, r2.width());
+        QCOMPARE(r1.size.height, r2.height());
+    }
+
+    xcb_delete_property(connection(), m_testWindow, atom);
+    xcb_flush(connection());
+    waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2OpaqueRegion);
+    QCOMPARE(info.opaqueRegion().size(), std::size_t(0));
 }
 
 QTEST_GUILESS_MAIN(NetWinInfoTestClient)

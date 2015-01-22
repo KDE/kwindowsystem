@@ -170,6 +170,7 @@ struct NETWinInfoPrivate {
     bool input;
     NET::MappingState initialMappingState;
     NET::Protocols protocols;
+    std::vector<NETRect> opaqueRegion;
 
     int ref;
 };
