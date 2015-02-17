@@ -31,8 +31,8 @@ DEALINGS IN THE SOFTWARE.
 
 #include <config-kwindowsystem.h> // KWINDOWSYSTEM_HAVE_X11
 #if KWINDOWSYSTEM_HAVE_X11
+#include <xcb/xcb.h>
 typedef struct _XDisplay Display;
-struct xcb_connection_t;
 
 class QString;
 
@@ -60,6 +60,19 @@ public:
      * @param parent the parent of this widget
      */
     explicit KXMessages(const char *accept_broadcast = NULL, QObject *parent = NULL);
+
+    /**
+     * @overload
+     * Overload passing in the xcb_connection_t to use instead relying on platform xcb.
+     *
+     * @param connection The xcb connection
+     * @param rootWindow The rootWindow to use
+     * @param accept_broadcast if non-NULL, all broadcast messages with
+     *                         this message type will be received.
+     * @param parent the parent of this object
+     * @since 5.8
+     **/
+    explicit KXMessages(xcb_connection_t *connection, xcb_window_t rootWindow, const char *accept_broadcast = Q_NULLPTR, QObject *parent = Q_NULLPTR);
 
     virtual ~KXMessages();
     /**

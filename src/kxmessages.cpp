@@ -109,17 +109,19 @@ class KXMessagesPrivate
     : public QAbstractNativeEventFilter
 {
 public:
-    KXMessagesPrivate(KXMessages *parent, const char *acceptBroadcast)
+    KXMessagesPrivate(KXMessages *parent, const char *acceptBroadcast, xcb_connection_t *c, xcb_window_t root)
         : accept_atom1(acceptBroadcast ? QByteArray(acceptBroadcast) + QByteArrayLiteral("_BEGIN") : QByteArray())
         , accept_atom2(acceptBroadcast ? QByteArray(acceptBroadcast) : QByteArray())
         , handle(new QWidget)
         , q(parent)
-        , valid(QX11Info::isPlatformX11())
+        , valid(c)
+        , connection(c)
+        , rootWindow(root)
         {
             if (acceptBroadcast) {
-                accept_atom1.setConnection(QX11Info::connection());
+                accept_atom1.setConnection(c);
                 accept_atom1.fetch();
-                accept_atom2.setConnection(QX11Info::connection());
+                accept_atom2.setConnection(c);
                 accept_atom2.fetch();
                 QCoreApplication::instance()->installNativeEventFilter(this);
             }
@@ -130,6 +132,8 @@ public:
     QScopedPointer<QWidget> handle;
     KXMessages *q;
     bool valid;
+    xcb_connection_t *connection;
+    xcb_window_t rootWindow;
 
     bool nativeEventFilter(const QByteArray &eventType, void *message, long *result)
     {
@@ -186,13 +190,32 @@ static void send_message_internal(xcb_window_t w, const QString &msg, xcb_connec
 
 KXMessages::KXMessages(const char *accept_broadcast_P, QObject *parent_P)
     : QObject(parent_P)
-    , d(new KXMessagesPrivate(this, accept_broadcast_P))
+    , d(new KXMessagesPrivate(this, accept_broadcast_P, QX11Info::isPlatformX11() ? QX11Info::connection() : Q_NULLPTR, QX11Info::isPlatformX11() ? QX11Info::appRootWindow() : 0))
+{
+}
+
+KXMessages::KXMessages(xcb_connection_t *connection, xcb_window_t rootWindow, const char *accept_broadcast, QObject *parent)
+    : QObject(parent)
+    , d(new KXMessagesPrivate(this, accept_broadcast, connection, rootWindow))
 {
 }
 
 KXMessages::~KXMessages()
 {
     delete d;
+}
+
+static
+xcb_screen_t *defaultScreen(xcb_connection_t *c, int screen)
+{
+    for (xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(c));
+            it.rem;
+            --screen, xcb_screen_next(&it)) {
+        if (screen == 0) {
+            return it.data;
+        }
+    }
+    return Q_NULLPTR;
 }
 
 void KXMessages::broadcastMessage(const char *msg_type_P, const QString &message_P, int screen_P)
@@ -202,10 +225,10 @@ void KXMessages::broadcastMessage(const char *msg_type_P, const QString &message
         return;
     }
     const QByteArray msg(msg_type_P);
-    XcbAtom a2(QX11Info::connection(), msg);
-    XcbAtom a1(QX11Info::connection(), msg + QByteArrayLiteral("_BEGIN"));
-    xcb_window_t root = screen_P == -1 ? QX11Info::appRootWindow() : QX11Info::appRootWindow(screen_P);
-    send_message_internal(root, message_P, QX11Info::connection(),
+    XcbAtom a2(d->connection, msg);
+    XcbAtom a1(d->connection, msg + QByteArrayLiteral("_BEGIN"));
+    xcb_window_t root = screen_P == -1 ? d->rootWindow : defaultScreen(d->connection, screen_P)->root;
+    send_message_internal(root, message_P, d->connection,
                           a1, a2, d->handle->winId());
 }
 
@@ -228,18 +251,6 @@ bool KXMessages::broadcastMessageX(Display *disp, const char *msg_type_P,
     return true;
 }
 #endif
-
-xcb_screen_t *defaultScreen(xcb_connection_t *c, int screen)
-{
-    for (xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(c));
-            it.rem;
-            --screen, xcb_screen_next(&it)) {
-        if (screen == 0) {
-            return it.data;
-        }
-    }
-    return Q_NULLPTR;
-}
 
 bool KXMessages::broadcastMessageX(xcb_connection_t *c, const char *msg_type_P, const QString &message, int screenNumber)
 {

@@ -32,6 +32,10 @@ public:
         BroadcastStaticDisplay,
         BroadcastStaticConnection
     };
+    enum ReceiverType {
+        ReceiverTypeDefault,
+        ReceiverTypeConnection
+    };
     KXMessages_UnitTest()
         : m_msgs()
     {
@@ -46,27 +50,44 @@ private:
 };
 
 Q_DECLARE_METATYPE(KXMessages_UnitTest::BroadcastType)
+Q_DECLARE_METATYPE(KXMessages_UnitTest::ReceiverType)
 
 void KXMessages_UnitTest::testStart_data()
 {
     QTest::addColumn<KXMessages_UnitTest::BroadcastType>("broadcastType");
+    QTest::addColumn<KXMessages_UnitTest::ReceiverType>("receiverType");
 
-    QTest::newRow("object")     << BroadcastMessageObject;
-    QTest::newRow("display")    << BroadcastStaticDisplay;
-    QTest::newRow("connection") << BroadcastStaticConnection;
+    QTest::newRow("object")     << BroadcastMessageObject << ReceiverTypeDefault;
+    QTest::newRow("display")    << BroadcastStaticDisplay << ReceiverTypeDefault;
+    QTest::newRow("connection") << BroadcastStaticConnection << ReceiverTypeDefault;
+    QTest::newRow("object/xcb")     << BroadcastMessageObject << ReceiverTypeConnection;
+    QTest::newRow("display/xcb")    << BroadcastStaticDisplay << ReceiverTypeConnection;
+    QTest::newRow("connection/xcb") << BroadcastStaticConnection << ReceiverTypeConnection;
 }
 
 void KXMessages_UnitTest::testStart()
 {
     QFETCH(KXMessages_UnitTest::BroadcastType, broadcastType);
+    QFETCH(KXMessages_UnitTest::ReceiverType, receiverType);
     const QByteArray type = "kxmessage_unittest";
-    KXMessages receiver(type);
+    QScopedPointer<KXMessages> receiver;
+    switch (receiverType) {
+    case KXMessages_UnitTest::ReceiverTypeDefault:
+        receiver.reset(new KXMessages(type));
+        break;
+    case KXMessages_UnitTest::ReceiverTypeConnection:
+        receiver.reset(new KXMessages(QX11Info::connection(), QX11Info::appRootWindow(), type));
+        break;
+    default:
+        Q_UNREACHABLE();
+        break;
+    }
 
     // Check that all message sizes work, i.e. no bug when exactly 20 or 40 bytes,
     // despite the internal splitting.
     QString message;
     for (int i = 1; i < 50; ++i) {
-        QSignalSpy spy(&receiver, SIGNAL(gotMessage(QString)));
+        QSignalSpy spy(receiver.data(), SIGNAL(gotMessage(QString)));
         message += "a";
         switch (broadcastType) {
         case KXMessages_UnitTest::BroadcastMessageObject:
