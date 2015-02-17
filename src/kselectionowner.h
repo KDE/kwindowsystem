@@ -39,9 +39,10 @@ DEALINGS IN THE SOFTWARE.
  is claimed by another owner.
  @short ICCCM manager selection owner
 
- This class is only useful on the xcb platform. On other platforms the code is not
- functional. In case you inherit from this class ensure that you don't use xcb and/or
- XLib without verifying the platform.
+ This class is only useful on the xcb platform. On other platforms the code is only
+ functional if the constructor overloads taking an xcb_connection_t are used. In case
+ you inherit from this class ensure that you don't use xcb and/or XLib without verifying
+ the platform.
 */
 class KWINDOWSYSTEM_EXPORT KSelectionOwner
     : public QObject
@@ -68,6 +69,33 @@ public:
      * @param parent parent object, or NULL if there is none
      */
     explicit KSelectionOwner(const char *selection, int screen = -1, QObject *parent = NULL);
+    /**
+     * @overload
+     * This constructor accepts the xcb_connection_t and root window and doesn't depend on
+     * running on the xcb platform. Otherwise this constructor behaves like the similar one
+     * without the xcb_connection_t.
+     *
+     * @param selection atom representing the manager selection
+     * @param c the xcb connection this KSelectionWatcher should use
+     * @param root the root window this KSelectionWatcher should use
+     * @param parent parent object, or NULL if there is none
+     * @since 5.8
+     **/
+    explicit KSelectionOwner(xcb_atom_t selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = Q_NULLPTR);
+
+    /**
+     * @overload
+     * This constructor accepts the xcb_connection_t and root window and doesn't depend on
+     * running on the xcb platform. Otherwise this constructor behaves like the similar one
+     * without the xcb_connection_t.
+     *
+     * @param selection name of the manager selection
+     * @param c the xcb connection this KSelectionWatcher should use
+     * @param root the root window this KSelectionWatcher should use
+     * @param parent parent object, or NULL if there is none
+     * @since 5.8
+     **/
+    explicit KSelectionOwner(const char *selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = Q_NULLPTR);
 
     /**
      * Destructor. Calls release().
