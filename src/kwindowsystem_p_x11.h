@@ -132,14 +132,14 @@ public:
     int xfixesEventBase;
     bool mapViewport();
 
-    virtual bool nativeEventFilter(const QByteArray &eventType, void *message, long int *result) Q_DECL_OVERRIDE;
+    bool nativeEventFilter(const QByteArray &eventType, void *message, long int *result) Q_DECL_OVERRIDE;
 
     void updateStackingOrder();
     bool removeStrutWindow(WId);
 
 protected:
-    virtual void addClient(xcb_window_t) Q_DECL_OVERRIDE;
-    virtual void removeClient(xcb_window_t) Q_DECL_OVERRIDE;
+    void addClient(xcb_window_t) Q_DECL_OVERRIDE;
+    void removeClient(xcb_window_t) Q_DECL_OVERRIDE;
 
 private:
     bool nativeEventFilter(xcb_generic_event_t *event);

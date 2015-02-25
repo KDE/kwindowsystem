@@ -702,7 +702,7 @@ Q_SIGNALS:
     void compositingChanged(bool enabled);
 
 protected:
-    virtual void connectNotify(const QMetaMethod &signal) Q_DECL_OVERRIDE;
+    void connectNotify(const QMetaMethod &signal) Q_DECL_OVERRIDE;
 
 private:
     friend class KWindowSystemStaticContainer;
