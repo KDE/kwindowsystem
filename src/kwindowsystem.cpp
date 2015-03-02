@@ -475,8 +475,8 @@ QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int flag
 {
     Q_D(KWindowSystem);
 #if KWINDOWSYSTEM_HAVE_X11
-    if (KWindowSystemPrivateX11 *xd = dynamic_cast<KWindowSystemPrivateX11*>(d)) {
-        return xd->icon(width, height, scale, flags, info);
+    if (info) {
+        return KWindowSystemPrivateX11::icon(width, height, scale, flags, info);
     }
 #else
     Q_UNUSED(info)

@@ -308,7 +308,10 @@ public:
      *
      * Overloaded variant that allows passing in the NETWinInfo to use for reading the
      * information. This variant is only useful on the X11 platform, other platforms do not
-     * use NETWinInfo and delegate to the variant without NETWinInfo.
+     * use NETWinInfo and delegate to the variant without NETWinInfo. Though if compiled with
+     * X11 support the X11 variant is used on other platforms if info is not @c nullptr.
+     * This can be used by applications using e.g. platform wayland but also connecting to an
+     * XServer.
      *
      * The NETWinInfo must be constructed with property NET::WMIcon in order to use the
      * IconSource flag NETWM. NET::WM2IconPixmap for IconSource flag WMHints and

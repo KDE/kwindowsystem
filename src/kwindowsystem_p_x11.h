@@ -48,7 +48,7 @@ public:
     WId groupLeader(WId window) Q_DECL_OVERRIDE;
 #endif
     QPixmap icon(WId win, int width, int height, bool scale, int flags) Q_DECL_OVERRIDE;
-    QPixmap icon(int width, int height, bool scale, int flags, NETWinInfo *info);
+    static QPixmap icon(int width, int height, bool scale, int flags, NETWinInfo *info);
     void setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon) Q_DECL_OVERRIDE;
     void setType(WId win, NET::WindowType windowType) Q_DECL_OVERRIDE;
     void setState(WId win, NET::States state) Q_DECL_OVERRIDE;
