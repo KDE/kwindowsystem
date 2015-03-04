@@ -12,6 +12,7 @@ set(kwindowsystem_SRCS
     kwindoweffects_dummy.cpp
     kwindowinfo.cpp
     kwindowsystem.cpp
+    kwindowsystem_wayland.cpp
     ${kwindowsystem_QM_LOADER}
     )
 
