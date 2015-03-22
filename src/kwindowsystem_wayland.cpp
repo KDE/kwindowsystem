@@ -19,6 +19,7 @@
  */
 #include "kwindowsystem_p_wayland.h"
 #include <QList>
+#include <QMetaMethod>
 #include <QPixmap>
 
 QList<WId> KWindowSystemPrivateWayland::windows()
