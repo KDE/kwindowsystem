@@ -93,6 +93,7 @@ NETEventFilter::NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what)
       QAbstractNativeEventFilter(),
       strutSignalConnected(false),
       haveXfixes(false),
+      compositingEnabled(false),
       what(_what),
       winId(XCB_WINDOW_NONE)
 {
