@@ -831,20 +831,12 @@ void KWindowSystemPrivateX11::lowerWindow(WId win)
 
 bool KWindowSystemPrivateX11::compositingActive()
 {
-    if (QX11Info::display()) {
-        init(INFO_BASIC);
-        if (s_d_func()->haveXfixes) {
-            return s_d_func()->compositingEnabled;
-        } else {
-            create_atoms();
-            return XGetSelectionOwner(QX11Info::display(), net_wm_cm);
-        }
-    } else { // work even without QApplication instance
-        Display *dpy = XOpenDisplay(NULL);
-        create_atoms(dpy);
-        bool ret = XGetSelectionOwner(dpy, net_wm_cm) != None;
-        XCloseDisplay(dpy);
-        return ret;
+    init(INFO_BASIC);
+    if (s_d_func()->haveXfixes) {
+        return s_d_func()->compositingEnabled;
+    } else {
+        create_atoms();
+        return XGetSelectionOwner(QX11Info::display(), net_wm_cm);
     }
 }
 
