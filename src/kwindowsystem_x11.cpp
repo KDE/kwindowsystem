@@ -680,7 +680,7 @@ QPixmap KWindowSystemPrivateX11::icon(int width, int height, bool scale, int fla
         xcb_pixmap_t p_mask = info->icccmIconPixmapMask();
 
         if (p != XCB_PIXMAP_NONE) {
-            QPixmap pm = KXUtils::createPixmapFromHandle(p, p_mask);
+            QPixmap pm = KXUtils::createPixmapFromHandle(info->xcbConnection(), p, p_mask);
             if (scale && width > 0 && height > 0 && !pm.isNull()
                     && (pm.width() != width || pm.height() != height)) {
                 result = QPixmap::fromImage(pm.toImage().scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));

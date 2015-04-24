@@ -30,10 +30,8 @@
 namespace KXUtils
 {
 
-template <typename T> T fromNative(xcb_pixmap_t pixmap)
+template <typename T> T fromNative(xcb_pixmap_t pixmap, xcb_connection_t *c)
 {
-    xcb_connection_t *c = QX11Info::connection();
-
     const xcb_get_geometry_cookie_t geoCookie = xcb_get_geometry_unchecked(c,  pixmap);
     ScopedCPointer<xcb_get_geometry_reply_t> geo(xcb_get_geometry_reply(c, geoCookie, Q_NULLPTR));
     if (geo.isNull()) {
@@ -95,8 +93,11 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap)
 // Create QPixmap from X pixmap. Take care of different depths if needed.
 QPixmap createPixmapFromHandle(WId pixmap, WId pixmap_mask)
 {
-    xcb_connection_t *c = QX11Info::connection();
+    return createPixmapFromHandle(QX11Info::connection(), pixmap, pixmap_mask);
+}
 
+QPixmap createPixmapFromHandle(xcb_connection_t *c, WId pixmap, WId pixmap_mask)
+{
 #if Q_BYTE_ORDER == Q_BIG_ENDIAN
     qDebug() << "Byte order not supported";
     return QPixmap();
@@ -107,9 +108,9 @@ QPixmap createPixmapFromHandle(WId pixmap, WId pixmap_mask)
         return QPixmap();
     }
 
-    QPixmap pix = fromNative<QPixmap>(pixmap);
+    QPixmap pix = fromNative<QPixmap>(pixmap, c);
     if (pixmap_mask != XCB_PIXMAP_NONE) {
-        QBitmap mask = fromNative<QBitmap>(pixmap_mask);
+        QBitmap mask = fromNative<QBitmap>(pixmap_mask, c);
         if (mask.size() != pix.size()) {
             return QPixmap();
         }

@@ -30,6 +30,8 @@
 
 #include <kwindowsystem_export.h>
 
+struct xcb_connection_t;
+
 /**
  * Namespace with various generic X11-related functionality.
  */
@@ -50,6 +52,7 @@ public:
  * @since 4.0.2
  */
 QPixmap createPixmapFromHandle(WId pixmap, WId mask = 0);
+QPixmap createPixmapFromHandle(xcb_connection_t *c, WId pixmap, WId mask = 0);
 
 /**
  * Compares two X timestamps, taking into account wrapping and 64bit architectures.
