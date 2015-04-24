@@ -1009,6 +1009,13 @@ public:
     const NETWinInfo &operator=(const NETWinInfo &wintinfo);
 
     /**
+       Returns the xcb connection used.
+
+       @return the XCB connection
+    **/
+    xcb_connection_t *xcbConnection() const;
+
+    /**
        Returns true if the window has any window type set, even if the type
        itself is not known to this implementation. Presence of a window type
        as specified by the NETWM spec is considered as the window supporting

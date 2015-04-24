@@ -4988,6 +4988,11 @@ std::vector< NETRect > NETWinInfo::opaqueRegion() const
     return p->opaqueRegion;
 }
 
+xcb_connection_t *NETWinInfo::xcbConnection() const
+{
+    return p->conn;
+}
+
 void NETRootInfo::virtual_hook(int, void *)
 {
     /*BASE::virtual_hook( id, data );*/
