@@ -38,6 +38,7 @@ class KWindowInfoX11Test : public QObject
 {
     Q_OBJECT
 private Q_SLOTS:
+    void initTestCase();
     void init();
     void cleanup();
 
@@ -70,6 +71,11 @@ private:
 
     QScopedPointer<QWidget> window;
 };
+
+void KWindowInfoX11Test::initTestCase()
+{
+    QCoreApplication::setAttribute(Qt::AA_ForceRasterWidgets);
+}
 
 bool KWindowInfoX11Test::waitForWindow(QSignalSpy& spy, WId winId, NET::Property property) const
 {

@@ -33,6 +33,7 @@ class KWindowSystemX11Test : public QObject
 {
     Q_OBJECT
 private Q_SLOTS:
+    void initTestCase();
     // needs to be first test, would fail if run after others (X11)
     void testActiveWindowChanged();
     void testWindowAdded();
@@ -46,6 +47,11 @@ private Q_SLOTS:
     void testWindowTitleChanged();
     void testMinimizeWindow();
 };
+
+void KWindowSystemX11Test::initTestCase()
+{
+    QCoreApplication::setAttribute(Qt::AA_ForceRasterWidgets);
+}
 
 void KWindowSystemX11Test::testActiveWindowChanged()
 {
