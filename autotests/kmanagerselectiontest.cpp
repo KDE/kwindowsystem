@@ -111,9 +111,12 @@ void KManagerSelectionTest::testWatching()
     KSelectionOwner owner1(SNAME);
     KSelectionOwner owner2(SNAME);
     SigCheckWatcher sw(watcher);
-    claim(&owner1);
     QSignalSpy newOwnerSpy(&watcher, SIGNAL(newOwner(xcb_window_t)));
-    QVERIFY(newOwnerSpy.wait());
+    QVERIFY(newOwnerSpy.isValid());
+    claim(&owner1);
+    if (newOwnerSpy.isEmpty()) {
+        QVERIFY(newOwnerSpy.wait());
+    }
     QCOMPARE(newOwnerSpy.count(), 1);
     QVERIFY(sw.newowner == true);
     QVERIFY(sw.lostowner == false);
