@@ -67,6 +67,9 @@ bool KWindowEffectsPrivateX11::isEffectAvailable(Effect effect)
         // TODO: Better namespacing for atoms
         effectName = QByteArrayLiteral("_WM_EFFECT_KDE_DASHBOARD");
         break;
+    case BackgroundContrast:
+        effectName = QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_CONTRAST_REGION");
+        break;
     default:
         return false;
     }
