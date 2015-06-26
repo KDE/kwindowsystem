@@ -702,8 +702,8 @@ void KWindowInfoX11Test::testExtendedStrut()
 void KWindowInfoX11Test::testGeometry()
 {
     KWindowInfo info(window->winId(), NET::WMGeometry | NET::WMFrameExtents);
-    QCOMPARE(info.geometry(), window->geometry());
-    QCOMPARE(info.frameGeometry(), window->frameGeometry());
+    QCOMPARE(info.geometry().size(), window->geometry().size());
+    QCOMPARE(info.frameGeometry().size(), window->frameGeometry().size());
 
     QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowChanged(WId,unsigned int)));
 
