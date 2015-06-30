@@ -18,18 +18,16 @@
  *   License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "kwindowsystem.h"
-#include "kwindowsystem_p.h"
+#include "kwindowsystem_dummy_p.h"
+#include "kwindowsystemplugininterface_p.h"
+#include "pluginwrapper_p.h"
 
 #include <config-kwindowsystem.h>
-
-#if KWINDOWSYSTEM_HAVE_X11
-#include "kwindowsystem_p_x11.h"
-#endif
-#include "platforms/wayland/kwindowsystem_p_wayland.h"
 
 #include <QGuiApplication>
 #include <QMetaMethod>
 #include <QPixmap>
+#include <QPluginLoader>
 #include <QWidget>
 #include <QWindow>
 
@@ -37,28 +35,39 @@ class KWindowSystemStaticContainer
 {
 public:
     KWindowSystemStaticContainer() {
-#if KWINDOWSYSTEM_HAVE_X11
-        if (d.isNull() && (QGuiApplication::platformName() == QStringLiteral("xcb"))) {
-            d.reset(new KWindowSystemPrivateX11());
-        }
-#endif
-        if (d.isNull() && (QGuiApplication::platformName().startsWith(QLatin1String("wayland")))) {
-            d.reset(new KWindowSystemPrivateWayland());
-        }
-        if (d.isNull()) {
-            d.reset(new KWindowSystemPrivateDummy());
-        }
+        d.reset(KWindowSystemPluginWrapper::self().createWindowSystem());
 
         kwm.moveToThread(QCoreApplication::instance()->thread());
     }
+    KWindowSystemPrivate *xcbPlugin() {
+        if (xcbPrivate.isNull()) {
+            QPluginLoader loader(QStringLiteral(XCB_PLUGIN_PATH));
+            QScopedPointer<KWindowSystemPluginInterface> xcbPlugin(qobject_cast< KWindowSystemPluginInterface* >(loader.instance()));
+            if (!xcbPlugin.isNull()) {
+                xcbPrivate.reset(xcbPlugin->createWindowSystem());
+            }
+        }
+        return xcbPrivate.data();
+    }
     KWindowSystem kwm;
     QScopedPointer<KWindowSystemPrivate> d;
+    QScopedPointer<KWindowSystemPrivate> xcbPrivate;
 };
 
 Q_GLOBAL_STATIC(KWindowSystemStaticContainer, g_kwmInstanceContainer)
 
 KWindowSystemPrivate::~KWindowSystemPrivate()
 {
+}
+
+QPixmap KWindowSystemPrivate::iconFromNetWinInfo(int width, int height, bool scale, int flags, NETWinInfo *info)
+{
+    Q_UNUSED(width)
+    Q_UNUSED(height)
+    Q_UNUSED(scale)
+    Q_UNUSED(flags)
+    Q_UNUSED(info)
+    return QPixmap();
 }
 
 QList<WId> KWindowSystemPrivateDummy::windows()
@@ -480,7 +489,15 @@ QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int flag
     Q_D(KWindowSystem);
 #if KWINDOWSYSTEM_HAVE_X11
     if (info) {
-        return KWindowSystemPrivateX11::icon(width, height, scale, flags, info);
+        if (QGuiApplication::platformName().compare(QLatin1String("xcb"), Qt::CaseInsensitive) == 0) {
+            // this is the xcb plugin, we can just delegate
+            return d->iconFromNetWinInfo(width, height, scale, flags, info);
+        } else {
+            // other platform plugin, load xcb plugin to delegate to it
+            if (KWindowSystemPrivate *p = g_kwmInstanceContainer()->xcbPlugin()) {
+                return p->iconFromNetWinInfo(width, height, scale, flags, info);
+            }
+        }
     }
 #else
     Q_UNUSED(info)

@@ -18,7 +18,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "kwindoweffects_p.h"
+#include "kwindoweffects_dummy_p.h"
 
 KWindowEffectsPrivateDummy::KWindowEffectsPrivateDummy()
 {

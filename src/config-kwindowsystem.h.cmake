@@ -9,3 +9,5 @@
 /* Define to 1 if you have the Xrender library */
 #cmakedefine01 KWINDOWSYSTEM_HAVE_XRENDER
 
+/* Path to xcb plugin */
+#define XCB_PLUGIN_PATH "${CMAKE_INSTALL_PREFIX}/${PLUGIN_INSTALL_DIR}/org.kde.kwindowsystem.platforms/KF5WindowSystemX11Plugin.so"

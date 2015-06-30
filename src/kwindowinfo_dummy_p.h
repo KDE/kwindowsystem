@@ -17,18 +17,19 @@
  *   You should have received a copy of the GNU Lesser General Public
  *   License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef KWINDOWINFO_P_X11_H
-#define KWINDOWINFO_P_X11_H
+#ifndef KWINDOWINFO_DUMMY_P_H
+#define KWINDOWINFO_DUMMY_P_H
 #include "kwindowinfo_p.h"
-#include <QScopedPointer>
 
-class NETWinInfo;
-
-class KWindowInfoPrivateX11 : public KWindowInfoPrivate
+/**
+ * Dummy implementation for KWindowInfoPrivate. This is used as a fallback if there is no
+ * implementation for the currently used windowing system platform.
+ */
+class KWindowInfoPrivateDummy : public KWindowInfoPrivate
 {
 public:
-    KWindowInfoPrivateX11(WId window, NET::Properties properties, NET::Properties2 properties2);
-    ~KWindowInfoPrivateX11();
+    KWindowInfoPrivateDummy(WId window, NET::Properties properties, NET::Properties2 properties2);
+    ~KWindowInfoPrivateDummy();
 
     bool valid(bool withdrawn_is_valid) const Q_DECL_OVERRIDE;
     NET::States state() const Q_DECL_OVERRIDE;
@@ -55,14 +56,6 @@ public:
     QByteArray windowRole() const Q_DECL_OVERRIDE;
     QByteArray clientMachine() const Q_DECL_OVERRIDE;
     bool actionSupported(NET::Action action) const Q_DECL_OVERRIDE;
-
-private:
-    QScopedPointer<NETWinInfo> m_info;
-    QString m_name;
-    QString m_iconic_name;
-    QRect m_geometry;
-    QRect m_frame_geometry;
-    bool m_valid;
 };
 
 #endif

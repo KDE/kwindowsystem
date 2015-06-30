@@ -652,10 +652,10 @@ WId KWindowSystemPrivateX11::groupLeader(WId win)
 QPixmap KWindowSystemPrivateX11::icon(WId win, int width, int height, bool scale, int flags)
 {
     NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMIcon, NET::WM2WindowClass | NET::WM2IconPixmap);
-    return icon(width, height, scale, flags, &info);
+    return iconFromNetWinInfo(width, height, scale, flags, &info);
 }
 
-QPixmap KWindowSystemPrivateX11::icon(int width, int height, bool scale, int flags, NETWinInfo *info)
+QPixmap KWindowSystemPrivateX11::iconFromNetWinInfo(int width, int height, bool scale, int flags, NETWinInfo *info)
 {
     QPixmap result;
     if (!info) {

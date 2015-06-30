@@ -20,9 +20,8 @@
 #ifndef KWINDOWEFFECTS_P_H
 #define KWINDOWEFFECTS_P_H
 #include "kwindoweffects.h"
-#include <config-kwindowsystem.h>
 
-class KWindowEffectsPrivate
+class KWINDOWSYSTEM_EXPORT KWindowEffectsPrivate
 {
 public:
     virtual ~KWindowEffectsPrivate();
@@ -39,41 +38,5 @@ public:
 protected:
     KWindowEffectsPrivate();
 };
-
-class KWindowEffectsPrivateDummy : public KWindowEffectsPrivate
-{
-public:
-    KWindowEffectsPrivateDummy();
-    virtual ~KWindowEffectsPrivateDummy();
-    bool isEffectAvailable(KWindowEffects::Effect effect) Q_DECL_OVERRIDE;
-    void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) Q_DECL_OVERRIDE;
-    void slideWindow(QWidget* widget, KWindowEffects::SlideFromLocation location) Q_DECL_OVERRIDE;
-    QList< QSize > windowSizes(const QList<WId> &ids) Q_DECL_OVERRIDE;
-    void presentWindows(WId controller, const QList<WId> &ids) Q_DECL_OVERRIDE;
-    void presentWindows(WId controller, int desktop = NET::OnAllDesktops) Q_DECL_OVERRIDE;
-    void highlightWindows(WId controller, const QList<WId> &ids) Q_DECL_OVERRIDE;
-    void enableBlurBehind(WId window, bool enable = true, const QRegion& region = QRegion()) Q_DECL_OVERRIDE;
-    void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion()) Q_DECL_OVERRIDE;
-    void markAsDashboard(WId window) Q_DECL_OVERRIDE;
-};
-
-#if KWINDOWSYSTEM_HAVE_X11
-class KWindowEffectsPrivateX11 : public KWindowEffectsPrivate
-{
-public:
-    KWindowEffectsPrivateX11();
-    virtual ~KWindowEffectsPrivateX11();
-    bool isEffectAvailable(KWindowEffects::Effect effect) Q_DECL_OVERRIDE;
-    void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) Q_DECL_OVERRIDE;
-    void slideWindow(QWidget* widget, KWindowEffects::SlideFromLocation location) Q_DECL_OVERRIDE;
-    QList< QSize > windowSizes(const QList<WId> &ids) Q_DECL_OVERRIDE;
-    void presentWindows(WId controller, const QList<WId> &ids) Q_DECL_OVERRIDE;
-    void presentWindows(WId controller, int desktop = NET::OnAllDesktops) Q_DECL_OVERRIDE;
-    void highlightWindows(WId controller, const QList<WId> &ids) Q_DECL_OVERRIDE;
-    void enableBlurBehind(WId window, bool enable = true, const QRegion& region = QRegion()) Q_DECL_OVERRIDE;
-    void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion()) Q_DECL_OVERRIDE;
-    void markAsDashboard(WId window) Q_DECL_OVERRIDE;
-};
-#endif
 
 #endif

@@ -17,17 +17,12 @@
  *   You should have received a copy of the GNU Lesser General Public
  *   License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef KWINDOWSYSTEM_P_X11_H
-#define KWINDOWSYSTEM_P_X11_H
+#ifndef KWINDOWSYSTEM_DUMMY_P_H
+#define KWINDOWSYSTEM_DUMMY_P_H
 
 #include "kwindowsystem_p.h"
-#include "netwm.h"
 
-#include <QAbstractNativeEventFilter>
-
-class NETEventFilter;
-
-class KWindowSystemPrivateX11 : public KWindowSystemPrivate
+class KWindowSystemPrivateDummy : public KWindowSystemPrivate
 {
 public:
     QList<WId> windows() Q_DECL_OVERRIDE;
@@ -48,7 +43,6 @@ public:
     WId groupLeader(WId window) Q_DECL_OVERRIDE;
 #endif
     QPixmap icon(WId win, int width, int height, bool scale, int flags) Q_DECL_OVERRIDE;
-    QPixmap iconFromNetWinInfo(int width, int height, bool scale, int flags, NETWinInfo *info) Q_DECL_OVERRIDE;
     void setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon) Q_DECL_OVERRIDE;
     void setType(WId win, NET::WindowType windowType) Q_DECL_OVERRIDE;
     void setState(WId win, NET::States state) Q_DECL_OVERRIDE;
@@ -80,70 +74,6 @@ public:
     QPoint constrainViewportRelativePosition(const QPoint &pos) Q_DECL_OVERRIDE;
 
     void connectNotify(const QMetaMethod &signal) Q_DECL_OVERRIDE;
-
-    enum FilterInfo {
-        INFO_BASIC = 1,  // desktop info, not per-window
-        INFO_WINDOWS = 2 // also per-window info
-    };
-
-private:
-    void init(FilterInfo info);
-    NETEventFilter *s_d_func() {
-        return d.data();
-    }
-    QScopedPointer<NETEventFilter> d;
-};
-
-class MainThreadInstantiator : public QObject
-{
-    Q_OBJECT
-
-public:
-    MainThreadInstantiator(KWindowSystemPrivateX11::FilterInfo _what);
-    Q_INVOKABLE NETEventFilter *createNETEventFilter();
-
-private:
-    KWindowSystemPrivateX11::FilterInfo m_what;
-};
-
-class NETEventFilter
-    : public NETRootInfo, public QAbstractNativeEventFilter
-{
-public:
-    NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what);
-    ~NETEventFilter();
-    void activate();
-    QList<WId> windows;
-    QList<WId> stackingOrder;
-
-    struct StrutData {
-        StrutData(WId window_, const NETStrut &strut_, int desktop_)
-            : window(window_), strut(strut_), desktop(desktop_) {}
-        WId window;
-        NETStrut strut;
-        int desktop;
-    };
-    QList<StrutData> strutWindows;
-    QList<WId> possibleStrutWindows;
-    bool strutSignalConnected;
-    bool compositingEnabled;
-    bool haveXfixes;
-    KWindowSystemPrivateX11::FilterInfo what;
-    int xfixesEventBase;
-    bool mapViewport();
-
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long int *result) Q_DECL_OVERRIDE;
-
-    void updateStackingOrder();
-    bool removeStrutWindow(WId);
-
-protected:
-    void addClient(xcb_window_t) Q_DECL_OVERRIDE;
-    void removeClient(xcb_window_t) Q_DECL_OVERRIDE;
-
-private:
-    bool nativeEventFilter(xcb_generic_event_t *event);
-    xcb_window_t winId;
 };
 
 #endif

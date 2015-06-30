@@ -18,29 +18,8 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "kwindoweffects_p.h"
+#include "pluginwrapper_p.h"
 #include <QGuiApplication>
-
-class KWindowEffectsPrivateContainer
-{
-public:
-    KWindowEffectsPrivateContainer();
-    QScopedPointer<KWindowEffectsPrivate> d;
-};
-
-KWindowEffectsPrivateContainer::KWindowEffectsPrivateContainer()
-    : d()
-{
-#if KWINDOWSYSTEM_HAVE_X11
-    if (d.isNull() && QGuiApplication::platformName() == QStringLiteral("xcb")) {
-        d.reset(new KWindowEffectsPrivateX11());
-    }
-#endif
-    if (d.isNull()) {
-        d.reset(new KWindowEffectsPrivateDummy());
-    }
-}
-
-Q_GLOBAL_STATIC(KWindowEffectsPrivateContainer, g_privateContainer)
 
 KWindowEffectsPrivate::KWindowEffectsPrivate()
 {
@@ -55,52 +34,52 @@ namespace KWindowEffects
 
 bool isEffectAvailable(Effect effect)
 {
-    return g_privateContainer->d->isEffectAvailable(effect);
+    return KWindowSystemPluginWrapper::self().effects()->isEffectAvailable(effect);
 }
 
 void enableBlurBehind(WId window, bool enable, const QRegion &region)
 {
-    g_privateContainer->d->enableBlurBehind(window, enable, region);
+    KWindowSystemPluginWrapper::self().effects()->enableBlurBehind(window, enable, region);
 }
 
 void enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
 {
-    g_privateContainer->d->enableBackgroundContrast(window, enable, contrast, intensity, saturation, region);
+    KWindowSystemPluginWrapper::self().effects()->enableBackgroundContrast(window, enable, contrast, intensity, saturation, region);
 }
 
 void highlightWindows(WId controller, const QList< WId > &ids)
 {
-    g_privateContainer->d->highlightWindows(controller, ids);
+    KWindowSystemPluginWrapper::self().effects()->highlightWindows(controller, ids);
 }
 
 void markAsDashboard(WId window)
 {
-    g_privateContainer->d->markAsDashboard(window);
+    KWindowSystemPluginWrapper::self().effects()->markAsDashboard(window);
 }
 
 void presentWindows(WId controller, const QList< WId > &ids)
 {
-    g_privateContainer->d->presentWindows(controller, ids);
+    KWindowSystemPluginWrapper::self().effects()->presentWindows(controller, ids);
 }
 
 void presentWindows(WId controller, int desktop)
 {
-    g_privateContainer->d->presentWindows(controller, desktop);
+    KWindowSystemPluginWrapper::self().effects()->presentWindows(controller, desktop);
 }
 
 void slideWindow(WId id, SlideFromLocation location, int offset)
 {
-    g_privateContainer->d->slideWindow(id, location, offset);
+    KWindowSystemPluginWrapper::self().effects()->slideWindow(id, location, offset);
 }
 
 void slideWindow(QWidget *widget, SlideFromLocation location)
 {
-    g_privateContainer->d->slideWindow(widget, location);
+    KWindowSystemPluginWrapper::self().effects()->slideWindow(widget, location);
 }
 
 QList< QSize > windowSizes(const QList< WId > &ids)
 {
-    return g_privateContainer->d->windowSizes(ids);
+    return KWindowSystemPluginWrapper::self().effects()->windowSizes(ids);
 }
 
 }

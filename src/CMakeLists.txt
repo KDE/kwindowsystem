@@ -13,6 +13,8 @@ set(kwindowsystem_SRCS
     kwindowinfo.cpp
     kwindowsystem.cpp
     platforms/wayland/kwindowsystem.cpp
+    pluginwrapper.cpp
+    kwindowsystemplugininterface.cpp
     ${kwindowsystem_QM_LOADER}
     )
 
@@ -37,9 +39,6 @@ if (KWINDOWSYSTEM_HAVE_X11)
    endif()
    set(platformLinkLibraries Qt5::X11Extras ${X11_LIBRARIES} ${X11_Xfixes_LIB} ${X11_Xrender_LIB} ${XCB_XCB_LIBRARY} ${XCB_KEYSYMS_LIBRARY})
    set(kwindowsystem_SRCS ${kwindowsystem_SRCS} platforms/xcb/kkeyserver.cpp
-                                                platforms/xcb/kwindowsystem.cpp
-                                                platforms/xcb/kwindowinfo.cpp
-                                                platforms/xcb/kwindoweffects.cpp
                                                 platforms/xcb/kxmessages.cpp
                                                 platforms/xcb/netwm.cpp )
 endif ()

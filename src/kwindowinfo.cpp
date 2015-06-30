@@ -20,14 +20,11 @@
 #include "kwindowinfo.h"
 #include "kwindowinfo_p.h"
 #include "kwindowsystem.h"
+#include "pluginwrapper_p.h"
 
 #include <config-kwindowsystem.h>
 
-#if KWINDOWSYSTEM_HAVE_X11
-#include "kwindowinfo_p_x11.h"
-#else
-typedef KWindowInfoPrivateDummy KWindowInfoPrivateX11;
-#endif
+#include "kwindowinfo_dummy_p.h"
 
 #include <QRect>
 #include <QGuiApplication>
@@ -35,23 +32,27 @@ typedef KWindowInfoPrivateDummy KWindowInfoPrivateX11;
 // private
 KWindowInfoPrivate *KWindowInfoPrivate::create(WId window, NET::Properties properties, NET::Properties2 properties2)
 {
-    KWindowInfoPrivate *d = Q_NULLPTR;
-#if KWINDOWSYSTEM_HAVE_X11
-    if (QGuiApplication::platformName() == QStringLiteral("xcb")) {
-        d = new KWindowInfoPrivateX11(window, properties, properties2);
-    }
-#endif
-    if (!d) {
-        d = new KWindowInfoPrivateDummy(window, properties, properties2);
-    }
-    return d;
+    return KWindowSystemPluginWrapper::self().createWindowInfo(window, properties, properties2);
 }
 
-KWindowInfoPrivate::KWindowInfoPrivate(PlatformImplementation platform, WId window, NET::Properties properties, NET::Properties2 properties2)
-    : m_window(window)
-    , m_properties(properties)
-    , m_properties2(properties2)
-    , m_platform(platform)
+class KWindowInfoPrivate::Private
+{
+public:
+    Private(WId window, NET::Properties properties, NET::Properties2 properties2);
+    WId window;
+    NET::Properties properties;
+    NET::Properties2 properties2;
+};
+
+KWindowInfoPrivate::Private::Private(WId window, NET::Properties properties, NET::Properties2 properties2)
+    : window(window)
+    , properties(properties)
+    , properties2(properties2)
+{
+}
+
+KWindowInfoPrivate::KWindowInfoPrivate(WId window, NET::Properties properties, NET::Properties2 properties2)
+    : d(new Private(window, properties, properties2))
 {
 }
 
@@ -59,8 +60,13 @@ KWindowInfoPrivate::~KWindowInfoPrivate()
 {
 }
 
+WId KWindowInfoPrivate::win() const
+{
+    return d->window;
+}
+
 KWindowInfoPrivateDummy::KWindowInfoPrivateDummy(WId window, NET::Properties properties, NET::Properties2 properties2)
-    : KWindowInfoPrivate(KWindowInfoPrivate::DummyPlatform, window, properties, properties2)
+    : KWindowInfoPrivate(window, properties, properties2)
 {
 }
 
@@ -221,12 +227,7 @@ KWindowInfo &KWindowInfo::operator=(const KWindowInfo &other)
 }
 
 #define DELEGATE(name, args) \
-    switch (d->platform()) { \
-    case KWindowInfoPrivate::XcbPlatform: \
-        return d->name<KWindowInfoPrivateX11>( args ); \
-    default: \
-        return d->name<KWindowInfoPrivateDummy>( args ); \
-    }
+    return d->name( args );
 
 bool KWindowInfo::valid(bool withdrawn_is_valid) const
 {
