@@ -12,22 +12,23 @@ set(kwindowsystem_SRCS
     kwindoweffects_dummy.cpp
     kwindowinfo.cpp
     kwindowsystem.cpp
-    kwindowsystem_wayland.cpp
+    platforms/wayland/kwindowsystem.cpp
     ${kwindowsystem_QM_LOADER}
     )
 
 if (KWINDOWSYSTEM_HAVE_X11)
   set(kwindowsystem_SRCS ${kwindowsystem_SRCS}
-    kselectionowner.cpp
-    kselectionwatcher.cpp
-    kxerrorhandler.cpp
-    kxutils.cpp
+    platforms/xcb/kselectionowner.cpp
+    platforms/xcb/kselectionwatcher.cpp
+    platforms/xcb/kxerrorhandler.cpp
+    platforms/xcb/kxutils.cpp
   )
 endif()
 
 set(platformLinkLibraries)
 
 if (KWINDOWSYSTEM_HAVE_X11)
+   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/platforms/xcb)
    if(NOT X11_Xrender_LIB)
       message(FATAL_ERROR "The XRender library could not be found. Please install the development package for it.")
    endif()
@@ -35,16 +36,17 @@ if (KWINDOWSYSTEM_HAVE_X11)
       message(FATAL_ERROR "The XFixes library could not be found. Please install the development package for it.")
    endif()
    set(platformLinkLibraries Qt5::X11Extras ${X11_LIBRARIES} ${X11_Xfixes_LIB} ${X11_Xrender_LIB} ${XCB_XCB_LIBRARY} ${XCB_KEYSYMS_LIBRARY})
-   set(kwindowsystem_SRCS ${kwindowsystem_SRCS} kkeyserver_x11.cpp
-                                                kwindowsystem_x11.cpp
-                                                kwindowinfo_x11.cpp
-                                                kwindoweffects_x11.cpp
-                                                kxmessages.cpp
-                                                netwm.cpp )
+   set(kwindowsystem_SRCS ${kwindowsystem_SRCS} platforms/xcb/kkeyserver.cpp
+                                                platforms/xcb/kwindowsystem.cpp
+                                                platforms/xcb/kwindowinfo.cpp
+                                                platforms/xcb/kwindoweffects.cpp
+                                                platforms/xcb/kxmessages.cpp
+                                                platforms/xcb/netwm.cpp )
 endif ()
 
 if (APPLE)
-   set(kwindowsystem_SRCS ${kwindowsystem_SRCS} kkeyserver_mac.cpp
+   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/platforms/osx)
+   set(kwindowsystem_SRCS ${kwindowsystem_SRCS} platforms/osx/kkeyserver.cpp
 #                                                 kwindowsystem_mac.cpp
 # FIXME: adjust kwindowinfo_mac to inherit from KWindowInfoPrivate
 #                                                 kwindowinfo_mac.cpp
@@ -53,7 +55,8 @@ if (APPLE)
 endif ()
 
 if (WIN32)
-   set(kwindowsystem_SRCS ${kwindowsystem_SRCS} kkeyserver_win.cpp
+   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows)
+   set(kwindowsystem_SRCS ${kwindowsystem_SRCS} platforms/windows/kkeyserver.cpp
 #                                                 kwindowsystem_win.cpp
 # FIXME: adjust kwindowinfo_win to inherit from KWindowInfoPrivate
 #                                                 kwindowinfo_win.cpp
@@ -96,15 +99,11 @@ set_target_properties(KF5WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSI
 ecm_generate_headers(KWindowSystem_HEADERS
   HEADER_NAMES
   KKeyServer
-  KSelectionOwner
-  KSelectionWatcher
   KStartupInfo
   KUserTimestamp
   KWindowEffects
   KWindowInfo
   KWindowSystem
-  KXMessages
-  NETWM # does not match the classnames in that file...
 
   REQUIRED_HEADERS KWindowSystem_HEADERS
 )
@@ -117,18 +116,10 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/kwindowsystem_export.h
   ${KWindowSystem_HEADERS}
   netwm_def.h
-  kmanagerselection.h
-  fixx11h.h
   DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem COMPONENT Devel
 )
 
-if (APPLE)
-   install( FILES kkeyserver_mac.h DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem COMPONENT Devel)
-elseif (WIN32)
-    install( FILES kkeyserver_win.h DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem COMPONENT Devel )
-else()
-   install( FILES kkeyserver_x11.h DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem COMPONENT Devel)
-endif ()
+add_subdirectory(platforms)
 
 include(ECMGeneratePriFile)
 ecm_generate_pri_file(BASE_NAME KWindowSystem LIB_NAME KF5WindowSystem DEPS "gui" FILENAME_VAR PRI_FILENAME INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem)

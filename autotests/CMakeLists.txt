@@ -32,6 +32,7 @@ endmacro()
 
 
 if(X11_FOUND)
+    include_directories(${CMAKE_SOURCE_DIR}/src/platforms/xcb)
     kwindowsystem_unit_tests(
         kmanagerselectiontest
         kstartupinfo_unittest

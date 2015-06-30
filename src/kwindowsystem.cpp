@@ -25,7 +25,7 @@
 #if KWINDOWSYSTEM_HAVE_X11
 #include "kwindowsystem_p_x11.h"
 #endif
-#include "kwindowsystem_p_wayland.h"
+#include "platforms/wayland/kwindowsystem_p_wayland.h"
 
 #include <QGuiApplication>
 #include <QMetaMethod>
