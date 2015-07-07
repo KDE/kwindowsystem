@@ -24,6 +24,7 @@
 
 #include <QByteArray>
 #include <QRect>
+#include <QScopedPointer>
 #include <QString>
 #include <QStringList>
 #include <QSharedData>
