@@ -118,6 +118,18 @@ install(FILES
   DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem COMPONENT Devel
 )
 
+install(
+    FILES
+        kwindoweffects_p.h
+        kwindowinfo_p.h
+        kwindowsystem_p.h
+        kwindowsystemplugininterface_p.h
+    DESTINATION
+        ${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem/private
+    COMPONENT
+        Devel
+)
+
 add_subdirectory(platforms)
 
 include(ECMGeneratePriFile)
