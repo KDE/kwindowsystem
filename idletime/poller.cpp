@@ -86,7 +86,7 @@ bool Poller::initWayland()
     );
 
     m_registry->setup();
-    connection->flush();
+    connection->roundtrip();
     return true;
 }
 
