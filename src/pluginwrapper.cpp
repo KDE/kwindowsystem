@@ -58,7 +58,7 @@ static KWindowSystemPluginInterface *loadPlugin()
         QJsonObject metaData = loader.metaData();
         const QJsonArray platforms = metaData.value(QStringLiteral("MetaData")).toObject().value(QStringLiteral("platforms")).toArray();
         for (auto it = platforms.begin(); it != platforms.end(); ++it) {
-            if (QString::compare(QGuiApplication::platformName(), it->toString(), Qt::CaseInsensitive) == 0) {
+            if (QString::compare(QGuiApplication::platformName(), (*it).toString(), Qt::CaseInsensitive) == 0) {
                 KWindowSystemPluginInterface *interface = qobject_cast< KWindowSystemPluginInterface* >(loader.instance());
                 if (interface) {
                     qDebug() << "Loaded plugin" << candidate << "for platform" << QGuiApplication::platformName();
