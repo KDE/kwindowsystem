@@ -22,6 +22,7 @@
 #include "kwindowsystemplugininterface_p.h"
 #include "kwindoweffects_dummy_p.h"
 #include "kwindowsystem_dummy_p.h"
+#include "debug_p.h"
 
 #include <QDebug>
 #include <QDir>
@@ -61,7 +62,7 @@ static KWindowSystemPluginInterface *loadPlugin()
             if (QString::compare(QGuiApplication::platformName(), (*it).toString(), Qt::CaseInsensitive) == 0) {
                 KWindowSystemPluginInterface *interface = qobject_cast< KWindowSystemPluginInterface* >(loader.instance());
                 if (interface) {
-                    qDebug() << "Loaded plugin" << candidate << "for platform" << QGuiApplication::platformName();
+                    qCDebug(LOG_KWINDOWSYSTEM) << "Loaded plugin" << candidate << "for platform" << QGuiApplication::platformName();
                     return interface;
                 }
             }

@@ -15,6 +15,7 @@ set(kwindowsystem_SRCS
     platforms/wayland/kwindowsystem.cpp
     pluginwrapper.cpp
     kwindowsystemplugininterface.cpp
+    debug_p.cpp
     ${kwindowsystem_QM_LOADER}
     )
 
