@@ -19,5 +19,6 @@
 
 #include "debug_p.h"
 
-Q_LOGGING_CATEGORY(LOG_KWINDOWSYSTEM, "org.kde.kwindowsystem")
+// logging category for this framework, default: log stuff >= warning
+Q_LOGGING_CATEGORY(LOG_KWINDOWSYSTEM, "org.kde.kwindowsystem", QtWarningMsg)
 
