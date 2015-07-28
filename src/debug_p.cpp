@@ -19,6 +19,9 @@
 
 #include "debug_p.h"
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
 // logging category for this framework, default: log stuff >= warning
 Q_LOGGING_CATEGORY(LOG_KWINDOWSYSTEM, "org.kde.kwindowsystem", QtWarningMsg)
-
+#else
+Q_LOGGING_CATEGORY(LOG_KWINDOWSYSTEM, "org.kde.kwindowsystem")
+#endif
