@@ -335,7 +335,7 @@ static QByteArray get_string_reply(xcb_connection_t *c,
 
     if (reply->type == type && reply->format == 8 && reply->value_len > 0) {
         const char *data = (const char *) xcb_get_property_value(reply);
-        int len = xcb_get_property_value_length(reply);
+        int len = reply->value_len;
 
         if (data) {
             value = QByteArray(data, data[len - 1] ? len : len - 1);
@@ -551,10 +551,18 @@ static void readIcon(xcb_connection_t *c, const xcb_get_property_cookie_t cookie
 
     uint32_t *data = (uint32_t *) xcb_get_property_value(reply);
 
-    for (unsigned int i = 0, j = 0; j < reply->value_len; i++) {
+    for (unsigned int i = 0, j = 0; j < reply->value_len - 2; i++) {
         uint32_t width  = data[j++];
         uint32_t height = data[j++];
         uint32_t size   = width * height * sizeof(uint32_t);
+        if (j + width * height > reply->value_len) {
+            fprintf(stderr, "Ill-encoded icon data; proposed size leads to out of bounds access. Skipping. (%d x %d)\n", width, height);
+            break;
+        }
+        if (width > 1024 || height > 1024) {
+            fprintf(stderr, "Warning: found huge icon. The icon data may be ill-encoded. (%d x %d)\n", width, height);
+            // do not break nor continue - the data may likely be junk, but causes no harm (yet) and might actually be just a huge icon, eg. when the icon system is abused to transfer wallpapers or such.
+        }
 
         icons[i].size.width  = width;
         icons[i].size.height = height;
@@ -4708,7 +4716,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         const QVector<qint32> values = get_array_reply<qint32>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
         p->opaqueRegion.clear();
         p->opaqueRegion.reserve(values.count() / 4);
-        for (int i = 0; i < values.count(); i += 4) {
+        for (int i = 0; i < values.count() - 3; i += 4) {
             NETRect rect;
             rect.pos.x = values.at(i);
             rect.pos.y = values.at(i + 1);
