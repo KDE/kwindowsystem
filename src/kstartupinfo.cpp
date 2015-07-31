@@ -36,6 +36,7 @@ DEALINGS IN THE SOFTWARE.
 
 #include "kstartupinfo.h"
 #include "netwm_def.h"
+#include "debug_p.h"
 
 #include <QWidget>
 #include <QDateTime>
@@ -232,7 +233,7 @@ void KStartupInfo::Private::got_message(const QString &msg_P)
 {
 #if KWINDOWSYSTEM_HAVE_X11
 // TODO do something with SCREEN= ?
-    //qDebug() << "got:" << msg_P;
+    //qCDebug(LOG_KWINDOWSYSTEM) << "got:" << msg_P;
     QString msg = msg_P.trimmed();
     if (msg.startsWith(QLatin1String("new:"))) { // must match length below
         got_startup_info(msg.mid(4), false);
@@ -294,7 +295,7 @@ void KStartupInfo::Private::window_added(WId w_P)
     startup_t ret = check_startup_internal(w_P, &id, &data);
     switch (ret) {
     case Match:
-        //qDebug() << "new window match";
+        //qCDebug(LOG_KWINDOWSYSTEM) << "new window match";
         break;
     case NoMatch:
         break; // nothing
@@ -326,7 +327,7 @@ void KStartupInfo::Private::new_startup_info_internal(const KStartupInfoId &id_P
         // already reported, update
         startups[ id_P ].update(data_P);
         startups[ id_P ].age = 0; // CHECKME
-        //qDebug() << "updating";
+        //qCDebug(LOG_KWINDOWSYSTEM) << "updating";
         if (startups[ id_P ].silent() == KStartupInfo::Data::Yes
                 && !(flags & AnnounceSilenceChanges)) {
             silent_startups[ id_P ] = startups[ id_P ];
@@ -341,7 +342,7 @@ void KStartupInfo::Private::new_startup_info_internal(const KStartupInfoId &id_P
         // already reported, update
         silent_startups[ id_P ].update(data_P);
         silent_startups[ id_P ].age = 0; // CHECKME
-        //qDebug() << "updating silenced";
+        //qCDebug(LOG_KWINDOWSYSTEM) << "updating silenced";
         if (silent_startups[ id_P ].silent() != Data::Yes) {
             startups[ id_P ] = silent_startups[ id_P ];
             silent_startups.remove(id_P);
@@ -353,7 +354,7 @@ void KStartupInfo::Private::new_startup_info_internal(const KStartupInfoId &id_P
     }
     if (uninited_startups.contains(id_P)) {
         uninited_startups[ id_P ].update(data_P);
-        //qDebug() << "updating uninited";
+        //qCDebug(LOG_KWINDOWSYSTEM) << "updating uninited";
         if (!update_P) { // uninited finally got new:
             startups[ id_P ] = uninited_startups[ id_P ];
             uninited_startups.remove(id_P);
@@ -364,14 +365,14 @@ void KStartupInfo::Private::new_startup_info_internal(const KStartupInfoId &id_P
         return;
     }
     if (update_P) { // change: without any new: first
-        //qDebug() << "adding uninited";
+        //qCDebug(LOG_KWINDOWSYSTEM) << "adding uninited";
         uninited_startups.insert(id_P, data_P);
     } else if (data_P.silent() != Data::Yes || flags & AnnounceSilenceChanges) {
-        //qDebug() << "adding";
+        //qCDebug(LOG_KWINDOWSYSTEM) << "adding";
         startups.insert(id_P, data_P);
         emit q->gotNewStartup(id_P, data_P);
     } else { // new silenced, and silent shouldn't be announced
-        //qDebug() << "adding silent";
+        //qCDebug(LOG_KWINDOWSYSTEM) << "adding silent";
         silent_startups.insert(id_P, data_P);
     }
     cleanup->start(1000);   // 1 sec
@@ -396,7 +397,7 @@ void KStartupInfo::Private::removeAllStartupInfoInternal(const KStartupInfoId &i
 {
     auto it = startups.find(id_P);
     if (it != startups.end()) {
-        //qDebug() << "removing";
+        //qCDebug(LOG_KWINDOWSYSTEM) << "removing";
         emit q->gotRemoveStartup(it.key(), it.value());
         startups.erase(it);
         return;
@@ -471,7 +472,7 @@ bool KStartupInfo::sendStartup(const KStartupInfoId &id_P, const KStartupInfoDat
     QString msg = QString::fromLatin1("new: %1 %2")
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
     msg = Private::check_required_startup_fields(msg, data_P, QX11Info::appScreen());
-    //qDebug() << "sending " << msg;
+    //qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
     msgs.broadcastMessage(NET_STARTUP_MSG, msg);
 #else
     Q_UNUSED(data_P)
@@ -490,7 +491,7 @@ bool KStartupInfo::sendStartupX(Display *disp_P, const KStartupInfoId &id_P,
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
     msg = Private::check_required_startup_fields(msg, data_P, DefaultScreen(disp_P));
 #ifdef KSTARTUPINFO_ALL_DEBUG
-    qDebug() << "sending " << msg;
+    qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
     return KXMessages::broadcastMessageX(disp_P, NET_STARTUP_MSG, msg);
 #else
@@ -527,7 +528,7 @@ bool KStartupInfo::sendChange(const KStartupInfoId &id_P, const KStartupInfoData
     KXMessages msgs;
     QString msg = QString::fromLatin1("change: %1 %2")
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
-    //qDebug() << "sending " << msg;
+    //qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
     msgs.broadcastMessage(NET_STARTUP_MSG, msg);
 #else
     Q_UNUSED(data_P)
@@ -545,7 +546,7 @@ bool KStartupInfo::sendChangeX(Display *disp_P, const KStartupInfoId &id_P,
     QString msg = QString::fromLatin1("change: %1 %2")
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
-    qDebug() << "sending " << msg;
+    qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
     return KXMessages::broadcastMessageX(disp_P, NET_STARTUP_MSG, msg);
 #else
@@ -563,7 +564,7 @@ bool KStartupInfo::sendFinish(const KStartupInfoId &id_P)
 #if KWINDOWSYSTEM_HAVE_X11
     KXMessages msgs;
     QString msg = QString::fromLatin1("remove: %1").arg(id_P.d->to_text());
-    //qDebug() << "sending " << msg;
+    //qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
     msgs.broadcastMessage(NET_STARTUP_MSG, msg);
 #endif
     return true;
@@ -577,7 +578,7 @@ bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P)
 #if KWINDOWSYSTEM_HAVE_X11
     QString msg = QString::fromLatin1("remove: %1").arg(id_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
-    qDebug() << "sending " << msg;
+    qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
     return KXMessages::broadcastMessageX(disp_P, NET_STARTUP_MSG, msg);
 #else
@@ -594,7 +595,7 @@ bool KStartupInfo::sendFinish(const KStartupInfoId &id_P, const KStartupInfoData
     KXMessages msgs;
     QString msg = QString::fromLatin1("remove: %1 %2")
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
-    //qDebug() << "sending " << msg;
+    //qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
     msgs.broadcastMessage(NET_STARTUP_MSG, msg);
 #else
     Q_UNUSED(id_P)
@@ -612,7 +613,7 @@ bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P,
     QString msg = QString::fromLatin1("remove: %1 %2")
                   .arg(id_P.d->to_text()).arg(data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
-    qDebug() << "sending " << msg;
+    qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
     return KXMessages::broadcastMessageX(disp_P, NET_STARTUP_MSG, msg);
 #else
@@ -761,18 +762,18 @@ KStartupInfo::startup_t KStartupInfo::Private::check_startup_internal(WId w_P, K
     //  - No - Is this a NET_WM compliant app ?
     //           - Yes - test for pid match
     //           - No - test for WM_CLASS match
-    qDebug() << "check_startup";
+    qCDebug(LOG_KWINDOWSYSTEM) << "check_startup";
     QByteArray id = windowStartupId(w_P);
     if (!id.isNull()) {
         if (id.isEmpty() || id == "0") { // means ignore this window
-            qDebug() << "ignore";
+            qCDebug(LOG_KWINDOWSYSTEM) << "ignore";
             return NoMatch;
         }
         return find_id(id, id_O, data_O) ? Match : NoMatch;
     }
 #if KWINDOWSYSTEM_HAVE_X11
     if (!QX11Info::isPlatformX11()) {
-        qDebug() << "check_startup:cantdetect";
+        qCDebug(LOG_KWINDOWSYSTEM) << "check_startup:cantdetect";
         return CantDetect;
     }
     NETWinInfo info(QX11Info::connection(),  w_P, QX11Info::appRootWindow(),
@@ -809,14 +810,14 @@ KStartupInfo::startup_t KStartupInfo::Private::check_startup_internal(WId w_P, K
         return NoMatch;
     }
 #endif
-    qDebug() << "check_startup:cantdetect";
+    qCDebug(LOG_KWINDOWSYSTEM) << "check_startup:cantdetect";
     return CantDetect;
 }
 
 bool KStartupInfo::Private::find_id(const QByteArray &id_P, KStartupInfoId *id_O,
                                     KStartupInfoData *data_O)
 {
-    //qDebug() << "find_id:" << id_P;
+    //qCDebug(LOG_KWINDOWSYSTEM) << "find_id:" << id_P;
     KStartupInfoId id;
     id.initId(id_P);
     if (startups.contains(id)) {
@@ -826,7 +827,7 @@ bool KStartupInfo::Private::find_id(const QByteArray &id_P, KStartupInfoId *id_O
         if (data_O != NULL) {
             *data_O = startups[ id ];
         }
-        //qDebug() << "check_startup_id:match";
+        //qCDebug(LOG_KWINDOWSYSTEM) << "check_startup_id:match";
         return true;
     }
     return false;
@@ -835,7 +836,7 @@ bool KStartupInfo::Private::find_id(const QByteArray &id_P, KStartupInfoId *id_O
 bool KStartupInfo::Private::find_pid(pid_t pid_P, const QByteArray &hostname_P,
                                      KStartupInfoId *id_O, KStartupInfoData *data_O)
 {
-    //qDebug() << "find_pid:" << pid_P;
+    //qCDebug(LOG_KWINDOWSYSTEM) << "find_pid:" << pid_P;
     for (QMap< KStartupInfoId, KStartupInfo::Data >::Iterator it = startups.begin();
             it != startups.end();
             ++it) {
@@ -849,7 +850,7 @@ bool KStartupInfo::Private::find_pid(pid_t pid_P, const QByteArray &hostname_P,
             }
             // non-compliant, remove on first match
             removeStartupInfoInternal(it);
-            //qDebug() << "check_startup_pid:match";
+            //qCDebug(LOG_KWINDOWSYSTEM) << "check_startup_pid:match";
             return true;
         }
     }
@@ -861,7 +862,7 @@ bool KStartupInfo::Private::find_wclass(const QByteArray &_res_name, const QByte
 {
     QByteArray res_name = _res_name.toLower();
     QByteArray res_class = _res_class.toLower();
-    //qDebug() << "find_wclass:" << res_name << ":" << res_class;
+    //qCDebug(LOG_KWINDOWSYSTEM) << "find_wclass:" << res_name << ":" << res_class;
     for (QMap< KStartupInfoId, Data >::Iterator it = startups.begin();
             it != startups.end();
             ++it) {
@@ -876,7 +877,7 @@ bool KStartupInfo::Private::find_wclass(const QByteArray &_res_name, const QByte
             }
             // non-compliant, remove on first match
             removeStartupInfoInternal(it);
-            //qDebug() << "check_startup_wclass:match";
+            //qCDebug(LOG_KWINDOWSYSTEM) << "check_startup_wclass:match";
             return true;
         }
     }
@@ -1019,7 +1020,7 @@ QByteArray KStartupInfo::createNewStartupIdForTimestamp(quint32 timestamp)
     }
     QByteArray id = QString::fromLatin1("%1;%2;%3;%4_TIME%5").arg(hostname).arg(tm.tv_sec)
                     .arg(tm.tv_usec).arg(getpid()).arg(timestamp).toUtf8();
-    //qDebug() << "creating: " << id << ":" << (qApp ? qAppName() : QString("unnamed app") /* e.g. kdeinit */);
+    //qCDebug(LOG_KWINDOWSYSTEM) << "creating: " << id << ":" << (qApp ? qAppName() : QString("unnamed app") /* e.g. kdeinit */);
     return id;
 }
 
@@ -1051,7 +1052,7 @@ void KStartupInfoId::initId(const QByteArray &id_P)
     if (!id_P.isEmpty()) {
         d->id = id_P;
 #ifdef KSTARTUPINFO_ALL_DEBUG
-        qDebug() << "using: " << d->id;
+        qCDebug(LOG_KWINDOWSYSTEM) << "using: " << d->id;
 #endif
         return;
     }
@@ -1060,7 +1061,7 @@ void KStartupInfoId::initId(const QByteArray &id_P)
         // already has id
         d->id = startup_env;
 #ifdef KSTARTUPINFO_ALL_DEBUG
-        qDebug() << "reusing: " << d->id;
+        qCDebug(LOG_KWINDOWSYSTEM) << "reusing: " << d->id;
 #endif
         return;
     }

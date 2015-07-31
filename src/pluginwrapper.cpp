@@ -68,7 +68,7 @@ static KWindowSystemPluginInterface *loadPlugin()
             }
         }
     }
-    qWarning() << "Could not find any platform plugin";
+    qCWarning(LOG_KWINDOWSYSTEM) << "Could not find any platform plugin";
     return Q_NULLPTR;
 }
 
