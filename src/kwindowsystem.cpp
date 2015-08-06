@@ -31,6 +31,13 @@
 #include <QWidget>
 #include <QWindow>
 
+//QPoint and QSize all have handy / operators which are useful for scaling, positions and sizes for high DPI support
+//QRect does not, so we create one for internal purposes within this class
+inline QRect operator/(const QRect &rectangle, qreal factor)
+{
+    return QRect(rectangle.topLeft() / factor, rectangle.size() / factor);
+}
+
 class KWindowSystemStaticContainer
 {
 public:
@@ -487,6 +494,8 @@ QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int flag
 QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int flags, NETWinInfo *info)
 {
     Q_D(KWindowSystem);
+    width *= qApp->devicePixelRatio();
+    height *= qApp->devicePixelRatio();
 #if KWINDOWSYSTEM_HAVE_X11
     if (info) {
         if (QGuiApplication::platformName().compare(QLatin1String("xcb"), Qt::CaseInsensitive) == 0) {
@@ -578,13 +587,13 @@ bool KWindowSystem::compositingActive()
 QRect KWindowSystem::workArea(int desktop)
 {
     Q_D(KWindowSystem);
-    return d->workArea(desktop);
+    return d->workArea(desktop) / qApp->devicePixelRatio();
 }
 
 QRect KWindowSystem::workArea(const QList<WId> &exclude, int desktop)
 {
     Q_D(KWindowSystem);
-    return d->workArea(exclude, desktop);
+    return d->workArea(exclude, desktop) / qApp->devicePixelRatio();
 }
 
 QString KWindowSystem::desktopName(int desktop)
@@ -622,15 +631,17 @@ void KWindowSystem::setExtendedStrut(WId win, int left_width, int left_start, in
                                      int bottom_width, int bottom_start, int bottom_end)
 {
     Q_D(KWindowSystem);
-    d->setExtendedStrut(win, left_width, left_start, left_end,
-                        right_width, right_start, right_end, top_width, top_start, top_end,
-                        bottom_width, bottom_start, bottom_end);
+    const qreal dpr = qApp->devicePixelRatio();
+    d->setExtendedStrut(win, left_width * dpr, left_start * dpr, left_end * dpr,
+                        right_width * dpr, right_start * dpr, right_end * dpr, top_width * dpr, top_start * dpr, top_end * dpr,
+                        bottom_width * dpr, bottom_start * dpr, bottom_end * dpr);
 }
 
 void KWindowSystem::setStrut(WId win, int left, int right, int top, int bottom)
 {
     Q_D(KWindowSystem);
-    d->setStrut(win, left, right, top, bottom);
+    const qreal dpr = qApp->devicePixelRatio();
+    d->setStrut(win, left * dpr, right * dpr, top * dpr, bottom * dpr);
 }
 
 bool KWindowSystem::icccmCompliantMappingState()
@@ -672,13 +683,13 @@ bool KWindowSystem::mapViewport()
 int KWindowSystem::viewportToDesktop(const QPoint &p)
 {
     Q_D(KWindowSystem);
-    return d->viewportToDesktop(p);
+    return d->viewportToDesktop(p / qApp->devicePixelRatio());
 }
 
 int KWindowSystem::viewportWindowToDesktop(const QRect &r)
 {
     Q_D(KWindowSystem);
-    return d->viewportWindowToDesktop(r);
+    return d->viewportWindowToDesktop(r / qApp->devicePixelRatio());
 }
 
 QPoint KWindowSystem::desktopToViewport(int desktop, bool absolute)
@@ -690,5 +701,5 @@ QPoint KWindowSystem::desktopToViewport(int desktop, bool absolute)
 QPoint KWindowSystem::constrainViewportRelativePosition(const QPoint &pos)
 {
     Q_D(KWindowSystem);
-    return d->constrainViewportRelativePosition(pos);
+    return d->constrainViewportRelativePosition(pos / qApp->devicePixelRatio());
 }
