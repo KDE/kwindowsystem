@@ -1,6 +1,7 @@
 set(wayland_plugin_SRCS
     logging.cpp
     plugin.cpp
+    windoweffects.cpp
     windowsystem.cpp
 )
 

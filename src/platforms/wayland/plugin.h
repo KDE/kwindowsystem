@@ -32,6 +32,7 @@ public:
     explicit KWaylandPlugin(QObject *parent = 0);
     virtual ~KWaylandPlugin();
 
+    KWindowEffectsPrivate *createEffects() override;
     KWindowSystemPrivate *createWindowSystem() override;
 };
 

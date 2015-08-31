@@ -19,6 +19,7 @@
  */
 #include "plugin.h"
 #include "windowsystem.h"
+#include "windoweffects.h"
 
 KWaylandPlugin::KWaylandPlugin(QObject *parent)
     : KWindowSystemPluginInterface(parent)
@@ -27,6 +28,11 @@ KWaylandPlugin::KWaylandPlugin(QObject *parent)
 
 KWaylandPlugin::~KWaylandPlugin()
 {
+}
+
+KWindowEffectsPrivate *KWaylandPlugin::createEffects()
+{
+    return new WindowEffects();
 }
 
 KWindowSystemPrivate *KWaylandPlugin::createWindowSystem()
