@@ -28,6 +28,7 @@ namespace KWayland
     namespace Client
     {
         class BlurManager;
+        class ContrastManager;
         class Compositor;
         class ConnectionThread;
     }
@@ -53,6 +54,7 @@ public:
 private:
     KWayland::Client::ConnectionThread *m_waylandConnection;
     KWayland::Client::BlurManager *m_waylandBlurManager;
+    KWayland::Client::ContrastManager *m_waylandContrastManager;
     KWayland::Client::Compositor *m_waylandCompositor;
 };
 

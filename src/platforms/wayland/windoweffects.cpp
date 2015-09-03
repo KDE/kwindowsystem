@@ -26,6 +26,7 @@
 #include <KWayland/Client/compositor.h>
 #include <KWayland/Client/surface.h>
 #include <KWayland/Client/blur.h>
+#include <KWayland/Client/contrast.h>
 #include <KWayland/Client/region.h>
 
 WindowEffects::WindowEffects()
@@ -67,6 +68,18 @@ void WindowEffects::setupKWaylandIntegration()
             );
         }
     );
+    connect(registry, &Registry::contrastAnnounced, this,
+        [this, registry] (quint32 name, quint32 version) {
+            m_waylandContrastManager = registry->createContrastManager(name, version, this);
+
+            connect(m_waylandContrastManager, &ContrastManager::removed, this,
+                [this] () {
+                    m_waylandContrastManager->deleteLater();
+                    m_waylandContrastManager = nullptr;
+                }
+            );
+        }
+    );
 
     registry->setup();
     m_waylandConnection->roundtrip();
@@ -75,9 +88,8 @@ void WindowEffects::setupKWaylandIntegration()
 bool WindowEffects::isEffectAvailable(KWindowEffects::Effect effect)
 {
     switch (effect) {
-    //TODO: implement BackgroundContrast, using blur instead for now
     case KWindowEffects::BackgroundContrast:
-        return m_waylandBlurManager != nullptr;
+        return m_waylandContrastManager != nullptr;
     case KWindowEffects::BlurBehind:
         return m_waylandBlurManager != nullptr;
     default:
@@ -145,12 +157,25 @@ void WindowEffects::enableBlurBehind(WId window, bool enable, const QRegion &reg
 
 void WindowEffects::enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
 {
-    Q_UNUSED(window)
-    Q_UNUSED(enable)
-    Q_UNUSED(contrast)
-    Q_UNUSED(intensity)
-    Q_UNUSED(saturation)
-    Q_UNUSED(region)
+    if (!m_waylandContrastManager) {
+        return;
+    }
+    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromQtWinId(window);
+    if (surface) {
+        if (enable) {
+            auto backgroundContrast = m_waylandContrastManager->createContrast(surface, surface);
+            backgroundContrast->setRegion(m_waylandCompositor->createRegion(region, nullptr));
+            backgroundContrast->setContrast(contrast);
+            backgroundContrast->setIntensity(intensity);
+            backgroundContrast->setSaturation(saturation);
+            backgroundContrast->commit();
+        } else {
+            m_waylandContrastManager->removeContrast(surface);
+        }
+        surface->commit(KWayland::Client::Surface::CommitFlag::None);
+
+        m_waylandConnection->flush();
+    }
 }
 
 void WindowEffects::markAsDashboard(WId window)
