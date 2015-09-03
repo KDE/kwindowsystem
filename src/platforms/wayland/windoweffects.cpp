@@ -51,11 +51,7 @@ void WindowEffects::setupKWaylandIntegration()
     }
     Registry *registry = new Registry(this);
     registry->create(m_waylandConnection);
-    connect(registry, &Registry::compositorAnnounced, this,
-        [this, registry] (quint32 name, quint32 version) {
-            m_waylandCompositor = registry->createCompositor(name, version, this);
-        }
-    );
+    m_waylandCompositor = Compositor::fromApplication(this);
     connect(registry, &Registry::blurAnnounced, this,
         [this, registry] (quint32 name, quint32 version) {
             m_waylandBlurManager = registry->createBlurManager(name, version, this);
