@@ -48,8 +48,9 @@ if (NOT APPLE)
 endif()
 
 set(KWINDOWSYSTEM_HAVE_X11 ${X11_FOUND})
-find_package(XCB COMPONENTS XCB KEYSYMS)
+
 if(X11_FOUND)
+    find_package(XCB COMPONENTS XCB KEYSYMS)
     find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED X11Extras)
     set_package_properties(X11_Xrender PROPERTIES DESCRIPTION "X Rendering Extension (libXrender)"
                            URL "http://www.x.org" TYPE RECOMMENDED
