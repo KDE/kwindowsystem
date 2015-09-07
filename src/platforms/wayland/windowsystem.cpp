@@ -18,6 +18,7 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "windowsystem.h"
+#include "waylandintegration.h"
 #include "logging.h"
 
 #include <KWindowSystem/KWindowSystem>
@@ -25,6 +26,8 @@
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/plasmawindowmanagement.h>
 #include <KWayland/Client/registry.h>
+#include <KWayland/Client/plasmashell.h>
+#include <KWayland/Client/surface.h>
 
 #include <QPixmap>
 #include <QPoint>
@@ -38,66 +41,14 @@ WindowSystem::WindowSystem()
 {
 }
 
-void WindowSystem::setupKWaylandIntegration()
-{
-    ConnectionThread *connection = ConnectionThread::fromApplication(this);
-    if (!connection) {
-        qCWarning(KWAYLAND_KWS) << "Failed getting Wayland connection from QPA";
-        return;
-    }
-    Registry *registry = new Registry(this);
-    registry->create(connection);
-    connect(registry, &Registry::interfacesAnnounced, this,
-        [this] {
-            if (!m_wm) {
-                qCWarning(KWAYLAND_KWS) << "This compositor does not support the Plasma Window Management interface";
-            }
-        }
-    );
-    connect(registry, &Registry::plasmaWindowManagementAnnounced, this,
-        [this, registry] (quint32 name, quint32 version) {
-            m_wm = registry->createPlasmaWindowManagement(name, version, this);
-            connect(m_wm, &PlasmaWindowManagement::windowCreated, this,
-                [this] (PlasmaWindow *w) {
-                    emit KWindowSystem::self()->windowAdded(w->internalId());
-                    emit KWindowSystem::self()->stackingOrderChanged();
-                    connect(w, &PlasmaWindow::unmapped, this,
-                        [w] {
-                            emit KWindowSystem::self()->windowRemoved(w->internalId());
-                            emit KWindowSystem::self()->stackingOrderChanged();
-                        }
-                    );
-                }
-            );
-            connect(m_wm, &PlasmaWindowManagement::activeWindowChanged, this,
-                [this] {
-                    if (PlasmaWindow *w = m_wm->activeWindow()) {
-                        emit KWindowSystem::self()->activeWindowChanged(w->internalId());
-                    } else {
-                        emit KWindowSystem::self()->activeWindowChanged(0);
-                    }
-                }
-            );
-            connect(m_wm, &PlasmaWindowManagement::showingDesktopChanged, KWindowSystem::self(), &KWindowSystem::showingDesktopChanged);
-            emit KWindowSystem::self()->compositingChanged(true);
-            emit KWindowSystem::self()->showingDesktopChanged(m_wm->isShowingDesktop());
-            emit KWindowSystem::self()->stackingOrderChanged();
-            if (PlasmaWindow *w = m_wm->activeWindow()) {
-                emit KWindowSystem::self()->activeWindowChanged(w->internalId());
-            }
-            qCDebug(KWAYLAND_KWS) << "Plasma Window Management interface bound";
-        }
-    );
-
-    registry->setup();
-}
-
 KWayland::Client::PlasmaWindow *WindowSystem::window(WId wid) const
 {
-    if (!m_wm) {
+    if (!WaylandIntegration::self()->plasmaWindowManagement()) {
+        qCWarning(KWAYLAND_KWS) << "This compositor does not support the Plasma Window Management interface";
         return nullptr;
     }
-    const auto &windows = m_wm->windows();
+
+    const auto &windows = WaylandIntegration::self()->plasmaWindowManagement()->windows();
     auto it = std::find_if(windows.begin(), windows.end(), [wid] (PlasmaWindow *w) { return w->internalId() == wid; } );
     if (it != windows.end()) {
         return *it;
@@ -123,8 +74,9 @@ void WindowSystem::forceActiveWindow(WId win, long int time)
 
 WId WindowSystem::activeWindow()
 {
-    if (m_wm && m_wm->activeWindow()) {
-        return m_wm->activeWindow()->internalId();
+    KWayland::Client::PlasmaWindowManagement *wm = WaylandIntegration::self()->plasmaWindowManagement();
+    if (wm && wm->activeWindow()) {
+        return wm->activeWindow()->internalId();
     }
     return 0;
 }
@@ -330,9 +282,11 @@ void WindowSystem::setOnDesktop(WId win, int desktop)
 
 void WindowSystem::setShowingDesktop(bool showing)
 {
-    if (m_wm) {
-        m_wm->setShowingDesktop(showing);
+    if (!WaylandIntegration::self()->plasmaWindowManagement()) {
+        qCWarning(KWAYLAND_KWS) << "This compositor does not support the Plasma Window Management interface";
+        return;
     }
+    WaylandIntegration::self()->plasmaWindowManagement()->setShowingDesktop(showing);
 }
 
 void WindowSystem::clearState(WId win, NET::States state)
@@ -351,9 +305,34 @@ void WindowSystem::setState(WId win, NET::States state)
 
 void WindowSystem::setType(WId win, NET::WindowType windowType)
 {
-    Q_UNUSED(win)
-    Q_UNUSED(windowType)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support changing window types";
+    if (!WaylandIntegration::self()->waylandPlasmaShell()) {
+        return;
+    }
+    KWayland::Client::PlasmaShellSurface::Role role;
+
+    switch (windowType) {
+    case NET::Normal:
+        role = KWayland::Client::PlasmaShellSurface::Role::Normal;
+        break;
+    case NET::Desktop:
+        role = KWayland::Client::PlasmaShellSurface::Role::Desktop;
+        break;
+    case NET::Dock:
+        role = KWayland::Client::PlasmaShellSurface::Role::Panel;
+        break;
+    case NET::OnScreenDisplay:
+        role = KWayland::Client::PlasmaShellSurface::Role::OnScreenDisplay;
+        break;
+    default:
+        return;
+    }
+    Surface *s = Surface::fromQtWinId(win);
+    if (!s) {
+        return;
+    }
+    KWayland::Client::PlasmaShellSurface *shellSurface = WaylandIntegration::self()->waylandPlasmaShell()->createSurface(s, this);
+
+    shellSurface->setRole(role);
 }
 
 void WindowSystem::setUserTime(WId win, long int time)
@@ -365,23 +344,26 @@ void WindowSystem::setUserTime(WId win, long int time)
 
 bool WindowSystem::showingDesktop()
 {
-    if (m_wm) {
-        return m_wm->isShowingDesktop();
+    if (!WaylandIntegration::self()->plasmaWindowManagement()) {
+        qCWarning(KWAYLAND_KWS) << "This compositor does not support the Plasma Window Management interface";
+        return false;
     }
-    return false;
+    return WaylandIntegration::self()->plasmaWindowManagement()->isShowingDesktop();
 }
 
 QList< WId > WindowSystem::stackingOrder()
 {
-    if (m_wm) {
-        const auto &windows = m_wm->windows();
-        QList<WId> ret;
-        for (auto w : windows) {
-            ret << w->internalId();
-        }
-        return ret;
+    if (!WaylandIntegration::self()->plasmaWindowManagement()) {
+        qCWarning(KWAYLAND_KWS) << "This compositor does not support the Plasma Window Management interface";
+        return QList<WId>();
     }
-    return QList<WId>();
+
+    const auto &windows = WaylandIntegration::self()->plasmaWindowManagement()->windows();
+    QList<WId> ret;
+    for (auto w : windows) {
+        ret << w->internalId();
+    }
+    return ret;
 }
 
 WId WindowSystem::transientFor(WId window)

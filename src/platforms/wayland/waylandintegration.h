@@ -18,8 +18,8 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef WINDOWEFFECTS_H
-#define WINDOWEFFECTS_H
+#ifndef WAYLANDINTEGRATION_H
+#define WAYLANDINTEGRATION_H
 #include <KWindowSystem/private/kwindoweffects_p.h>
 
 
@@ -31,25 +31,36 @@ namespace KWayland
         class ContrastManager;
         class Compositor;
         class ConnectionThread;
+        class PlasmaWindowManagement;
+        class PlasmaShell;
+        class Registry;
     }
 }
 
-class WindowEffects : public QObject, public KWindowEffectsPrivate
+class WaylandIntegration : public QObject
 {
 public:
-    explicit WindowEffects();
-    ~WindowEffects();
+    explicit WaylandIntegration();
+    ~WaylandIntegration();
+    void setupKWaylandIntegration();
 
-    bool isEffectAvailable(KWindowEffects::Effect effect) override;
-    void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) override;
-    void slideWindow(QWidget *widget, KWindowEffects::SlideFromLocation location) override;
-    QList<QSize> windowSizes(const QList<WId> &ids) override;
-    void presentWindows(WId controller, const QList<WId> &ids) override;
-    void presentWindows(WId controller, int desktop = NET::OnAllDesktops) override;
-    void highlightWindows(WId controller, const QList<WId> &ids) override;
-    void enableBlurBehind(WId window, bool enable = true, const QRegion &region = QRegion()) override;
-    void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion()) override;
-    void markAsDashboard(WId window) override;
+    static WaylandIntegration *self();
+
+    KWayland::Client::ConnectionThread *waylandConnection() const;
+    KWayland::Client::BlurManager *waylandBlurManager();
+    KWayland::Client::ContrastManager *waylandContrastManager();
+    KWayland::Client::Compositor *waylandCompositor() const;
+    KWayland::Client::PlasmaWindowManagement *plasmaWindowManagement();
+    KWayland::Client::PlasmaShell *waylandPlasmaShell();
+
+private:
+    KWayland::Client::ConnectionThread *m_waylandConnection;
+    KWayland::Client::BlurManager *m_waylandBlurManager;
+    KWayland::Client::ContrastManager *m_waylandContrastManager;
+    KWayland::Client::Compositor *m_waylandCompositor;
+    KWayland::Client::PlasmaWindowManagement *m_wm = nullptr;
+    KWayland::Client::PlasmaShell *m_waylandPlasmaShell = nullptr;
+    KWayland::Client::Registry *m_registry = nullptr;
 };
 
 #endif
