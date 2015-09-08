@@ -44,7 +44,6 @@ WindowSystem::WindowSystem()
 KWayland::Client::PlasmaWindow *WindowSystem::window(WId wid) const
 {
     if (!WaylandIntegration::self()->plasmaWindowManagement()) {
-        qCWarning(KWAYLAND_KWS) << "This compositor does not support the Plasma Window Management interface";
         return nullptr;
     }
 
@@ -283,7 +282,6 @@ void WindowSystem::setOnDesktop(WId win, int desktop)
 void WindowSystem::setShowingDesktop(bool showing)
 {
     if (!WaylandIntegration::self()->plasmaWindowManagement()) {
-        qCWarning(KWAYLAND_KWS) << "This compositor does not support the Plasma Window Management interface";
         return;
     }
     WaylandIntegration::self()->plasmaWindowManagement()->setShowingDesktop(showing);
@@ -345,7 +343,6 @@ void WindowSystem::setUserTime(WId win, long int time)
 bool WindowSystem::showingDesktop()
 {
     if (!WaylandIntegration::self()->plasmaWindowManagement()) {
-        qCWarning(KWAYLAND_KWS) << "This compositor does not support the Plasma Window Management interface";
         return false;
     }
     return WaylandIntegration::self()->plasmaWindowManagement()->isShowingDesktop();
@@ -354,7 +351,6 @@ bool WindowSystem::showingDesktop()
 QList< WId > WindowSystem::stackingOrder()
 {
     if (!WaylandIntegration::self()->plasmaWindowManagement()) {
-        qCWarning(KWAYLAND_KWS) << "This compositor does not support the Plasma Window Management interface";
         return QList<WId>();
     }
 

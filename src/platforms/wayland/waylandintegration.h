@@ -54,10 +54,10 @@ public:
     KWayland::Client::PlasmaShell *waylandPlasmaShell();
 
 private:
-    KWayland::Client::ConnectionThread *m_waylandConnection;
-    KWayland::Client::BlurManager *m_waylandBlurManager;
-    KWayland::Client::ContrastManager *m_waylandContrastManager;
-    KWayland::Client::Compositor *m_waylandCompositor;
+    KWayland::Client::ConnectionThread *m_waylandConnection = nullptr;
+    KWayland::Client::BlurManager *m_waylandBlurManager = nullptr;
+    KWayland::Client::ContrastManager *m_waylandContrastManager = nullptr;
+    KWayland::Client::Compositor *m_waylandCompositor = nullptr;
     KWayland::Client::PlasmaWindowManagement *m_wm = nullptr;
     KWayland::Client::PlasmaShell *m_waylandPlasmaShell = nullptr;
     KWayland::Client::Registry *m_registry = nullptr;

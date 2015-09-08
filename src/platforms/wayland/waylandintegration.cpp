@@ -42,10 +42,7 @@ public:
 Q_GLOBAL_STATIC(WaylandIntegrationSingleton, privateWaylandIntegrationSelf)
 
 WaylandIntegration::WaylandIntegration()
-    : QObject(),
-      m_waylandConnection(nullptr),
-      m_waylandBlurManager(nullptr),
-      m_waylandCompositor(nullptr)
+    : QObject()
 {
     setupKWaylandIntegration();
 }
@@ -84,6 +81,11 @@ KWayland::Client::BlurManager *WaylandIntegration::waylandBlurManager()
 {
     if (!m_waylandBlurManager) {
         const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Blur);
+
+        if (wmInterface.name == 0) {
+            return nullptr;
+        }
+
         m_waylandBlurManager = m_registry->createBlurManager(wmInterface.name, wmInterface.version, this);
 
         connect(m_waylandBlurManager, &KWayland::Client::BlurManager::removed, this,
@@ -101,6 +103,11 @@ KWayland::Client::ContrastManager *WaylandIntegration::waylandContrastManager()
 {
     if (!m_waylandContrastManager) {
         const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Contrast);
+
+        if (wmInterface.name == 0) {
+            return nullptr;
+        }
+
         m_waylandContrastManager = m_registry->createContrastManager(wmInterface.name, wmInterface.version, this);
 
         connect(m_waylandContrastManager, &KWayland::Client::ContrastManager::removed, this,
@@ -125,6 +132,12 @@ KWayland::Client::PlasmaWindowManagement *WaylandIntegration::plasmaWindowManage
 
     if (!m_wm) {
         const Registry::AnnouncedInterface wmInterface = m_registry->interface(Registry::Interface::PlasmaWindowManagement);
+
+        if (wmInterface.name == 0) {
+            qCWarning(KWAYLAND_KWS) << "This compositor does not support the Plasma Window Management interface";
+            return nullptr;
+        }
+
         m_wm = m_registry->createPlasmaWindowManagement(wmInterface.name, wmInterface.version, this);
         connect(m_wm, &PlasmaWindowManagement::windowCreated, this,
             [this] (PlasmaWindow *w) {
@@ -150,7 +163,7 @@ KWayland::Client::PlasmaWindowManagement *WaylandIntegration::plasmaWindowManage
         connect(m_wm, &PlasmaWindowManagement::showingDesktopChanged, KWindowSystem::self(), &KWindowSystem::showingDesktopChanged);
         qCDebug(KWAYLAND_KWS) << "Plasma Window Management interface bound";
     }
-    
+
     return m_wm;
 }
 
@@ -158,6 +171,11 @@ KWayland::Client::PlasmaShell *WaylandIntegration::waylandPlasmaShell()
 {
     if (!m_waylandPlasmaShell) {
         const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::PlasmaShell);
+
+        if (wmInterface.name == 0) {
+            return nullptr;
+        }
+
         m_waylandPlasmaShell = m_registry->createPlasmaShell(wmInterface.name, wmInterface.version, this);
     }
     return m_waylandPlasmaShell;
