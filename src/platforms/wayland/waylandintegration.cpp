@@ -30,6 +30,7 @@
 #include <KWayland/Client/blur.h>
 #include <KWayland/Client/contrast.h>
 #include <KWayland/Client/region.h>
+#include <KWayland/Client/slide.h>
 
 #include <KWindowSystem/KWindowSystem>
 
@@ -119,6 +120,28 @@ KWayland::Client::ContrastManager *WaylandIntegration::waylandContrastManager()
     }
 
     return m_waylandContrastManager;
+}
+
+KWayland::Client::SlideManager *WaylandIntegration::waylandSlideManager()
+{
+    if (!m_waylandSlideManager) {
+        const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Slide);
+
+        if (wmInterface.name == 0) {
+            return nullptr;
+        }
+
+        m_waylandSlideManager = m_registry->createSlideManager(wmInterface.name, wmInterface.version, this);
+
+        connect(m_waylandSlideManager, &KWayland::Client::SlideManager::removed, this,
+            [this] () {
+                m_waylandSlideManager->deleteLater();
+                m_waylandSlideManager = nullptr;
+            }
+        );
+    }
+
+    return m_waylandSlideManager;
 }
 
 KWayland::Client::Compositor *WaylandIntegration::waylandCompositor() const

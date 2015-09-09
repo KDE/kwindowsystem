@@ -33,6 +33,7 @@
 #include <KWayland/Client/blur.h>
 #include <KWayland/Client/contrast.h>
 #include <KWayland/Client/region.h>
+#include <KWayland/Client/slide.h>
 
 WindowEffects::WindowEffects()
     : QObject(),
@@ -57,15 +58,46 @@ bool WindowEffects::isEffectAvailable(KWindowEffects::Effect effect)
 
 void WindowEffects::slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset)
 {
-    Q_UNUSED(id)
-    Q_UNUSED(location)
-    Q_UNUSED(offset)
+    if (!WaylandIntegration::self()->waylandSlideManager()) {
+        return;
+    }
+    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromQtWinId(id);
+    if (surface) {
+        if (location != KWindowEffects::SlideFromLocation::NoEdge) {
+            auto slide = WaylandIntegration::self()->waylandSlideManager()->createSlide(surface, surface);
+
+            KWayland::Client::Slide::Location convertedLoc;
+            switch (location) {
+            case KWindowEffects::SlideFromLocation::TopEdge:
+                convertedLoc = KWayland::Client::Slide::Location::Top;
+                break;
+            case KWindowEffects::SlideFromLocation::LeftEdge:
+                convertedLoc = KWayland::Client::Slide::Location::Left;
+                break;
+            case KWindowEffects::SlideFromLocation::RightEdge:
+                convertedLoc = KWayland::Client::Slide::Location::Right;
+                break;
+            case KWindowEffects::SlideFromLocation::BottomEdge:
+            default:
+                convertedLoc = KWayland::Client::Slide::Location::Bottom;
+                break;
+            }
+
+            slide->setLocation(convertedLoc);
+            slide->setOffset(offset);
+            slide->commit();
+        } else {
+            WaylandIntegration::self()->waylandSlideManager()->removeSlide(surface);
+        }
+        surface->commit(KWayland::Client::Surface::CommitFlag::None);
+
+        WaylandIntegration::self()->waylandConnection()->flush();
+    }
 }
 
 void WindowEffects::slideWindow(QWidget *widget, KWindowEffects::SlideFromLocation location)
 {
-    Q_UNUSED(widget)
-    Q_UNUSED(location)
+    slideWindow(widget->winId(), location, 0);
 }
 
 QList<QSize> WindowEffects::windowSizes(const QList<WId> &ids)

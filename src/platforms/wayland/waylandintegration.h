@@ -34,6 +34,7 @@ namespace KWayland
         class PlasmaWindowManagement;
         class PlasmaShell;
         class Registry;
+        class SlideManager;
     }
 }
 
@@ -49,6 +50,7 @@ public:
     KWayland::Client::ConnectionThread *waylandConnection() const;
     KWayland::Client::BlurManager *waylandBlurManager();
     KWayland::Client::ContrastManager *waylandContrastManager();
+    KWayland::Client::SlideManager *waylandSlideManager();
     KWayland::Client::Compositor *waylandCompositor() const;
     KWayland::Client::PlasmaWindowManagement *plasmaWindowManagement();
     KWayland::Client::PlasmaShell *waylandPlasmaShell();
@@ -57,6 +59,7 @@ private:
     KWayland::Client::ConnectionThread *m_waylandConnection = nullptr;
     KWayland::Client::BlurManager *m_waylandBlurManager = nullptr;
     KWayland::Client::ContrastManager *m_waylandContrastManager = nullptr;
+    KWayland::Client::SlideManager *m_waylandSlideManager = nullptr;
     KWayland::Client::Compositor *m_waylandCompositor = nullptr;
     KWayland::Client::PlasmaWindowManagement *m_wm = nullptr;
     KWayland::Client::PlasmaShell *m_waylandPlasmaShell = nullptr;
