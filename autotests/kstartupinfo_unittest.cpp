@@ -164,8 +164,16 @@ void KStartupInfo_UnitTest::dontCrashCleanup()
     // let's do a roundtrip to the X server
     doSync();
 
-    QTest::qWait(2100);
-    QTEST(spy.count(), "countRemoveStartup");
+    QFETCH(int, countRemoveStartup);
+    int waitTime = 0;
+    while (waitTime <= 5000) {
+        QTest::qWait(200);
+        waitTime += 200;
+        if (spy.count() == countRemoveStartup) {
+            break;
+        }
+    }
+    QCOMPARE(spy.count(), countRemoveStartup);
 }
 
 void KStartupInfo_UnitTest::checkCleanOnCantDetectTest()
