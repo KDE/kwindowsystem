@@ -92,6 +92,9 @@ void KStartupInfo_UnitTest::testStart()
     const QString bin = "dir with space/kstartupinfo_unittest";
     data.setBin(bin);
 
+    QSignalSpy removedSpy(&m_listener, SIGNAL(gotRemoveStartup(KStartupInfoId,KStartupInfoData)));
+    QVERIFY(removedSpy.isValid());
+
     KStartupInfo::sendStartup(id, data);
     KStartupInfo::sendFinish(id, data);
 
@@ -106,6 +109,13 @@ void KStartupInfo_UnitTest::testStart()
     QCOMPARE(m_receivedData.icon(), iconPath);
     QCOMPARE(m_receivedData.bin(), bin);
     //qDebug() << m_receivedData.bin() << m_receivedData.name() << m_receivedData.description() << m_receivedData.icon() << m_receivedData.pids() << m_receivedData.hostname() << m_receivedData.applicationId();
+
+    int waitTime = 0;
+    while (waitTime < 5000 && removedSpy.count() < 1) {
+        QTest::qWait(200);
+        waitTime += 200;
+    }
+    QCOMPARE(removedSpy.count(), 1);
 }
 
 static void doSync()
@@ -165,7 +175,8 @@ void KStartupInfo_UnitTest::dontCrashCleanup()
     doSync();
 
     QFETCH(int, countRemoveStartup);
-    int waitTime = 0;
+    int waitTime = 1900;
+    QTest::qWait(1900);
     while (waitTime <= 5000) {
         QTest::qWait(200);
         waitTime += 200;
