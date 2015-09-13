@@ -36,7 +36,7 @@ KWINDOWSYSTEM_EXPORT unsigned long userTimestamp();
  * Consult focus stealing prevention section in kdebase/kwin/README.
  */
 KWINDOWSYSTEM_EXPORT void updateUserTimestamp(unsigned long time = 0);
-};
+}
 
 #endif
 
