@@ -22,6 +22,8 @@
 #if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
 // logging category for this framework, default: log stuff >= warning
 Q_LOGGING_CATEGORY(LOG_KWINDOWSYSTEM, "org.kde.kwindowsystem", QtWarningMsg)
+Q_LOGGING_CATEGORY(LOG_KKEYSERVER_X11, "org.kde.kwindowsystem.keyserver.x11", QtWarningMsg)
 #else
 Q_LOGGING_CATEGORY(LOG_KWINDOWSYSTEM, "org.kde.kwindowsystem")
+Q_LOGGING_CATEGORY(LOG_KKEYSERVER_X11, "org.kde.kwindowsystem.keyserver.x11")
 #endif

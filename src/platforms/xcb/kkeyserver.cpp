@@ -22,6 +22,7 @@
 
 #include "kkeyserver_x11.h"
 
+#include "../../debug_p.h"
 #include <QDebug>
 
 #include <QX11Info>
@@ -453,8 +454,8 @@ inline void checkDisplay()
 {
     // Some non-GUI apps might try to use us.
     if (!QX11Info::display()) {
-        qCritical() << "QX11Info::display() returns 0.  I'm probably going to crash now." << endl;
-        qCritical() << "If this is a KApplication initialized without GUI stuff, change it to be "
+        qCCritical(LOG_KKEYSERVER_X11) << "QX11Info::display() returns 0.  I'm probably going to crash now." << endl;
+        qCCritical(LOG_KKEYSERVER_X11) << "If this is a KApplication initialized without GUI stuff, change it to be "
                     "initialized with GUI stuff." << endl;
     }
 }
@@ -481,7 +482,7 @@ bool initializeMods()
     g_hyper_mask = 0;
 
     if (!QX11Info::isPlatformX11()) {
-        qWarning() << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
+        qCWarning(LOG_KKEYSERVER_X11) << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
         return false;
     }
 
@@ -530,19 +531,19 @@ bool initializeMods()
     }
 
 #ifdef KKEYSERVER_DEBUG
-    qDebug() << "Alt:" << g_alt_mask;
-    qDebug() << "Meta:" << g_meta_mask;
-    qDebug() << "Super:" << g_super_mask;
-    qDebug() << "Hyper:" << g_hyper_mask;
-    qDebug() << "NumLock:" << g_modXNumLock;
-    qDebug() << "ScrollLock:" << g_modXScrollLock;
-    qDebug() << "ModeSwitch:" << g_modXModeSwitch;
+    qCDebug(LOG_KKEYSERVER_X11) << "Alt:" << g_alt_mask;
+    qCDebug(LOG_KKEYSERVER_X11) << "Meta:" << g_meta_mask;
+    qCDebug(LOG_KKEYSERVER_X11) << "Super:" << g_super_mask;
+    qCDebug(LOG_KKEYSERVER_X11) << "Hyper:" << g_hyper_mask;
+    qCDebug(LOG_KKEYSERVER_X11) << "NumLock:" << g_modXNumLock;
+    qCDebug(LOG_KKEYSERVER_X11) << "ScrollLock:" << g_modXScrollLock;
+    qCDebug(LOG_KKEYSERVER_X11) << "ModeSwitch:" << g_modXModeSwitch;
 #endif
 
     // Check if hyper overlaps with super or meta or alt
     if (g_hyper_mask & (g_super_mask | g_meta_mask | g_alt_mask)) {
 #ifdef KKEYSERVER_DEBUG
-        qDebug() << "Hyper conflicts with super, meta or alt.";
+        qCDebug(LOG_KKEYSERVER_X11) << "Hyper conflicts with super, meta or alt.";
 #endif
         // Remove the conflicting masks
         g_hyper_mask &= ~(g_super_mask | g_meta_mask | g_alt_mask);
@@ -551,7 +552,7 @@ bool initializeMods()
     // Check if super overlaps with meta or alt
     if (g_super_mask & (g_meta_mask | g_alt_mask)) {
 #ifdef KKEYSERVER_DEBUG
-        qDebug() << "Super conflicts with meta or alt.";
+        qCDebug(LOG_KKEYSERVER_X11) << "Super conflicts with meta or alt.";
 #endif
         // Remove the conflicting masks
         g_super_mask &= ~(g_meta_mask | g_alt_mask);
@@ -560,7 +561,7 @@ bool initializeMods()
     // Check if meta overlaps with alt
     if (g_meta_mask | g_alt_mask) {
 #ifdef KKEYSERVER_DEBUG
-        qDebug() << "Meta conflicts with alt.";
+        qCDebug(LOG_KKEYSERVER_X11) << "Meta conflicts with alt.";
 #endif
         // Remove the conflicting masks
         g_meta_mask &= ~(g_alt_mask);
@@ -568,17 +569,17 @@ bool initializeMods()
 
     if (!g_meta_mask) {
 #ifdef KKEYSERVER_DEBUG
-        qDebug() << "Meta is not set or conflicted with alt.";
+        qCDebug(LOG_KKEYSERVER_X11) << "Meta is not set or conflicted with alt.";
 #endif
         if (g_super_mask) {
 #ifdef KKEYSERVER_DEBUG
-            qDebug() << "Using super for meta";
+            qCDebug(LOG_KKEYSERVER_X11) << "Using super for meta";
 #endif
             // Use Super
             g_meta_mask = g_super_mask;
         } else if (g_hyper_mask) {
 #ifdef KKEYSERVER_DEBUG
-            qDebug() << "Using hyper for meta";
+            qCDebug(LOG_KKEYSERVER_X11) << "Using hyper for meta";
 #endif
             // User Hyper
             g_meta_mask = g_hyper_mask;
@@ -589,17 +590,17 @@ bool initializeMods()
     }
 
 #ifdef KKEYSERVER_DEBUG
-    qDebug() << "Alt:" << g_alt_mask;
-    qDebug() << "Meta:" << g_meta_mask;
-    qDebug() << "Super:" << g_super_mask;
-    qDebug() << "Hyper:" << g_hyper_mask;
-    qDebug() << "NumLock:" << g_modXNumLock;
-    qDebug() << "ScrollLock:" << g_modXScrollLock;
-    qDebug() << "ModeSwitch:" << g_modXModeSwitch;
+    qCDebug(LOG_KKEYSERVER_X11) << "Alt:" << g_alt_mask;
+    qCDebug(LOG_KKEYSERVER_X11) << "Meta:" << g_meta_mask;
+    qCDebug(LOG_KKEYSERVER_X11) << "Super:" << g_super_mask;
+    qCDebug(LOG_KKEYSERVER_X11) << "Hyper:" << g_hyper_mask;
+    qCDebug(LOG_KKEYSERVER_X11) << "NumLock:" << g_modXNumLock;
+    qCDebug(LOG_KKEYSERVER_X11) << "ScrollLock:" << g_modXScrollLock;
+    qCDebug(LOG_KKEYSERVER_X11) << "ModeSwitch:" << g_modXModeSwitch;
 #endif
 
     if (!g_meta_mask) {
-        qWarning() << "Your keyboard setup doesn't provide a key to use for meta. See 'xmodmap -pm' or 'xkbcomp $DISPLAY'";
+        qCWarning(LOG_KKEYSERVER_X11) << "Your keyboard setup doesn't provide a key to use for meta. See 'xmodmap -pm' or 'xkbcomp $DISPLAY'";
     }
 
     g_rgX11ModInfo[2].modX = g_alt_mask;
@@ -667,7 +668,7 @@ bool keyboardHasMetaKey()
 uint getModsRequired(uint sym)
 {
     if (!QX11Info::isPlatformX11()) {
-        qWarning() << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
+        qCWarning(LOG_KKEYSERVER_X11) << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
         return 0;
     }
     uint mod = 0;
@@ -708,7 +709,7 @@ uint getModsRequired(uint sym)
 bool keyQtToCodeX(int keyQt, int *keyCode)
 {
     if (!QX11Info::isPlatformX11()) {
-        qWarning() << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
+        qCWarning(LOG_KKEYSERVER_X11) << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
         return false;
     }
     int sym;
@@ -748,7 +749,7 @@ bool keyQtToSymX(int keyQt, int *keySym)
     *keySym = 0;
     if (symQt != Qt::Key_Shift && symQt != Qt::Key_Control && symQt != Qt::Key_Alt &&
             symQt != Qt::Key_Meta && symQt != Qt::Key_Direction_L && symQt != Qt::Key_Direction_R) {
-        // qDebug() << "Sym::initQt( " << QString::number(keyQt,16) << " ): failed to convert key.";
+        // qCDebug(LOG_KKEYSERVER_X11) << "Sym::initQt( " << QString::number(keyQt,16) << " ): failed to convert key.";
     }
     return false;
 }
@@ -822,7 +823,7 @@ bool modXToQt(uint modX, int *modQt)
 bool codeXToSym(uchar codeX, uint modX, uint *sym)
 {
     if (!QX11Info::isPlatformX11()) {
-        qWarning() << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
+        qCWarning(LOG_KKEYSERVER_X11) << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
         return false;
     }
     KeySym keySym;
