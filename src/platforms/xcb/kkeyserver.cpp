@@ -483,6 +483,7 @@ bool initializeMods()
 
     if (!QX11Info::isPlatformX11()) {
         qCWarning(LOG_KKEYSERVER_X11) << "X11 implementation of KKeyServer accessed from non-X11 platform! This is an application bug.";
+        g_bInitializedMods = true;
         return false;
     }
 
