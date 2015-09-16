@@ -101,6 +101,7 @@ private:
         return m_connection;
     }
     xcb_connection_t *m_connection;
+    QVector<xcb_connection_t*> m_connections;
     QScopedPointer<QProcess> m_xvfb;
     xcb_window_t m_rootWindow;
     xcb_window_t m_testWindow;
@@ -109,6 +110,18 @@ private:
 void NetWinInfoTestClient::initTestCase()
 {
     qsrand(QDateTime::currentMSecsSinceEpoch());
+}
+
+void NetWinInfoTestClient::cleanupTestCase()
+{
+    // close connection
+    while (!m_connections.isEmpty()) {
+        xcb_disconnect(m_connections.takeFirst());
+    }
+}
+
+void NetWinInfoTestClient::init()
+{
     // first reset just to be sure
     m_connection = Q_NULLPTR;
     m_rootWindow = XCB_WINDOW_NONE;
@@ -129,19 +142,7 @@ void NetWinInfoTestClient::initTestCase()
     m_connection = xcb_connect(qPrintable(id), &screen);
     QVERIFY(m_connection);
     m_rootWindow = KXUtils::rootWindow(m_connection, screen);
-}
 
-void NetWinInfoTestClient::cleanupTestCase()
-{
-    // close connection
-    xcb_disconnect(connection());
-    // kill Xvfb
-    m_xvfb->terminate();
-    m_xvfb->waitForFinished();
-}
-
-void NetWinInfoTestClient::init()
-{
     // create test window
     m_testWindow = xcb_generate_id(m_connection);
     uint32_t values[] = {XCB_EVENT_MASK_PROPERTY_CHANGE};
@@ -159,6 +160,12 @@ void NetWinInfoTestClient::cleanup()
     xcb_unmap_window(m_connection, m_testWindow);
     xcb_destroy_window(m_connection, m_testWindow);
     m_testWindow = XCB_WINDOW_NONE;
+
+    // delay till clenupTestCase as otherwise xcb reuses the same memory address
+    m_connections << connection();
+    // kill Xvfb
+    m_xvfb->terminate();
+    m_xvfb->waitForFinished();
 }
 
 void NetWinInfoTestClient::waitForPropertyChange(NETWinInfo *info, xcb_atom_t atom, NET::Property prop, NET::Property2 prop2)

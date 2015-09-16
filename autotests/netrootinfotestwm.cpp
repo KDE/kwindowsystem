@@ -65,6 +65,7 @@ private:
         return m_connection;
     }
     xcb_connection_t *m_connection;
+    QVector<xcb_connection_t*> m_connections;
     QScopedPointer<QProcess> m_xvfb;
     xcb_window_t m_supportWindow;
     xcb_window_t m_rootWindow;
@@ -72,16 +73,18 @@ private:
 
 void NetRootInfoTestWM::cleanupTestCase()
 {
-    // close connection
-    xcb_disconnect(connection());
-    // kill Xvfb
-    m_xvfb->terminate();
-    m_xvfb->waitForFinished();
+    while (!m_connections.isEmpty()) {
+        xcb_disconnect(m_connections.takeFirst());
+    }
 }
 
 void NetRootInfoTestWM::initTestCase()
 {
     qsrand(QDateTime::currentMSecsSinceEpoch());
+}
+
+void NetRootInfoTestWM::init()
+{
     // first reset just to be sure
     m_connection = Q_NULLPTR;
     m_supportWindow = XCB_WINDOW_NONE;
@@ -104,12 +107,9 @@ void NetRootInfoTestWM::initTestCase()
     uint32_t values[] = {XCB_EVENT_MASK_PROPERTY_CHANGE};
     xcb_change_window_attributes(m_connection, m_rootWindow,
                                  XCB_CW_EVENT_MASK, values);
-}
 
-void NetRootInfoTestWM::init()
-{
     // create support window
-    const uint32_t values[] = {true};
+    values[0] = true;
     m_supportWindow = xcb_generate_id(m_connection);
     xcb_create_window(m_connection, XCB_COPY_FROM_PARENT, m_supportWindow,
                       m_rootWindow,
@@ -127,6 +127,14 @@ void NetRootInfoTestWM::cleanup()
     // destroy support window
     xcb_destroy_window(connection(), m_supportWindow);
     m_supportWindow = XCB_WINDOW_NONE;
+
+    // close connection
+    // delay till clenupTestCase as otherwise xcb reuses the same memory address
+    m_connections << connection();
+    // kill Xvfb
+    m_xvfb->terminate();
+    m_xvfb->waitForFinished();
+    m_xvfb.reset();
 }
 
 void NetRootInfoTestWM::waitForPropertyChange(NETRootInfo *info, xcb_atom_t atom, NET::Property prop, NET::Property2 prop2)
