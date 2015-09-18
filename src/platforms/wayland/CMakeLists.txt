@@ -4,6 +4,7 @@ set(wayland_plugin_SRCS
     waylandintegration.cpp
     windoweffects.cpp
     windowsystem.cpp
+    windowinfo.cpp
 )
 
 add_library(KF5WindowSystemKWaylandPlugin MODULE ${wayland_plugin_SRCS})

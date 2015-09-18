@@ -20,6 +20,7 @@
 #include "plugin.h"
 #include "windowsystem.h"
 #include "windoweffects.h"
+#include "windowinfo.h"
 
 KWaylandPlugin::KWaylandPlugin(QObject *parent)
     : KWindowSystemPluginInterface(parent)
@@ -38,4 +39,9 @@ KWindowEffectsPrivate *KWaylandPlugin::createEffects()
 KWindowSystemPrivate *KWaylandPlugin::createWindowSystem()
 {
     return new WindowSystem();
+}
+
+KWindowInfoPrivate *KWaylandPlugin::createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2)
+{
+    return new WindowInfo(window, properties, properties2);
 }
