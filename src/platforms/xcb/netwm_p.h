@@ -26,6 +26,26 @@
 #ifndef   netwm_p_h
 #define   netwm_p_h
 
+#include <QSharedData>
+#include <QSharedDataPointer>
+
+#include "atoms_p.h"
+
+class Atoms : public QSharedData
+{
+public:
+    explicit Atoms(xcb_connection_t *c);
+
+    xcb_atom_t atom(KwsAtom atom) const {
+        return m_atoms[atom];
+    }
+
+private:
+    void init();
+    xcb_atom_t m_atoms[KwsAtomCount];
+    xcb_connection_t *m_connection;
+};
+
 /**
    Resizable array class.
 
@@ -121,6 +141,11 @@ struct NETRootInfoPrivate {
     NET::Properties2 clientProperties2;
 
     int ref;
+
+    QSharedDataPointer<Atoms> atoms;
+    xcb_atom_t atom(KwsAtom atom) const {
+        return atoms->atom(atom);
+    }
 };
 
 /**
@@ -173,6 +198,11 @@ struct NETWinInfoPrivate {
     std::vector<NETRect> opaqueRegion;
 
     int ref;
+
+    QSharedDataPointer<Atoms> atoms;
+    xcb_atom_t atom(KwsAtom atom) const {
+        return atoms->atom(atom);
+    }
 };
 
 #endif // netwm_p_h

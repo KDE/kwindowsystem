@@ -30,6 +30,7 @@
 #include <xcb/xproto.h>
 
 #include "netwm_p.h"
+#include "atoms_p.h"
 
 #include <QWidget>
 #include <config-kwindowsystem.h>
@@ -58,125 +59,30 @@ struct kde_wm_hints {
     xcb_window_t  window_group;
 };
 
-// UTF-8 string
-static xcb_atom_t UTF8_STRING = 0;
+typedef QHash< xcb_connection_t*, QSharedDataPointer<Atoms> > AtomHash;
+Q_GLOBAL_STATIC(AtomHash, s_gAtomsHash)
 
-// root window properties
-static xcb_atom_t net_supported            = 0;
-static xcb_atom_t net_client_list          = 0;
-static xcb_atom_t net_client_list_stacking = 0;
-static xcb_atom_t net_desktop_geometry     = 0;
-static xcb_atom_t net_desktop_viewport     = 0;
-static xcb_atom_t net_current_desktop      = 0;
-static xcb_atom_t net_desktop_names        = 0;
-static xcb_atom_t net_number_of_desktops   = 0;
-static xcb_atom_t net_active_window        = 0;
-static xcb_atom_t net_workarea             = 0;
-static xcb_atom_t net_supporting_wm_check  = 0;
-static xcb_atom_t net_virtual_roots        = 0;
-static xcb_atom_t net_showing_desktop      = 0;
-static xcb_atom_t net_desktop_layout       = 0;
+static QSharedDataPointer<Atoms> atomsForConnection(xcb_connection_t *c)
+{
+    auto it = s_gAtomsHash->constFind(c);
+    if (it == s_gAtomsHash->constEnd()) {
+        QSharedDataPointer<Atoms> atom(new Atoms(c));
+        s_gAtomsHash->insert(c, atom);
+        return atom;
+    }
+    return it.value();
+}
 
-// root window messages
-static xcb_atom_t net_close_window         = 0;
-static xcb_atom_t net_restack_window       = 0;
-static xcb_atom_t net_wm_moveresize        = 0;
-static xcb_atom_t net_moveresize_window    = 0;
+Atoms::Atoms(xcb_connection_t *c)
+    : QSharedData()
+    , m_connection(c)
+{
+    for (int i = 0; i < KwsAtomCount; ++i) {
+        m_atoms[i] = XCB_ATOM_NONE;
+    }
+    init();
+}
 
-// application window properties
-static xcb_atom_t net_wm_name              = 0;
-static xcb_atom_t net_wm_visible_name      = 0;
-static xcb_atom_t net_wm_icon_name         = 0;
-static xcb_atom_t net_wm_visible_icon_name = 0;
-static xcb_atom_t net_wm_desktop           = 0;
-static xcb_atom_t net_wm_window_type       = 0;
-static xcb_atom_t net_wm_state             = 0;
-static xcb_atom_t net_wm_strut             = 0;
-static xcb_atom_t net_wm_extended_strut    = 0; // the atom is called _NET_WM_STRUT_PARTIAL
-static xcb_atom_t net_wm_icon_geometry     = 0;
-static xcb_atom_t net_wm_icon              = 0;
-static xcb_atom_t net_wm_pid               = 0;
-static xcb_atom_t net_wm_user_time         = 0;
-static xcb_atom_t net_wm_handled_icons     = 0;
-static xcb_atom_t net_startup_id           = 0;
-static xcb_atom_t net_wm_allowed_actions   = 0;
-static xcb_atom_t wm_window_role           = 0;
-static xcb_atom_t net_frame_extents        = 0;
-static xcb_atom_t net_wm_window_opacity    = 0;
-static xcb_atom_t kde_net_wm_frame_strut   = 0;
-static xcb_atom_t net_wm_fullscreen_monitors = 0;
-static xcb_atom_t net_wm_opaque_region     = 0;
-
-// KDE extensions
-static xcb_atom_t kde_net_wm_window_type_override   = 0;
-static xcb_atom_t kde_net_wm_window_type_topmenu    = 0;
-static xcb_atom_t kde_net_wm_window_type_on_screen_display = 0;
-static xcb_atom_t kde_net_wm_temporary_rules        = 0;
-static xcb_atom_t kde_net_wm_frame_overlap          = 0;
-static xcb_atom_t kde_net_wm_activities             = 0;
-static xcb_atom_t kde_net_wm_block_compositing      = 0;
-static xcb_atom_t kde_net_wm_shadow                 = 0;
-
-// application protocols
-static xcb_atom_t wm_protocols = 0;
-static xcb_atom_t wm_take_focus = 0;
-static xcb_atom_t wm_delete_window = 0;
-static xcb_atom_t net_wm_ping = 0;
-static xcb_atom_t net_wm_sync_request = 0;
-static xcb_atom_t net_wm_context_help = 0;
-
-// application window types
-static xcb_atom_t net_wm_window_type_normal  = 0;
-static xcb_atom_t net_wm_window_type_desktop = 0;
-static xcb_atom_t net_wm_window_type_dock    = 0;
-static xcb_atom_t net_wm_window_type_toolbar = 0;
-static xcb_atom_t net_wm_window_type_menu    = 0;
-static xcb_atom_t net_wm_window_type_dialog  = 0;
-static xcb_atom_t net_wm_window_type_utility = 0;
-static xcb_atom_t net_wm_window_type_splash  = 0;
-static xcb_atom_t net_wm_window_type_dropdown_menu = 0;
-static xcb_atom_t net_wm_window_type_popup_menu    = 0;
-static xcb_atom_t net_wm_window_type_tooltip       = 0;
-static xcb_atom_t net_wm_window_type_notification  = 0;
-static xcb_atom_t net_wm_window_type_combobox      = 0;
-static xcb_atom_t net_wm_window_type_dnd           = 0;
-
-// application window state
-static xcb_atom_t net_wm_state_modal        = 0;
-static xcb_atom_t net_wm_state_sticky       = 0;
-static xcb_atom_t net_wm_state_max_vert     = 0;
-static xcb_atom_t net_wm_state_max_horiz    = 0;
-static xcb_atom_t net_wm_state_shaded       = 0;
-static xcb_atom_t net_wm_state_skip_taskbar = 0;
-static xcb_atom_t net_wm_state_skip_pager   = 0;
-static xcb_atom_t net_wm_state_hidden       = 0;
-static xcb_atom_t net_wm_state_fullscreen   = 0;
-static xcb_atom_t net_wm_state_above        = 0;
-static xcb_atom_t net_wm_state_below        = 0;
-static xcb_atom_t net_wm_state_demands_attention = 0;
-
-// allowed actions
-static xcb_atom_t net_wm_action_move        = 0;
-static xcb_atom_t net_wm_action_resize      = 0;
-static xcb_atom_t net_wm_action_minimize    = 0;
-static xcb_atom_t net_wm_action_shade       = 0;
-static xcb_atom_t net_wm_action_stick       = 0;
-static xcb_atom_t net_wm_action_max_vert    = 0;
-static xcb_atom_t net_wm_action_max_horiz   = 0;
-static xcb_atom_t net_wm_action_fullscreen  = 0;
-static xcb_atom_t net_wm_action_change_desk = 0;
-static xcb_atom_t net_wm_action_close       = 0;
-
-// KDE extension that's not in the specs - Replaced by state_above now?
-static xcb_atom_t net_wm_state_stays_on_top = 0;
-
-// used to determine whether application window is managed or not
-static xcb_atom_t xa_wm_state = 0;
-
-// ability flags
-static xcb_atom_t net_wm_full_placement = 0;
-
-static bool netwm_atoms_created = false;
 static const uint32_t netwm_sendevent_mask =
     (XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY);
 
@@ -388,140 +294,26 @@ static QByteArray get_atom_name(xcb_connection_t *c, xcb_atom_t atom)
 }
 #endif
 
-static const int netAtomCount = 94;
-
-static void create_netwm_atoms(xcb_connection_t *c)
+void Atoms::init()
 {
-    struct {
-        const char *name;
-        xcb_atom_t *atom;
-    } static const atoms[] = {
-        { "UTF8_STRING",                          &UTF8_STRING                      },
-        { "_NET_SUPPORTED",                       &net_supported                    },
-        { "_NET_SUPPORTING_WM_CHECK",             &net_supporting_wm_check          },
-        { "_NET_CLIENT_LIST",                     &net_client_list                  },
-        { "_NET_CLIENT_LIST_STACKING",            &net_client_list_stacking         },
-        { "_NET_NUMBER_OF_DESKTOPS",              &net_number_of_desktops           },
-        { "_NET_DESKTOP_GEOMETRY",                &net_desktop_geometry             },
-        { "_NET_DESKTOP_VIEWPORT",                &net_desktop_viewport             },
-        { "_NET_CURRENT_DESKTOP",                 &net_current_desktop              },
-        { "_NET_DESKTOP_NAMES",                   &net_desktop_names                },
-        { "_NET_ACTIVE_WINDOW",                   &net_active_window                },
-        { "_NET_WORKAREA",                        &net_workarea                     },
-        { "_NET_VIRTUAL_ROOTS",                   &net_virtual_roots                },
-        { "_NET_DESKTOP_LAYOUT",                  &net_desktop_layout               },
-        { "_NET_SHOWING_DESKTOP",                 &net_showing_desktop              },
-        { "_NET_CLOSE_WINDOW",                    &net_close_window                 },
-        { "_NET_RESTACK_WINDOW",                  &net_restack_window               },
-
-        { "_NET_WM_MOVERESIZE",                   &net_wm_moveresize                },
-        { "_NET_MOVERESIZE_WINDOW",               &net_moveresize_window            },
-        { "_NET_WM_NAME",                         &net_wm_name                      },
-        { "_NET_WM_VISIBLE_NAME",                 &net_wm_visible_name              },
-        { "_NET_WM_ICON_NAME",                    &net_wm_icon_name                 },
-        { "_NET_WM_VISIBLE_ICON_NAME",            &net_wm_visible_icon_name         },
-        { "_NET_WM_DESKTOP",                      &net_wm_desktop                   },
-        { "_NET_WM_WINDOW_TYPE",                  &net_wm_window_type               },
-        { "_NET_WM_STATE",                        &net_wm_state                     },
-        { "_NET_WM_STRUT",                        &net_wm_strut                     },
-        { "_NET_WM_STRUT_PARTIAL",                &net_wm_extended_strut            },
-        { "_NET_WM_ICON_GEOMETRY",                &net_wm_icon_geometry             },
-        { "_NET_WM_ICON",                         &net_wm_icon                      },
-        { "_NET_WM_PID",                          &net_wm_pid                       },
-        { "_NET_WM_USER_TIME",                    &net_wm_user_time                 },
-        { "_NET_WM_HANDLED_ICONS",                &net_wm_handled_icons             },
-        { "_NET_STARTUP_ID",                      &net_startup_id                   },
-        { "_NET_WM_ALLOWED_ACTIONS",              &net_wm_allowed_actions           },
-        { "_NET_WM_PING",                         &net_wm_ping                      },
-        { "WM_WINDOW_ROLE",                       &wm_window_role                   },
-        { "_NET_FRAME_EXTENTS",                   &net_frame_extents                },
-        { "_NET_WM_WINDOW_OPACITY",               &net_wm_window_opacity            },
-        { "_NET_WM_FULLSCREEN_MONITORS",          &net_wm_fullscreen_monitors       },
-        { "_NET_WM_OPAQUE_REGION",                &net_wm_opaque_region             },
-
-        { "_NET_WM_WINDOW_TYPE_NORMAL",           &net_wm_window_type_normal        },
-        { "_NET_WM_WINDOW_TYPE_DESKTOP",          &net_wm_window_type_desktop       },
-        { "_NET_WM_WINDOW_TYPE_DOCK",             &net_wm_window_type_dock          },
-        { "_NET_WM_WINDOW_TYPE_TOOLBAR",          &net_wm_window_type_toolbar       },
-        { "_NET_WM_WINDOW_TYPE_MENU",             &net_wm_window_type_menu          },
-        { "_NET_WM_WINDOW_TYPE_DIALOG",           &net_wm_window_type_dialog        },
-        { "_NET_WM_WINDOW_TYPE_UTILITY",          &net_wm_window_type_utility       },
-        { "_NET_WM_WINDOW_TYPE_SPLASH",           &net_wm_window_type_splash        },
-        { "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU",    &net_wm_window_type_dropdown_menu },
-        { "_NET_WM_WINDOW_TYPE_POPUP_MENU",       &net_wm_window_type_popup_menu    },
-        { "_NET_WM_WINDOW_TYPE_TOOLTIP",          &net_wm_window_type_tooltip       },
-        { "_NET_WM_WINDOW_TYPE_NOTIFICATION",     &net_wm_window_type_notification  },
-        { "_NET_WM_WINDOW_TYPE_COMBOBOX",         &net_wm_window_type_combobox      },
-        { "_NET_WM_WINDOW_TYPE_DND",              &net_wm_window_type_dnd           },
-
-        { "_NET_WM_STATE_MODAL",                  &net_wm_state_modal               },
-        { "_NET_WM_STATE_STICKY",                 &net_wm_state_sticky              },
-        { "_NET_WM_STATE_MAXIMIZED_VERT",         &net_wm_state_max_vert            },
-        { "_NET_WM_STATE_MAXIMIZED_HORZ",         &net_wm_state_max_horiz           },
-        { "_NET_WM_STATE_SHADED",                 &net_wm_state_shaded              },
-        { "_NET_WM_STATE_SKIP_TASKBAR",           &net_wm_state_skip_taskbar        },
-        { "_NET_WM_STATE_SKIP_PAGER",             &net_wm_state_skip_pager          },
-        { "_NET_WM_STATE_HIDDEN",                 &net_wm_state_hidden              },
-        { "_NET_WM_STATE_FULLSCREEN",             &net_wm_state_fullscreen          },
-        { "_NET_WM_STATE_ABOVE",                  &net_wm_state_above               },
-        { "_NET_WM_STATE_BELOW",                  &net_wm_state_below               },
-        { "_NET_WM_STATE_DEMANDS_ATTENTION",      &net_wm_state_demands_attention   },
-
-        { "_NET_WM_ACTION_MOVE",                  &net_wm_action_move               },
-        { "_NET_WM_ACTION_RESIZE",                &net_wm_action_resize             },
-        { "_NET_WM_ACTION_MINIMIZE",              &net_wm_action_minimize           },
-        { "_NET_WM_ACTION_SHADE",                 &net_wm_action_shade              },
-        { "_NET_WM_ACTION_STICK",                 &net_wm_action_stick              },
-        { "_NET_WM_ACTION_MAXIMIZE_VERT",         &net_wm_action_max_vert           },
-        { "_NET_WM_ACTION_MAXIMIZE_HORZ",         &net_wm_action_max_horiz          },
-        { "_NET_WM_ACTION_FULLSCREEN",            &net_wm_action_fullscreen         },
-        { "_NET_WM_ACTION_CHANGE_DESKTOP",        &net_wm_action_change_desk        },
-        { "_NET_WM_ACTION_CLOSE",                 &net_wm_action_close              },
-
-        { "_NET_WM_STATE_STAYS_ON_TOP",           &net_wm_state_stays_on_top        },
-
-        { "_KDE_NET_WM_FRAME_STRUT",              &kde_net_wm_frame_strut           },
-        { "_KDE_NET_WM_WINDOW_TYPE_OVERRIDE",     &kde_net_wm_window_type_override  },
-        { "_KDE_NET_WM_WINDOW_TYPE_TOPMENU",      &kde_net_wm_window_type_topmenu   },
-        { "_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY", &kde_net_wm_window_type_on_screen_display },
-        { "_KDE_NET_WM_TEMPORARY_RULES",          &kde_net_wm_temporary_rules       },
-        { "_NET_WM_FRAME_OVERLAP",                &kde_net_wm_frame_overlap         },
-
-        { "WM_STATE",                             &xa_wm_state                      },
-        { "WM_PROTOCOLS",                         &wm_protocols                     },
-        { "WM_TAKE_FOCUS",                        &wm_take_focus                    },
-        { "WM_DELETE_WINDOW",                     &wm_delete_window                 },
-        { "_NET_WM_SYNC_REQUEST",                 &net_wm_sync_request              },
-        { "_NET_WM_CONTEXT_HELP",                 &net_wm_context_help              },
-
-        { "_NET_WM_FULL_PLACEMENT",               &net_wm_full_placement            },
-        { "_KDE_NET_WM_ACTIVITIES",               &kde_net_wm_activities            },
-        { "_KDE_NET_WM_BLOCK_COMPOSITING",        &kde_net_wm_block_compositing     },
-        { "_KDE_NET_WM_SHADOW",                   &kde_net_wm_shadow                },
-        { 0,                                      0                                 }
-    };
-
-    assert(!netwm_atoms_created);
-    assert(sizeof(atoms)/sizeof(atoms[0]) == netAtomCount + 1);
-
+#define ENUM_CREATE_CHAR_ARRAY 1
+#include "atoms_p.h" // creates const char* array "KwsAtomStrings"
     // Send the intern atom requests
-    xcb_intern_atom_cookie_t cookies[netAtomCount];
-    for (int i = 0; atoms[i].name; i++) {
-        cookies[i] = xcb_intern_atom(c, false, strlen(atoms[i].name), atoms[i].name);
+    xcb_intern_atom_cookie_t cookies[KwsAtomCount];
+    for (int i = 0; i < KwsAtomCount; ++i) {
+        cookies[i] = xcb_intern_atom(m_connection, false, strlen(KwsAtomStrings[i]), KwsAtomStrings[i]);
     }
 
     // Get the replies
-    for (int i = 0; atoms[i].name; i++) {
-        xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(c, cookies[i], 0);
+    for (int i = 0; i < KwsAtomCount; ++i) {
+        xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(m_connection, cookies[i], 0);
         if (!reply) {
             continue;
         }
 
-        *atoms[i].atom = reply->atom;
+        m_atoms[i] = reply->atom;
         free(reply);
     }
-
-    netwm_atoms_created = true;
 }
 
 static void readIcon(xcb_connection_t *c, const xcb_get_property_cookie_t cookie,
@@ -665,6 +457,7 @@ NETRootInfo::NETRootInfo(xcb_connection_t *connection, xcb_window_t supportWindo
 
     p = new NETRootInfoPrivate;
     p->ref = 1;
+    p->atoms = atomsForConnection(connection);
 
     p->name = nstrdup(wmName);
 
@@ -706,10 +499,6 @@ NETRootInfo::NETRootInfo(xcb_connection_t *connection, xcb_window_t supportWindo
 
     p->role = WindowManager;
 
-    if (! netwm_atoms_created) {
-        create_netwm_atoms(p->conn);
-    }
-
     if (doActivate) {
         activate();
     }
@@ -725,6 +514,7 @@ NETRootInfo::NETRootInfo(xcb_connection_t *connection, NET::Properties propertie
 
     p = new NETRootInfoPrivate;
     p->ref = 1;
+    p->atoms = atomsForConnection(connection);
 
     p->name = 0;
 
@@ -765,10 +555,6 @@ NETRootInfo::NETRootInfo(xcb_connection_t *connection, NET::Properties propertie
     p->actions = 0;
 
     p->role = Client;
-
-    if (! netwm_atoms_created) {
-        create_netwm_atoms(p->conn);
-    }
 
     if (doActivate) {
         activate();
@@ -852,7 +638,7 @@ void NETRootInfo::setClientList(const xcb_window_t *windows, unsigned int count)
             p->clients_count);
 #endif
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_client_list,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_CLIENT_LIST),
                         XCB_ATOM_WINDOW, 32, p->clients_count,
                         (const void *) windows);
 }
@@ -873,7 +659,7 @@ void NETRootInfo::setClientListStacking(const xcb_window_t *windows, unsigned in
             p->clients_count);
 #endif
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_client_list_stacking,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_CLIENT_LIST_STACKING),
                         XCB_ATOM_WINDOW, 32, p->stacking_count,
                         (const void *) windows);
 }
@@ -889,7 +675,7 @@ void NETRootInfo::setNumberOfDesktops(int numberOfDesktops)
     if (p->role == WindowManager) {
         p->number_of_desktops = numberOfDesktops;
         const uint32_t d = numberOfDesktops;
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_number_of_desktops,
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_NUMBER_OF_DESKTOPS),
                             XCB_ATOM_CARDINAL, 32, 1, (const void *) &d);
     } else {
         const uint32_t data[5] = {
@@ -897,7 +683,7 @@ void NETRootInfo::setNumberOfDesktops(int numberOfDesktops)
         };
 
         send_client_message(p->conn, netwm_sendevent_mask, p->root,
-                            p->root, net_number_of_desktops, data);
+                            p->root, p->atom(_NET_NUMBER_OF_DESKTOPS), data);
     }
 }
 
@@ -912,7 +698,7 @@ void NETRootInfo::setCurrentDesktop(int desktop, bool ignore_viewport)
     if (p->role == WindowManager) {
         p->current_desktop = desktop;
         uint32_t d = p->current_desktop - 1;
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_current_desktop,
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_CURRENT_DESKTOP),
                             XCB_ATOM_CARDINAL, 32, 1, (const void *) &d);
     } else {
 
@@ -926,7 +712,7 @@ void NETRootInfo::setCurrentDesktop(int desktop, bool ignore_viewport)
         };
 
         send_client_message(p->conn, netwm_sendevent_mask, p->root,
-                            p->root, net_current_desktop, data);
+                            p->root, p->atom(_NET_CURRENT_DESKTOP), data);
     }
 }
 
@@ -964,8 +750,8 @@ void NETRootInfo::setDesktopName(int desktop, const char *desktopName)
             desktop, desktopName, proplen);
 #endif
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_desktop_names,
-                        UTF8_STRING, 8, proplen, (const void *) prop);
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_DESKTOP_NAMES),
+                        p->atom(UTF8_STRING), 8, proplen, (const void *) prop);
 
     delete [] prop;
 }
@@ -984,7 +770,7 @@ void NETRootInfo::setDesktopGeometry(const NETSize &geometry)
         data[0] = p->geometry.width;
         data[1] = p->geometry.height;
 
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_desktop_geometry,
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_DESKTOP_GEOMETRY),
                             XCB_ATOM_CARDINAL, 32, 2, (const void *) data);
     } else {
         uint32_t data[5] = {
@@ -992,7 +778,7 @@ void NETRootInfo::setDesktopGeometry(const NETSize &geometry)
         };
 
         send_client_message(p->conn, netwm_sendevent_mask, p->root,
-                            p->root, net_desktop_geometry, data);
+                            p->root, p->atom(_NET_DESKTOP_GEOMETRY), data);
     }
 }
 
@@ -1018,7 +804,7 @@ void NETRootInfo::setDesktopViewport(int desktop, const NETPoint &viewport)
             data[i++] = p->viewport[d].y;
         }
 
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_desktop_viewport,
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_DESKTOP_VIEWPORT),
                             XCB_ATOM_CARDINAL, 32, l, (const void *) data);
 
         delete [] data;
@@ -1028,7 +814,7 @@ void NETRootInfo::setDesktopViewport(int desktop, const NETPoint &viewport)
         };
 
         send_client_message(p->conn, netwm_sendevent_mask, p->root,
-                            p->root, net_desktop_viewport, data);
+                            p->root, p->atom(_NET_DESKTOP_VIEWPORT), data);
     }
 }
 
@@ -1042,318 +828,318 @@ void NETRootInfo::setSupported()
         return;
     }
 
-    xcb_atom_t atoms[netAtomCount];
+    xcb_atom_t atoms[KwsAtomCount];
     int pnum = 2;
 
     // Root window properties/messages
-    atoms[0] = net_supported;
-    atoms[1] = net_supporting_wm_check;
+    atoms[0] = p->atom(_NET_SUPPORTED);
+    atoms[1] = p->atom(_NET_SUPPORTING_WM_CHECK);
 
     if (p->properties & ClientList) {
-        atoms[pnum++] = net_client_list;
+        atoms[pnum++] = p->atom(_NET_CLIENT_LIST);
     }
 
     if (p->properties & ClientListStacking) {
-        atoms[pnum++] = net_client_list_stacking;
+        atoms[pnum++] = p->atom(_NET_CLIENT_LIST_STACKING);
     }
 
     if (p->properties & NumberOfDesktops) {
-        atoms[pnum++] = net_number_of_desktops;
+        atoms[pnum++] = p->atom(_NET_NUMBER_OF_DESKTOPS);
     }
 
     if (p->properties & DesktopGeometry) {
-        atoms[pnum++] = net_desktop_geometry;
+        atoms[pnum++] = p->atom(_NET_DESKTOP_GEOMETRY);
     }
 
     if (p->properties & DesktopViewport) {
-        atoms[pnum++] = net_desktop_viewport;
+        atoms[pnum++] = p->atom(_NET_DESKTOP_VIEWPORT);
     }
 
     if (p->properties & CurrentDesktop) {
-        atoms[pnum++] = net_current_desktop;
+        atoms[pnum++] = p->atom(_NET_CURRENT_DESKTOP);
     }
 
     if (p->properties & DesktopNames) {
-        atoms[pnum++] = net_desktop_names;
+        atoms[pnum++] = p->atom(_NET_DESKTOP_NAMES);
     }
 
     if (p->properties & ActiveWindow) {
-        atoms[pnum++] = net_active_window;
+        atoms[pnum++] = p->atom(_NET_ACTIVE_WINDOW);
     }
 
     if (p->properties & WorkArea) {
-        atoms[pnum++] = net_workarea;
+        atoms[pnum++] = p->atom(_NET_WORKAREA);
     }
 
     if (p->properties & VirtualRoots) {
-        atoms[pnum++] = net_virtual_roots;
+        atoms[pnum++] = p->atom(_NET_VIRTUAL_ROOTS);
     }
 
     if (p->properties2 & WM2DesktopLayout) {
-        atoms[pnum++] = net_desktop_layout;
+        atoms[pnum++] = p->atom(_NET_DESKTOP_LAYOUT);
     }
 
     if (p->properties & CloseWindow) {
-        atoms[pnum++] = net_close_window;
+        atoms[pnum++] = p->atom(_NET_CLOSE_WINDOW);
     }
 
     if (p->properties2 & WM2RestackWindow) {
-        atoms[pnum++] = net_restack_window;
+        atoms[pnum++] = p->atom(_NET_RESTACK_WINDOW);
     }
 
     if (p->properties2 & WM2ShowingDesktop) {
-        atoms[pnum++] = net_showing_desktop;
+        atoms[pnum++] = p->atom(_NET_SHOWING_DESKTOP);
     }
 
     // Application window properties/messages
     if (p->properties & WMMoveResize) {
-        atoms[pnum++] = net_wm_moveresize;
+        atoms[pnum++] = p->atom(_NET_WM_MOVERESIZE);
     }
 
     if (p->properties2 & WM2MoveResizeWindow) {
-        atoms[pnum++] = net_moveresize_window;
+        atoms[pnum++] = p->atom(_NET_MOVERESIZE_WINDOW);
     }
 
     if (p->properties & WMName) {
-        atoms[pnum++] = net_wm_name;
+        atoms[pnum++] = p->atom(_NET_WM_NAME);
     }
 
     if (p->properties & WMVisibleName) {
-        atoms[pnum++] = net_wm_visible_name;
+        atoms[pnum++] = p->atom(_NET_WM_VISIBLE_NAME);
     }
 
     if (p->properties & WMIconName) {
-        atoms[pnum++] = net_wm_icon_name;
+        atoms[pnum++] = p->atom(_NET_WM_ICON_NAME);
     }
 
     if (p->properties & WMVisibleIconName) {
-        atoms[pnum++] = net_wm_visible_icon_name;
+        atoms[pnum++] = p->atom(_NET_WM_VISIBLE_ICON_NAME);
     }
 
     if (p->properties & WMDesktop) {
-        atoms[pnum++] = net_wm_desktop;
+        atoms[pnum++] = p->atom(_NET_WM_DESKTOP);
     }
 
     if (p->properties & WMWindowType) {
-        atoms[pnum++] = net_wm_window_type;
+        atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE);
 
         // Application window types
         if (p->windowTypes & NormalMask) {
-            atoms[pnum++] = net_wm_window_type_normal;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_NORMAL);
         }
         if (p->windowTypes & DesktopMask) {
-            atoms[pnum++] = net_wm_window_type_desktop;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_DESKTOP);
         }
         if (p->windowTypes & DockMask) {
-            atoms[pnum++] = net_wm_window_type_dock;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_DOCK);
         }
         if (p->windowTypes & ToolbarMask) {
-            atoms[pnum++] = net_wm_window_type_toolbar;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_TOOLBAR);
         }
         if (p->windowTypes & MenuMask) {
-            atoms[pnum++] = net_wm_window_type_menu;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_MENU);
         }
         if (p->windowTypes & DialogMask) {
-            atoms[pnum++] = net_wm_window_type_dialog;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_DIALOG);
         }
         if (p->windowTypes & UtilityMask) {
-            atoms[pnum++] = net_wm_window_type_utility;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_UTILITY);
         }
         if (p->windowTypes & SplashMask) {
-            atoms[pnum++] = net_wm_window_type_splash;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_SPLASH);
         }
         if (p->windowTypes & DropdownMenuMask) {
-            atoms[pnum++] = net_wm_window_type_dropdown_menu;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_DROPDOWN_MENU);
         }
         if (p->windowTypes & PopupMenuMask) {
-            atoms[pnum++] = net_wm_window_type_popup_menu;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_POPUP_MENU);
         }
         if (p->windowTypes & TooltipMask) {
-            atoms[pnum++] = net_wm_window_type_tooltip;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_TOOLTIP);
         }
         if (p->windowTypes & NotificationMask) {
-            atoms[pnum++] = net_wm_window_type_notification;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
         }
         if (p->windowTypes & ComboBoxMask) {
-            atoms[pnum++] = net_wm_window_type_combobox;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_COMBOBOX);
         }
         if (p->windowTypes & DNDIconMask) {
-            atoms[pnum++] = net_wm_window_type_dnd;
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_DND);
         }
         // KDE extensions
         if (p->windowTypes & OverrideMask) {
-            atoms[pnum++] = kde_net_wm_window_type_override;
+            atoms[pnum++] = p->atom(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE);
         }
         if (p->windowTypes & TopMenuMask) {
-            atoms[pnum++] = kde_net_wm_window_type_topmenu;
+            atoms[pnum++] = p->atom(_KDE_NET_WM_WINDOW_TYPE_TOPMENU);
         }
         if (p->windowTypes & OnScreenDisplayMask) {
-            atoms[pnum++] = kde_net_wm_window_type_on_screen_display;
+            atoms[pnum++] = p->atom(_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY);
         }
     }
 
     if (p->properties & WMState) {
-        atoms[pnum++] = net_wm_state;
+        atoms[pnum++] = p->atom(_NET_WM_STATE);
 
         // Application window states
         if (p->states & Modal) {
-            atoms[pnum++] = net_wm_state_modal;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_MODAL);
         }
         if (p->states & Sticky) {
-            atoms[pnum++] = net_wm_state_sticky;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_STICKY);
         }
         if (p->states & MaxVert) {
-            atoms[pnum++] = net_wm_state_max_vert;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
         }
         if (p->states & MaxHoriz) {
-            atoms[pnum++] = net_wm_state_max_horiz;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
         }
         if (p->states & Shaded) {
-            atoms[pnum++] = net_wm_state_shaded;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_SHADED);
         }
         if (p->states & SkipTaskbar) {
-            atoms[pnum++] = net_wm_state_skip_taskbar;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_SKIP_TASKBAR);
         }
         if (p->states & SkipPager) {
-            atoms[pnum++] = net_wm_state_skip_pager;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_SKIP_PAGER);
         }
         if (p->states & Hidden) {
-            atoms[pnum++] = net_wm_state_hidden;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_HIDDEN);
         }
         if (p->states & FullScreen) {
-            atoms[pnum++] = net_wm_state_fullscreen;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_FULLSCREEN);
         }
         if (p->states & KeepAbove) {
-            atoms[pnum++] = net_wm_state_above;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_ABOVE);
         }
         if (p->states & KeepBelow) {
-            atoms[pnum++] = net_wm_state_below;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_BELOW);
         }
         if (p->states & DemandsAttention) {
-            atoms[pnum++] = net_wm_state_demands_attention;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_DEMANDS_ATTENTION);
         }
 
         if (p->states & StaysOnTop) {
-            atoms[pnum++] = net_wm_state_stays_on_top;
+            atoms[pnum++] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
         }
     }
 
     if (p->properties & WMStrut) {
-        atoms[pnum++] = net_wm_strut;
+        atoms[pnum++] = p->atom(_NET_WM_STRUT);
     }
 
     if (p->properties2 & WM2ExtendedStrut) {
-        atoms[pnum++] = net_wm_extended_strut;
+        atoms[pnum++] = p->atom(_NET_WM_STRUT_PARTIAL);
     }
 
     if (p->properties & WMIconGeometry) {
-        atoms[pnum++] = net_wm_icon_geometry;
+        atoms[pnum++] = p->atom(_NET_WM_ICON_GEOMETRY);
     }
 
     if (p->properties & WMIcon) {
-        atoms[pnum++] = net_wm_icon;
+        atoms[pnum++] = p->atom(_NET_WM_ICON);
     }
 
     if (p->properties & WMPid) {
-        atoms[pnum++] = net_wm_pid;
+        atoms[pnum++] = p->atom(_NET_WM_PID);
     }
 
     if (p->properties & WMHandledIcons) {
-        atoms[pnum++] = net_wm_handled_icons;
+        atoms[pnum++] = p->atom(_NET_WM_HANDLED_ICONS);
     }
 
     if (p->properties & WMPing) {
-        atoms[pnum++] = net_wm_ping;
+        atoms[pnum++] = p->atom(_NET_WM_PING);
     }
 
     if (p->properties2 & WM2UserTime) {
-        atoms[pnum++] = net_wm_user_time;
+        atoms[pnum++] = p->atom(_NET_WM_USER_TIME);
     }
 
     if (p->properties2 & WM2StartupId) {
-        atoms[pnum++] = net_startup_id;
+        atoms[pnum++] = p->atom(_NET_STARTUP_ID);
     }
 
     if (p->properties2 & WM2Opacity) {
-        atoms[pnum++] = net_wm_window_opacity;
+        atoms[pnum++] = p->atom(_NET_WM_WINDOW_OPACITY);
     }
 
     if (p->properties2 & WM2FullscreenMonitors) {
-        atoms[pnum++] = net_wm_fullscreen_monitors;
+        atoms[pnum++] = p->atom(_NET_WM_FULLSCREEN_MONITORS);
     }
 
     if (p->properties2 & WM2AllowedActions) {
-        atoms[pnum++] = net_wm_allowed_actions;
+        atoms[pnum++] = p->atom(_NET_WM_ALLOWED_ACTIONS);
 
         // Actions
         if (p->actions & ActionMove) {
-            atoms[pnum++] = net_wm_action_move;
+            atoms[pnum++] = p->atom(_NET_WM_ACTION_MOVE);
         }
         if (p->actions & ActionResize) {
-            atoms[pnum++] = net_wm_action_resize;
+            atoms[pnum++] = p->atom(_NET_WM_ACTION_RESIZE);
         }
         if (p->actions & ActionMinimize) {
-            atoms[pnum++] = net_wm_action_minimize;
+            atoms[pnum++] = p->atom(_NET_WM_ACTION_MINIMIZE);
         }
         if (p->actions & ActionShade) {
-            atoms[pnum++] = net_wm_action_shade;
+            atoms[pnum++] = p->atom(_NET_WM_ACTION_SHADE);
         }
         if (p->actions & ActionStick) {
-            atoms[pnum++] = net_wm_action_stick;
+            atoms[pnum++] = p->atom(_NET_WM_ACTION_STICK);
         }
         if (p->actions & ActionMaxVert) {
-            atoms[pnum++] = net_wm_action_max_vert;
+            atoms[pnum++] = p->atom(_NET_WM_ACTION_MAXIMIZE_VERT);
         }
         if (p->actions & ActionMaxHoriz) {
-            atoms[pnum++] = net_wm_action_max_horiz;
+            atoms[pnum++] = p->atom(_NET_WM_ACTION_MAXIMIZE_HORZ);
         }
         if (p->actions & ActionFullScreen) {
-            atoms[pnum++] = net_wm_action_fullscreen;
+            atoms[pnum++] = p->atom(_NET_WM_ACTION_FULLSCREEN);
         }
         if (p->actions & ActionChangeDesktop) {
-            atoms[pnum++] = net_wm_action_change_desk;
+            atoms[pnum++] = p->atom(_NET_WM_ACTION_CHANGE_DESKTOP);
         }
         if (p->actions & ActionClose) {
-            atoms[pnum++] = net_wm_action_close;
+            atoms[pnum++] = p->atom(_NET_WM_ACTION_CLOSE);
         }
     }
 
     if (p->properties & WMFrameExtents) {
-        atoms[pnum++] = net_frame_extents;
-        atoms[pnum++] = kde_net_wm_frame_strut;
+        atoms[pnum++] = p->atom(_NET_FRAME_EXTENTS);
+        atoms[pnum++] = p->atom(_KDE_NET_WM_FRAME_STRUT);
     }
 
     if (p->properties2 & WM2FrameOverlap) {
-        atoms[pnum++] = kde_net_wm_frame_overlap;
+        atoms[pnum++] = p->atom(_NET_WM_FRAME_OVERLAP);
     }
 
     if (p->properties2 & WM2KDETemporaryRules) {
-        atoms[pnum++] = kde_net_wm_temporary_rules;
+        atoms[pnum++] = p->atom(_KDE_NET_WM_TEMPORARY_RULES);
     }
     if (p->properties2 & WM2FullPlacement) {
-        atoms[pnum++] = net_wm_full_placement;
+        atoms[pnum++] = p->atom(_NET_WM_FULL_PLACEMENT);
     }
 
     if (p->properties2 & WM2Activities) {
-        atoms[pnum++] = kde_net_wm_activities;
+        atoms[pnum++] = p->atom(_KDE_NET_WM_ACTIVITIES);
     }
 
     if (p->properties2 & WM2BlockCompositing) {
-        atoms[pnum++] = kde_net_wm_block_compositing;
+        atoms[pnum++] = p->atom(_KDE_NET_WM_BLOCK_COMPOSITING);
     }
 
     if (p->properties2 & WM2KDEShadow) {
-        atoms[pnum++] = kde_net_wm_shadow;
+        atoms[pnum++] = p->atom(_KDE_NET_WM_SHADOW);
     }
 
     if (p->properties2 & WM2OpaqueRegion) {
-        atoms[pnum++] = net_wm_opaque_region;
+        atoms[pnum++] = p->atom(_NET_WM_OPAQUE_REGION);
     }
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_supported,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_SUPPORTED),
                         XCB_ATOM_ATOM, 32, pnum, (const void *) atoms);
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_supporting_wm_check,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_SUPPORTING_WM_CHECK),
                         XCB_ATOM_WINDOW, 32, 1, (const void *) & (p->supportwindow));
 
 #ifdef NETWMDEBUG
@@ -1364,285 +1150,285 @@ void NETRootInfo::setSupported()
 #endif
 
     xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->supportwindow,
-                        net_supporting_wm_check, XCB_ATOM_WINDOW, 32,
+                        p->atom(_NET_SUPPORTING_WM_CHECK), XCB_ATOM_WINDOW, 32,
                         1, (const void *) & (p->supportwindow));
 
     xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->supportwindow,
-                        net_wm_name, UTF8_STRING, 8, strlen(p->name),
+                        p->atom(_NET_WM_NAME), p->atom(UTF8_STRING), 8, strlen(p->name),
                         (const void *) p->name);
 }
 
 void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
 {
-    if (atom == net_supported) {
+    if (atom == p->atom(_NET_SUPPORTED)) {
         p->properties |= Supported;
     }
 
-    else if (atom == net_supporting_wm_check) {
+    else if (atom == p->atom(_NET_SUPPORTING_WM_CHECK)) {
         p->properties |= SupportingWMCheck;
     }
 
-    else if (atom == net_client_list) {
+    else if (atom == p->atom(_NET_CLIENT_LIST)) {
         p->properties |= ClientList;
     }
 
-    else if (atom == net_client_list_stacking) {
+    else if (atom == p->atom(_NET_CLIENT_LIST_STACKING)) {
         p->properties |= ClientListStacking;
     }
 
-    else if (atom == net_number_of_desktops) {
+    else if (atom == p->atom(_NET_NUMBER_OF_DESKTOPS)) {
         p->properties |= NumberOfDesktops;
     }
 
-    else if (atom == net_desktop_geometry) {
+    else if (atom == p->atom(_NET_DESKTOP_GEOMETRY)) {
         p->properties |= DesktopGeometry;
     }
 
-    else if (atom == net_desktop_viewport) {
+    else if (atom == p->atom(_NET_DESKTOP_VIEWPORT)) {
         p->properties |= DesktopViewport;
     }
 
-    else if (atom == net_current_desktop) {
+    else if (atom == p->atom(_NET_CURRENT_DESKTOP)) {
         p->properties |= CurrentDesktop;
     }
 
-    else if (atom == net_desktop_names) {
+    else if (atom == p->atom(_NET_DESKTOP_NAMES)) {
         p->properties |= DesktopNames;
     }
 
-    else if (atom == net_active_window) {
+    else if (atom == p->atom(_NET_ACTIVE_WINDOW)) {
         p->properties |= ActiveWindow;
     }
 
-    else if (atom == net_workarea) {
+    else if (atom == p->atom(_NET_WORKAREA)) {
         p->properties |= WorkArea;
     }
 
-    else if (atom == net_virtual_roots) {
+    else if (atom == p->atom(_NET_VIRTUAL_ROOTS)) {
         p->properties |= VirtualRoots;
     }
 
-    else if (atom == net_desktop_layout) {
+    else if (atom == p->atom(_NET_DESKTOP_LAYOUT)) {
         p->properties2 |= WM2DesktopLayout;
     }
 
-    else if (atom == net_close_window) {
+    else if (atom == p->atom(_NET_CLOSE_WINDOW)) {
         p->properties |= CloseWindow;
     }
 
-    else if (atom == net_restack_window) {
+    else if (atom == p->atom(_NET_RESTACK_WINDOW)) {
         p->properties2 |= WM2RestackWindow;
     }
 
-    else if (atom == net_showing_desktop) {
+    else if (atom == p->atom(_NET_SHOWING_DESKTOP)) {
         p->properties2 |= WM2ShowingDesktop;
     }
 
     // Application window properties/messages
-    else if (atom == net_wm_moveresize) {
+    else if (atom == p->atom(_NET_WM_MOVERESIZE)) {
         p->properties |= WMMoveResize;
     }
 
-    else if (atom == net_moveresize_window) {
+    else if (atom == p->atom(_NET_MOVERESIZE_WINDOW)) {
         p->properties2 |= WM2MoveResizeWindow;
     }
 
-    else if (atom == net_wm_name) {
+    else if (atom == p->atom(_NET_WM_NAME)) {
         p->properties |= WMName;
     }
 
-    else if (atom == net_wm_visible_name) {
+    else if (atom == p->atom(_NET_WM_VISIBLE_NAME)) {
         p->properties |= WMVisibleName;
     }
 
-    else if (atom == net_wm_icon_name) {
+    else if (atom == p->atom(_NET_WM_ICON_NAME)) {
         p->properties |= WMIconName;
     }
 
-    else if (atom == net_wm_visible_icon_name) {
+    else if (atom == p->atom(_NET_WM_VISIBLE_ICON_NAME)) {
         p->properties |= WMVisibleIconName;
     }
 
-    else if (atom == net_wm_desktop) {
+    else if (atom == p->atom(_NET_WM_DESKTOP)) {
         p->properties |= WMDesktop;
     }
 
-    else if (atom == net_wm_window_type) {
+    else if (atom == p->atom(_NET_WM_WINDOW_TYPE)) {
         p->properties |= WMWindowType;
     }
 
     // Application window types
-    else if (atom == net_wm_window_type_normal) {
+    else if (atom == p->atom(_NET_WM_WINDOW_TYPE_NORMAL)) {
         p->windowTypes |= NormalMask;
-    } else if (atom == net_wm_window_type_desktop) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_DESKTOP)) {
         p->windowTypes |= DesktopMask;
-    } else if (atom == net_wm_window_type_dock) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_DOCK)) {
         p->windowTypes |= DockMask;
-    } else if (atom == net_wm_window_type_toolbar) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_TOOLBAR)) {
         p->windowTypes |= ToolbarMask;
-    } else if (atom == net_wm_window_type_menu) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_MENU)) {
         p->windowTypes |= MenuMask;
-    } else if (atom == net_wm_window_type_dialog) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_DIALOG)) {
         p->windowTypes |= DialogMask;
-    } else if (atom == net_wm_window_type_utility) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_UTILITY)) {
         p->windowTypes |= UtilityMask;
-    } else if (atom == net_wm_window_type_splash) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_SPLASH)) {
         p->windowTypes |= SplashMask;
-    } else if (atom == net_wm_window_type_dropdown_menu) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_DROPDOWN_MENU)) {
         p->windowTypes |= DropdownMenuMask;
-    } else if (atom == net_wm_window_type_popup_menu) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_POPUP_MENU)) {
         p->windowTypes |= PopupMenuMask;
-    } else if (atom == net_wm_window_type_tooltip) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_TOOLTIP)) {
         p->windowTypes |= TooltipMask;
-    } else if (atom == net_wm_window_type_notification) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION)) {
         p->windowTypes |= NotificationMask;
-    } else if (atom == net_wm_window_type_combobox) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_COMBOBOX)) {
         p->windowTypes |= ComboBoxMask;
-    } else if (atom == net_wm_window_type_dnd) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_DND)) {
         p->windowTypes |= DNDIconMask;
     }
     // KDE extensions
-    else if (atom == kde_net_wm_window_type_override) {
+    else if (atom == p->atom(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE)) {
         p->windowTypes |= OverrideMask;
-    } else if (atom == kde_net_wm_window_type_topmenu) {
+    } else if (atom == p->atom(_KDE_NET_WM_WINDOW_TYPE_TOPMENU)) {
         p->windowTypes |= TopMenuMask;
-    } else if (atom == kde_net_wm_window_type_on_screen_display) {
+    } else if (atom == p->atom(_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY)) {
         p->windowTypes |= OnScreenDisplayMask;
     }
 
-    else if (atom == net_wm_state) {
+    else if (atom == p->atom(_NET_WM_STATE)) {
         p->properties |= WMState;
     }
 
     // Application window states
-    else if (atom == net_wm_state_modal) {
+    else if (atom == p->atom(_NET_WM_STATE_MODAL)) {
         p->states |= Modal;
-    } else if (atom == net_wm_state_sticky) {
+    } else if (atom == p->atom(_NET_WM_STATE_STICKY)) {
         p->states |= Sticky;
-    } else if (atom == net_wm_state_max_vert) {
+    } else if (atom == p->atom(_NET_WM_STATE_MAXIMIZED_VERT)) {
         p->states |= MaxVert;
-    } else if (atom == net_wm_state_max_horiz) {
+    } else if (atom == p->atom(_NET_WM_STATE_MAXIMIZED_HORZ)) {
         p->states |= MaxHoriz;
-    } else if (atom == net_wm_state_shaded) {
+    } else if (atom == p->atom(_NET_WM_STATE_SHADED)) {
         p->states |= Shaded;
-    } else if (atom == net_wm_state_skip_taskbar) {
+    } else if (atom == p->atom(_NET_WM_STATE_SKIP_TASKBAR)) {
         p->states |= SkipTaskbar;
-    } else if (atom == net_wm_state_skip_pager) {
+    } else if (atom == p->atom(_NET_WM_STATE_SKIP_PAGER)) {
         p->states |= SkipPager;
-    } else if (atom == net_wm_state_hidden) {
+    } else if (atom == p->atom(_NET_WM_STATE_HIDDEN)) {
         p->states |= Hidden;
-    } else if (atom == net_wm_state_fullscreen) {
+    } else if (atom == p->atom(_NET_WM_STATE_FULLSCREEN)) {
         p->states |= FullScreen;
-    } else if (atom == net_wm_state_above) {
+    } else if (atom == p->atom(_NET_WM_STATE_ABOVE)) {
         p->states |= KeepAbove;
-    } else if (atom == net_wm_state_below) {
+    } else if (atom == p->atom(_NET_WM_STATE_BELOW)) {
         p->states |= KeepBelow;
-    } else if (atom == net_wm_state_demands_attention) {
+    } else if (atom == p->atom(_NET_WM_STATE_DEMANDS_ATTENTION)) {
         p->states |= DemandsAttention;
     }
 
-    else if (atom == net_wm_state_stays_on_top) {
+    else if (atom == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
         p->states |= StaysOnTop;
     }
 
-    else if (atom == net_wm_strut) {
+    else if (atom == p->atom(_NET_WM_STRUT)) {
         p->properties |= WMStrut;
     }
 
-    else if (atom == net_wm_extended_strut) {
+    else if (atom == p->atom(_NET_WM_STRUT_PARTIAL)) {
         p->properties2 |= WM2ExtendedStrut;
     }
 
-    else if (atom == net_wm_icon_geometry) {
+    else if (atom == p->atom(_NET_WM_ICON_GEOMETRY)) {
         p->properties |= WMIconGeometry;
     }
 
-    else if (atom == net_wm_icon) {
+    else if (atom == p->atom(_NET_WM_ICON)) {
         p->properties |= WMIcon;
     }
 
-    else if (atom == net_wm_pid) {
+    else if (atom == p->atom(_NET_WM_PID)) {
         p->properties |= WMPid;
     }
 
-    else if (atom == net_wm_handled_icons) {
+    else if (atom == p->atom(_NET_WM_HANDLED_ICONS)) {
         p->properties |= WMHandledIcons;
     }
 
-    else if (atom == net_wm_ping) {
+    else if (atom == p->atom(_NET_WM_PING)) {
         p->properties |= WMPing;
     }
 
-    else if (atom == net_wm_user_time) {
+    else if (atom == p->atom(_NET_WM_USER_TIME)) {
         p->properties2 |= WM2UserTime;
     }
 
-    else if (atom == net_startup_id) {
+    else if (atom == p->atom(_NET_STARTUP_ID)) {
         p->properties2 |= WM2StartupId;
     }
 
-    else if (atom == net_wm_window_opacity) {
+    else if (atom == p->atom(_NET_WM_WINDOW_OPACITY)) {
         p->properties2 |= WM2Opacity;
     }
 
-    else if (atom == net_wm_fullscreen_monitors) {
+    else if (atom == p->atom(_NET_WM_FULLSCREEN_MONITORS)) {
         p->properties2 |= WM2FullscreenMonitors;
     }
 
-    else if (atom == net_wm_allowed_actions) {
+    else if (atom == p->atom(_NET_WM_ALLOWED_ACTIONS)) {
         p->properties2 |= WM2AllowedActions;
     }
 
     // Actions
-    else if (atom == net_wm_action_move) {
+    else if (atom == p->atom(_NET_WM_ACTION_MOVE)) {
         p->actions |= ActionMove;
-    } else if (atom == net_wm_action_resize) {
+    } else if (atom == p->atom(_NET_WM_ACTION_RESIZE)) {
         p->actions |= ActionResize;
-    } else if (atom == net_wm_action_minimize) {
+    } else if (atom == p->atom(_NET_WM_ACTION_MINIMIZE)) {
         p->actions |= ActionMinimize;
-    } else if (atom == net_wm_action_shade) {
+    } else if (atom == p->atom(_NET_WM_ACTION_SHADE)) {
         p->actions |= ActionShade;
-    } else if (atom == net_wm_action_stick) {
+    } else if (atom == p->atom(_NET_WM_ACTION_STICK)) {
         p->actions |= ActionStick;
-    } else if (atom == net_wm_action_max_vert) {
+    } else if (atom == p->atom(_NET_WM_ACTION_MAXIMIZE_VERT)) {
         p->actions |= ActionMaxVert;
-    } else if (atom == net_wm_action_max_horiz) {
+    } else if (atom == p->atom(_NET_WM_ACTION_MAXIMIZE_HORZ)) {
         p->actions |= ActionMaxHoriz;
-    } else if (atom == net_wm_action_fullscreen) {
+    } else if (atom == p->atom(_NET_WM_ACTION_FULLSCREEN)) {
         p->actions |= ActionFullScreen;
-    } else if (atom == net_wm_action_change_desk) {
+    } else if (atom == p->atom(_NET_WM_ACTION_CHANGE_DESKTOP)) {
         p->actions |= ActionChangeDesktop;
-    } else if (atom == net_wm_action_close) {
+    } else if (atom == p->atom(_NET_WM_ACTION_CLOSE)) {
         p->actions |= ActionClose;
     }
 
-    else if (atom == net_frame_extents) {
+    else if (atom == p->atom(_NET_FRAME_EXTENTS)) {
         p->properties |= WMFrameExtents;
-    } else if (atom == kde_net_wm_frame_strut) {
+    } else if (atom == p->atom(_KDE_NET_WM_FRAME_STRUT)) {
         p->properties |= WMFrameExtents;
-    } else if (atom == kde_net_wm_frame_overlap) {
+    } else if (atom == p->atom(_NET_WM_FRAME_OVERLAP)) {
         p->properties2 |= WM2FrameOverlap;
     }
 
-    else if (atom == kde_net_wm_temporary_rules) {
+    else if (atom == p->atom(_KDE_NET_WM_TEMPORARY_RULES)) {
         p->properties2 |= WM2KDETemporaryRules;
-    } else if (atom == net_wm_full_placement) {
+    } else if (atom == p->atom(_NET_WM_FULL_PLACEMENT)) {
         p->properties2 |= WM2FullPlacement;
     }
 
-    else if (atom == kde_net_wm_activities) {
+    else if (atom == p->atom(_KDE_NET_WM_ACTIVITIES)) {
         p->properties2 |= WM2Activities;
     }
 
-    else if (atom == kde_net_wm_block_compositing) {
+    else if (atom == p->atom(_KDE_NET_WM_BLOCK_COMPOSITING)) {
         p->properties2 |= WM2BlockCompositing;
     }
 
-    else if (atom == kde_net_wm_shadow) {
+    else if (atom == p->atom(_KDE_NET_WM_SHADOW)) {
         p->properties2 |= WM2KDEShadow;
     }
 
-    else if (atom == net_wm_opaque_region) {
+    else if (atom == p->atom(_NET_WM_OPAQUE_REGION)) {
         p->properties2 |= WM2OpaqueRegion;
     }
 }
@@ -1663,7 +1449,7 @@ void NETRootInfo::setActiveWindow(xcb_window_t window, NET::RequestSource src,
     if (p->role == WindowManager) {
         p->active = window;
 
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_active_window,
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_ACTIVE_WINDOW),
                             XCB_ATOM_WINDOW, 32, 1, (const void *) & (p->active));
     } else {
         const uint32_t data[5] = {
@@ -1671,7 +1457,7 @@ void NETRootInfo::setActiveWindow(xcb_window_t window, NET::RequestSource src,
         };
 
         send_client_message(p->conn, netwm_sendevent_mask, p->root,
-                            window, net_active_window, data);
+                            window, p->atom(_NET_ACTIVE_WINDOW), data);
     }
 }
 
@@ -1698,7 +1484,7 @@ void NETRootInfo::setWorkArea(int desktop, const NETRect &workarea)
         wa[o++] = p->workarea[i].size.height;
     }
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_workarea,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_WORKAREA),
                         XCB_ATOM_CARDINAL, 32, p->number_of_desktops * 4,
                         (const void *) wa);
 
@@ -1720,7 +1506,7 @@ void NETRootInfo::setVirtualRoots(const xcb_window_t *windows, unsigned int coun
             p->virtual_roots_count);
 #endif
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_virtual_roots,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_VIRTUAL_ROOTS),
                         XCB_ATOM_WINDOW, 32, p->virtual_roots_count,
                         (const void *) windows);
 }
@@ -1744,7 +1530,7 @@ void NETRootInfo::setDesktopLayout(NET::Orientation orientation, int columns, in
     data[2] = rows;
     data[3] = corner;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_desktop_layout,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_DESKTOP_LAYOUT),
                         XCB_ATOM_CARDINAL, 32, 4, (const void *) data);
 }
 
@@ -1752,14 +1538,14 @@ void NETRootInfo::setShowingDesktop(bool showing)
 {
     if (p->role == WindowManager) {
         uint32_t d = p->showing_desktop = showing;
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, net_showing_desktop,
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_SHOWING_DESKTOP),
                             XCB_ATOM_CARDINAL, 32, 1, (const void *) &d);
     } else {
 
         uint32_t data[5] = {
             uint32_t(showing ? 1 : 0), 0, 0, 0, 0
         };
-        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, net_showing_desktop, data);
+        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, p->atom(_NET_SHOWING_DESKTOP), data);
     }
 }
 
@@ -1776,7 +1562,7 @@ void NETRootInfo::closeWindowRequest(xcb_window_t window)
 #endif
 
     const uint32_t data[5] = { 0, 0, 0, 0, 0 };
-    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, net_close_window, data);
+    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_NET_CLOSE_WINDOW), data);
 }
 
 void NETRootInfo::moveResizeRequest(xcb_window_t window, int x_root, int y_root,
@@ -1792,7 +1578,7 @@ void NETRootInfo::moveResizeRequest(xcb_window_t window, int x_root, int y_root,
         uint32_t(x_root), uint32_t(y_root), uint32_t(direction), 0, 0
     };
 
-    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, net_wm_moveresize, data);
+    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_NET_WM_MOVERESIZE), data);
 }
 
 void NETRootInfo::moveResizeWindowRequest(xcb_window_t window, int flags, int x, int y, int width, int height)
@@ -1807,7 +1593,7 @@ void NETRootInfo::moveResizeWindowRequest(xcb_window_t window, int flags, int x,
         uint32_t(flags), uint32_t(x), uint32_t(y), uint32_t(width), uint32_t(height)
     };
 
-    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, net_moveresize_window, data);
+    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_NET_MOVERESIZE_WINDOW), data);
 }
 
 void NETRootInfo::restackRequest(xcb_window_t window, RequestSource src, xcb_window_t above, int detail, xcb_timestamp_t timestamp)
@@ -1822,7 +1608,7 @@ void NETRootInfo::restackRequest(xcb_window_t window, RequestSource src, xcb_win
         uint32_t(src), uint32_t(above), uint32_t(detail), uint32_t(timestamp), 0
     };
 
-    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, net_restack_window, data);
+    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_NET_RESTACK_WINDOW), data);
 }
 
 void NETRootInfo::sendPing(xcb_window_t window, xcb_timestamp_t timestamp)
@@ -1837,10 +1623,10 @@ void NETRootInfo::sendPing(xcb_window_t window, xcb_timestamp_t timestamp)
 #endif
 
     const uint32_t data[5] = {
-        net_wm_ping, timestamp, window, 0, 0
+        p->atom(_NET_WM_PING), timestamp, window, 0, 0
     };
 
-    send_client_message(p->conn, 0, window, window, wm_protocols, data);
+    send_client_message(p->conn, 0, window, window, p->atom(WM_PROTOCOLS), data);
 }
 
 // assignment operator
@@ -1911,7 +1697,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
         fprintf(stderr, "NETRootInfo::event: handling ClientMessage event\n");
 #endif
 
-        if (message->type == net_number_of_desktops) {
+        if (message->type == p->atom(_NET_NUMBER_OF_DESKTOPS)) {
             dirty = NumberOfDesktops;
 
 #ifdef   NETWMDEBUG
@@ -1920,7 +1706,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
             changeNumberOfDesktops(message->data.data32[0]);
-        } else if (message->type == net_desktop_geometry) {
+        } else if (message->type == p->atom(_NET_DESKTOP_GEOMETRY)) {
             dirty = DesktopGeometry;
 
             NETSize sz;
@@ -1933,7 +1719,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
             changeDesktopGeometry(~0, sz);
-        } else if (message->type == net_desktop_viewport) {
+        } else if (message->type == p->atom(_NET_DESKTOP_VIEWPORT)) {
             dirty = DesktopViewport;
 
             NETPoint pt;
@@ -1946,7 +1732,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
             changeDesktopViewport(p->current_desktop, pt);
-        } else if (message->type == net_current_desktop) {
+        } else if (message->type == p->atom(_NET_CURRENT_DESKTOP)) {
             dirty = CurrentDesktop;
 
 #ifdef   NETWMDEBUG
@@ -1955,7 +1741,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
             changeCurrentDesktop(message->data.data32[0] + 1);
-        } else if (message->type == net_active_window) {
+        } else if (message->type == p->atom(_NET_ACTIVE_WINDOW)) {
             dirty = ActiveWindow;
 
 #ifdef    NETWMDEBUG
@@ -1974,7 +1760,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
                 active_window = message->data.data32[2];
             }
             changeActiveWindow(message->window, src, timestamp, active_window);
-        } else if (message->type == net_wm_moveresize) {
+        } else if (message->type == p->atom(_NET_WM_MOVERESIZE)) {
 
 #ifdef    NETWMDEBUG
             fprintf(stderr, "NETRootInfo::event: moveResize(%ld, %ld, %ld, %ld)\n",
@@ -1989,7 +1775,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
                        message->data.data32[0],
                        message->data.data32[1],
                        message->data.data32[2]);
-        } else if (message->type == net_moveresize_window) {
+        } else if (message->type == p->atom(_NET_MOVERESIZE_WINDOW)) {
 
 #ifdef    NETWMDEBUG
             fprintf(stderr, "NETRootInfo::event: moveResizeWindow(%ld, %ld, %ld, %ld, %ld, %ld)\n",
@@ -2008,7 +1794,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
                              message->data.data32[2],
                              message->data.data32[3],
                              message->data.data32[4]);
-        } else if (message->type == net_close_window) {
+        } else if (message->type == p->atom(_NET_CLOSE_WINDOW)) {
 
 #ifdef   NETWMDEBUG
             fprintf(stderr, "NETRootInfo::event: closeWindow(0x%lx)\n",
@@ -2016,7 +1802,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
             closeWindow(message->window);
-        } else if (message->type == net_restack_window) {
+        } else if (message->type == p->atom(_NET_RESTACK_WINDOW)) {
 
 #ifdef   NETWMDEBUG
             fprintf(stderr, "NETRootInfo::event: restackWindow(0x%lx)\n",
@@ -2033,8 +1819,8 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
             }
             restackWindow(message->window, src,
                           message->data.data32[1], message->data.data32[2], timestamp);
-        } else if (message->type == wm_protocols
-                   && (xcb_atom_t)message->data.data32[ 0 ] == net_wm_ping) {
+        } else if (message->type == p->atom(WM_PROTOCOLS)
+                   && (xcb_atom_t)message->data.data32[ 0 ] == p->atom(_NET_WM_PING)) {
             dirty = WMPing;
 
 #ifdef   NETWMDEBUG
@@ -2042,7 +1828,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
                     message->window, message->data.data32[1]);
 #endif
             gotPing(message->data.data32[2], message->data.data32[1]);
-        } else if (message->type == net_showing_desktop) {
+        } else if (message->type == p->atom(_NET_SHOWING_DESKTOP)) {
             dirty2 = WM2ShowingDesktop;
 
 #ifdef   NETWMDEBUG
@@ -2061,33 +1847,33 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
         xcb_property_notify_event_t *pe = reinterpret_cast<xcb_property_notify_event_t *>(event);
-        if (pe->atom == net_client_list) {
+        if (pe->atom == p->atom(_NET_CLIENT_LIST)) {
             dirty |= ClientList;
-        } else if (pe->atom == net_client_list_stacking) {
+        } else if (pe->atom == p->atom(_NET_CLIENT_LIST_STACKING)) {
             dirty |= ClientListStacking;
-        } else if (pe->atom == net_desktop_names) {
+        } else if (pe->atom == p->atom(_NET_DESKTOP_NAMES)) {
             dirty |= DesktopNames;
-        } else if (pe->atom == net_workarea) {
+        } else if (pe->atom == p->atom(_NET_WORKAREA)) {
             dirty |= WorkArea;
-        } else if (pe->atom == net_number_of_desktops) {
+        } else if (pe->atom == p->atom(_NET_NUMBER_OF_DESKTOPS)) {
             dirty |= NumberOfDesktops;
-        } else if (pe->atom == net_desktop_geometry) {
+        } else if (pe->atom == p->atom(_NET_DESKTOP_GEOMETRY)) {
             dirty |= DesktopGeometry;
-        } else if (pe->atom == net_desktop_viewport) {
+        } else if (pe->atom == p->atom(_NET_DESKTOP_VIEWPORT)) {
             dirty |= DesktopViewport;
-        } else if (pe->atom == net_current_desktop) {
+        } else if (pe->atom == p->atom(_NET_CURRENT_DESKTOP)) {
             dirty |= CurrentDesktop;
-        } else if (pe->atom == net_active_window) {
+        } else if (pe->atom == p->atom(_NET_ACTIVE_WINDOW)) {
             dirty |= ActiveWindow;
-        } else if (pe->atom == net_showing_desktop) {
+        } else if (pe->atom == p->atom(_NET_SHOWING_DESKTOP)) {
             dirty2 |= WM2ShowingDesktop;
-        } else if (pe->atom == net_supported) {
+        } else if (pe->atom == p->atom(_NET_SUPPORTED)) {
             dirty |= Supported;    // update here?
-        } else if (pe->atom == net_supporting_wm_check) {
+        } else if (pe->atom == p->atom(_NET_SUPPORTING_WM_CHECK)) {
             dirty |= SupportingWMCheck;
-        } else if (pe->atom == net_virtual_roots) {
+        } else if (pe->atom == p->atom(_NET_VIRTUAL_ROOTS)) {
             dirty |= VirtualRoots;
-        } else if (pe->atom == net_desktop_layout) {
+        } else if (pe->atom == p->atom(_NET_DESKTOP_LAYOUT)) {
             dirty2 |= WM2DesktopLayout;
         }
 
@@ -2124,59 +1910,59 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
 
     // Send the property requests
     if (dirty & Supported) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_supported, XCB_ATOM_ATOM, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_SUPPORTED), XCB_ATOM_ATOM, 0, MAX_PROP_SIZE);
     }
 
     if (dirty & ClientList) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_client_list, XCB_ATOM_WINDOW, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_CLIENT_LIST), XCB_ATOM_WINDOW, 0, MAX_PROP_SIZE);
     }
 
     if (dirty & ClientListStacking) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_client_list_stacking, XCB_ATOM_WINDOW, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_CLIENT_LIST_STACKING), XCB_ATOM_WINDOW, 0, MAX_PROP_SIZE);
     }
 
     if (dirty & NumberOfDesktops) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_number_of_desktops, XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_NUMBER_OF_DESKTOPS), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty & DesktopGeometry) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_desktop_geometry, XCB_ATOM_CARDINAL, 0, 2);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_DESKTOP_GEOMETRY), XCB_ATOM_CARDINAL, 0, 2);
     }
 
     if (dirty & DesktopViewport) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_desktop_viewport, XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_DESKTOP_VIEWPORT), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
     }
 
     if (dirty & CurrentDesktop) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_current_desktop, XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_CURRENT_DESKTOP), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty & DesktopNames) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_desktop_names, UTF8_STRING, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_DESKTOP_NAMES), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
     if (dirty & ActiveWindow) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_active_window, XCB_ATOM_WINDOW, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_ACTIVE_WINDOW), XCB_ATOM_WINDOW, 0, 1);
     }
 
     if (dirty & WorkArea) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_workarea, XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_WORKAREA), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
     }
 
     if (dirty & SupportingWMCheck) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_supporting_wm_check, XCB_ATOM_WINDOW, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_SUPPORTING_WM_CHECK), XCB_ATOM_WINDOW, 0, 1);
     }
 
     if (dirty & VirtualRoots) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_virtual_roots, XCB_ATOM_WINDOW, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_VIRTUAL_ROOTS), XCB_ATOM_WINDOW, 0, 1);
     }
 
     if (dirty2 & WM2DesktopLayout) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_desktop_layout, XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_DESKTOP_LAYOUT), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2ShowingDesktop) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, net_showing_desktop, XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_SHOWING_DESKTOP), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     // Get the replies
@@ -2351,7 +2137,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
 
         p->desktop_names.reset();
 
-        const QList<QByteArray> names = get_stringlist_reply(p->conn, cookies[c++], UTF8_STRING);
+        const QList<QByteArray> names = get_stringlist_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
         for (int i = 0; i < names.count(); i++) {
             p->desktop_names[i] = nstrndup(names[i].constData(), names[i].length());
         }
@@ -2398,8 +2184,8 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
         // We'll get the reply for this request at the bottom of this function,
         // after we've processing the other pending replies
         if (p->supportwindow)
-            wm_name_cookie = xcb_get_property(p->conn, false, p->supportwindow, net_wm_name,
-                                              UTF8_STRING, 0, MAX_PROP_SIZE);
+            wm_name_cookie = xcb_get_property(p->conn, false, p->supportwindow, p->atom(_NET_WM_NAME),
+                                              p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
     if (dirty & VirtualRoots) {
@@ -2462,7 +2248,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
     }
 
     if ((dirty & SupportingWMCheck) && p->supportwindow) {
-        const QByteArray ba = get_string_reply(p->conn, wm_name_cookie, UTF8_STRING);
+        const QByteArray ba = get_string_reply(p->conn, wm_name_cookie, p->atom(UTF8_STRING));
         if (ba.length() > 0) {
             p->name = nstrndup((const char *) ba.constData(), ba.length());
         }
@@ -2769,6 +2555,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
 
     p = new NETWinInfoPrivate;
     p->ref = 1;
+    p->atoms = atomsForConnection(connection);
 
     p->conn = connection;
     p->window = window;
@@ -2815,10 +2602,6 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
 
     p->role = role;
 
-    if (! netwm_atoms_created) {
-        create_netwm_atoms(p->conn);
-    }
-
     update(p->properties, p->properties2);
 }
 
@@ -2834,6 +2617,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
 
     p = new NETWinInfoPrivate;
     p->ref = 1;
+    p->atoms = atomsForConnection(connection);
 
     p->conn = connection;
     p->window = window;
@@ -2880,10 +2664,6 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
 
     p->role = role;
 
-    if (! netwm_atoms_created) {
-        create_netwm_atoms(p->conn);
-    }
-
     update(p->properties);
 }
 #endif
@@ -2928,7 +2708,7 @@ const NETWinInfo &NETWinInfo::operator=(const NETWinInfo &wininfo)
 
 void NETWinInfo::setIcon(NETIcon icon, bool replace)
 {
-    setIconInternal(p->icons, p->icon_count, net_wm_icon, icon, replace);
+    setIconInternal(p->icons, p->icon_count, p->atom(_NET_WM_ICON), icon, replace);
 }
 
 void NETWinInfo::setIconInternal(NETRArray<NETIcon> &icons, int &icon_count, xcb_atom_t property, NETIcon icon, bool replace)
@@ -2998,7 +2778,7 @@ void NETWinInfo::setIconGeometry(NETRect geometry)
     p->icon_geom = geometry;
 
     if (geometry.size.width == 0) { // Empty
-        xcb_delete_property(p->conn, p->window, net_wm_icon_geometry);
+        xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_ICON_GEOMETRY));
     } else {
         uint32_t data[4];
         data[0] = geometry.pos.x;
@@ -3006,7 +2786,7 @@ void NETWinInfo::setIconGeometry(NETRect geometry)
         data[2] = geometry.size.width;
         data[3] = geometry.size.height;
 
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_icon_geometry,
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_ICON_GEOMETRY),
                             XCB_ATOM_CARDINAL, 32, 4, (const void *) data);
     }
 }
@@ -3033,7 +2813,7 @@ void NETWinInfo::setExtendedStrut(const NETExtendedStrut &extended_strut)
     data[10] = extended_strut.bottom_start;
     data[11] = extended_strut.bottom_end;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_extended_strut,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_STRUT_PARTIAL),
                         XCB_ATOM_CARDINAL, 32, 12, (const void *) data);
 }
 
@@ -3051,7 +2831,7 @@ void NETWinInfo::setStrut(NETStrut strut)
     data[2] = strut.top;
     data[3] = strut.bottom;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_strut,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_STRUT),
                         XCB_ATOM_CARDINAL, 32, 4, (const void *) data);
 }
 
@@ -3069,7 +2849,7 @@ void NETWinInfo::setFullscreenMonitors(NETFullscreenMonitors topology)
     data[2] = topology.left;
     data[3] = topology.right;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_fullscreen_monitors,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_FULLSCREEN_MONITORS),
                         XCB_ATOM_CARDINAL, 32, 4, (const void *) data);
 }
 
@@ -3100,13 +2880,13 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
         event.format = 32;
         event.sequence = 0;
         event.window = p->window;
-        event.type = net_wm_state;
+        event.type = p->atom(_NET_WM_STATE);
         event.data.data32[3] = 0;
         event.data.data32[4] = 0;
 
         if ((mask & Modal) && ((p->state & Modal) != (state & Modal))) {
             event.data.data32[0] = (state & Modal) ? 1 : 0;
-            event.data.data32[1] = net_wm_state_modal;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_MODAL);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3114,7 +2894,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & Sticky) && ((p->state & Sticky) != (state & Sticky))) {
             event.data.data32[0] = (state & Sticky) ? 1 : 0;
-            event.data.data32[1] = net_wm_state_sticky;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_STICKY);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3127,34 +2907,34 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
                     && ((wishstate & MaxVert) != (p->state & MaxVert))) {
                 if ((wishstate & Max) == Max) {
                     event.data.data32[0] = 1;
-                    event.data.data32[1] = net_wm_state_max_horiz;
-                    event.data.data32[2] = net_wm_state_max_vert;
+                    event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
+                    event.data.data32[2] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
                     xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
                 } else if ((wishstate & Max) == 0) {
                     event.data.data32[0] = 0;
-                    event.data.data32[1] = net_wm_state_max_horiz;
-                    event.data.data32[2] = net_wm_state_max_vert;
+                    event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
+                    event.data.data32[2] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
                     xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
                 } else {
                     event.data.data32[0] = (wishstate & MaxHoriz) ? 1 : 0;
-                    event.data.data32[1] = net_wm_state_max_horiz;
+                    event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
                     event.data.data32[2] = 0;
                     xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
 
                     event.data.data32[0] = (wishstate & MaxVert) ? 1 : 0;
-                    event.data.data32[1] = net_wm_state_max_vert;
+                    event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
                     event.data.data32[2] = 0;
                     xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
                 }
             } else if ((wishstate & MaxVert) != (p->state & MaxVert)) {
                 event.data.data32[0] = (wishstate & MaxVert) ? 1 : 0;
-                event.data.data32[1] = net_wm_state_max_vert;
+                event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
                 event.data.data32[2] = 0;
 
                 xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
             } else if ((wishstate & MaxHoriz) != (p->state & MaxHoriz)) {
                 event.data.data32[0] = (wishstate & MaxHoriz) ? 1 : 0;
-                event.data.data32[1] = net_wm_state_max_horiz;
+                event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
                 event.data.data32[2] = 0;
 
                 xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3163,7 +2943,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & Shaded) && ((p->state & Shaded) != (state & Shaded))) {
             event.data.data32[0] = (state & Shaded) ? 1 : 0;
-            event.data.data32[1] = net_wm_state_shaded;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_SHADED);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3171,7 +2951,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & SkipTaskbar) && ((p->state & SkipTaskbar) != (state & SkipTaskbar))) {
             event.data.data32[0] = (state & SkipTaskbar) ? 1 : 0;
-            event.data.data32[1] = net_wm_state_skip_taskbar;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_SKIP_TASKBAR);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3179,7 +2959,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & SkipPager) && ((p->state & SkipPager) != (state & SkipPager))) {
             event.data.data32[0] = (state & SkipPager) ? 1 : 0;
-            event.data.data32[1] = net_wm_state_skip_pager;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_SKIP_PAGER);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3187,7 +2967,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & Hidden) && ((p->state & Hidden) != (state & Hidden))) {
             event.data.data32[0] = (state & Hidden) ? 1 : 0;
-            event.data.data32[1] = net_wm_state_hidden;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_HIDDEN);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3195,7 +2975,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & FullScreen) && ((p->state & FullScreen) != (state & FullScreen))) {
             event.data.data32[0] = (state & FullScreen) ? 1 : 0;
-            event.data.data32[1] = net_wm_state_fullscreen;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_FULLSCREEN);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3203,7 +2983,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & KeepAbove) && ((p->state & KeepAbove) != (state & KeepAbove))) {
             event.data.data32[0] = (state & KeepAbove) ? 1 : 0;
-            event.data.data32[1] = net_wm_state_above;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_ABOVE);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3211,7 +2991,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & KeepBelow) && ((p->state & KeepBelow) != (state & KeepBelow))) {
             event.data.data32[0] = (state & KeepBelow) ? 1 : 0;
-            event.data.data32[1] = net_wm_state_below;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_BELOW);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3219,7 +2999,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & StaysOnTop) && ((p->state & StaysOnTop) != (state & StaysOnTop))) {
             event.data.data32[0] = (state & StaysOnTop) ? 1 : 0;
-            event.data.data32[1] = net_wm_state_stays_on_top;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3227,7 +3007,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & DemandsAttention) && ((p->state & DemandsAttention) != (state & DemandsAttention))) {
             event.data.data32[0] = (state & DemandsAttention) ? 1 : 0;
-            event.data.data32[1] = net_wm_state_demands_attention;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_DEMANDS_ATTENTION);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3242,45 +3022,45 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         // Hints
         if (p->state & Modal) {
-            data[count++] = net_wm_state_modal;
+            data[count++] = p->atom(_NET_WM_STATE_MODAL);
         }
         if (p->state & MaxVert) {
-            data[count++] = net_wm_state_max_vert;
+            data[count++] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
         }
         if (p->state & MaxHoriz) {
-            data[count++] = net_wm_state_max_horiz;
+            data[count++] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
         }
         if (p->state & Shaded) {
-            data[count++] = net_wm_state_shaded;
+            data[count++] = p->atom(_NET_WM_STATE_SHADED);
         }
         if (p->state & Hidden) {
-            data[count++] = net_wm_state_hidden;
+            data[count++] = p->atom(_NET_WM_STATE_HIDDEN);
         }
         if (p->state & FullScreen) {
-            data[count++] = net_wm_state_fullscreen;
+            data[count++] = p->atom(_NET_WM_STATE_FULLSCREEN);
         }
         if (p->state & DemandsAttention) {
-            data[count++] = net_wm_state_demands_attention;
+            data[count++] = p->atom(_NET_WM_STATE_DEMANDS_ATTENTION);
         }
 
         // Policy
         if (p->state & KeepAbove) {
-            data[count++] = net_wm_state_above;
+            data[count++] = p->atom(_NET_WM_STATE_ABOVE);
         }
         if (p->state & KeepBelow) {
-            data[count++] = net_wm_state_below;
+            data[count++] = p->atom(_NET_WM_STATE_BELOW);
         }
         if (p->state & StaysOnTop) {
-            data[count++] = net_wm_state_stays_on_top;
+            data[count++] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
         }
         if (p->state & Sticky) {
-            data[count++] = net_wm_state_sticky;
+            data[count++] = p->atom(_NET_WM_STATE_STICKY);
         }
         if (p->state & SkipTaskbar) {
-            data[count++] = net_wm_state_skip_taskbar;
+            data[count++] = p->atom(_NET_WM_STATE_SKIP_TASKBAR);
         }
         if (p->state & SkipPager) {
-            data[count++] = net_wm_state_skip_pager;
+            data[count++] = p->atom(_NET_WM_STATE_SKIP_PAGER);
         }
 
 #ifdef NETWMDEBUG
@@ -3292,7 +3072,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
         }
 #endif
 
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_state,
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_STATE),
                             XCB_ATOM_ATOM, 32, count, (const void *) data);
     }
 }
@@ -3310,19 +3090,19 @@ void NETWinInfo::setWindowType(WindowType type)
     case Override:
         // spec extension: override window type.  we must comply with the spec
         // and provide a fall back (normal seems best)
-        data[0] = kde_net_wm_window_type_override;
-        data[1] = net_wm_window_type_normal;
+        data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE);
+        data[1] = p->atom(_NET_WM_WINDOW_TYPE_NORMAL);
         len = 2;
         break;
 
     case  Dialog:
-        data[0] = net_wm_window_type_dialog;
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_DIALOG);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case Menu:
-        data[0] = net_wm_window_type_menu;
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_MENU);
         data[1] = XCB_NONE;
         len = 1;
         break;
@@ -3330,92 +3110,92 @@ void NETWinInfo::setWindowType(WindowType type)
     case TopMenu:
         // spec extension: override window type.  we must comply with the spec
         // and provide a fall back (dock seems best)
-        data[0] = kde_net_wm_window_type_topmenu;
-        data[1] = net_wm_window_type_dock;
+        data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_TOPMENU);
+        data[1] = p->atom(_NET_WM_WINDOW_TYPE_DOCK);
         len = 2;
         break;
 
     case Toolbar:
-        data[0] = net_wm_window_type_toolbar;
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_TOOLBAR);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case Dock:
-        data[0] = net_wm_window_type_dock;
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_DOCK);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case Desktop:
-        data[0] = net_wm_window_type_desktop;
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_DESKTOP);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case Utility:
-        data[0] = net_wm_window_type_utility;
-        data[1] = net_wm_window_type_dialog; // fallback for old netwm version
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_UTILITY);
+        data[1] = p->atom(_NET_WM_WINDOW_TYPE_DIALOG); // fallback for old netwm version
         len = 2;
         break;
 
     case Splash:
-        data[0] = net_wm_window_type_splash;
-        data[1] = net_wm_window_type_dock; // fallback (dock seems best)
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_SPLASH);
+        data[1] = p->atom(_NET_WM_WINDOW_TYPE_DOCK); // fallback (dock seems best)
         len = 2;
         break;
 
     case DropdownMenu:
-        data[0] = net_wm_window_type_dropdown_menu;
-        data[1] = net_wm_window_type_menu; // fallback (tearoff seems to be the best)
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_DROPDOWN_MENU);
+        data[1] = p->atom(_NET_WM_WINDOW_TYPE_MENU); // fallback (tearoff seems to be the best)
         len = 1;
         break;
 
     case PopupMenu:
-        data[0] = net_wm_window_type_popup_menu;
-        data[1] = net_wm_window_type_menu; // fallback (tearoff seems to be the best)
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_POPUP_MENU);
+        data[1] = p->atom(_NET_WM_WINDOW_TYPE_MENU); // fallback (tearoff seems to be the best)
         len = 1;
         break;
 
     case Tooltip:
-        data[0] = net_wm_window_type_tooltip;
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_TOOLTIP);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case Notification:
-        data[0] = net_wm_window_type_notification;
-        data[1] = net_wm_window_type_utility; // fallback (utility seems to be the best)
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
+        data[1] = p->atom(_NET_WM_WINDOW_TYPE_UTILITY); // fallback (utility seems to be the best)
         len = 1;
         break;
 
     case ComboBox:
-        data[0] = net_wm_window_type_combobox;
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_COMBOBOX);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case DNDIcon:
-        data[0] = net_wm_window_type_dnd;
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_DND);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case OnScreenDisplay:
-        data[0] = kde_net_wm_window_type_on_screen_display;
-        data[1] = net_wm_window_type_notification;
+        data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY);
+        data[1] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
         len = 1;
         break;
 
     default:
     case Normal:
-        data[0] = net_wm_window_type_normal;
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_NORMAL);
         data[1] = XCB_NONE;
         len = 1;
         break;
     }
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_window_type,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_WINDOW_TYPE),
                         XCB_ATOM_ATOM, 32, len, (const void *) &data);
 }
 
@@ -3429,10 +3209,10 @@ void NETWinInfo::setName(const char *name)
     p->name = nstrdup(name);
 
     if (p->name[0] != '\0')
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_name,
-                            UTF8_STRING, 8, strlen(p->name), (const void *) p->name);
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_NAME),
+                            p->atom(UTF8_STRING), 8, strlen(p->name), (const void *) p->name);
     else {
-        xcb_delete_property(p->conn, p->window, net_wm_name);
+        xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_NAME));
     }
 }
 
@@ -3446,11 +3226,11 @@ void NETWinInfo::setVisibleName(const char *visibleName)
     p->visible_name = nstrdup(visibleName);
 
     if (p->visible_name[0] != '\0')
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_visible_name,
-                            UTF8_STRING, 8, strlen(p->visible_name),
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_VISIBLE_NAME),
+                            p->atom(UTF8_STRING), 8, strlen(p->visible_name),
                             (const void *) p->visible_name);
     else {
-        xcb_delete_property(p->conn, p->window, net_wm_visible_name);
+        xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_VISIBLE_NAME));
     }
 }
 
@@ -3464,11 +3244,11 @@ void NETWinInfo::setIconName(const char *iconName)
     p->icon_name = nstrdup(iconName);
 
     if (p->icon_name[0] != '\0')
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_icon_name,
-                            UTF8_STRING, 8, strlen(p->icon_name),
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_ICON_NAME),
+                            p->atom(UTF8_STRING), 8, strlen(p->icon_name),
                             (const void *) p->icon_name);
     else {
-        xcb_delete_property(p->conn, p->window, net_wm_icon_name);
+        xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_ICON_NAME));
     }
 }
 
@@ -3482,11 +3262,11 @@ void NETWinInfo::setVisibleIconName(const char *visibleIconName)
     p->visible_icon_name = nstrdup(visibleIconName);
 
     if (p->visible_icon_name[0] != '\0')
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_visible_icon_name,
-                            UTF8_STRING, 8, strlen(p->visible_icon_name),
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_VISIBLE_ICON_NAME),
+                            p->atom(UTF8_STRING), 8, strlen(p->visible_icon_name),
                             (const void *) p->visible_icon_name);
     else {
-        xcb_delete_property(p->conn, p->window, net_wm_visible_icon_name);
+        xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_VISIBLE_ICON_NAME));
     }
 }
 
@@ -3512,16 +3292,16 @@ void NETWinInfo::setDesktop(int desktop, bool ignore_viewport)
             desktop == OnAllDesktops ? 0xffffffff : desktop - 1, 0, 0, 0, 0
         };
 
-        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->window, net_wm_desktop, data);
+        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->window, p->atom(_NET_WM_DESKTOP), data);
     } else {
         // Otherwise we just set or remove the property directly
         p->desktop = desktop;
 
         if (desktop == 0) {
-            xcb_delete_property(p->conn, p->window, net_wm_desktop);
+            xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_DESKTOP));
         } else {
             uint32_t d = (desktop == OnAllDesktops ? 0xffffffff : desktop - 1);
-            xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_desktop,
+            xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_DESKTOP),
                                 XCB_ATOM_CARDINAL, 32, 1, (const void *) &d);
         }
     }
@@ -3535,7 +3315,7 @@ void NETWinInfo::setPid(int pid)
 
     p->pid = pid;
     uint32_t d = pid;
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_pid,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_PID),
                         XCB_ATOM_CARDINAL, 32, 1, (const void *) &d);
 }
 
@@ -3547,7 +3327,7 @@ void NETWinInfo::setHandledIcons(bool handled)
 
     p->handled_icons = handled;
     uint32_t d = handled;
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_handled_icons,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_HANDLED_ICONS),
                         XCB_ATOM_CARDINAL, 32, 1, (const void *) &d);
 }
 
@@ -3560,8 +3340,8 @@ void NETWinInfo::setStartupId(const char *id)
     delete[] p->startup_id;
     p->startup_id = nstrdup(id);
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_startup_id,
-                        UTF8_STRING, 8, strlen(p->startup_id),
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_STARTUP_ID),
+                        p->atom(UTF8_STRING), 8, strlen(p->startup_id),
                         (const void *) p->startup_id);
 }
 
@@ -3570,7 +3350,7 @@ void NETWinInfo::setOpacity(unsigned long opacity)
 //    if (p->role != Client) return;
 
     p->opacity = opacity;
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_window_opacity,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_WINDOW_OPACITY),
                         XCB_ATOM_CARDINAL, 32, 1, (const void *) &p->opacity);
 }
 
@@ -3585,34 +3365,34 @@ void NETWinInfo::setAllowedActions(NET::Actions actions)
 
     p->allowed_actions = actions;
     if (p->allowed_actions & ActionMove) {
-        data[count++] = net_wm_action_move;
+        data[count++] = p->atom(_NET_WM_ACTION_MOVE);
     }
     if (p->allowed_actions & ActionResize) {
-        data[count++] = net_wm_action_resize;
+        data[count++] = p->atom(_NET_WM_ACTION_RESIZE);
     }
     if (p->allowed_actions & ActionMinimize) {
-        data[count++] = net_wm_action_minimize;
+        data[count++] = p->atom(_NET_WM_ACTION_MINIMIZE);
     }
     if (p->allowed_actions & ActionShade) {
-        data[count++] = net_wm_action_shade;
+        data[count++] = p->atom(_NET_WM_ACTION_SHADE);
     }
     if (p->allowed_actions & ActionStick) {
-        data[count++] = net_wm_action_stick;
+        data[count++] = p->atom(_NET_WM_ACTION_STICK);
     }
     if (p->allowed_actions & ActionMaxVert) {
-        data[count++] = net_wm_action_max_vert;
+        data[count++] = p->atom(_NET_WM_ACTION_MAXIMIZE_VERT);
     }
     if (p->allowed_actions & ActionMaxHoriz) {
-        data[count++] = net_wm_action_max_horiz;
+        data[count++] = p->atom(_NET_WM_ACTION_MAXIMIZE_HORZ);
     }
     if (p->allowed_actions & ActionFullScreen) {
-        data[count++] = net_wm_action_fullscreen;
+        data[count++] = p->atom(_NET_WM_ACTION_FULLSCREEN);
     }
     if (p->allowed_actions & ActionChangeDesktop) {
-        data[count++] = net_wm_action_change_desk;
+        data[count++] = p->atom(_NET_WM_ACTION_CHANGE_DESKTOP);
     }
     if (p->allowed_actions & ActionClose) {
-        data[count++] = net_wm_action_close;
+        data[count++] = p->atom(_NET_WM_ACTION_CLOSE);
     }
 
 #ifdef NETWMDEBUG
@@ -3624,7 +3404,7 @@ void NETWinInfo::setAllowedActions(NET::Actions actions)
     }
 #endif
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_allowed_actions,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_ALLOWED_ACTIONS),
                         XCB_ATOM_ATOM, 32, count, (const void *) data);
 }
 
@@ -3642,9 +3422,9 @@ void NETWinInfo::setFrameExtents(NETStrut strut)
     d[2] = strut.top;
     d[3] = strut.bottom;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_frame_extents,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_FRAME_EXTENTS),
                         XCB_ATOM_CARDINAL, 32, 4, (const void *) d);
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, kde_net_wm_frame_strut,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_KDE_NET_WM_FRAME_STRUT),
                         XCB_ATOM_CARDINAL, 32, 4, (const void *) d);
 }
 
@@ -3670,7 +3450,7 @@ void NETWinInfo::setFrameOverlap(NETStrut strut)
     d[2] = strut.top;
     d[3] = strut.bottom;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, kde_net_wm_frame_overlap,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_FRAME_OVERLAP),
                         XCB_ATOM_CARDINAL, 32, 4, (const void *) d);
 }
 
@@ -3786,7 +3566,7 @@ void NETWinInfo::setUserTime(xcb_timestamp_t time)
     p->user_time = time;
     uint32_t d = time;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, net_wm_user_time,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_USER_TIME),
                         XCB_ATOM_CARDINAL, 32, 1, (const void *) &d);
 }
 
@@ -3811,7 +3591,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
         fprintf(stderr, "NETWinInfo::event: handling ClientMessage event\n");
 #endif // NETWMDEBUG
 
-        if (message->type == net_wm_state) {
+        if (message->type == p->atom(_NET_WM_STATE)) {
             dirty = WMState;
 
             // we need to generate a change mask
@@ -3834,31 +3614,31 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
                 }
 #endif
 
-                if ((xcb_atom_t) message->data.data32[i] == net_wm_state_modal) {
+                if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_MODAL)) {
                     mask |= Modal;
-                } else if ((xcb_atom_t) message->data.data32[i] == net_wm_state_sticky) {
+                } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_STICKY)) {
                     mask |= Sticky;
-                } else if ((xcb_atom_t) message->data.data32[i] == net_wm_state_max_vert) {
+                } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_MAXIMIZED_VERT)) {
                     mask |= MaxVert;
-                } else if ((xcb_atom_t) message->data.data32[i] == net_wm_state_max_horiz) {
+                } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_MAXIMIZED_HORZ)) {
                     mask |= MaxHoriz;
-                } else if ((xcb_atom_t) message->data.data32[i] == net_wm_state_shaded) {
+                } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_SHADED)) {
                     mask |= Shaded;
-                } else if ((xcb_atom_t) message->data.data32[i] == net_wm_state_skip_taskbar) {
+                } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_SKIP_TASKBAR)) {
                     mask |= SkipTaskbar;
-                } else if ((xcb_atom_t) message->data.data32[i] == net_wm_state_skip_pager) {
+                } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_SKIP_PAGER)) {
                     mask |= SkipPager;
-                } else if ((xcb_atom_t) message->data.data32[i] == net_wm_state_hidden) {
+                } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_HIDDEN)) {
                     mask |= Hidden;
-                } else if ((xcb_atom_t) message->data.data32[i] == net_wm_state_fullscreen) {
+                } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_FULLSCREEN)) {
                     mask |= FullScreen;
-                } else if ((xcb_atom_t) message->data.data32[i] == net_wm_state_above) {
+                } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_ABOVE)) {
                     mask |= KeepAbove;
-                } else if ((xcb_atom_t) message->data.data32[i] == net_wm_state_below) {
+                } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_BELOW)) {
                     mask |= KeepBelow;
-                } else if ((xcb_atom_t) message->data.data32[i] == net_wm_state_demands_attention) {
+                } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_DEMANDS_ATTENTION)) {
                     mask |= DemandsAttention;
-                } else if ((xcb_atom_t) message->data.data32[i] == net_wm_state_stays_on_top) {
+                } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
                     mask |= StaysOnTop;
                 }
             }
@@ -3886,7 +3666,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
 #endif
 
             changeState(state, mask);
-        } else if (message->type == net_wm_desktop) {
+        } else if (message->type == p->atom(_NET_WM_DESKTOP)) {
             dirty = WMDesktop;
 
             if (message->data.data32[0] == OnAllDesktops) {
@@ -3894,7 +3674,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             } else {
                 changeDesktop(message->data.data32[0] + 1);
             }
-        } else if (message->type == net_wm_fullscreen_monitors) {
+        } else if (message->type == p->atom(_NET_WM_FULLSCREEN_MONITORS)) {
             dirty2 = WM2FullscreenMonitors;
 
             NETFullscreenMonitors topology;
@@ -3925,47 +3705,47 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
 
         xcb_property_notify_event_t *pe = reinterpret_cast<xcb_property_notify_event_t *>(event);
 
-        if (pe->atom == net_wm_name) {
+        if (pe->atom == p->atom(_NET_WM_NAME)) {
             dirty |= WMName;
-        } else if (pe->atom == net_wm_visible_name) {
+        } else if (pe->atom == p->atom(_NET_WM_VISIBLE_NAME)) {
             dirty |= WMVisibleName;
-        } else if (pe->atom == net_wm_desktop) {
+        } else if (pe->atom == p->atom(_NET_WM_DESKTOP)) {
             dirty |= WMDesktop;
-        } else if (pe->atom == net_wm_window_type) {
+        } else if (pe->atom == p->atom(_NET_WM_WINDOW_TYPE)) {
             dirty |= WMWindowType;
-        } else if (pe->atom == net_wm_state) {
+        } else if (pe->atom == p->atom(_NET_WM_STATE)) {
             dirty |= WMState;
-        } else if (pe->atom == net_wm_strut) {
+        } else if (pe->atom == p->atom(_NET_WM_STRUT)) {
             dirty |= WMStrut;
-        } else if (pe->atom == net_wm_extended_strut) {
+        } else if (pe->atom == p->atom(_NET_WM_STRUT_PARTIAL)) {
             dirty2 |= WM2ExtendedStrut;
-        } else if (pe->atom == net_wm_icon_geometry) {
+        } else if (pe->atom == p->atom(_NET_WM_ICON_GEOMETRY)) {
             dirty |= WMIconGeometry;
-        } else if (pe->atom == net_wm_icon) {
+        } else if (pe->atom == p->atom(_NET_WM_ICON)) {
             dirty |= WMIcon;
-        } else if (pe->atom == net_wm_pid) {
+        } else if (pe->atom == p->atom(_NET_WM_PID)) {
             dirty |= WMPid;
-        } else if (pe->atom == net_wm_handled_icons) {
+        } else if (pe->atom == p->atom(_NET_WM_HANDLED_ICONS)) {
             dirty |= WMHandledIcons;
-        } else if (pe->atom == net_startup_id) {
+        } else if (pe->atom == p->atom(_NET_STARTUP_ID)) {
             dirty2 |= WM2StartupId;
-        } else if (pe->atom == net_wm_window_opacity) {
+        } else if (pe->atom == p->atom(_NET_WM_WINDOW_OPACITY)) {
             dirty2 |= WM2Opacity;
-        } else if (pe->atom == net_wm_allowed_actions) {
+        } else if (pe->atom == p->atom(_NET_WM_ALLOWED_ACTIONS)) {
             dirty2 |= WM2AllowedActions;
-        } else if (pe->atom == xa_wm_state) {
+        } else if (pe->atom == p->atom(WM_STATE)) {
             dirty |= XAWMState;
-        } else if (pe->atom == net_frame_extents) {
+        } else if (pe->atom == p->atom(_NET_FRAME_EXTENTS)) {
             dirty |= WMFrameExtents;
-        } else if (pe->atom == kde_net_wm_frame_strut) {
+        } else if (pe->atom == p->atom(_KDE_NET_WM_FRAME_STRUT)) {
             dirty |= WMFrameExtents;
-        } else if (pe->atom == kde_net_wm_frame_overlap) {
+        } else if (pe->atom == p->atom(_NET_WM_FRAME_OVERLAP)) {
             dirty2 |= WM2FrameOverlap;
-        } else if (pe->atom == net_wm_icon_name) {
+        } else if (pe->atom == p->atom(_NET_WM_ICON_NAME)) {
             dirty |= WMIconName;
-        } else if (pe->atom == net_wm_visible_icon_name) {
+        } else if (pe->atom == p->atom(_NET_WM_VISIBLE_ICON_NAME)) {
             dirty |= WMVisibleIconName;
-        } else if (pe->atom == net_wm_user_time) {
+        } else if (pe->atom == p->atom(_NET_WM_USER_TIME)) {
             dirty2 |= WM2UserTime;
         } else if (pe->atom == XCB_ATOM_WM_HINTS) {
             dirty2 |= WM2GroupLeader;
@@ -3977,19 +3757,19 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             dirty2 |= WM2TransientFor;
         } else if (pe->atom == XCB_ATOM_WM_CLASS) {
             dirty2 |= WM2WindowClass;
-        } else if (pe->atom == wm_window_role) {
+        } else if (pe->atom == p->atom(WM_WINDOW_ROLE)) {
             dirty2 |= WM2WindowRole;
         } else if (pe->atom == XCB_ATOM_WM_CLIENT_MACHINE) {
             dirty2 |= WM2ClientMachine;
-        } else if (pe->atom == kde_net_wm_activities) {
+        } else if (pe->atom == p->atom(_KDE_NET_WM_ACTIVITIES)) {
             dirty2 |= WM2Activities;
-        } else if (pe->atom == kde_net_wm_block_compositing) {
+        } else if (pe->atom == p->atom(_KDE_NET_WM_BLOCK_COMPOSITING)) {
             dirty2 |= WM2BlockCompositing;
-        } else if (pe->atom == kde_net_wm_shadow) {
+        } else if (pe->atom == p->atom(_KDE_NET_WM_SHADOW)) {
             dirty2 |= WM2KDEShadow;
-        } else if (pe->atom == wm_protocols) {
+        } else if (pe->atom == p->atom(WM_PROTOCOLS)) {
             dirty2 |= WM2Protocols;
-        } else if (pe->atom == net_wm_opaque_region) {
+        } else if (pe->atom == p->atom(_NET_WM_OPAQUE_REGION)) {
             dirty2 |= WM2OpaqueRegion;
         }
 
@@ -4061,92 +3841,92 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     int c = 0;
 
     if (dirty & XAWMState) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, xa_wm_state, xa_wm_state, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(WM_STATE), p->atom(WM_STATE), 0, 1);
     }
 
     if (dirty & WMState) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_state, XCB_ATOM_ATOM, 0, 2048);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_STATE), XCB_ATOM_ATOM, 0, 2048);
     }
 
     if (dirty & WMDesktop) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_desktop, XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_DESKTOP), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty & WMName) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_name, UTF8_STRING, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
     if (dirty & WMVisibleName) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_visible_name, UTF8_STRING, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_VISIBLE_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
     if (dirty & WMIconName) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_icon_name, UTF8_STRING, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_ICON_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
     if (dirty & WMVisibleIconName) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_visible_icon_name, UTF8_STRING, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_VISIBLE_ICON_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
     if (dirty & WMWindowType) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_window_type, XCB_ATOM_ATOM, 0, 2048);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_WINDOW_TYPE), XCB_ATOM_ATOM, 0, 2048);
     }
 
     if (dirty & WMStrut) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_strut, XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_STRUT), XCB_ATOM_CARDINAL, 0, 4);
     }
 
     if (dirty2 & WM2ExtendedStrut) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_extended_strut, XCB_ATOM_CARDINAL, 0, 12);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_STRUT_PARTIAL), XCB_ATOM_CARDINAL, 0, 12);
     }
 
     if (dirty2 & WM2FullscreenMonitors) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_fullscreen_monitors, XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_FULLSCREEN_MONITORS), XCB_ATOM_CARDINAL, 0, 4);
     }
 
     if (dirty & WMIconGeometry) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_icon_geometry, XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_ICON_GEOMETRY), XCB_ATOM_CARDINAL, 0, 4);
     }
 
     if (dirty & WMIcon) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_icon, XCB_ATOM_CARDINAL, 0, 0xffffffff);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_ICON), XCB_ATOM_CARDINAL, 0, 0xffffffff);
     }
 
     if (dirty & WMFrameExtents) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_frame_extents, XCB_ATOM_CARDINAL, 0, 4);
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, kde_net_wm_frame_strut, XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_FRAME_STRUT), XCB_ATOM_CARDINAL, 0, 4);
     }
 
     if (dirty2 & WM2FrameOverlap) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, kde_net_wm_frame_overlap, XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_FRAME_OVERLAP), XCB_ATOM_CARDINAL, 0, 4);
     }
 
     if (dirty2 & WM2Activities) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, kde_net_wm_activities, XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_ACTIVITIES), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2BlockCompositing) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, kde_net_wm_block_compositing, XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_BLOCK_COMPOSITING), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty & WMPid) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_pid, XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_PID), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty2 & WM2StartupId) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_startup_id, UTF8_STRING, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_STARTUP_ID), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2Opacity) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_window_opacity, XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_WINDOW_OPACITY), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty2 & WM2AllowedActions) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_allowed_actions, XCB_ATOM_ATOM, 0, 2048);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_ALLOWED_ACTIONS), XCB_ATOM_ATOM, 0, 2048);
     }
 
     if (dirty2 & WM2UserTime) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_user_time, XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_USER_TIME), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty2 & WM2TransientFor) {
@@ -4162,7 +3942,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     }
 
     if (dirty2 & WM2WindowRole) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, wm_window_role, XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(WM_WINDOW_ROLE), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2ClientMachine) {
@@ -4170,11 +3950,11 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     }
 
     if (dirty2 & WM2Protocols) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, wm_protocols, XCB_ATOM_ATOM, 0, 2048);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(WM_PROTOCOLS), XCB_ATOM_ATOM, 0, 2048);
     }
 
     if (dirty2 & WM2OpaqueRegion) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, net_wm_opaque_region, XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_OPAQUE_REGION), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
     }
 
     c = 0;
@@ -4183,7 +3963,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         p->mapping_state = Withdrawn;
 
         bool success;
-        uint32_t state = get_value_reply<uint32_t>(p->conn, cookies[c++], xa_wm_state, 0, &success);
+        uint32_t state = get_value_reply<uint32_t>(p->conn, cookies[c++], p->atom(WM_STATE), 0, &success);
 
         if (success) {
             switch (state) {
@@ -4219,55 +3999,55 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
             fprintf(stderr, "NETWinInfo::update:   adding window state %ld '%s'\n",
                     state, ba.constData());
 #endif
-            if (state == net_wm_state_modal) {
+            if (state == p->atom(_NET_WM_STATE_MODAL)) {
                 p->state |= Modal;
             }
 
-            else if (state == net_wm_state_sticky) {
+            else if (state == p->atom(_NET_WM_STATE_STICKY)) {
                 p->state |= Sticky;
             }
 
-            else if (state == net_wm_state_max_vert) {
+            else if (state == p->atom(_NET_WM_STATE_MAXIMIZED_VERT)) {
                 p->state |= MaxVert;
             }
 
-            else if (state == net_wm_state_max_horiz) {
+            else if (state == p->atom(_NET_WM_STATE_MAXIMIZED_HORZ)) {
                 p->state |= MaxHoriz;
             }
 
-            else if (state == net_wm_state_shaded) {
+            else if (state == p->atom(_NET_WM_STATE_SHADED)) {
                 p->state |= Shaded;
             }
 
-            else if (state == net_wm_state_skip_taskbar) {
+            else if (state == p->atom(_NET_WM_STATE_SKIP_TASKBAR)) {
                 p->state |= SkipTaskbar;
             }
 
-            else if (state == net_wm_state_skip_pager) {
+            else if (state == p->atom(_NET_WM_STATE_SKIP_PAGER)) {
                 p->state |= SkipPager;
             }
 
-            else if (state == net_wm_state_hidden) {
+            else if (state == p->atom(_NET_WM_STATE_HIDDEN)) {
                 p->state |= Hidden;
             }
 
-            else if (state == net_wm_state_fullscreen) {
+            else if (state == p->atom(_NET_WM_STATE_FULLSCREEN)) {
                 p->state |= FullScreen;
             }
 
-            else if (state == net_wm_state_above) {
+            else if (state == p->atom(_NET_WM_STATE_ABOVE)) {
                 p->state |= KeepAbove;
             }
 
-            else if (state == net_wm_state_below) {
+            else if (state == p->atom(_NET_WM_STATE_BELOW)) {
                 p->state |= KeepBelow;
             }
 
-            else if (state == net_wm_state_demands_attention) {
+            else if (state == p->atom(_NET_WM_STATE_DEMANDS_ATTENTION)) {
                 p->state |= DemandsAttention;
             }
 
-            else if (state == net_wm_state_stays_on_top) {
+            else if (state == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
                 p->state |= StaysOnTop;
             }
         }
@@ -4292,7 +4072,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         delete[] p->name;
         p->name = NULL;
 
-        const QByteArray str = get_string_reply(p->conn, cookies[c++], UTF8_STRING);
+        const QByteArray str = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
         if (str.length() > 0) {
             p->name = nstrndup(str.constData(), str.length());
         }
@@ -4302,7 +4082,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         delete[] p->visible_name;
         p->visible_name = NULL;
 
-        const QByteArray str = get_string_reply(p->conn, cookies[c++], UTF8_STRING);
+        const QByteArray str = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
         if (str.length() > 0) {
             p->visible_name = nstrndup(str.constData(), str.length());
         }
@@ -4312,7 +4092,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         delete[] p->icon_name;
         p->icon_name = NULL;
 
-        const QByteArray str = get_string_reply(p->conn, cookies[c++], UTF8_STRING);
+        const QByteArray str = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
         if (str.length() > 0) {
             p->icon_name = nstrndup(str.constData(), str.length());
         }
@@ -4322,7 +4102,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         delete[] p->visible_icon_name;
         p->visible_icon_name = NULL;
 
-        const QByteArray str = get_string_reply(p->conn, cookies[c++], UTF8_STRING);
+        const QByteArray str = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
         if (str.length() > 0) {
             p->visible_icon_name = nstrndup(str.constData(), str.length());
         }
@@ -4348,71 +4128,71 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
                 fprintf(stderr,  "NETWinInfo::update:   examining window type %ld %s\n",
                         type, name.constData());
 #endif
-                if (type == net_wm_window_type_normal) {
+                if (type == p->atom(_NET_WM_WINDOW_TYPE_NORMAL)) {
                     p->types[pos++] = Normal;
                 }
 
-                else if (type == net_wm_window_type_desktop) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_DESKTOP)) {
                     p->types[pos++] = Desktop;
                 }
 
-                else if (type == net_wm_window_type_dock) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_DOCK)) {
                     p->types[pos++] = Dock;
                 }
 
-                else if (type == net_wm_window_type_toolbar) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_TOOLBAR)) {
                     p->types[pos++] = Toolbar;
                 }
 
-                else if (type == net_wm_window_type_menu) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_MENU)) {
                     p->types[pos++] = Menu;
                 }
 
-                else if (type == net_wm_window_type_dialog) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_DIALOG)) {
                     p->types[pos++] = Dialog;
                 }
 
-                else if (type == net_wm_window_type_utility) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_UTILITY)) {
                     p->types[ pos++ ] = Utility;
                 }
 
-                else if (type == net_wm_window_type_splash) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_SPLASH)) {
                     p->types[pos++] = Splash;
                 }
 
-                else if (type == net_wm_window_type_dropdown_menu) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_DROPDOWN_MENU)) {
                     p->types[pos++] = DropdownMenu;
                 }
 
-                else if (type == net_wm_window_type_popup_menu) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_POPUP_MENU)) {
                     p->types[pos++] = PopupMenu;
                 }
 
-                else if (type == net_wm_window_type_tooltip) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_TOOLTIP)) {
                     p->types[pos++] = Tooltip;
                 }
 
-                else if (type == net_wm_window_type_notification) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION)) {
                     p->types[pos++] = Notification;
                 }
 
-                else if (type == net_wm_window_type_combobox) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_COMBOBOX)) {
                     p->types[pos++] = ComboBox;
                 }
 
-                else if (type == net_wm_window_type_dnd) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_DND)) {
                     p->types[pos++] = DNDIcon;
                 }
 
-                else if (type == kde_net_wm_window_type_override) {
+                else if (type == p->atom(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE)) {
                     p->types[pos++] = Override;
                 }
 
-                else if (type == kde_net_wm_window_type_topmenu) {
+                else if (type == p->atom(_KDE_NET_WM_WINDOW_TYPE_TOPMENU)) {
                     p->types[pos++] = TopMenu;
                 }
 
-                else if (type == kde_net_wm_window_type_on_screen_display) {
+                else if (type == p->atom(_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY)) {
                     p->types[pos++] = OnScreenDisplay;
                 }
             }
@@ -4535,7 +4315,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         delete[] p->startup_id;
         p->startup_id = NULL;
 
-        const QByteArray id = get_string_reply(p->conn, cookies[c++], UTF8_STRING);
+        const QByteArray id = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
         if (id.length() > 0) {
             p->startup_id = nstrndup(id.constData(), id.length());
         }
@@ -4561,43 +4341,43 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
                         "NETWinInfo::update:   adding allowed action %ld '%s'\n",
                         action, name.constData());
 #endif
-                if (action == net_wm_action_move) {
+                if (action == p->atom(_NET_WM_ACTION_MOVE)) {
                     p->allowed_actions |= ActionMove;
                 }
 
-                else if (action == net_wm_action_resize) {
+                else if (action == p->atom(_NET_WM_ACTION_RESIZE)) {
                     p->allowed_actions |= ActionResize;
                 }
 
-                else if (action == net_wm_action_minimize) {
+                else if (action == p->atom(_NET_WM_ACTION_MINIMIZE)) {
                     p->allowed_actions |= ActionMinimize;
                 }
 
-                else if (action == net_wm_action_shade) {
+                else if (action == p->atom(_NET_WM_ACTION_SHADE)) {
                     p->allowed_actions |= ActionShade;
                 }
 
-                else if (action == net_wm_action_stick) {
+                else if (action == p->atom(_NET_WM_ACTION_STICK)) {
                     p->allowed_actions |= ActionStick;
                 }
 
-                else if (action == net_wm_action_max_vert) {
+                else if (action == p->atom(_NET_WM_ACTION_MAXIMIZE_VERT)) {
                     p->allowed_actions |= ActionMaxVert;
                 }
 
-                else if (action == net_wm_action_max_horiz) {
+                else if (action == p->atom(_NET_WM_ACTION_MAXIMIZE_HORZ)) {
                     p->allowed_actions |= ActionMaxHoriz;
                 }
 
-                else if (action == net_wm_action_fullscreen) {
+                else if (action == p->atom(_NET_WM_ACTION_FULLSCREEN)) {
                     p->allowed_actions |= ActionFullScreen;
                 }
 
-                else if (action == net_wm_action_change_desk) {
+                else if (action == p->atom(_NET_WM_ACTION_CHANGE_DESKTOP)) {
                     p->allowed_actions |= ActionChangeDesktop;
                 }
 
-                else if (action == net_wm_action_close) {
+                else if (action == p->atom(_NET_WM_ACTION_CLOSE)) {
                     p->allowed_actions |= ActionClose;
                 }
             }
@@ -4698,15 +4478,15 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         const QVector<xcb_atom_t> protocols = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
         p->protocols = NET::NoProtocol;
         for (auto it = protocols.begin(); it != protocols.end(); ++it) {
-            if ((*it) == wm_take_focus) {
+            if ((*it) == p->atom(WM_TAKE_FOCUS)) {
                 p->protocols |= TakeFocusProtocol;
-            } else if ((*it) == wm_delete_window) {
+            } else if ((*it) == p->atom(WM_DELETE_WINDOW)) {
                 p->protocols |= DeleteWindowProtocol;
-            } else if ((*it) == net_wm_ping) {
+            } else if ((*it) == p->atom(_NET_WM_PING)) {
                 p->protocols |= PingProtocol;
-            } else if ((*it) == net_wm_sync_request) {
+            } else if ((*it) == p->atom(_NET_WM_SYNC_REQUEST)) {
                 p->protocols |= SyncRequestProtocol;
-            } else if ((*it) == net_wm_context_help) {
+            } else if ((*it) == p->atom(_NET_WM_CONTEXT_HELP)) {
                 p->protocols |= ContextHelpProtocol;
             }
         }
@@ -4936,7 +4716,7 @@ void NETWinInfo::setActivities(const char *activities)
 
     }
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, kde_net_wm_activities,
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_KDE_NET_WM_ACTIVITIES),
                         XCB_ATOM_STRING, 8, strlen(p->activities), p->activities);
 }
 
@@ -4949,10 +4729,10 @@ void NETWinInfo::setBlockingCompositing(bool active)
     p->blockCompositing = active;
     if (active) {
         uint32_t d = 1;
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, kde_net_wm_block_compositing,
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_KDE_NET_WM_BLOCK_COMPOSITING),
                             XCB_ATOM_CARDINAL, 32, 1, (const void *) &d);
     } else {
-        xcb_delete_property(p->conn, p->window, kde_net_wm_block_compositing);
+        xcb_delete_property(p->conn, p->window, p->atom(_KDE_NET_WM_BLOCK_COMPOSITING));
     }
 }
 
