@@ -289,16 +289,124 @@ void WindowSystem::setShowingDesktop(bool showing)
 
 void WindowSystem::clearState(WId win, NET::States state)
 {
-    Q_UNUSED(win)
-    Q_UNUSED(state)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support changing window states";
+    Surface *s = Surface::fromQtWinId(win);
+    if (!s) {
+        return;
+    }
+
+    KWayland::Client::PlasmaShellSurface *plasmaShellSurface = 0;
+
+    if (state & NET::SkipTaskbar) {
+        if (!WaylandIntegration::self()->waylandPlasmaShell()) {
+            return;
+        }
+        plasmaShellSurface = PlasmaShellSurface::get(s);
+        if (!plasmaShellSurface) {
+            plasmaShellSurface = WaylandIntegration::self()->waylandPlasmaShell()->createSurface(s, this);
+        }
+        if (!plasmaShellSurface) {
+            return;
+        }
+    }
+
+    if (state & NET::SkipTaskbar) {
+        plasmaShellSurface->setSkipTaskbar(false);
+    }
+
+    if (state & NET::Max) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Max window state";
+    }
+    if (state & NET::FullScreen) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing FullScreen window state";
+    }
+    if (state & NET::Modal) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Modal window state";
+    }
+    if (state & NET::Sticky) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Sticky window state";
+    }
+    if (state & NET::Shaded) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Shaded window state";
+    }
+    if (state & NET::KeepAbove) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing KeepAbove window state";
+    }
+    if (state & NET::StaysOnTop) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing StaysOnTop window state";
+    }
+    if (state & NET::SkipPager) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing SkipPager window state";
+    }
+    if (state & NET::Hidden) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Hidden window state";
+    }
+    if (state & NET::KeepBelow) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing KeepBelow window state";
+    }
+    if (state & NET::DemandsAttention) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing DemandsAttention window state";
+    }
 }
 
 void WindowSystem::setState(WId win, NET::States state)
 {
-    Q_UNUSED(win)
-    Q_UNUSED(state)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support changing window states";
+    Surface *s = Surface::fromQtWinId(win);
+    if (!s) {
+        return;
+    }
+
+    KWayland::Client::PlasmaShellSurface *plasmaShellSurface = 0;
+
+    if (state & NET::SkipTaskbar) {
+        if (!WaylandIntegration::self()->waylandPlasmaShell()) {
+            return;
+        }
+        plasmaShellSurface = PlasmaShellSurface::get(s);
+        if (!plasmaShellSurface) {
+            plasmaShellSurface = WaylandIntegration::self()->waylandPlasmaShell()->createSurface(s, this);
+        }
+        if (!plasmaShellSurface) {
+            return;
+        }
+    }
+
+    if (state & NET::SkipTaskbar) {
+        plasmaShellSurface->setSkipTaskbar(true);
+    }
+
+    if (state & NET::Max) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Max window state";
+    }
+    if (state & NET::FullScreen) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing FullScreen window state";
+    }
+    if (state & NET::Modal) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Modal window state";
+    }
+    if (state & NET::Sticky) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Sticky window state";
+    }
+    if (state & NET::Shaded) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Shaded window state";
+    }
+    if (state & NET::KeepAbove) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing KeepAbove window state";
+    }
+    if (state & NET::StaysOnTop) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing StaysOnTop window state";
+    }
+    if (state & NET::SkipPager) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing SkipPager window state";
+    }
+    if (state & NET::Hidden) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Hidden window state";
+    }
+    if (state & NET::KeepBelow) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing KeepBelow window state";
+    }
+    if (state & NET::DemandsAttention) {
+        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing DemandsAttention window state";
+    }
 }
 
 void WindowSystem::setType(WId win, NET::WindowType windowType)
