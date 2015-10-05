@@ -268,7 +268,7 @@ static QList<QByteArray> get_stringlist_reply(xcb_connection_t *c,
         int len = reply->value_len;
 
         if (data) {
-            const QByteArray ba = QByteArray::fromRawData(data, data[len - 1] ? len : len - 1);
+            const QByteArray ba = QByteArray(data, data[len - 1] ? len : len - 1);
             list = ba.split('\0');
         }
     }
