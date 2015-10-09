@@ -73,11 +73,10 @@ public:
       *
       * Iteration over this list can be done easily with
       * \code
-      *  QList<WId>::ConstIterator it;
-      *  for ( it = KWindowSystem::windows().begin();
-      *        it != KWindowSystem::windows().end(); ++it ) {
+      *  QList<WId> windows = KWindowSystem::windows();
+      *  for (auto it = windows.cbegin(), end = windows.cend(); it != end; ++it) {
       *     ... do something here,  (*it) is the current WId.
-      *       }
+      *  }
       * \endcode
       * @return the list of all toplevel windows
       */
