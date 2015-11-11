@@ -172,6 +172,7 @@ static void refdec_nwi(NETWinInfoPrivate *p)
         delete [] p->class_name;
         delete [] p->activities;
         delete [] p->client_machine;
+        delete [] p->desktop_file;
 
         int i;
         for (i = 0; i < p->icons.size(); i++) {
@@ -2587,6 +2588,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->client_machine = (char *) 0;
     p->icon_sizes = NULL;
     p->activities = (char *) 0;
+    p->desktop_file = Q_NULLPTR;
     p->blockCompositing = false;
     p->urgency = false;
     p->input = true;
@@ -2649,6 +2651,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->client_machine = (char *) 0;
     p->icon_sizes = NULL;
     p->activities = (char *) 0;
+    p->desktop_file = Q_NULLPTR;
     p->blockCompositing = false;
     p->urgency = false;
     p->input = true;
@@ -3774,6 +3777,8 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             dirty2 |= WM2Protocols;
         } else if (pe->atom == p->atom(_NET_WM_OPAQUE_REGION)) {
             dirty2 |= WM2OpaqueRegion;
+        } else if (pe->atom == p->atom(_KDE_NET_WM_DESKTOP_FILE)) {
+            dirty2 = WM2DesktopFileName;
         }
 
         do_update = true;
@@ -3959,6 +3964,10 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
 
     if (dirty2 & WM2OpaqueRegion) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_OPAQUE_REGION), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
+    }
+
+    if (dirty2 & WM2DesktopFileName) {
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_DESKTOP_FILE), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
     c = 0;
@@ -4524,6 +4533,16 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
             p->opaqueRegion.push_back(rect);
         }
     }
+
+    if (dirty2 & WM2DesktopFileName) {
+        delete[] p->desktop_file;
+        p->desktop_file = NULL;
+
+        const QByteArray id = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
+        if (id.length() > 0) {
+            p->desktop_file = nstrndup(id.constData(), id.length());
+        }
+    }
 }
 
 NETRect NETWinInfo::iconGeometry() const
@@ -4801,6 +4820,25 @@ std::vector< NETRect > NETWinInfo::opaqueRegion() const
 xcb_connection_t *NETWinInfo::xcbConnection() const
 {
     return p->conn;
+}
+
+void NETWinInfo::setDesktopFileName(const char *name)
+{
+    if (p->role != Client) {
+        return;
+    }
+
+    delete[] p->desktop_file;
+    p->desktop_file = nstrdup(name);
+
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_KDE_NET_WM_DESKTOP_FILE),
+                        p->atom(UTF8_STRING), 8, strlen(p->desktop_file),
+                        (const void *) p->desktop_file);
+}
+
+const char *NETWinInfo::desktopFileName() const
+{
+    return p->desktop_file;
 }
 
 void NETRootInfo::virtual_hook(int, void *)

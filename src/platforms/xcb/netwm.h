@@ -1583,6 +1583,28 @@ public:
     std::vector<NETRect> opaqueRegion() const;
 
     /**
+     * Sets the @p name as the desktop file name.
+     *
+     * This is either the base name without full path and without file extension of the
+     * desktop file for the window's application (e.g. "org.kde.foo").
+     *
+     * If the application's desktop file name is not at a standard location it should be
+     * the full path to the desktop file name (e.g. "/opt/kde/share/org.kde.foo.desktop").
+     *
+     * If the window does not know the desktop file name, it should not set the name at all.
+     *
+     * @since 5.28
+     **/
+    void setDesktopFileName(const char *name);
+
+    /**
+     * @returns The desktop file name of the window's application if present.
+     * @since 5.28
+     * @see setDesktopFileName
+     **/
+    const char *desktopFileName() const;
+
+    /**
        Sentinel value to indicate that the client wishes to be visible on
        all desktops.
 

@@ -100,6 +100,7 @@ ENUM_BEGIN(KwsAtom)
     ENUM(_NET_WM_WINDOW_OPACITY),
     ENUM(_NET_WM_FULLSCREEN_MONITORS),
     ENUM(_NET_WM_OPAQUE_REGION),
+    ENUM(_KDE_NET_WM_DESKTOP_FILE),
     // used to determine whether application window is managed or not
     ENUM(WM_STATE),
 

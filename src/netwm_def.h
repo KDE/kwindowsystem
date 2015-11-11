@@ -687,6 +687,7 @@ public:
         @li WM2InitialMappingState initial state hint of WM_HINTS (see ICCCM 4.1.2.4)
         @li WM2IconPixmap icon pixmap and mask in WM_HINTS (see ICCCM 4.1.2.4)
         @li WM2OpaqueRegion
+        @li WM2DesktopFileName the base name of the desktop file name or the full path to the desktop file
     **/
     enum Property2 {
         WM2UserTime            = 1u << 0,
@@ -716,6 +717,7 @@ public:
         WM2InitialMappingState = 1u << 24, // @since 5.5
         WM2IconPixmap          = 1u << 25, // @since 5.7
         WM2OpaqueRegion        = 1u << 25, // @since 5.7
+        WM2DesktopFileName     = 1u << 26, // NOT STANDARD @since 5.28
         WM2AllProperties       = ~0u
     };
     Q_DECLARE_FLAGS(Properties2, Property2)

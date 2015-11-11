@@ -182,7 +182,7 @@ struct NETWinInfoPrivate {
     xcb_window_t transient_for, window_group;
     xcb_pixmap_t icon_pixmap, icon_mask;
     NET::Actions allowed_actions;
-    char *class_class, *class_name, *window_role, *client_machine;
+    char *class_class, *class_name, *window_role, *client_machine, *desktop_file;
 
     NET::Properties properties;
     NET::Properties2 properties2;

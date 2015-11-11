@@ -61,6 +61,7 @@ private Q_SLOTS:
     void testBlockCompositing();
     void testUserTime();
     void testStartupId();
+    void testDesktopFileName();
     void testHandledIcons_data();
     void testHandledIcons();
     void testPid();
@@ -283,6 +284,28 @@ void NetWinInfoTestClient::testStartupId()
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2StartupId);
     QCOMPARE(info.startupId(), "foo");
+}
+
+void NetWinInfoTestClient::testDesktopFileName()
+{
+    QVERIFY(connection());
+    ATOM(_KDE_NET_WM_DESKTOP_FILE)
+    UTF8
+    INFO
+
+    QVERIFY(!info.desktopFileName());
+    info.setDesktopFileName("foo");
+    QCOMPARE(info.desktopFileName(), "foo");
+
+    // compare with the X property
+    QVERIFY(atom != XCB_ATOM_NONE);
+    QVERIFY(utf8String != XCB_ATOM_NONE);
+    GETPROP(utf8String, 3, 8)
+    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.data())), "foo");
+
+    // and wait for our event
+    waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2DesktopFileName);
+    QCOMPARE(info.desktopFileName(), "foo");
 }
 
 void NetWinInfoTestClient::testHandledIcons_data()
