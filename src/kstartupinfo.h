@@ -36,6 +36,8 @@ DEALINGS IN THE SOFTWARE.
 
 typedef struct _XDisplay Display;
 
+struct xcb_connection_t;
+
 #ifdef Q_CC_MSVC
 typedef int pid_t;
 #endif
@@ -202,9 +204,25 @@ public:
      * @param id the id of the application
      * @param data the application's data
      * @return true if successful, false otherwise
+     * @deprecated since 5.18 use sendStartupXcb
      */
-    static bool sendStartupX(Display *dpy, const KStartupInfoId &id,
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    KWINDOWSYSTEM_DEPRECATED static bool sendStartupX(Display *dpy, const KStartupInfoId &id,
                              const KStartupInfoData &data);
+#endif
+
+    /**
+     * Like sendStartup , uses @p conn instead of QX11Info::connection() for sending the info.
+     * @param conn the xcb connection of the application. Note that the name field
+     * in data is required.
+     * @param screen The x11 screen the connection belongs to
+     * @param id the id of the application
+     * @param data the application's data
+     * @return true if successful, false otherwise
+     * @since 5.18
+     */
+    static bool sendStartupXcb(xcb_connection_t *conn, int screen,
+                               const KStartupInfoId &id, const KStartupInfoData &data);
 
     /**
      * Sends given notification data about started application
@@ -224,9 +242,24 @@ public:
      * @param id the id of the application
      * @param data the application's data
      * @return true if successful, false otherwise
+     * @deprecated since 5.18 use sendChangeXcb
      */
-    static bool sendChangeX(Display *dpy, const KStartupInfoId &id,
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    KWINDOWSYSTEM_DEPRECATED static bool sendChangeX(Display *dpy, const KStartupInfoId &id,
                             const KStartupInfoData &data);
+#endif
+
+    /**
+     * Like sendChange , uses @p conn instead of QX11Info::connection() for sending the info.
+     * @param conn the xcb connection of the application.
+     * @param screen The x11 screen the connection belongs to
+     * @param id the id of the application
+     * @param data the application's data
+     * @return true if successful, false otherwise
+     * @since 5.18
+     */
+    static bool sendChangeXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id,
+                              const KStartupInfoData &data);
 
     /**
      * Ends startup notification with the given identification.
@@ -240,8 +273,21 @@ public:
      * @param dpy the display of the application.
      * @param id the id of the application
      * @return true if successful, false otherwise
+     * @deprecated since 5.18 use sendFinishXcb
      */
-    static bool sendFinishX(Display *dpy, const KStartupInfoId &id);
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    KWINDOWSYSTEM_DEPRECATED static bool sendFinishX(Display *dpy, const KStartupInfoId &id);
+#endif
+
+    /**
+     * Like sendFinish , uses @p conn instead of QX11Info::connection() for sending the info.
+     * @param conn the xcb connection of the application.
+     * @param screen The x11 screen the connection belongs to
+     * @param id the id of the application
+     * @return true if successful, false otherwise
+     * @since 5.18
+     */
+    static bool sendFinishXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id);
 
     /**
      * Ends startup notification with the given identification and the given data ( e.g.
@@ -258,9 +304,24 @@ public:
      * @param id the id of the application
      * @param data the application's data
      * @return true if successful, false otherwise
+     * @deprecated since 5.18 use sendFinishXcb
      */
-    static bool sendFinishX(Display *dpy, const KStartupInfoId &id,
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    KWINDOWSYSTEM_DEPRECATED static bool sendFinishX(Display *dpy, const KStartupInfoId &id,
                             const KStartupInfoData &data);
+#endif
+
+    /**
+     * Like sendFinish , uses @p conn instead of QX11Info::connection() for sending the info.
+     * @param conn the xcb connection of the application.
+     * @param screen The x11 screen the connection belongs to
+     * @param id the id of the application
+     * @param data the application's data
+     * @return true if successful, false otherwise
+     * @since 5.18
+     */
+    static bool sendFinishXcb(xcb_connection_t *conn, int screen,
+                              const KStartupInfoId &id, const KStartupInfoData &data);
 
     /**
      * Returns the current startup notification identification for the current

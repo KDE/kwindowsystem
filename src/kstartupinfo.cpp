@@ -468,18 +468,14 @@ bool KStartupInfo::sendStartup(const KStartupInfoId &id_P, const KStartupInfoDat
         return false;
     }
 #if  KWINDOWSYSTEM_HAVE_X11
-    KXMessages msgs;
-    QString msg = QString::fromLatin1("new: %1 %2")
-                  .arg(id_P.d->to_text()).arg(data_P.d->to_text());
-    msg = Private::check_required_startup_fields(msg, data_P, QX11Info::appScreen());
-    //qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
-    msgs.broadcastMessage(NET_STARTUP_MSG, msg);
+    return sendStartupXcb(QX11Info::connection(), QX11Info::appScreen(), id_P, data_P);
 #else
     Q_UNUSED(data_P)
 #endif
     return true;
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 bool KStartupInfo::sendStartupX(Display *disp_P, const KStartupInfoId &id_P,
                                 const KStartupInfoData &data_P)
 {
@@ -494,6 +490,28 @@ bool KStartupInfo::sendStartupX(Display *disp_P, const KStartupInfoId &id_P,
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
     return KXMessages::broadcastMessageX(disp_P, NET_STARTUP_MSG, msg);
+#else
+    Q_UNUSED(disp_P)
+    Q_UNUSED(data_P)
+    return true;
+#endif
+}
+#endif
+
+bool KStartupInfo::sendStartupXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id_P,
+                                const KStartupInfoData &data_P)
+{
+    if (id_P.isNull()) {
+        return false;
+    }
+#if KWINDOWSYSTEM_HAVE_X11
+    QString msg = QString::fromLatin1("new: %1 %2")
+                  .arg(id_P.d->to_text()).arg(data_P.d->to_text());
+    msg = Private::check_required_startup_fields(msg, data_P, screen);
+#ifdef KSTARTUPINFO_ALL_DEBUG
+    qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
+#endif
+    return KXMessages::broadcastMessageX(conn, NET_STARTUP_MSG, msg, screen);
 #else
     Q_UNUSED(disp_P)
     Q_UNUSED(data_P)
@@ -525,17 +543,14 @@ bool KStartupInfo::sendChange(const KStartupInfoId &id_P, const KStartupInfoData
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
-    KXMessages msgs;
-    QString msg = QString::fromLatin1("change: %1 %2")
-                  .arg(id_P.d->to_text()).arg(data_P.d->to_text());
-    //qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
-    msgs.broadcastMessage(NET_STARTUP_MSG, msg);
+    return sendChangeXcb(QX11Info::connection(), QX11Info::appScreen(), id_P, data_P);
 #else
     Q_UNUSED(data_P)
 #endif
     return true;
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 bool KStartupInfo::sendChangeX(Display *disp_P, const KStartupInfoId &id_P,
                                const KStartupInfoData &data_P)
 {
@@ -555,6 +570,27 @@ bool KStartupInfo::sendChangeX(Display *disp_P, const KStartupInfoId &id_P,
     return true;
 #endif
 }
+#endif
+
+bool KStartupInfo::sendChangeXcb(xcb_connection_t *conn, int screen,
+                                 const KStartupInfoId &id_P, const KStartupInfoData &data_P)
+{
+    if (id_P.isNull()) {
+        return false;
+    }
+#if KWINDOWSYSTEM_HAVE_X11
+    QString msg = QString::fromLatin1("change: %1 %2")
+                  .arg(id_P.d->to_text()).arg(data_P.d->to_text());
+#ifdef KSTARTUPINFO_ALL_DEBUG
+    qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
+#endif
+    return KXMessages::broadcastMessageX(conn, NET_STARTUP_MSG, msg, screen);
+#else
+    Q_UNUSED(disp_P)
+    Q_UNUSED(data_P)
+    return true;
+#endif
+}
 
 bool KStartupInfo::sendFinish(const KStartupInfoId &id_P)
 {
@@ -562,14 +598,12 @@ bool KStartupInfo::sendFinish(const KStartupInfoId &id_P)
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
-    KXMessages msgs;
-    QString msg = QString::fromLatin1("remove: %1").arg(id_P.d->to_text());
-    //qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
-    msgs.broadcastMessage(NET_STARTUP_MSG, msg);
+    return sendFinishXcb(QX11Info::connection(), QX11Info::appScreen(), id_P);
 #endif
     return true;
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P)
 {
     if (id_P.isNull()) {
@@ -586,17 +620,31 @@ bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P)
     return true;
 #endif
 }
+#endif
+
+bool KStartupInfo::sendFinishXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id_P)
+{
+    if (id_P.isNull()) {
+        return false;
+    }
+#if KWINDOWSYSTEM_HAVE_X11
+    QString msg = QString::fromLatin1("remove: %1").arg(id_P.d->to_text());
+#ifdef KSTARTUPINFO_ALL_DEBUG
+    qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
+#endif
+    return KXMessages::broadcastMessageX(conn, NET_STARTUP_MSG, msg, screen);
+#else
+    Q_UNUSED(disp_P)
+    return true;
+#endif
+}
 
 bool KStartupInfo::sendFinish(const KStartupInfoId &id_P, const KStartupInfoData &data_P)
 {
 //    if( id_P.isNull()) // id may be null, the pids and hostname matter then
 //        return false;
 #if KWINDOWSYSTEM_HAVE_X11
-    KXMessages msgs;
-    QString msg = QString::fromLatin1("remove: %1 %2")
-                  .arg(id_P.d->to_text()).arg(data_P.d->to_text());
-    //qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
-    msgs.broadcastMessage(NET_STARTUP_MSG, msg);
+    return sendFinishXcb(QX11Info::connection(), QX11Info::appScreen(), id_P, data_P);
 #else
     Q_UNUSED(id_P)
     Q_UNUSED(data_P)
@@ -604,6 +652,7 @@ bool KStartupInfo::sendFinish(const KStartupInfoId &id_P, const KStartupInfoData
     return true;
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P,
                                const KStartupInfoData &data_P)
 {
@@ -616,6 +665,27 @@ bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P,
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
     return KXMessages::broadcastMessageX(disp_P, NET_STARTUP_MSG, msg);
+#else
+    Q_UNUSED(disp_P)
+    Q_UNUSED(id_P)
+    Q_UNUSED(data_P)
+    return true;
+#endif
+}
+#endif
+
+bool KStartupInfo::sendFinishXcb(xcb_connection_t *conn, int screen,
+                                 const KStartupInfoId &id_P, const KStartupInfoData &data_P)
+{
+//    if( id_P.isNull()) // id may be null, the pids and hostname matter then
+//        return false;
+#if KWINDOWSYSTEM_HAVE_X11
+    QString msg = QString::fromLatin1("remove: %1 %2")
+                  .arg(id_P.d->to_text()).arg(data_P.d->to_text());
+#ifdef KSTARTUPINFO_ALL_DEBUG
+    qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
+#endif
+    return KXMessages::broadcastMessageX(conn, NET_STARTUP_MSG, msg, screen);
 #else
     Q_UNUSED(disp_P)
     Q_UNUSED(id_P)
