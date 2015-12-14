@@ -513,7 +513,8 @@ bool KStartupInfo::sendStartupXcb(xcb_connection_t *conn, int screen, const KSta
 #endif
     return KXMessages::broadcastMessageX(conn, NET_STARTUP_MSG, msg, screen);
 #else
-    Q_UNUSED(disp_P)
+    Q_UNUSED(conn)
+    Q_UNUSED(screen)
     Q_UNUSED(data_P)
     return true;
 #endif
@@ -586,7 +587,8 @@ bool KStartupInfo::sendChangeXcb(xcb_connection_t *conn, int screen,
 #endif
     return KXMessages::broadcastMessageX(conn, NET_STARTUP_MSG, msg, screen);
 #else
-    Q_UNUSED(disp_P)
+    Q_UNUSED(conn)
+    Q_UNUSED(screen)
     Q_UNUSED(data_P)
     return true;
 #endif
@@ -634,7 +636,8 @@ bool KStartupInfo::sendFinishXcb(xcb_connection_t *conn, int screen, const KStar
 #endif
     return KXMessages::broadcastMessageX(conn, NET_STARTUP_MSG, msg, screen);
 #else
-    Q_UNUSED(disp_P)
+    Q_UNUSED(conn)
+    Q_UNUSED(screen)
     return true;
 #endif
 }
@@ -687,7 +690,8 @@ bool KStartupInfo::sendFinishXcb(xcb_connection_t *conn, int screen,
 #endif
     return KXMessages::broadcastMessageX(conn, NET_STARTUP_MSG, msg, screen);
 #else
-    Q_UNUSED(disp_P)
+    Q_UNUSED(conn)
+    Q_UNUSED(screen)
     Q_UNUSED(id_P)
     Q_UNUSED(data_P)
     return true;
