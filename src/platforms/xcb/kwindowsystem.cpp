@@ -28,11 +28,11 @@
 #include <kxutils_p.h>
 #include <fixx11h.h>
 
-#include <QApplication>
 #include <QBitmap>
-#include <QDesktopWidget>
+#include <QGuiApplication>
 #include <QIcon>
 #include <QMetaMethod>
+#include <QScreen>
 #include <QWindow>
 #include <QX11Info>
 
@@ -49,6 +49,47 @@
 
 static Atom net_wm_cm;
 static void create_atoms();
+
+static inline const QRect &displayGeometry()
+{
+    static QRect displayGeometry;
+    static bool isDirty = true;
+
+    if (isDirty) {
+
+        static QList<QMetaObject::Connection> connections;
+        auto dirtify = [&] {
+            isDirty = true;
+            foreach (const QMetaObject::Connection &con, connections)
+                QObject::disconnect(con);
+            connections.clear();
+        };
+
+        QObject::connect(qApp, &QGuiApplication::screenAdded, dirtify);
+        QObject::connect(qApp, &QGuiApplication::screenRemoved, dirtify);
+        const QList<QScreen *> screenList = QGuiApplication::screens();
+        QRegion region;
+        for (int i = 0; i < screenList.count(); ++i) {
+            const QScreen *screen = screenList.at(i);
+            connections << QObject::connect(screen, &QScreen::geometryChanged, dirtify);
+            region += screen->geometry();
+        }
+        displayGeometry = region.boundingRect();
+        isDirty = false;
+    }
+
+    return displayGeometry;
+}
+
+static inline int displayWidth()
+{
+    return displayGeometry().width();
+}
+
+static inline int displayHeight()
+{
+    return displayGeometry().height();
+}
 
 static const NET::Properties windowsProperties = NET::ClientList | NET::ClientListStacking |
                                                  NET::Supported |
@@ -354,8 +395,8 @@ bool NETEventFilter::mapViewport()
 
 // this test is duplicated in KWindowSystem::mapViewport()
     if (isSupported(NET::DesktopViewport) && numberOfDesktops(true) <= 1
-            && (desktopGeometry().width > QApplication::desktop()->width()
-                || desktopGeometry().height > QApplication::desktop()->height())) {
+            && (desktopGeometry().width > displayWidth()
+                || desktopGeometry().height > displayHeight())) {
         return true;
     }
     return false;
@@ -504,7 +545,7 @@ int KWindowSystemPrivateX11::numberOfDesktops()
         init(INFO_BASIC);
         NETEventFilter *const s_d = s_d_func();
         NETSize s = s_d->desktopGeometry();
-        return s.width / qApp->desktop()->width() * s.height / qApp->desktop()->height();
+        return s.width / displayWidth() * s.height / displayHeight();
     }
 
     NETEventFilter *const s_d = s_d_func();
@@ -570,13 +611,13 @@ void KWindowSystemPrivateX11::setOnDesktop(WId win, int desktop)
         x += w / 2; // center
         y += h / 2;
         // transform to coordinates on the current "desktop"
-        x = x % qApp->desktop()->width();
-        y = y % qApp->desktop()->height();
+        x = x % displayWidth();
+        y = y % displayHeight();
         if (x < 0) {
-            x = x + qApp->desktop()->width();
+            x = x + displayWidth();
         }
         if (y < 0) {
-            y = y + qApp->desktop()->height();
+            y = y + displayHeight();
         }
         x += p.x(); // move to given "desktop"
         y += p.y();
@@ -615,7 +656,7 @@ void KWindowSystemPrivateX11::activateWindow(WId win, long time)
         time = QX11Info::appUserTime();
     }
     info.setActiveWindow(win, NET::FromApplication, time,
-                         qApp->activeWindow() ? qApp->activeWindow()->winId() : 0);
+                         QGuiApplication::focusWindow() ? QGuiApplication::focusWindow()->winId() : 0);
 }
 
 void KWindowSystemPrivateX11::forceActiveWindow(WId win, long time)
@@ -845,12 +886,12 @@ QRect KWindowSystemPrivateX11::workArea(int desktop)
     init(INFO_BASIC);
     int desk  = (desktop > 0 && desktop <= (int) s_d_func()->numberOfDesktops()) ? desktop : currentDesktop();
     if (desk <= 0) {
-        return QApplication::desktop()->geometry();
+        return displayGeometry();
     }
 
     NETRect r = s_d_func()->workArea(desk);
     if (r.size.width <= 0 || r.size.height <= 0) { // not set
-        return QApplication::desktop()->geometry();
+        return displayGeometry();
     }
 
     return QRect(r.pos.x, r.pos.y, r.size.width, r.size.height);
@@ -861,7 +902,7 @@ QRect KWindowSystemPrivateX11::workArea(const QList<WId> &exclude, int desktop)
     init(INFO_WINDOWS);   // invalidates s_d_func's return value
     NETEventFilter *const s_d = s_d_func();
 
-    QRect all = QApplication::desktop()->geometry();
+    QRect all = displayGeometry();
     QRect a = all;
 
     if (desktop == -1) {
@@ -1003,8 +1044,8 @@ void KWindowSystemPrivateX11::setExtendedStrut(WId win, int left_width, int left
 
 void KWindowSystemPrivateX11::setStrut(WId win, int left, int right, int top, int bottom)
 {
-    int w = XDisplayWidth(QX11Info::display(), DefaultScreen(QX11Info::display()));
-    int h = XDisplayHeight(QX11Info::display(), DefaultScreen(QX11Info::display()));
+    int w = displayWidth();
+    int h = displayHeight();
     setExtendedStrut(win, left, 0, left != 0 ? w : 0, right, 0, right != 0 ? w : 0,
                      top, 0, top != 0 ? h : 0, bottom, 0, bottom != 0 ? h : 0);
 }
@@ -1079,8 +1120,8 @@ bool KWindowSystemPrivateX11::mapViewport()
     }
     NETRootInfo info(QX11Info::connection(), NET::NumberOfDesktops | NET::CurrentDesktop | NET::DesktopGeometry);
     if (info.numberOfDesktops(true) <= 1
-            && (info.desktopGeometry().width > QApplication::desktop()->width()
-                || info.desktopGeometry().height > QApplication::desktop()->height())) {
+            && (info.desktopGeometry().width > displayWidth()
+                || info.desktopGeometry().height > displayHeight())) {
         return true;
     }
     return false;
@@ -1091,7 +1132,7 @@ int KWindowSystemPrivateX11::viewportToDesktop(const QPoint &p)
     init(INFO_BASIC);
     NETEventFilter *const s_d = s_d_func();
     NETSize s = s_d->desktopGeometry();
-    QSize vs = qApp->desktop()->size();
+    QSize vs(displayWidth(), displayHeight());
     int xs = s.width / vs.width();
     int x = p.x() < 0 ? 0 : p.x() >= s.width ? xs - 1 : p.x() / vs.width();
     int ys = s.height / vs.height();
@@ -1108,7 +1149,7 @@ int KWindowSystemPrivateX11::viewportWindowToDesktop(const QRect &r)
     p = QPoint(p.x() + s_d->desktopViewport(s_d->currentDesktop(true)).x,
                p.y() + s_d->desktopViewport(s_d->currentDesktop(true)).y);
     NETSize s = s_d->desktopGeometry();
-    QSize vs = qApp->desktop()->size();
+    QSize vs(displayWidth(), displayHeight());
     int xs = s.width / vs.width();
     int x = p.x() < 0 ? 0 : p.x() >= s.width ? xs - 1 : p.x() / vs.width();
     int ys = s.height / vs.height();
@@ -1121,7 +1162,7 @@ QPoint KWindowSystemPrivateX11::desktopToViewport(int desktop, bool absolute)
     init(INFO_BASIC);
     NETEventFilter *const s_d = s_d_func();
     NETSize s = s_d->desktopGeometry();
-    QSize vs = qApp->desktop()->size();
+    QSize vs(displayWidth(), displayHeight());
     int xs = s.width / vs.width();
     int ys = s.height / vs.height();
     if (desktop <= 0 || desktop > xs * ys) {
