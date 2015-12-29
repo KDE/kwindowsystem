@@ -708,7 +708,7 @@ public:
         WM2FullscreenMonitors  = 1u << 16,
         WM2FrameOverlap        = 1u << 17, // NOT STANDARD
         WM2Activities          = 1u << 18, // NOT STANDARD @since 4.6
-        WM2BlockCompositing    = 1u << 19, // NOT STANDARD @since 4.7
+        WM2BlockCompositing    = 1u << 19, // NOT STANDARD @since 4.7, STANDARD @since 5.17
         WM2KDEShadow           = 1u << 20, // NOT Standard @since 4.7
         WM2Urgency             = 1u << 21, // @since 5.3
         WM2Input               = 1u << 22, // @since 5.3

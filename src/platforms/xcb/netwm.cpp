@@ -1126,6 +1126,7 @@ void NETRootInfo::setSupported()
 
     if (p->properties2 & WM2BlockCompositing) {
         atoms[pnum++] = p->atom(_KDE_NET_WM_BLOCK_COMPOSITING);
+        atoms[pnum++] = p->atom(_NET_WM_BYPASS_COMPOSITOR);
     }
 
     if (p->properties2 & WM2KDEShadow) {
@@ -1420,7 +1421,8 @@ void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
         p->properties2 |= WM2Activities;
     }
 
-    else if (atom == p->atom(_KDE_NET_WM_BLOCK_COMPOSITING)) {
+    else if (atom == p->atom(_KDE_NET_WM_BLOCK_COMPOSITING) ||
+             atom == p->atom(_NET_WM_BYPASS_COMPOSITOR)) {
         p->properties2 |= WM2BlockCompositing;
     }
 
@@ -3763,7 +3765,8 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             dirty2 |= WM2ClientMachine;
         } else if (pe->atom == p->atom(_KDE_NET_WM_ACTIVITIES)) {
             dirty2 |= WM2Activities;
-        } else if (pe->atom == p->atom(_KDE_NET_WM_BLOCK_COMPOSITING)) {
+        } else if (pe->atom == p->atom(_KDE_NET_WM_BLOCK_COMPOSITING) ||
+                   pe->atom == p->atom(_NET_WM_BYPASS_COMPOSITOR)) {
             dirty2 |= WM2BlockCompositing;
         } else if (pe->atom == p->atom(_KDE_NET_WM_SHADOW)) {
             dirty2 |= WM2KDEShadow;
@@ -3907,6 +3910,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
 
     if (dirty2 & WM2BlockCompositing) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_BLOCK_COMPOSITING), XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_BYPASS_COMPOSITOR), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty & WMPid) {
@@ -4303,8 +4307,23 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     }
 
     if (dirty2 & WM2BlockCompositing) {
-        uint32_t data = get_value_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL, 0);
-        p->blockCompositing = bool(data);
+        bool success;
+        p->blockCompositing = false;
+
+        // _KDE_NET_WM_BLOCK_COMPOSITING
+        uint32_t data = get_value_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL, 0, &success);
+        if (success)
+            p->blockCompositing = bool(data);
+
+        // _NET_WM_BYPASS_COMPOSITOR
+        data = get_value_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL, 0, &success);
+        if (success) {
+            switch (data) {
+                case 1: p->blockCompositing = true; break;
+                case 2: p->blockCompositing = false; break;
+                default: break; // yes, the standard /is/ that stupid.
+            }
+        }
     }
 
     if (dirty & WMPid) {
@@ -4731,8 +4750,11 @@ void NETWinInfo::setBlockingCompositing(bool active)
         uint32_t d = 1;
         xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_KDE_NET_WM_BLOCK_COMPOSITING),
                             XCB_ATOM_CARDINAL, 32, 1, (const void *) &d);
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_BYPASS_COMPOSITOR),
+                            XCB_ATOM_CARDINAL, 32, 1, (const void *) &d);
     } else {
         xcb_delete_property(p->conn, p->window, p->atom(_KDE_NET_WM_BLOCK_COMPOSITING));
+        xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_BYPASS_COMPOSITOR));
     }
 }
 
