@@ -136,7 +136,8 @@ NETEventFilter::NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what)
       compositingEnabled(false),
       haveXfixes(false),
       what(_what),
-      winId(XCB_WINDOW_NONE)
+      winId(XCB_WINDOW_NONE),
+      m_appRootWindow(QX11Info::appRootWindow())
 {
     QCoreApplication::instance()->installNativeEventFilter(this);
 
@@ -147,7 +148,7 @@ NETEventFilter::NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what)
         winId = xcb_generate_id(QX11Info::connection());
         uint32_t values[] = { true, XCB_EVENT_MASK_PROPERTY_CHANGE | XCB_EVENT_MASK_STRUCTURE_NOTIFY };
         xcb_create_window(QX11Info::connection(), XCB_COPY_FROM_PARENT, winId,
-                          QX11Info::appRootWindow(), 0, 0, 1, 1, 0,
+                          m_appRootWindow, 0, 0, 1, 1, 0,
                           XCB_WINDOW_CLASS_INPUT_ONLY, XCB_COPY_FROM_PARENT,
                           XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK, values);
         XFixesSelectSelectionInput(QX11Info::display(), winId, net_wm_cm,
@@ -203,7 +204,7 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
         // Qt compresses XFixesSelectionNotifyEvents without caring about the actual window
         // gui/kernel/qapplication_x11.cpp
         // until that can be assumed fixed, we also react on events on the root (caused by Qts own compositing tracker)
-        if (event->window == QX11Info::appRootWindow()) {
+        if (event->window == m_appRootWindow) {
             if (event->selection == net_wm_cm) {
                 bool haveOwner = event->owner != XCB_WINDOW_NONE;
                 if (compositingEnabled != haveOwner) {
@@ -231,7 +232,7 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
         break;
     }
 
-    if (eventWindow == QX11Info::appRootWindow()) {
+    if (eventWindow == m_appRootWindow) {
         int old_current_desktop = currentDesktop();
         xcb_window_t old_active_window = activeWindow();
         int old_number_of_desktops = numberOfDesktops();
@@ -268,7 +269,7 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
             emit s_q->showingDesktopChanged(showingDesktop());
         }
     } else if (windows.contains(eventWindow)) {
-        NETWinInfo ni(QX11Info::connection(), eventWindow, QX11Info::appRootWindow(), 0, 0);
+        NETWinInfo ni(QX11Info::connection(), eventWindow, m_appRootWindow, 0, 0);
         NET::Properties dirtyProperties;
         NET::Properties2 dirtyProperties2;
         ni.event(ev, &dirtyProperties, &dirtyProperties2);

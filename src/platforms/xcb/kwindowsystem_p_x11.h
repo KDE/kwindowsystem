@@ -144,6 +144,8 @@ protected:
 private:
     bool nativeEventFilter(xcb_generic_event_t *event);
     xcb_window_t winId;
+    xcb_window_t m_appRootWindow;
+
 };
 
 #endif
