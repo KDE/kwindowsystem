@@ -1,6 +1,7 @@
 remove_definitions(-DQT_NO_CAST_FROM_BYTEARRAY)
 remove_definitions(-DQT_NO_CAST_FROM_ASCII)
 remove_definitions(-DQT_NO_CAST_TO_ASCII)
+add_definitions(-DAUTOTEST_BUILD_DIR="${CMAKE_CURRENT_BINARY_DIR}")
 
 include(ECMMarkAsTest)
 
@@ -25,7 +26,7 @@ endmacro(KWINDOWSYSTEM_UNIT_TESTS)
 macro(KWINDOWSYSTEM_EXECUTABLE_TESTS)
    foreach(_testname ${ARGN})
       add_executable(${_testname} ${_testname}.cpp)
-      target_link_libraries(${_testname} KF5::WindowSystem Qt5::Test Qt5::X11Extras)
+      target_link_libraries(${_testname} KF5::WindowSystem Qt5::Test Qt5::X11Extras XCB::XCB)
       ecm_mark_as_test(${_testname})
    endforeach()
 endmacro()
@@ -52,6 +53,7 @@ if(X11_FOUND)
     kwindowsystem_executable_tests(
         fixx11h_test
         fixx11h_test2
+        dontcrashmapviewport
     )
 endif()
 

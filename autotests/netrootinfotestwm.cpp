@@ -57,6 +57,7 @@ private Q_SLOTS:
     void testWorkArea();
     void testActiveWindow();
     void testVirtualRoots();
+    void testDontCrashMapViewports();
 
 private:
     void waitForPropertyChange(NETRootInfo *info, xcb_atom_t atom, NET::Property prop, NET::Property2 prop2 = NET::Property2(0));
@@ -843,6 +844,15 @@ void NetRootInfoTestWM::testWorkArea()
     QCOMPARE(compareThree2.pos.y, 0);
     QCOMPARE(compareThree2.size.width, 0);
     QCOMPARE(compareThree2.size.height, 0);
+}
+
+void NetRootInfoTestWM::testDontCrashMapViewports()
+{
+    QProcess p;
+    p.start(QStringLiteral("%1/dontcrashmapviewport").arg(AUTOTEST_BUILD_DIR));
+    QVERIFY(p.waitForFinished());
+    QCOMPARE(p.exitStatus(), QProcess::NormalExit);
+    QCOMPARE(p.exitCode(), 0);
 }
 
 QTEST_GUILESS_MAIN(NetRootInfoTestWM)

@@ -44,7 +44,9 @@ public:
     KWindowSystemStaticContainer() {
         d.reset(KWindowSystemPluginWrapper::self().createWindowSystem());
 
-        kwm.moveToThread(QCoreApplication::instance()->thread());
+        if (QCoreApplication::instance()) {
+            kwm.moveToThread(QCoreApplication::instance()->thread());
+        }
     }
     KWindowSystemPrivate *xcbPlugin() {
         if (xcbPrivate.isNull()) {
