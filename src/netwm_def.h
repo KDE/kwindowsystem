@@ -263,7 +263,7 @@ struct NETFullscreenMonitors {
     bool isSet() const
     {
         return (top != -1);
-    };
+    }
 };
 
 /**
