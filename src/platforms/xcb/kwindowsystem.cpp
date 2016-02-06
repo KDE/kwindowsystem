@@ -64,7 +64,9 @@ static inline const QRect &displayGeometry()
         };
 
         QObject::connect(qApp, &QGuiApplication::screenAdded, dirtify);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
         QObject::connect(qApp, &QGuiApplication::screenRemoved, dirtify);
+#endif
         const QList<QScreen *> screenList = QGuiApplication::screens();
         QRegion region;
         for (int i = 0; i < screenList.count(); ++i) {
