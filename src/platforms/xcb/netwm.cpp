@@ -32,7 +32,6 @@
 #include "netwm_p.h"
 #include "atoms_p.h"
 
-#include <QWidget>
 #include <config-kwindowsystem.h>
 #if KWINDOWSYSTEM_HAVE_X11 //FIXME
 

@@ -19,7 +19,6 @@
 #ifndef KXUTILS_H
 #define KXUTILS_H
 
-#include <QWidget>
 #include <QScopedPointer>
 #include <QPixmap>
 #include <config-kwindowsystem.h>

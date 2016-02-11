@@ -29,6 +29,8 @@
 
 #include <stdio.h>
 
+#include <QByteArray>
+
 class KXErrorHandlerPrivate
 {
 public:

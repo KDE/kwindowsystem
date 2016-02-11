@@ -22,8 +22,8 @@
 #include "kwindowsystem.h"
 
 #include <QDebug>
-#include <kxerrorhandler_p.h>
 #include <netwm.h>
+#include <kxerrorhandler_p.h>
 #include <QX11Info>
 #include <X11/Xatom.h>
 

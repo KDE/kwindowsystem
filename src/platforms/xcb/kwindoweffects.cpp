@@ -26,6 +26,7 @@
 #include <xcb/xcb.h>
 #include <QX11Info>
 #include <QMatrix4x4>
+#include <QWidget>
 
 static const char DASHBOARD_WIN_CLASS[] = "dashboard\0dashboard";
 using namespace KWindowEffects;
