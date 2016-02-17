@@ -231,6 +231,8 @@ void NetRootInfoTestWM::testSupported()
     count += 1;
     // XAWState, WMGeometry, WM2TransientFor, WM2GroupLeader, WM2WindowClass, WM2WindowRole, WM2ClientMachine
     count -= 7;
+    // WM2BlockCompositing has two properties
+    count +=1;
 
     QVERIFY(supported  != XCB_ATOM_NONE);
     QVERIFY(utf8String != XCB_ATOM_NONE);
@@ -315,7 +317,7 @@ void NetRootInfoTestWM::testSupported()
     supportedReply.reset(xcb_get_property_reply(connection(), supportedCookie, Q_NULLPTR));
     QVERIFY(!supportedReply.isNull());
     QCOMPARE(supportedReply->format, uint8_t(32));
-    QCOMPARE(supportedReply->value_len, uint32_t(count - 8));
+    QCOMPARE(supportedReply->value_len, uint32_t(count - 9));
     NETRootInfo clientInfo(connection(), NET::Supported | NET::SupportingWMCheck);
     waitForPropertyChange(&clientInfo, supported, NET::Supported);
     waitForPropertyChange(&clientInfo, wmCheck, NET::SupportingWMCheck);
