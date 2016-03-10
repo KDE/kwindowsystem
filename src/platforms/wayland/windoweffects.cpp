@@ -51,6 +51,8 @@ bool WindowEffects::isEffectAvailable(KWindowEffects::Effect effect)
         return WaylandIntegration::self()->waylandContrastManager() != nullptr;
     case KWindowEffects::BlurBehind:
         return WaylandIntegration::self()->waylandBlurManager() != nullptr;
+    case KWindowEffects::Slide:
+        return WaylandIntegration::self()->waylandSlideManager() != nullptr;
     default:
         return false;
     }
