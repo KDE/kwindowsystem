@@ -48,9 +48,7 @@ private Q_SLOTS:
 
 void KWindowSystemX11Test::initTestCase()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 3, 0)
     QCoreApplication::setAttribute(Qt::AA_ForceRasterWidgets);
-#endif
 }
 
 void KWindowSystemX11Test::testActiveWindowChanged()

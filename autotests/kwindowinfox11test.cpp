@@ -74,9 +74,7 @@ private:
 
 void KWindowInfoX11Test::initTestCase()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 3, 0)
     QCoreApplication::setAttribute(Qt::AA_ForceRasterWidgets);
-#endif
 }
 
 bool KWindowInfoX11Test::waitForWindow(QSignalSpy& spy, WId winId, NET::Property property) const
