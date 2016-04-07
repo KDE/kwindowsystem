@@ -16,11 +16,16 @@
  */
 
 #include <kwindoweffects.h>
+#include <kwindowsystem.h>
+#include <kmanagerselection.h>
+#include <netwm.h>
+#include <QSignalSpy>
 #include <qtest_widgets.h>
 #include <QX11Info>
 #include <xcb/xcb.h>
 
 Q_DECLARE_METATYPE(KWindowEffects::SlideFromLocation)
+Q_DECLARE_METATYPE(KWindowEffects::Effect)
 
 class KWindowEffectsTest : public QObject
 {
@@ -45,6 +50,8 @@ private Q_SLOTS:
     void testBlur();
     void testBlurDisable();
     void testMarkAsDashboard();
+    void testEffectAvailable_data();
+    void testEffectAvailable();
 
 private:
     int32_t locationToValue(KWindowEffects::SlideFromLocation location) const;
@@ -384,6 +391,64 @@ void KWindowEffectsTest::testMarkAsDashboard()
     QCOMPARE(QByteArray(data), className);
     data = data + 10;
     QCOMPARE(QByteArray(data), className);
+}
+
+void KWindowEffectsTest::testEffectAvailable_data()
+{
+    QTest::addColumn<KWindowEffects::Effect>("effect");
+    QTest::addColumn<QByteArray>("propertyName");
+
+    QTest::newRow("slide") << KWindowEffects::Slide << QByteArrayLiteral("_KDE_SLIDE");
+    QTest::newRow("PresentWindows") << KWindowEffects::PresentWindows << QByteArrayLiteral("_KDE_PRESENT_WINDOWS_DESKTOP");
+    QTest::newRow("PresentWindowsGroup") << KWindowEffects::PresentWindowsGroup << QByteArrayLiteral("_KDE_PRESENT_WINDOWS_GROUP");
+    QTest::newRow("HighlightWindows") << KWindowEffects::HighlightWindows << QByteArrayLiteral("_KDE_WINDOW_HIGHLIGHT");
+    QTest::newRow("BlurBehind") << KWindowEffects::BlurBehind << QByteArrayLiteral("_KDE_NET_WM_BLUR_BEHIND_REGION");
+    QTest::newRow("Dashboard") << KWindowEffects::Dashboard << QByteArrayLiteral("_WM_EFFECT_KDE_DASHBOARD");
+    QTest::newRow("BackgroundContrast") << KWindowEffects::BackgroundContrast << QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_CONTRAST_REGION");
+}
+
+void KWindowEffectsTest::testEffectAvailable()
+{
+    NETRootInfo rootInfo(QX11Info::connection(), NET::Supported | NET::SupportingWMCheck);
+    if (qstrcmp(rootInfo.wmName(), "KWin") == 0) {
+        QSKIP("KWin running, we don't want to interact with the running system");
+    }
+    // this test verifies whether an effect is available
+    QFETCH(KWindowEffects::Effect, effect);
+    // without a compositing manager it's not available
+    // try-verify as there still might be the selection claimed from previous data run
+    QTRY_VERIFY(!KWindowSystem::compositingActive());
+    QVERIFY(!KWindowEffects::isEffectAvailable(effect));
+
+    // fake the compositor
+    KSelectionOwner compositorSelection("_NET_WM_CM_S0");
+    QSignalSpy claimedSpy(&compositorSelection, &KSelectionOwner::claimedOwnership);
+    QVERIFY(claimedSpy.isValid());
+    compositorSelection.claim(true);
+    QVERIFY(claimedSpy.wait());
+    QVERIFY(KWindowSystem::compositingActive());
+
+    // but not yet available
+    QVERIFY(!KWindowEffects::isEffectAvailable(effect));
+
+    // set the atom
+    QFETCH(QByteArray, propertyName);
+    xcb_connection_t *c = QX11Info::connection();
+    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, propertyName.length(), propertyName.constData());
+    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, Q_NULLPTR));
+    QVERIFY(!atom.isNull());
+    unsigned char dummy = 0;
+    xcb_change_property(c, XCB_PROP_MODE_REPLACE, QX11Info::appRootWindow(), atom->atom, atom->atom, 8, 1, &dummy);
+    xcb_flush(c);
+
+    // now the effect should be available
+    QVERIFY(KWindowEffects::isEffectAvailable(effect));
+
+    // delete the property again
+    xcb_delete_property(c, QX11Info::appRootWindow(), atom->atom);
+    xcb_flush(c);
+    // which means it's no longer available
+    QVERIFY(!KWindowEffects::isEffectAvailable(effect));
 }
 
 QTEST_MAIN(KWindowEffectsTest)
