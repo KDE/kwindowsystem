@@ -19,3 +19,8 @@ kwindowsystem_executable_tests(
   blurbehindtest
   backgroundcontrasttest
 )
+
+if(KWINDOWSYSTEM_HAVE_X11)
+    kwindowsystem_executable_tests(icontest)
+    target_link_libraries(icontest Qt5::X11Extras)
+endif()
