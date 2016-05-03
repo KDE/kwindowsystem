@@ -139,6 +139,7 @@ void NetWinInfoTestClient::init()
     int screen = 0;
     m_connection = xcb_connect(qPrintable(id), &screen);
     QVERIFY(m_connection);
+    QVERIFY(!xcb_connection_has_error(m_connection));
     m_rootWindow = KXUtils::rootWindow(m_connection, screen);
 
     // create test window

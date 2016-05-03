@@ -102,6 +102,7 @@ void NetRootInfoTestWM::init()
     int screen = 0;
     m_connection = xcb_connect(qPrintable(id), &screen);
     QVERIFY(m_connection);
+    QVERIFY(!xcb_connection_has_error(m_connection));
     m_rootWindow = KXUtils::rootWindow(m_connection, screen);
     uint32_t values[] = {XCB_EVENT_MASK_PROPERTY_CHANGE};
     xcb_change_window_attributes(m_connection, m_rootWindow,
