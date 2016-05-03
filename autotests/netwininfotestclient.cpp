@@ -18,6 +18,8 @@
 #include <netwm.h>
 #include <qtest_widgets.h>
 #include <QProcess>
+// system
+#include <unistd.h>
 
 class Property : public QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>
 {
@@ -126,18 +128,27 @@ void NetWinInfoTestClient::init()
     m_testWindow = XCB_WINDOW_NONE;
     // start Xvfb
     m_xvfb.reset(new QProcess);
-    // randomize the display id in [1, 98]
-    // 0 is not used because it conflicts with "normal" X server
-    // 99 is not used because it's used by KDE's CI infrastructure
-    const QString id = QStringLiteral(":") + QString::number((qrand() % 98) + 1);
-    m_xvfb->start(QStringLiteral("Xvfb"), QStringList() << id);
+    // use pipe to pass fd to Xvfb to get back the display id
+    int pipeFds[2];
+    QVERIFY(pipe(pipeFds) == 0);
+    m_xvfb->start(QStringLiteral("Xvfb"), QStringList{ QStringLiteral("-displayfd"), QString::number(pipeFds[1]) });
     QVERIFY(m_xvfb->waitForStarted());
     QCOMPARE(m_xvfb->state(), QProcess::Running);
-    // give it some time before we open the X Display
-    QTest::qWait(100);
+
+    // reads from pipe, closes write side
+    close(pipeFds[1]);
+
+    QFile readPipe;
+    QVERIFY(readPipe.open(pipeFds[0], QIODevice::ReadOnly, QFileDevice::AutoCloseHandle));
+    QByteArray displayNumber = readPipe.readLine();
+    readPipe.close();
+
+    displayNumber.prepend(QByteArray(":"));
+    displayNumber.remove(displayNumber.size() -1, 1);
+
     // create X connection
     int screen = 0;
-    m_connection = xcb_connect(qPrintable(id), &screen);
+    m_connection = xcb_connect(displayNumber.constData(), &screen);
     QVERIFY(m_connection);
     QVERIFY(!xcb_connection_has_error(m_connection));
     m_rootWindow = KXUtils::rootWindow(m_connection, screen);
