@@ -738,8 +738,14 @@ QPixmap KWindowSystemPrivateX11::iconFromNetWinInfo(int width, int height, bool 
         iconWidth = 16;
     } else if (width < 40) {
         iconWidth = 32;
-    } else {
+    } else if (width < 56) {
         iconWidth = 48;
+    } else if (width < 96) {
+        iconWidth = 64;
+    } else if (width < 192) {
+        iconWidth = 128;
+    } else {
+        iconWidth = 256;
     }
 
     if (flags & KWindowSystem::ClassHint) {
