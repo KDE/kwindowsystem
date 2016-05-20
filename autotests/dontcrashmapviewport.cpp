@@ -23,6 +23,8 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 int main(int, char **)
 {
     xcb_connection_t *c = xcb_connect(Q_NULLPTR, Q_NULLPTR);
+    Q_ASSERT(c);
+    Q_ASSERT(!xcb_connection_has_error(c));
     NETRootInfo rootInfo(c, NET::CurrentDesktop);
     rootInfo.currentDesktop(true);
     rootInfo.currentDesktop(false);

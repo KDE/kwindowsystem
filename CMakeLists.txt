@@ -4,7 +4,7 @@ project(KWindowSystem)
 
 # ECM setup
 include(FeatureSummary)
-find_package(ECM 5.21.0  NO_MODULE)
+find_package(ECM 5.22.0  NO_MODULE)
 set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://projects.kde.org/projects/kdesupport/extra-cmake-modules")
 feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
@@ -19,7 +19,7 @@ include(CMakeFindFrameworks)
 
 include(ECMPoQmTools)
 
-set(KF5_VERSION "5.21.0") # handled by release scripts
+set(KF5_VERSION "5.22.0") # handled by release scripts
 
 ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KWINDOWSYSTEM
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kwindowsystem_version.h"
