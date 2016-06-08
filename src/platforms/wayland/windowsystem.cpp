@@ -172,14 +172,20 @@ bool WindowSystem::mapViewport()
 
 void WindowSystem::minimizeWindow(WId win)
 {
-    Q_UNUSED(win)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support minimize window";
+    if (PlasmaWindow *w = window(win)) {
+        if (!w->isMinimized()) {
+            w->requestToggleMinimized();
+        }
+    }
 }
 
 void WindowSystem::unminimizeWindow(WId win)
 {
-    Q_UNUSED(win)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support minimizing windows";
+    if (PlasmaWindow *w = window(win)) {
+        if (w->isMinimized()) {
+            w->requestToggleMinimized();
+        }
+    }
 }
 
 int WindowSystem::numberOfDesktops()
