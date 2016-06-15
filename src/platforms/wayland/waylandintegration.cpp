@@ -31,7 +31,6 @@
 #include <KWayland/Client/contrast.h>
 #include <KWayland/Client/region.h>
 #include <KWayland/Client/slide.h>
-#include <KWayland/Client/shell.h>
 
 #include <KWindowSystem/KWindowSystem>
 
