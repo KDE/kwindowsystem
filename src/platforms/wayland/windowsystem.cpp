@@ -435,6 +435,8 @@ void WindowSystem::setType(WId win, NET::WindowType windowType)
     case NET::OnScreenDisplay:
         role = KWayland::Client::PlasmaShellSurface::Role::OnScreenDisplay;
         break;
+    case NET::Notification:
+        role = KWayland::Client::PlasmaShellSurface::Role::Notification;
     default:
         return;
     }
