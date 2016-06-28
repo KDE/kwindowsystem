@@ -437,6 +437,7 @@ void WindowSystem::setType(WId win, NET::WindowType windowType)
         break;
     case NET::Notification:
         role = KWayland::Client::PlasmaShellSurface::Role::Notification;
+        break;
     default:
         return;
     }
