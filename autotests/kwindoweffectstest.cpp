@@ -421,11 +421,15 @@ void KWindowEffectsTest::testEffectAvailable()
     QVERIFY(!KWindowEffects::isEffectAvailable(effect));
 
     // fake the compositor
+    QSignalSpy compositingChangedSpy(KWindowSystem::self(), &KWindowSystem::compositingChanged);
+    QVERIFY(compositingChangedSpy.isValid());
     KSelectionOwner compositorSelection("_NET_WM_CM_S0");
     QSignalSpy claimedSpy(&compositorSelection, &KSelectionOwner::claimedOwnership);
     QVERIFY(claimedSpy.isValid());
     compositorSelection.claim(true);
     QVERIFY(claimedSpy.wait());
+    QCOMPARE(compositingChangedSpy.count(), 1);
+    QCOMPARE(compositingChangedSpy.first().first().toBool(), true);
     QVERIFY(KWindowSystem::compositingActive());
 
     // but not yet available
@@ -449,6 +453,13 @@ void KWindowEffectsTest::testEffectAvailable()
     xcb_flush(c);
     // which means it's no longer available
     QVERIFY(!KWindowEffects::isEffectAvailable(effect));
+
+    // remove compositing selection
+    compositorSelection.release();
+    QVERIFY(compositingChangedSpy.wait());
+    QCOMPARE(compositingChangedSpy.count(), 2);
+    QCOMPARE(compositingChangedSpy.last().first().toBool(), false);
+    QVERIFY(!KWindowSystem::compositingActive());
 }
 
 QTEST_MAIN(KWindowEffectsTest)
