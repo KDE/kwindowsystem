@@ -188,7 +188,6 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
     KWindowSystem *s_q = KWindowSystem::self();
     const uint8_t eventType = ev->response_type & ~0x80;
 
-#ifdef KWINDOWSYSTEM_HAVE_XFIXES
     if (eventType == xfixesEventBase + XCB_XFIXES_SELECTION_NOTIFY) {
         xcb_xfixes_selection_notify_event_t *event = reinterpret_cast<xcb_xfixes_selection_notify_event_t *>(ev);
         if (event->window == winId) {
@@ -215,7 +214,6 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
         }
         return false;
     }
-#endif
 
     xcb_window_t eventWindow = XCB_WINDOW_NONE;
     switch (eventType) {
