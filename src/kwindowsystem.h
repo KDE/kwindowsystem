@@ -579,6 +579,51 @@ public:
      */
     static QPoint constrainViewportRelativePosition(const QPoint &pos);
 
+    /**
+     * Enum describing the windowing system platform used by the QGuiApplication.
+     * @see platform
+     * @since 5.25
+     **/
+    enum class Platform {
+        /**
+         * A platform unknown to the application is used
+         **/
+        Unknown,
+        /**
+         * The xcb/X11 windowing system platorm.
+         **/
+        X11,
+        /**
+         * The Wayland windowing system platform.
+         **/
+        Wayland
+    };
+    /**
+     * Returns the Platform used by the QGuiApplication.
+     * This method allows to check for the used windowing system in a cheap and reliable way.
+     * The Platform gets resolved the first time the method is invoked and cached for further
+     * usages.
+     * @returns The Platform used by the QGuiApplication.
+     * @since 5.25
+     **/
+    static Platform platform();
+
+    /**
+     * Convenience method to check whether the Platform is X11.
+     * @see platform
+     * @see isPlatformWayland
+     * @since 5.25
+     **/
+    static bool isPlatformX11();
+
+    /**
+     * Convenience method to check whether the Platform is Wayland.
+     * @see platform
+     * @see isPlatformX11
+     * @since 5.25
+     **/
+    static bool isPlatformWayland();
+
 Q_SIGNALS:
 
     /**

@@ -7,6 +7,8 @@ include(ECMMarkAsTest)
 
 find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Test)
 
+add_subdirectory(helper)
+
 if (NOT APPLE)
     find_package(X11)
     find_package(XCB COMPONENTS XCB)
@@ -57,4 +59,7 @@ if(X11_FOUND)
     )
 endif()
 
-
+add_executable(kwindowsystemplatformwaylandtest kwindowsystem_platform_wayland_test.cpp)
+add_test(kwindowsystem-kwindowsystemplatformwaylandtest kwindowsystemplatformwaylandtest)
+target_link_libraries(kwindowsystemplatformwaylandtest KF5::WindowSystem Qt5::Test)
+ecm_mark_as_test(kwindowsystemplatformwaylandtest)

@@ -44,6 +44,7 @@ private Q_SLOTS:
     void testWorkAreaChanged();
     void testWindowTitleChanged();
     void testMinimizeWindow();
+    void testPlatformX11();
 };
 
 void KWindowSystemX11Test::initTestCase()
@@ -381,6 +382,13 @@ void KWindowSystemX11Test::testMinimizeWindow()
 
     KWindowInfo info3(widget.winId(), NET::WMState | NET::XAWMState);
     QVERIFY(!info3.isMinimized());
+}
+
+void KWindowSystemX11Test::testPlatformX11()
+{
+    QCOMPARE(KWindowSystem::platform(), KWindowSystem::Platform::X11);
+    QCOMPARE(KWindowSystem::isPlatformX11(), true);
+    QCOMPARE(KWindowSystem::isPlatformWayland(), false);
 }
 
 QTEST_MAIN(KWindowSystemX11Test)

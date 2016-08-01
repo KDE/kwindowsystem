@@ -30,6 +30,9 @@
 #include <QPluginLoader>
 #include <QWidget>
 #include <QWindow>
+#if KWINDOWSYSTEM_HAVE_X11
+#include <QX11Info>
+#endif
 
 //QPoint and QSize all have handy / operators which are useful for scaling, positions and sizes for high DPI support
 //QRect does not, so we create one for internal purposes within this class
@@ -708,4 +711,33 @@ QPoint KWindowSystem::constrainViewportRelativePosition(const QPoint &pos)
 {
     Q_D(KWindowSystem);
     return d->constrainViewportRelativePosition(pos / qApp->devicePixelRatio());
+}
+
+static inline KWindowSystem::Platform initPlatform()
+{
+#if KWINDOWSYSTEM_HAVE_X11
+    if (QX11Info::isPlatformX11()) {
+        return KWindowSystem::Platform::X11;
+    }
+#endif
+    if (QGuiApplication::platformName().startsWith(QLatin1String("wayland"), Qt::CaseInsensitive)) {
+        return KWindowSystem::Platform::Wayland;
+    }
+    return KWindowSystem::Platform::Unknown;
+}
+
+KWindowSystem::Platform KWindowSystem::platform()
+{
+    static Platform s_platform = initPlatform();
+    return s_platform;
+}
+
+bool KWindowSystem::isPlatformX11()
+{
+    return platform() == Platform::X11;
+}
+
+bool KWindowSystem::isPlatformWayland()
+{
+    return platform() == Platform::Wayland;
 }
