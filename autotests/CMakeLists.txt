@@ -50,6 +50,7 @@ if(X11_FOUND)
         netrootinfotestwm
         netwininfotestclient
         netwininfotestwm
+        compositingenabled_test
     )
     
     kwindowsystem_executable_tests(

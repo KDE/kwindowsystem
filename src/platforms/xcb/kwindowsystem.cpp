@@ -480,6 +480,7 @@ void KWindowSystemPrivateX11::init(FilterInfo what)
     }
 
     if (!s_d || s_d->what < what) {
+        const bool wasCompositing = s_d ? s_d->compositingEnabled : false;
         MainThreadInstantiator instantiator(what);
         NETEventFilter *filter;
         if (instantiator.thread() == QCoreApplication::instance()->thread()) {
@@ -496,6 +497,9 @@ void KWindowSystemPrivateX11::init(FilterInfo what)
         }
         d.reset(filter);
         d->activate();
+        if (wasCompositing != s_d_func()->compositingEnabled) {
+            emit KWindowSystem::self()->compositingChanged(s_d_func()->compositingEnabled);
+        }
     }
 }
 
