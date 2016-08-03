@@ -45,6 +45,7 @@ void CompositingEnabledTest::testRecreatingNetEventFilter()
         }
     );
 
+    QVERIFY(claimedSpy.wait());
     QTRY_VERIFY(KWindowSystem::compositingActive());
     QCOMPARE(compositingChangedSpy.count(), 1);
 }
