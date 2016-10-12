@@ -68,6 +68,18 @@ void WindowSystem::forceActiveWindow(WId win, long int time)
     Q_UNUSED(time)
     if (PlasmaWindow *w = window(win)) {
         w->requestActivate();
+    } else {
+        Surface *s = Surface::fromQtWinId(win);
+        if (!s) {
+            return;
+        }
+        auto plasmaShellSurface = PlasmaShellSurface::get(s);
+        if (!plasmaShellSurface) {
+            return;
+        }
+        if (plasmaShellSurface->role() == PlasmaShellSurface::Role::Panel) {
+            plasmaShellSurface->setPanelTakesFocus(true);
+        }
     }
 }
 
