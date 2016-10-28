@@ -85,12 +85,6 @@ if(KWINDOWSYSTEM_HAVE_X11)
     target_include_directories(KF5WindowSystem PUBLIC ${XCB_XCB_INCLUDE_DIR} ${X11_X11_INCLUDE_PATH})
 endif()
 
-if(IS_ABSOLUTE "${KDE_INSTALL_INCLUDEDIR_KF5}")
-  target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF5}>" )
-else()
-  target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/${KDE_INSTALL_INCLUDEDIR_KF5}>" )
-endif()
-
 set_target_properties(KF5WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSION_STRING}
                                                  SOVERSION ${KWINDOWSYSTEM_SOVERSION}
                                                  EXPORT_NAME WindowSystem
