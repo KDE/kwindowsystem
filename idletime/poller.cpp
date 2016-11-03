@@ -24,6 +24,7 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include <KWayland/Client/registry.h>
 #include <KWayland/Client/seat.h>
 
+#include <QGuiApplication>
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QMutex>
@@ -52,6 +53,9 @@ bool Poller::initWayland()
     if (!connection) {
         return false;
     }
+    // need to be able to cleanup prior to the Wayland connection being destroyed
+    // otherwise we get a crash in libwayland
+    connect(reinterpret_cast<QObject*>(qApp->platformNativeInterface()), &QObject::destroyed, this, &Poller::unloadPoller);
     m_registry = new Registry(this);
     m_registry->create(connection);
     connect(m_registry, &Registry::seatAnnounced, this,
@@ -116,7 +120,19 @@ bool Poller::setUpPoller()
 
 void Poller::unloadPoller()
 {
+    qDeleteAll(m_timeouts);
+    m_timeouts.clear();
 
+    delete m_catchResumeTimeout;
+    m_catchResumeTimeout = nullptr;
+
+    delete m_registry;
+    m_registry = nullptr;
+
+    delete m_seat.seat;
+    m_seat.seat = nullptr;
+    delete m_idle.idle;
+    m_idle.idle = nullptr;
 }
 
 void Poller::addTimeout(int nextTimeout)
