@@ -35,6 +35,9 @@ KWindowInfoPrivate *KWindowInfoPrivate::create(WId window, NET::Properties prope
     return KWindowSystemPluginWrapper::self().createWindowInfo(window, properties, properties2);
 }
 
+KWindowInfoPrivateDesktopFileNameExtension::KWindowInfoPrivateDesktopFileNameExtension() = default;
+KWindowInfoPrivateDesktopFileNameExtension::~KWindowInfoPrivateDesktopFileNameExtension() = default;
+
 class KWindowInfoPrivate::Private
 {
 public:
@@ -42,12 +45,14 @@ public:
     WId window;
     NET::Properties properties;
     NET::Properties2 properties2;
+    KWindowInfoPrivateDesktopFileNameExtension *desktopFileNameExtension;
 };
 
 KWindowInfoPrivate::Private::Private(WId window, NET::Properties properties, NET::Properties2 properties2)
     : window(window)
     , properties(properties)
     , properties2(properties2)
+    , desktopFileNameExtension(Q_NULLPTR)
 {
 }
 
@@ -63,6 +68,16 @@ KWindowInfoPrivate::~KWindowInfoPrivate()
 WId KWindowInfoPrivate::win() const
 {
     return d->window;
+}
+
+KWindowInfoPrivateDesktopFileNameExtension *KWindowInfoPrivate::desktopFileNameExtension() const
+{
+    return d->desktopFileNameExtension;
+}
+
+void KWindowInfoPrivate::installDesktopFileNameExtension(KWindowInfoPrivateDesktopFileNameExtension *extension)
+{
+    d->desktopFileNameExtension = extension;
 }
 
 KWindowInfoPrivateDummy::KWindowInfoPrivateDummy(WId window, NET::Properties properties, NET::Properties2 properties2)
@@ -367,6 +382,14 @@ QByteArray KWindowInfo::clientMachine() const
 bool KWindowInfo::actionSupported(NET::Action action) const
 {
     DELEGATE(actionSupported, action)
+}
+
+QByteArray KWindowInfo::desktopFileName() const
+{
+    if (auto extension = d->desktopFileNameExtension()) {
+        return extension->desktopFileName();
+    }
+    return QByteArray();
 }
 
 #undef DELEGATE

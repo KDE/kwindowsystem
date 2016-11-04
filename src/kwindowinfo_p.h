@@ -30,6 +30,8 @@
 #include <QSharedData>
 #include <QWidgetList> //For WId
 
+class KWindowInfoPrivateDesktopFileNameExtension;
+
 class KWINDOWSYSTEM_EXPORT KWindowInfoPrivate  : public QSharedData
 {
 public:
@@ -63,14 +65,29 @@ public:
     virtual QByteArray clientMachine() const = 0;
     virtual bool actionSupported(NET::Action action) const = 0;
 
+    KWindowInfoPrivateDesktopFileNameExtension *desktopFileNameExtension() const;
+
     static KWindowInfoPrivate *create(WId window, NET::Properties properties, NET::Properties2 properties2);
 
 protected:
     KWindowInfoPrivate(WId window, NET::Properties properties, NET::Properties2 properties2);
 
+    void installDesktopFileNameExtension(KWindowInfoPrivateDesktopFileNameExtension *extension);
+
 private:
     class Private;
     const QScopedPointer<Private> d;
+};
+
+class KWINDOWSYSTEM_EXPORT KWindowInfoPrivateDesktopFileNameExtension
+{
+public:
+    virtual ~KWindowInfoPrivateDesktopFileNameExtension();
+
+    virtual QByteArray desktopFileName() const = 0;
+
+protected:
+    explicit KWindowInfoPrivateDesktopFileNameExtension();
 };
 
 #endif

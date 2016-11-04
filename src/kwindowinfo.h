@@ -544,6 +544,29 @@ public:
     bool actionSupported(NET::Action action) const;
 
     /**
+     * Returns the desktop file name of the window's application if present.
+     *
+     * This is either the base name without full path and without file extension of the
+     * desktop file for the window's application (e.g. "org.kde.foo").
+     *
+     * If the application's desktop file name is not at a standard location it should be
+     * the full path to the desktop file name (e.g. "/opt/kde/share/org.kde.foo.desktop").
+     *
+     * Requires NET::WM2DesktopFileName passed as properties2 parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), 0, NET::WM2DesktopFileName);
+     * if (info.valid())
+     *     info.desktopFileName();
+     * @endcode
+     *
+     * @since 5.29
+     **/
+    QByteArray desktopFileName() const;
+
+    /**
      * Copy constructor.
      */
     KWindowInfo(const KWindowInfo &);

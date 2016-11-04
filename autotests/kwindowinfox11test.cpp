@@ -32,6 +32,8 @@ Q_DECLARE_METATYPE(NET::States)
 Q_DECLARE_METATYPE(NET::WindowType)
 Q_DECLARE_METATYPE(NET::WindowTypeMask)
 Q_DECLARE_METATYPE(NET::WindowTypes)
+Q_DECLARE_METATYPE(NET::Properties)
+Q_DECLARE_METATYPE(NET::Properties2)
 
 
 class KWindowInfoX11Test : public QObject
@@ -59,6 +61,7 @@ private Q_SLOTS:
     void testGroupLeader();
     void testExtendedStrut();
     void testGeometry();
+    void testDesktopFileName();
 
     // actionSupported is not tested as it's too window manager specific
     // we could write a test against KWin's behavior, but that would fail on
@@ -75,6 +78,8 @@ private:
 void KWindowInfoX11Test::initTestCase()
 {
     QCoreApplication::setAttribute(Qt::AA_ForceRasterWidgets);
+    qRegisterMetaType<NET::Properties>();
+    qRegisterMetaType<NET::Properties2>();
 }
 
 bool KWindowInfoX11Test::waitForWindow(QSignalSpy& spy, WId winId, NET::Property property) const
@@ -718,6 +723,31 @@ void KWindowInfoX11Test::testGeometry()
     QCOMPARE(info2.geometry(), window->geometry());
     QCOMPARE(info2.geometry(), geo);
     QCOMPARE(info2.frameGeometry(), window->frameGeometry());
+}
+
+void KWindowInfoX11Test::testDesktopFileName()
+{
+    KWindowInfo info(window->winId(), NET::Properties(), NET::WM2DesktopFileName);
+    QVERIFY(info.valid());
+    QCOMPARE(info.desktopFileName(), QByteArray());
+
+    QSignalSpy spy(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId,NET::Properties,NET::Properties2)>(&KWindowSystem::windowChanged));
+    QVERIFY(spy.isValid());
+
+    // create a NETWinInfo to set the desktop file name
+    NETWinInfo netInfo(QX11Info::connection(), window->winId(), QX11Info::appRootWindow(), NET::Properties(), NET::Properties2());
+    netInfo.setDesktopFileName("org.kde.foo");
+    xcb_flush(QX11Info::connection());
+
+    // it's just a property change so we can easily refresh
+    QX11Info::getTimestamp();
+    QTRY_COMPARE(spy.count(), 1);
+    QCOMPARE(spy.first().at(0).value<WId>(), window->winId());
+    QCOMPARE(spy.first().at(2).value<NET::Properties2>(), NET::Properties2(NET::WM2DesktopFileName));
+
+    KWindowInfo info2(window->winId(), NET::Properties(), NET::WM2DesktopFileName);
+    QVERIFY(info2.valid());
+    QCOMPARE(info2.desktopFileName(), QByteArrayLiteral("org.kde.foo"));
 }
 
 QTEST_MAIN(KWindowInfoX11Test)
