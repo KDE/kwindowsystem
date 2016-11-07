@@ -69,7 +69,7 @@ private Q_SLOTS:
 
 private:
     void showWidget(QWidget *widget);
-    bool waitForWindow(QSignalSpy &spy, WId winId, NET::Property property) const;
+    bool waitForWindow(QSignalSpy &spy, WId winId, NET::Properties property, NET::Properties2 properties2 = NET::Properties2()) const;
     bool verifyMinimized(WId window) const;
 
     QScopedPointer<QWidget> window;
@@ -82,7 +82,7 @@ void KWindowInfoX11Test::initTestCase()
     qRegisterMetaType<NET::Properties2>();
 }
 
-bool KWindowInfoX11Test::waitForWindow(QSignalSpy& spy, WId winId, NET::Property property) const
+bool KWindowInfoX11Test::waitForWindow(QSignalSpy& spy, WId winId, NET::Properties property, NET::Properties2 property2) const
 {
     // we need to wait, window manager has to react and update the property.
     bool foundOurWindow = false;
@@ -95,8 +95,15 @@ bool KWindowInfoX11Test::waitForWindow(QSignalSpy& spy, WId winId, NET::Property
             if (it->first().value<WId>() != winId) {
                 continue;
             }
-            if (it->last().toUInt() != property) {
-                continue;
+            if (property != NET::Properties()) {
+                if (it->at(1).value<NET::Properties>() != property) {
+                    continue;
+                }
+            }
+            if (property2 != NET::Properties2()) {
+                if (it->at(2).value<NET::Properties2>() != property2) {
+                    continue;
+                }
             }
             foundOurWindow = true;
             break;
@@ -206,7 +213,8 @@ void KWindowInfoX11Test::testState()
         QVERIFY(!info.hasState(NET::States(1 << i)));
     }
 
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowChanged(WId,unsigned int)));
+    QSignalSpy spy(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId,NET::Properties,NET::Properties2)>(&KWindowSystem::windowChanged));
+    QVERIFY(spy.isValid());
     // now we have a clean window and can do fun stuff
     KWindowSystem::setState(window->winId(), state);
 
@@ -255,7 +263,8 @@ void KWindowInfoX11Test::testDemandsAttention()
     QVERIFY(info.valid());
     QVERIFY(!info.hasState(NET::DemandsAttention));
 
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowChanged(WId,unsigned int)));
+    QSignalSpy spy(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId,NET::Properties,NET::Properties2)>(&KWindowSystem::windowChanged));
+    QVERIFY(spy.isValid());
     // now we have a clean window and can do fun stuff
     KWindowSystem::demandAttention(window->winId());
 
@@ -451,7 +460,8 @@ void KWindowInfoX11Test::testDesktop()
     }
 
     // set on all desktop
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowChanged(WId,unsigned int)));
+    QSignalSpy spy(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId,NET::Properties,NET::Properties2)>(&KWindowSystem::windowChanged));
+    QVERIFY(spy.isValid());
     KWindowSystem::setOnAllDesktops(window->winId(), true);
     QVERIFY(waitForWindow(spy, window->winId(), NET::WMDesktop));
 
@@ -485,11 +495,11 @@ void KWindowInfoX11Test::testDesktop()
 void KWindowInfoX11Test::testActivities()
 {
     NETRootInfo rootInfo(QX11Info::connection(), NET::Supported | NET::SupportingWMCheck);
-    qRegisterMetaType<unsigned int>("NET::Properties");
-    qRegisterMetaType<unsigned int>("NET::Properties2");
-    QSignalSpy spyReal(KWindowSystem::self(), SIGNAL(windowChanged(WId,NET::Properties,NET::Properties2)));
+    QSignalSpy spyReal(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId,NET::Properties,NET::Properties2)>(&KWindowSystem::windowChanged));
+    QVERIFY(spyReal.isValid());
 
     KWindowInfo info(window->winId(), 0, NET::WM2Activities);
+    QVERIFY(info.valid());
 
     QStringList startingActivities = info.activities();
 
@@ -501,7 +511,7 @@ void KWindowInfoX11Test::testActivities()
     // Window on all activities
     KWindowSystem::self()->setOnActivities(window->winId(), QStringList());
 
-    QVERIFY(waitForWindow(spyReal, window->winId(), (NET::Property)NET::WM2Activities));
+    QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
     KWindowInfo info2(window->winId(), 0, NET::WM2Activities);
 
@@ -510,7 +520,7 @@ void KWindowInfoX11Test::testActivities()
     // Window on a specific activity
     KWindowSystem::self()->setOnActivities(window->winId(), QStringList() << "test-activity");
 
-    QVERIFY(waitForWindow(spyReal, window->winId(), (NET::Property)NET::WM2Activities));
+    QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
     KWindowInfo info3(window->winId(), 0, NET::WM2Activities);
 
@@ -520,7 +530,7 @@ void KWindowInfoX11Test::testActivities()
     // Window on a two activities
     KWindowSystem::self()->setOnActivities(window->winId(), QStringList() << "test-activity" << "test-activity2");
 
-    QVERIFY(waitForWindow(spyReal, window->winId(), (NET::Property)NET::WM2Activities));
+    QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
     KWindowInfo info4(window->winId(), 0, NET::WM2Activities);
 
@@ -531,7 +541,7 @@ void KWindowInfoX11Test::testActivities()
     // Window on the starting activity
     KWindowSystem::self()->setOnActivities(window->winId(), startingActivities);
 
-    QVERIFY(waitForWindow(spyReal, window->winId(), NET::Property(NET::WM2Activities)));
+    QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
     KWindowInfo info5(window->winId(), 0, NET::WM2Activities);
 
@@ -710,7 +720,8 @@ void KWindowInfoX11Test::testGeometry()
     QCOMPARE(info.geometry().size(), window->geometry().size());
     QCOMPARE(info.frameGeometry().size(), window->frameGeometry().size());
 
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowChanged(WId,unsigned int)));
+    QSignalSpy spy(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId,NET::Properties,NET::Properties2)>(&KWindowSystem::windowChanged));
+    QVERIFY(spy.isValid());
 
     // this is tricky, KWin is smart and doesn't allow all geometries we pass in
     // setting to center of screen should work, though
