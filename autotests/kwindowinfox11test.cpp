@@ -26,6 +26,9 @@
 #include <QScreen>
 #include <QSignalSpy>
 #include <QX11Info>
+
+#include <unistd.h>
+
 Q_DECLARE_METATYPE(WId)
 Q_DECLARE_METATYPE(NET::State)
 Q_DECLARE_METATYPE(NET::States)
@@ -62,6 +65,7 @@ private Q_SLOTS:
     void testExtendedStrut();
     void testGeometry();
     void testDesktopFileName();
+    void testPid();
 
     // actionSupported is not tested as it's too window manager specific
     // we could write a test against KWin's behavior, but that would fail on
@@ -759,6 +763,13 @@ void KWindowInfoX11Test::testDesktopFileName()
     KWindowInfo info2(window->winId(), NET::Properties(), NET::WM2DesktopFileName);
     QVERIFY(info2.valid());
     QCOMPARE(info2.desktopFileName(), QByteArrayLiteral("org.kde.foo"));
+}
+
+void KWindowInfoX11Test::testPid()
+{
+    KWindowInfo info(window->winId(), NET::WMPid);
+    QVERIFY(info.valid());
+    QCOMPARE(info.pid(), getpid());
 }
 
 QTEST_MAIN(KWindowInfoX11Test)

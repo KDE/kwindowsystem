@@ -567,6 +567,23 @@ public:
     QByteArray desktopFileName() const;
 
     /**
+     * Returns the process ID of the window's application if present.
+     *
+     * Requires NET::WMPid passed as properties parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(Q_NULLPTR);
+     * window->show();
+     * KWindowInfo info(window->winId(), NET::WMPid);
+     * if (info.valid())
+     *     info.desktopFileName();
+     * @endcode
+     *
+     * @since 5.29
+     */
+    int pid() const;
+
+    /**
      * Copy constructor.
      */
     KWindowInfo(const KWindowInfo &);

@@ -38,6 +38,9 @@ KWindowInfoPrivate *KWindowInfoPrivate::create(WId window, NET::Properties prope
 KWindowInfoPrivateDesktopFileNameExtension::KWindowInfoPrivateDesktopFileNameExtension() = default;
 KWindowInfoPrivateDesktopFileNameExtension::~KWindowInfoPrivateDesktopFileNameExtension() = default;
 
+KWindowInfoPrivatePidExtension::KWindowInfoPrivatePidExtension() = default;
+KWindowInfoPrivatePidExtension::~KWindowInfoPrivatePidExtension() = default;
+
 class KWindowInfoPrivate::Private
 {
 public:
@@ -46,6 +49,7 @@ public:
     NET::Properties properties;
     NET::Properties2 properties2;
     KWindowInfoPrivateDesktopFileNameExtension *desktopFileNameExtension;
+    KWindowInfoPrivatePidExtension *pidExtension;
 };
 
 KWindowInfoPrivate::Private::Private(WId window, NET::Properties properties, NET::Properties2 properties2)
@@ -53,6 +57,7 @@ KWindowInfoPrivate::Private::Private(WId window, NET::Properties properties, NET
     , properties(properties)
     , properties2(properties2)
     , desktopFileNameExtension(Q_NULLPTR)
+    , pidExtension(Q_NULLPTR)
 {
 }
 
@@ -78,6 +83,16 @@ KWindowInfoPrivateDesktopFileNameExtension *KWindowInfoPrivate::desktopFileNameE
 void KWindowInfoPrivate::installDesktopFileNameExtension(KWindowInfoPrivateDesktopFileNameExtension *extension)
 {
     d->desktopFileNameExtension = extension;
+}
+
+KWindowInfoPrivatePidExtension *KWindowInfoPrivate::pidExtension() const
+{
+    return d->pidExtension;
+}
+
+void KWindowInfoPrivate::installPidExtension(KWindowInfoPrivatePidExtension *extension)
+{
+    d->pidExtension = extension;
 }
 
 KWindowInfoPrivateDummy::KWindowInfoPrivateDummy(WId window, NET::Properties properties, NET::Properties2 properties2)
@@ -216,6 +231,11 @@ bool KWindowInfoPrivateDummy::actionSupported(NET::Action action) const
 {
     Q_UNUSED(action)
     return false;
+}
+
+int KWindowInfoPrivateDummy::pid() const
+{
+    return 0;
 }
 
 // public
@@ -390,6 +410,14 @@ QByteArray KWindowInfo::desktopFileName() const
         return extension->desktopFileName();
     }
     return QByteArray();
+}
+
+int KWindowInfo::pid() const
+{
+    if (auto extension = d->pidExtension()) {
+        return extension->pid();
+    }
+    return 0;
 }
 
 #undef DELEGATE

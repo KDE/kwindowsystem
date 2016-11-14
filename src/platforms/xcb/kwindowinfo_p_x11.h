@@ -24,7 +24,7 @@
 
 class NETWinInfo;
 
-class KWindowInfoPrivateX11 : public KWindowInfoPrivate, public KWindowInfoPrivateDesktopFileNameExtension
+class KWindowInfoPrivateX11 : public KWindowInfoPrivate, public KWindowInfoPrivateDesktopFileNameExtension, public KWindowInfoPrivatePidExtension
 {
 public:
     KWindowInfoPrivateX11(WId window, NET::Properties properties, NET::Properties2 properties2);
@@ -57,6 +57,8 @@ public:
     bool actionSupported(NET::Action action) const Q_DECL_OVERRIDE;
 
     QByteArray desktopFileName() const Q_DECL_OVERRIDE;
+
+    int pid() const Q_DECL_OVERRIDE;
 
 private:
     QScopedPointer<NETWinInfo> m_info;

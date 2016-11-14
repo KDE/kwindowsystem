@@ -31,6 +31,7 @@
 #include <QWidgetList> //For WId
 
 class KWindowInfoPrivateDesktopFileNameExtension;
+class KWindowInfoPrivatePidExtension;
 
 class KWINDOWSYSTEM_EXPORT KWindowInfoPrivate  : public QSharedData
 {
@@ -64,8 +65,10 @@ public:
     virtual QByteArray windowRole() const = 0;
     virtual QByteArray clientMachine() const = 0;
     virtual bool actionSupported(NET::Action action) const = 0;
+    virtual int pid() const = 0;
 
     KWindowInfoPrivateDesktopFileNameExtension *desktopFileNameExtension() const;
+    KWindowInfoPrivatePidExtension *pidExtension() const;
 
     static KWindowInfoPrivate *create(WId window, NET::Properties properties, NET::Properties2 properties2);
 
@@ -73,6 +76,7 @@ protected:
     KWindowInfoPrivate(WId window, NET::Properties properties, NET::Properties2 properties2);
 
     void installDesktopFileNameExtension(KWindowInfoPrivateDesktopFileNameExtension *extension);
+    void installPidExtension(KWindowInfoPrivatePidExtension *extension);
 
 private:
     class Private;
@@ -88,6 +92,17 @@ public:
 
 protected:
     explicit KWindowInfoPrivateDesktopFileNameExtension();
+};
+
+class KWINDOWSYSTEM_EXPORT KWindowInfoPrivatePidExtension
+{
+public:
+    virtual ~KWindowInfoPrivatePidExtension();
+
+    virtual int pid() const = 0;
+
+protected:
+    explicit KWindowInfoPrivatePidExtension();
 };
 
 #endif
