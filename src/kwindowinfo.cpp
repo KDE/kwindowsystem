@@ -233,11 +233,6 @@ bool KWindowInfoPrivateDummy::actionSupported(NET::Action action) const
     return false;
 }
 
-int KWindowInfoPrivateDummy::pid() const
-{
-    return 0;
-}
-
 // public
 KWindowInfo::KWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2)
     : d(KWindowInfoPrivate::create(window, properties, properties2))

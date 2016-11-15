@@ -65,7 +65,6 @@ public:
     virtual QByteArray windowRole() const = 0;
     virtual QByteArray clientMachine() const = 0;
     virtual bool actionSupported(NET::Action action) const = 0;
-    virtual int pid() const = 0;
 
     KWindowInfoPrivateDesktopFileNameExtension *desktopFileNameExtension() const;
     KWindowInfoPrivatePidExtension *pidExtension() const;

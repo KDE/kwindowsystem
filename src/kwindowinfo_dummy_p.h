@@ -56,7 +56,6 @@ public:
     QByteArray windowRole() const Q_DECL_OVERRIDE;
     QByteArray clientMachine() const Q_DECL_OVERRIDE;
     bool actionSupported(NET::Action action) const Q_DECL_OVERRIDE;
-    int pid() const Q_DECL_OVERRIDE;
 };
 
 #endif
