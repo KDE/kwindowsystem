@@ -5,6 +5,8 @@ type: integration
 platforms:
     - name: Linux
       note: Only platform X11 is supported
+    - name: FreeBSD
+      note: Only platform X11 is supported
     - name: MacOSX
       note: Not all features supported
     - name: Windows
