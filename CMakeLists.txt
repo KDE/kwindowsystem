@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(KWindowSystem)
+set(KF5_VERSION "5.30.0") # handled by release scripts
+project(KWindowSystem VERSION ${KF5_VERSION})
 
 # ECM setup
 include(FeatureSummary)
@@ -19,9 +20,8 @@ include(CMakeFindFrameworks)
 
 include(ECMPoQmTools)
 
-set(KF5_VERSION "5.30.0") # handled by release scripts
 
-ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KWINDOWSYSTEM
+ecm_setup_version(PROJECT VARIABLE_PREFIX KWINDOWSYSTEM
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kwindowsystem_version.h"
                         PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5WindowSystemConfigVersion.cmake"
                         SOVERSION 5)
