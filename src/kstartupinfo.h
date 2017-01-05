@@ -424,7 +424,7 @@ protected:
     /**
      *
      */
-    virtual void customEvent(QEvent *e_P);
+    void customEvent(QEvent *e_P) Q_DECL_OVERRIDE;
 
 private:
     Q_PRIVATE_SLOT(d, void startups_cleanup())

@@ -135,7 +135,7 @@ public:
     xcb_connection_t *connection;
     xcb_window_t rootWindow;
 
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result)
+    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) Q_DECL_OVERRIDE
     {
         Q_UNUSED(result);
         if (eventType != "xcb_generic_event_t") {
