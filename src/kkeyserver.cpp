@@ -125,6 +125,7 @@ bool isShiftAsModifierAllowed(int keyQt)
     case Qt::Key_Return:
     case Qt::Key_Space:
     case Qt::Key_Backspace:
+    case Qt::Key_Tab:
     case Qt::Key_Backtab:
     case Qt::Key_Escape:
     case Qt::Key_Print:
