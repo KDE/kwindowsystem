@@ -68,7 +68,7 @@ class Atom
 {
 public:
     explicit Atom(const QByteArray &name)
-        : m_connection(Q_NULLPTR)
+        : m_connection(nullptr)
         , m_retrieved(false)
         , m_atom(XCB_ATOM_NONE)
         , m_name(name)
@@ -128,7 +128,7 @@ private:
         if (m_retrieved || !m_cookie.sequence) {
             return;
         }
-        ScopedCPointer<xcb_intern_atom_reply_t> reply(xcb_intern_atom_reply(m_connection, m_cookie, Q_NULLPTR));
+        ScopedCPointer<xcb_intern_atom_reply_t> reply(xcb_intern_atom_reply(m_connection, m_cookie, nullptr));
         if (!reply.isNull()) {
             m_atom = reply->atom;
         }

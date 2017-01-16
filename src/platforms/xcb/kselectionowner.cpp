@@ -127,7 +127,7 @@ KSelectionOwner::Private* KSelectionOwner::Private::create(KSelectionOwner *owne
         return create(owner, selection_P, QX11Info::connection(), QX11Info::appRootWindow(screen_P));
     }
     qWarning() << "Trying to use KSelectionOwner on a non-X11 platform! This is an application bug.";
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 KSelectionOwner::Private *KSelectionOwner::Private::create(KSelectionOwner *owner, xcb_atom_t selection_P, xcb_connection_t *c, xcb_window_t root)
@@ -141,7 +141,7 @@ KSelectionOwner::Private *KSelectionOwner::Private::create(KSelectionOwner *owne
         return create(owner, selection_P, QX11Info::connection(), QX11Info::appRootWindow(screen_P));
     }
     qWarning() << "Trying to use KSelectionOwner on a non-X11 platform! This is an application bug.";
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 KSelectionOwner::Private *KSelectionOwner::Private::create(KSelectionOwner *owner, const char *selection_P, xcb_connection_t *c, xcb_window_t root)

@@ -710,7 +710,7 @@ public:
      * @param properties2 The NET::Properties2 that changed
      * @since 5.0
      **/
-    void event(xcb_generic_event_t *event, NET::Properties *properties, NET::Properties2 *properties2 = Q_NULLPTR);
+    void event(xcb_generic_event_t *event, NET::Properties *properties, NET::Properties2 *properties2 = nullptr);
 
     /**
        This function takes the passed XEvent and returns an OR'ed list of
@@ -1548,7 +1548,7 @@ public:
      * @param properties2 The NET::Properties2 that changed
      * @since 5.0
      **/
-    void event(xcb_generic_event_t *event, NET::Properties *properties, NET::Properties2 *properties2 = Q_NULLPTR);
+    void event(xcb_generic_event_t *event, NET::Properties *properties, NET::Properties2 *properties2 = nullptr);
 
     /**
        This function takes the pass XEvent and returns an OR'ed list of NETWinInfo

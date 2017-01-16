@@ -30,12 +30,12 @@ KWindowSystemPluginInterface::~KWindowSystemPluginInterface()
 
 KWindowEffectsPrivate *KWindowSystemPluginInterface::createEffects()
 {
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 KWindowSystemPrivate *KWindowSystemPluginInterface::createWindowSystem()
 {
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 KWindowInfoPrivate *KWindowSystemPluginInterface::createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2)
@@ -43,5 +43,5 @@ KWindowInfoPrivate *KWindowSystemPluginInterface::createWindowInfo(WId window, N
     Q_UNUSED(window)
     Q_UNUSED(properties)
     Q_UNUSED(properties2)
-    return Q_NULLPTR;
+    return nullptr;
 }

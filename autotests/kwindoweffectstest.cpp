@@ -439,7 +439,7 @@ void KWindowEffectsTest::testEffectAvailable()
     QFETCH(QByteArray, propertyName);
     xcb_connection_t *c = QX11Info::connection();
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, propertyName.length(), propertyName.constData());
-    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, Q_NULLPTR));
+    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
     QVERIFY(!atom.isNull());
     unsigned char dummy = 0;
     xcb_change_property(c, XCB_PROP_MODE_REPLACE, QX11Info::appRootWindow(), atom->atom, atom->atom, 8, 1, &dummy);

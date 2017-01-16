@@ -69,7 +69,7 @@ static KWindowSystemPluginInterface *loadPlugin()
         }
     }
     qCWarning(LOG_KWINDOWSYSTEM) << "Could not find any platform plugin";
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 KWindowSystemPluginWrapper::KWindowSystemPluginWrapper()
@@ -95,7 +95,7 @@ KWindowEffectsPrivate *KWindowSystemPluginWrapper::effects() const
 
 KWindowSystemPrivate *KWindowSystemPluginWrapper::createWindowSystem() const
 {
-    KWindowSystemPrivate *p = Q_NULLPTR;
+    KWindowSystemPrivate *p = nullptr;
     if (!m_plugin.isNull()) {
         p = m_plugin->createWindowSystem();
     }
@@ -107,7 +107,7 @@ KWindowSystemPrivate *KWindowSystemPluginWrapper::createWindowSystem() const
 
 KWindowInfoPrivate *KWindowSystemPluginWrapper::createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2) const
 {
-    KWindowInfoPrivate *p = Q_NULLPTR;
+    KWindowInfoPrivate *p = nullptr;
     if (!m_plugin.isNull()) {
         p = m_plugin->createWindowInfo(window, properties, properties2);
     }

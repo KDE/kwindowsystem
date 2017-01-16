@@ -72,7 +72,7 @@ public:
      * @param parent the parent of this object
      * @since 5.8
      **/
-    explicit KXMessages(xcb_connection_t *connection, xcb_window_t rootWindow, const char *accept_broadcast = Q_NULLPTR, QObject *parent = Q_NULLPTR);
+    explicit KXMessages(xcb_connection_t *connection, xcb_window_t rootWindow, const char *accept_broadcast = nullptr, QObject *parent = nullptr);
 
     virtual ~KXMessages();
     /**

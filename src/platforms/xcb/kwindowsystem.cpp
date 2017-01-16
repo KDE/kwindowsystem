@@ -335,7 +335,7 @@ void NETEventFilter::addClient(xcb_window_t w)
     if ((what >= KWindowSystemPrivateX11::INFO_WINDOWS)) {
         xcb_connection_t *c = QX11Info::connection();
         QScopedPointer<xcb_get_window_attributes_reply_t, QScopedPointerPodDeleter> attr(xcb_get_window_attributes_reply(c,
-                xcb_get_window_attributes_unchecked(c, w), Q_NULLPTR));
+                xcb_get_window_attributes_unchecked(c, w), nullptr));
 
         uint32_t events = XCB_EVENT_MASK_PROPERTY_CHANGE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
         if (!attr.isNull()) {

@@ -81,7 +81,7 @@ public:
      * @param parent parent object, or NULL if there is none
      * @since 5.8
      **/
-    explicit KSelectionOwner(xcb_atom_t selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = Q_NULLPTR);
+    explicit KSelectionOwner(xcb_atom_t selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = nullptr);
 
     /**
      * @overload
@@ -95,7 +95,7 @@ public:
      * @param parent parent object, or NULL if there is none
      * @since 5.8
      **/
-    explicit KSelectionOwner(const char *selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = Q_NULLPTR);
+    explicit KSelectionOwner(const char *selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = nullptr);
 
     /**
      * Destructor. Calls release().

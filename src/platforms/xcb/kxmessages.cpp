@@ -44,7 +44,7 @@ public:
     explicit XcbAtom(const QByteArray &name, bool onlyIfExists = false)
         : m_name(name)
         , m_atom(XCB_ATOM_NONE)
-        , m_connection(Q_NULLPTR)
+        , m_connection(nullptr)
         , m_retrieved(false)
         , m_onlyIfExists(onlyIfExists)
     {
@@ -91,7 +91,7 @@ private:
         if (m_retrieved || !m_cookie.sequence || !m_connection) {
             return;
         }
-        KXUtils::ScopedCPointer<xcb_intern_atom_reply_t> reply(xcb_intern_atom_reply(m_connection, m_cookie, Q_NULLPTR));
+        KXUtils::ScopedCPointer<xcb_intern_atom_reply_t> reply(xcb_intern_atom_reply(m_connection, m_cookie, nullptr));
         if (!reply.isNull()) {
             m_atom = reply->atom;
         }
@@ -190,7 +190,7 @@ static void send_message_internal(xcb_window_t w, const QString &msg, xcb_connec
 
 KXMessages::KXMessages(const char *accept_broadcast_P, QObject *parent_P)
     : QObject(parent_P)
-    , d(new KXMessagesPrivate(this, accept_broadcast_P, QX11Info::isPlatformX11() ? QX11Info::connection() : Q_NULLPTR, QX11Info::isPlatformX11() ? QX11Info::appRootWindow() : 0))
+    , d(new KXMessagesPrivate(this, accept_broadcast_P, QX11Info::isPlatformX11() ? QX11Info::connection() : nullptr, QX11Info::isPlatformX11() ? QX11Info::appRootWindow() : 0))
 {
 }
 
@@ -215,7 +215,7 @@ xcb_screen_t *defaultScreen(xcb_connection_t *c, int screen)
             return it.data;
         }
     }
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 void KXMessages::broadcastMessage(const char *msg_type_P, const QString &message_P, int screen_P)
@@ -267,7 +267,7 @@ bool KXMessages::broadcastMessageX(xcb_connection_t *c, const char *msg_type_P, 
     const xcb_window_t root = screen->root;
     const xcb_window_t win = xcb_generate_id(c);
     xcb_create_window(c, XCB_COPY_FROM_PARENT, win, root, 0, 0, 1, 1,
-                      0, XCB_COPY_FROM_PARENT, XCB_COPY_FROM_PARENT, 0, Q_NULLPTR);
+                      0, XCB_COPY_FROM_PARENT, XCB_COPY_FROM_PARENT, 0, nullptr);
     send_message_internal(root, message, c, a1, a2, win);
     xcb_destroy_window(c, win);
     return true;

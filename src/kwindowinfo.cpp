@@ -56,8 +56,8 @@ KWindowInfoPrivate::Private::Private(WId window, NET::Properties properties, NET
     : window(window)
     , properties(properties)
     , properties2(properties2)
-    , desktopFileNameExtension(Q_NULLPTR)
-    , pidExtension(Q_NULLPTR)
+    , desktopFileNameExtension(nullptr)
+    , pidExtension(nullptr)
 {
 }
 

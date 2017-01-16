@@ -31,7 +31,7 @@ namespace KXUtils
 template <typename T> T fromNative(xcb_pixmap_t pixmap, xcb_connection_t *c)
 {
     const xcb_get_geometry_cookie_t geoCookie = xcb_get_geometry_unchecked(c,  pixmap);
-    ScopedCPointer<xcb_get_geometry_reply_t> geo(xcb_get_geometry_reply(c, geoCookie, Q_NULLPTR));
+    ScopedCPointer<xcb_get_geometry_reply_t> geo(xcb_get_geometry_reply(c, geoCookie, nullptr));
     if (geo.isNull()) {
         // getting geometry for the pixmap failed
         return T();
@@ -39,7 +39,7 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap, xcb_connection_t *c)
 
     const xcb_get_image_cookie_t imageCookie = xcb_get_image_unchecked(c, XCB_IMAGE_FORMAT_Z_PIXMAP, pixmap,
             0, 0, geo->width, geo->height, ~0);
-    ScopedCPointer<xcb_get_image_reply_t> xImage(xcb_get_image_reply(c, imageCookie, Q_NULLPTR));
+    ScopedCPointer<xcb_get_image_reply_t> xImage(xcb_get_image_reply(c, imageCookie, nullptr));
     if (xImage.isNull()) {
         // request for image data failed
         return T();

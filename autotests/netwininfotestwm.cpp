@@ -41,7 +41,7 @@ public:
 #define GETPROP(type, length, formatSize) \
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, m_testWindow, \
                                        atom, type, 0, length); \
-    Property reply(xcb_get_property_reply(connection(), cookie, Q_NULLPTR)); \
+    Property reply(xcb_get_property_reply(connection(), cookie, nullptr)); \
     QVERIFY(!reply.isNull()); \
     QCOMPARE(reply->format, uint8_t(formatSize)); \
     QCOMPARE(reply->value_len, uint32_t(length));
@@ -49,7 +49,7 @@ public:
 #define VERIFYDELETED(t) \
     xcb_get_property_cookie_t cookieDeleted = xcb_get_property_unchecked(connection(), false, m_testWindow, \
             atom, t, 0, 1); \
-    Property replyDeleted(xcb_get_property_reply(connection(), cookieDeleted, Q_NULLPTR)); \
+    Property replyDeleted(xcb_get_property_reply(connection(), cookieDeleted, nullptr)); \
     QVERIFY(!replyDeleted.isNull()); \
     QVERIFY(replyDeleted->type == XCB_ATOM_NONE);
 
@@ -107,7 +107,7 @@ void NetWinInfoTestWM::cleanupTestCase()
 void NetWinInfoTestWM::init()
 {
     // first reset just to be sure
-    m_connection = Q_NULLPTR;
+    m_connection = nullptr;
     m_rootWindow = XCB_WINDOW_NONE;
     m_testWindow = XCB_WINDOW_NONE;
     // start Xvfb

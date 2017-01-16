@@ -78,7 +78,7 @@ public:
      * @param root the root window this KSelectionWatcher should use
      * @since 5.8
      **/
-    explicit KSelectionWatcher(xcb_atom_t selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = Q_NULLPTR);
+    explicit KSelectionWatcher(xcb_atom_t selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = nullptr);
     /**
      * @overload
      * This constructor accepts the xcb_connection_t and root window and doesn't depend on
@@ -90,7 +90,7 @@ public:
      * @param root the root window this KSelectionWatcher should use
      * @since 5.8
      **/
-    explicit KSelectionWatcher(const char *selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = Q_NULLPTR);
+    explicit KSelectionWatcher(const char *selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = nullptr);
     virtual ~KSelectionWatcher();
     /**
      * Return the current owner of the manager selection, if any. Note that if the event

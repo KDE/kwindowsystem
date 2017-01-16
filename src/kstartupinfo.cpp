@@ -181,7 +181,7 @@ public:
 #if KWINDOWSYSTEM_HAVE_X11
           msgs(NET_STARTUP_MSG),
 #endif
-          cleanup(Q_NULLPTR),
+          cleanup(nullptr),
           flags(flags_P)
     {
     }

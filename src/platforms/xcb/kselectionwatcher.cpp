@@ -107,7 +107,7 @@ KSelectionWatcher::Private *KSelectionWatcher::Private::create(KSelectionWatcher
     if (QGuiApplication::platformName() == QStringLiteral("xcb")) {
         return create(watcher, selection_P, QX11Info::connection(), QX11Info::appRootWindow(screen_P));
     }
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 KSelectionWatcher::Private *KSelectionWatcher::Private::create(KSelectionWatcher *watcher, xcb_atom_t selection_P, xcb_connection_t *c, xcb_window_t root)
@@ -120,7 +120,7 @@ KSelectionWatcher::Private *KSelectionWatcher::Private::create(KSelectionWatcher
     if (QGuiApplication::platformName() == QStringLiteral("xcb")) {
         return create(watcher, selection_P, QX11Info::connection(), QX11Info::appRootWindow(screen_P));
     }
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 KSelectionWatcher::Private *KSelectionWatcher::Private::create(KSelectionWatcher *watcher, const char *selection_P, xcb_connection_t *c, xcb_window_t root)

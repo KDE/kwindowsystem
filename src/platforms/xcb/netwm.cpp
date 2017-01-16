@@ -2588,7 +2588,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->client_machine = (char *) nullptr;
     p->icon_sizes = nullptr;
     p->activities = (char *) nullptr;
-    p->desktop_file = Q_NULLPTR;
+    p->desktop_file = nullptr;
     p->blockCompositing = false;
     p->urgency = false;
     p->input = true;
@@ -2651,7 +2651,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->client_machine = (char *) nullptr;
     p->icon_sizes = nullptr;
     p->activities = (char *) nullptr;
-    p->desktop_file = Q_NULLPTR;
+    p->desktop_file = nullptr;
     p->blockCompositing = false;
     p->urgency = false;
     p->input = true;
