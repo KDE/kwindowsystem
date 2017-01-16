@@ -59,7 +59,7 @@ public:
      *                         this message type will be received.
      * @param parent the parent of this widget
      */
-    explicit KXMessages(const char *accept_broadcast = NULL, QObject *parent = NULL);
+    explicit KXMessages(const char *accept_broadcast = nullptr, QObject *parent = nullptr);
 
     /**
      * @overload

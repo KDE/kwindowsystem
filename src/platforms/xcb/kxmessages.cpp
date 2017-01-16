@@ -236,7 +236,7 @@ void KXMessages::broadcastMessage(const char *msg_type_P, const QString &message
 bool KXMessages::broadcastMessageX(Display *disp, const char *msg_type_P,
                                    const QString &message_P, int screen_P)
 {
-    if (disp == NULL) {
+    if (disp == nullptr) {
         return false;
     }
     Atom a2 = XInternAtom(disp, msg_type_P, false);

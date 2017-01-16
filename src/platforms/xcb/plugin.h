@@ -29,7 +29,7 @@ class X11Plugin : public KWindowSystemPluginInterface
     Q_INTERFACES(KWindowSystemPluginInterface)
 
 public:
-    explicit X11Plugin(QObject *parent = 0);
+    explicit X11Plugin(QObject *parent = nullptr);
     virtual ~X11Plugin();
 
     KWindowEffectsPrivate *createEffects() Q_DECL_OVERRIDE;

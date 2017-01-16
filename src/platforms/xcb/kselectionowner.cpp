@@ -38,7 +38,7 @@ DEALINGS IN THE SOFTWARE.
 static xcb_window_t get_selection_owner(xcb_connection_t *c, xcb_atom_t selection)
 {
     xcb_window_t owner = XCB_NONE;
-    xcb_get_selection_owner_reply_t *reply = xcb_get_selection_owner_reply(c, xcb_get_selection_owner(c, selection), 0);
+    xcb_get_selection_owner_reply_t *reply = xcb_get_selection_owner_reply(c, xcb_get_selection_owner(c, selection), nullptr);
 
     if (reply) {
         owner = reply->owner;
@@ -51,7 +51,7 @@ static xcb_window_t get_selection_owner(xcb_connection_t *c, xcb_atom_t selectio
 static xcb_atom_t intern_atom(xcb_connection_t *c, const char *name)
 {
     xcb_atom_t atom = XCB_NONE;
-    xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(c, xcb_intern_atom(c, false, strlen(name), name), 0);
+    xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(c, xcb_intern_atom(c, false, strlen(name), name), nullptr);
 
     if (reply) {
         atom = reply->atom;
@@ -479,7 +479,7 @@ void KSelectionOwner::filter_selection_request(void *event)
 
             xcb_get_property_cookie_t cookie = xcb_get_property(c, false, ev->requestor, ev->property,
                                                XCB_GET_PROPERTY_TYPE_ANY, 0, MAX_ATOMS);
-            xcb_get_property_reply_t *reply = xcb_get_property_reply(c, cookie, 0);
+            xcb_get_property_reply_t *reply = xcb_get_property_reply(c, cookie, nullptr);
 
             if (reply && reply->format == 32 && reply->value_len % 2 == 0) {
                 xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t *>(xcb_get_property_value(reply));
@@ -594,7 +594,7 @@ void KSelectionOwner::getAtoms()
     }
 
     for (int i = 0; i < count; i++) {
-        if (xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(c, cookies[i], 0)) {
+        if (xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(c, cookies[i], nullptr)) {
             *atoms[i].atom = reply->atom;
             free(reply);
         }

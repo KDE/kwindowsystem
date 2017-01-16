@@ -56,7 +56,7 @@ public:
      * @param screen X screen, or -1 for default
      * @param parent parent object, or NULL if there is none
      */
-    explicit KSelectionWatcher(xcb_atom_t selection, int screen = -1, QObject *parent = NULL);
+    explicit KSelectionWatcher(xcb_atom_t selection, int screen = -1, QObject *parent = nullptr);
     /**
      * @overload
      * This constructor accepts the selection name and creates the appropriate atom
@@ -66,7 +66,7 @@ public:
      * @param screen X screen, or -1 for default
      * @param parent parent object, or NULL if there is none
      */
-    explicit KSelectionWatcher(const char *selection, int screen = -1, QObject *parent = NULL);
+    explicit KSelectionWatcher(const char *selection, int screen = -1, QObject *parent = nullptr);
     /**
      * @overload
      * This constructor accepts the xcb_connection_t and root window and doesn't depend on

@@ -272,7 +272,7 @@ bool KWindowInfoPrivateX11::onAllDesktops() const
         if (m_info->passedProperties() & NET::WMState) {
             return m_info->state() & NET::Sticky;
         }
-        NETWinInfo info(QX11Info::connection(), win(), QX11Info::appRootWindow(), NET::WMState, 0);
+        NETWinInfo info(QX11Info::connection(), win(), QX11Info::appRootWindow(), NET::WMState, nullptr);
         return info.state() & NET::Sticky;
     }
     return m_info->desktop() == NET::OnAllDesktops;

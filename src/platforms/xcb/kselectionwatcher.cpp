@@ -35,7 +35,7 @@ DEALINGS IN THE SOFTWARE.
 static xcb_window_t get_selection_owner(xcb_connection_t *c, xcb_atom_t selection)
 {
     xcb_window_t owner = XCB_NONE;
-    xcb_get_selection_owner_reply_t *reply = xcb_get_selection_owner_reply(c, xcb_get_selection_owner(c, selection), 0);
+    xcb_get_selection_owner_reply_t *reply = xcb_get_selection_owner_reply(c, xcb_get_selection_owner(c, selection), nullptr);
 
     if (reply) {
         owner = reply->owner;
@@ -48,7 +48,7 @@ static xcb_window_t get_selection_owner(xcb_connection_t *c, xcb_atom_t selectio
 static xcb_atom_t intern_atom(xcb_connection_t *c, const char *name)
 {
     xcb_atom_t atom = XCB_NONE;
-    xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(c, xcb_intern_atom(c, false, strlen(name), name), 0);
+    xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(c, xcb_intern_atom(c, false, strlen(name), name), nullptr);
 
     if (reply) {
         atom = reply->atom;
@@ -172,11 +172,11 @@ void KSelectionWatcher::init()
         xcb_intern_atom_cookie_t atom_cookie = xcb_intern_atom(c, false, strlen("MANAGER"), "MANAGER");
         xcb_get_window_attributes_cookie_t attr_cookie = xcb_get_window_attributes(c, d->root);
 
-        xcb_intern_atom_reply_t *atom_reply = xcb_intern_atom_reply(c, atom_cookie, 0);
+        xcb_intern_atom_reply_t *atom_reply = xcb_intern_atom_reply(c, atom_cookie, nullptr);
         Private::manager_atom = atom_reply->atom;
         free(atom_reply);
 
-        xcb_get_window_attributes_reply_t *attr = xcb_get_window_attributes_reply(c, attr_cookie, 0);
+        xcb_get_window_attributes_reply_t *attr = xcb_get_window_attributes_reply(c, attr_cookie, nullptr);
         uint32_t event_mask = attr->your_event_mask;
         free(attr);
 

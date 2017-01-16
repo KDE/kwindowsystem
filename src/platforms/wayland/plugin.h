@@ -29,7 +29,7 @@ class WaylandPlugin : public KWindowSystemPluginInterface
     Q_INTERFACES(KWindowSystemPluginInterface)
 
 public:
-    explicit WaylandPlugin(QObject *parent = 0);
+    explicit WaylandPlugin(QObject *parent = nullptr);
     virtual ~WaylandPlugin();
 
     KWindowSystemPrivate *createWindowSystem() Q_DECL_OVERRIDE;

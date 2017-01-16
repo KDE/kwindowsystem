@@ -442,7 +442,7 @@ void KStartupInfo::Private::remove_startup_pids(const KStartupInfoId &id_P,
     if (data_P.pids().count() == 0) {
         qFatal("data_P.pids().count() == 0");
     }
-    Data *data = NULL;
+    Data *data = nullptr;
     if (startups.contains(id_P)) {
         data = &startups[ id_P ];
     } else if (silent_startups.contains(id_P)) {
@@ -713,8 +713,8 @@ void KStartupInfo::appStarted(const QByteArray &startup_id)
     }
 #if KWINDOWSYSTEM_HAVE_X11
     if (QX11Info::isPlatformX11() && !qgetenv("DISPLAY").isEmpty()) {  // don't rely on QX11Info::display()
-        Display *disp = XOpenDisplay(NULL);
-        if (disp != NULL) {
+        Display *disp = XOpenDisplay(nullptr);
+        if (disp != nullptr) {
             KStartupInfo::sendFinishX(disp, id);
             XCloseDisplay(disp);
         }
@@ -779,7 +779,7 @@ void KStartupInfo::setNewStartupId(QWidget *window, const QByteArray &startup_id
     bool activate = true;
     setStartupId(startup_id);
 #if KWINDOWSYSTEM_HAVE_X11
-    if (window != NULL && QX11Info::isPlatformX11()) {
+    if (window != nullptr && QX11Info::isPlatformX11()) {
         if (!startup_id.isEmpty() && startup_id != "0") {
             NETRootInfo i(QX11Info::connection(), NET::Supported);
             if (i.isSupported(NET::WM2StartupId)) {
@@ -810,17 +810,17 @@ KStartupInfo::startup_t KStartupInfo::checkStartup(WId w_P, KStartupInfoId &id_O
 
 KStartupInfo::startup_t KStartupInfo::checkStartup(WId w_P, KStartupInfoId &id_O)
 {
-    return d->check_startup_internal(w_P, &id_O, NULL);
+    return d->check_startup_internal(w_P, &id_O, nullptr);
 }
 
 KStartupInfo::startup_t KStartupInfo::checkStartup(WId w_P, KStartupInfoData &data_O)
 {
-    return d->check_startup_internal(w_P, NULL, &data_O);
+    return d->check_startup_internal(w_P, nullptr, &data_O);
 }
 
 KStartupInfo::startup_t KStartupInfo::checkStartup(WId w_P)
 {
-    return d->check_startup_internal(w_P, NULL, NULL);
+    return d->check_startup_internal(w_P, nullptr, nullptr);
 }
 
 KStartupInfo::startup_t KStartupInfo::Private::check_startup_internal(WId w_P, KStartupInfoId *id_O,
@@ -895,10 +895,10 @@ bool KStartupInfo::Private::find_id(const QByteArray &id_P, KStartupInfoId *id_O
     KStartupInfoId id;
     id.initId(id_P);
     if (startups.contains(id)) {
-        if (id_O != NULL) {
+        if (id_O != nullptr) {
             *id_O = id;
         }
-        if (data_O != NULL) {
+        if (data_O != nullptr) {
             *data_O = startups[ id ];
         }
         //qCDebug(LOG_KWINDOWSYSTEM) << "check_startup_id:match";
@@ -916,10 +916,10 @@ bool KStartupInfo::Private::find_pid(pid_t pid_P, const QByteArray &hostname_P,
             ++it) {
         if ((*it).is_pid(pid_P) && (*it).hostname() == hostname_P) {
             // Found it !
-            if (id_O != NULL) {
+            if (id_O != nullptr) {
                 *id_O = it.key();
             }
-            if (data_O != NULL) {
+            if (data_O != nullptr) {
                 *data_O = *it;
             }
             // non-compliant, remove on first match
@@ -943,10 +943,10 @@ bool KStartupInfo::Private::find_wclass(const QByteArray &_res_name, const QByte
         const QByteArray wmclass = (*it).findWMClass();
         if (wmclass.toLower() == res_name || wmclass.toLower() == res_class) {
             // Found it !
-            if (id_O != NULL) {
+            if (id_O != nullptr) {
                 *id_O = it.key();
             }
-            if (data_O != NULL) {
+            if (data_O != nullptr) {
                 *data_O = *it;
             }
             // non-compliant, remove on first match
@@ -964,11 +964,11 @@ QByteArray KStartupInfo::windowStartupId(WId w_P)
     if (!QX11Info::isPlatformX11()) {
         return QByteArray();
     }
-    NETWinInfo info(QX11Info::connection(), w_P, QX11Info::appRootWindow(), 0, NET::WM2StartupId | NET::WM2GroupLeader);
+    NETWinInfo info(QX11Info::connection(), w_P, QX11Info::appRootWindow(), nullptr, NET::WM2StartupId | NET::WM2GroupLeader);
     QByteArray ret = info.startupId();
     if (ret.isEmpty() && info.groupLeader() != XCB_WINDOW_NONE) {
         // retry with window group leader, as the spec says
-        NETWinInfo groupLeaderInfo(QX11Info::connection(), info.groupLeader(), QX11Info::appRootWindow(), 0, NET::WM2StartupId);
+        NETWinInfo groupLeaderInfo(QX11Info::connection(), info.groupLeader(), QX11Info::appRootWindow(), nullptr, NET::WM2StartupId);
         ret = groupLeaderInfo.startupId();
     }
     return ret;
@@ -987,7 +987,7 @@ void KStartupInfo::setWindowStartupId(WId w_P, const QByteArray &id_P)
     if (id_P.isNull()) {
         return;
     }
-    NETWinInfo info(QX11Info::connection(), w_P, QX11Info::appRootWindow(), 0, 0);
+    NETWinInfo info(QX11Info::connection(), w_P, QX11Info::appRootWindow(), nullptr, nullptr);
     info.setStartupId(id_P.constData());
 #else
     Q_UNUSED(w_P)
@@ -1085,7 +1085,7 @@ QByteArray KStartupInfo::createNewStartupIdForTimestamp(quint32 timestamp)
     tm.tv_sec = msecsSinceEpoch / 1000;
     tm.tv_usec = (msecsSinceEpoch % 1000) * 1000;
 #else
-    gettimeofday(&tm, NULL);
+    gettimeofday(&tm, nullptr);
 #endif
     char hostname[ 256 ];
     hostname[ 0 ] = '\0';

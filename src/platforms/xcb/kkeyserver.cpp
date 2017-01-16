@@ -835,7 +835,7 @@ bool codeXToSym(uchar codeX, uint modX, uint *sym)
     event.state = modX;
     event.keycode = codeX;
 
-    XLookupString(&event, 0, 0, &keySym, 0);
+    XLookupString(&event, nullptr, 0, &keySym, nullptr);
     *sym = (uint) keySym;
     return true;
 }
@@ -854,7 +854,7 @@ bool xEventToQt(XEvent *e, int *keyQt)
 
     KeySym keySym;
     char buffer[16];
-    XLookupString((XKeyEvent *) e, buffer, 15, &keySym, 0);
+    XLookupString((XKeyEvent *) e, buffer, 15, &keySym, nullptr);
     uint keySymX = (uint)keySym;
 
     // If numlock is active and a keypad key is pressed, XOR the SHIFT state.

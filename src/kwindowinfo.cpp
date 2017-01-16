@@ -112,7 +112,7 @@ bool KWindowInfoPrivateDummy::valid(bool withdrawn_is_valid) const
 
 NET::States KWindowInfoPrivateDummy::state() const
 {
-    return 0;
+    return nullptr;
 }
 
 bool KWindowInfoPrivateDummy::isMinimized() const

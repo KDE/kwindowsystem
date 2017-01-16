@@ -33,6 +33,6 @@ int main(int argc, char **argv)
     label.setMinimumSize(250, 250);
     label.show();
     QString wId = parser.positionalArguments().first();
-    label.setPixmap(KWindowSystem::icon(wId.toULongLong(0, 0), 250, 250, false, KWindowSystem::WMHints));
+    label.setPixmap(KWindowSystem::icon(wId.toULongLong(nullptr, 0), 250, 250, false, KWindowSystem::WMHints));
     return app.exec();
 }

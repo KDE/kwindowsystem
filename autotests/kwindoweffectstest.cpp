@@ -91,7 +91,7 @@ void KWindowEffectsTest::getHelperAtom(const QByteArray &name, xcb_atom_t *atom)
     xcb_connection_t *c = QX11Info::connection();
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, name.length(), name.constData());
 
-    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> reply(xcb_intern_atom_reply(c, atomCookie, NULL));
+    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> reply(xcb_intern_atom_reply(c, atomCookie, nullptr));
     QVERIFY(!reply.isNull());
     *atom = reply->atom;
 }
@@ -162,7 +162,7 @@ void KWindowEffectsTest::performSlideWindowTest(xcb_window_t window, int offset,
 {
     xcb_connection_t *c = QX11Info::connection();
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, window, m_slide, m_slide, 0, 100);
-    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, NULL));
+    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(2));
@@ -181,7 +181,7 @@ void KWindowEffectsTest::performAtomIsRemoveTest(xcb_window_t window, xcb_atom_t
 {
     xcb_connection_t *c = QX11Info::connection();
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, window, atom, atom, 0, 100);
-    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, NULL));
+    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_NONE));
 }
@@ -222,7 +222,7 @@ void KWindowEffectsTest::testPresentWindows()
     xcb_connection_t *c = QX11Info::connection();
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
                                        m_presentWindows, m_presentWindows, 0, 100);
-    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, NULL));
+    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(1));
@@ -238,7 +238,7 @@ void KWindowEffectsTest::testPresentWindowsEmptyGroup()
     xcb_connection_t *c = QX11Info::connection();
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
                                        m_presentWindowsGroup, m_presentWindowsGroup, 0, 100);
-    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, NULL));
+    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_NONE));
 }
@@ -296,7 +296,7 @@ void KWindowEffectsTest::performWindowsOnPropertyTest(xcb_atom_t atom, const QLi
     xcb_connection_t *c = QX11Info::connection();
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
                                        atom, atom, 0, 100);
-    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, NULL));
+    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, atom);
     QCOMPARE(reply->format, uint8_t(32));
@@ -328,7 +328,7 @@ void KWindowEffectsTest::testBlur()
     xcb_connection_t *c = QX11Info::connection();
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
                                        m_blur, XCB_ATOM_CARDINAL, 0, 100);
-    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, NULL));
+    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_CARDINAL));
     QCOMPARE(reply->format, uint8_t(32));
@@ -355,7 +355,7 @@ void KWindowEffectsTest::testBlurDisable()
     xcb_connection_t *c = QX11Info::connection();
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
                                        m_blur, XCB_ATOM_CARDINAL, 0, 100);
-    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, NULL));
+    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_CARDINAL));
 
@@ -371,7 +371,7 @@ void KWindowEffectsTest::testMarkAsDashboard()
     xcb_connection_t *c = QX11Info::connection();
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
                                        XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 0, 100);
-    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, NULL));
+    QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_STRING));
     QCOMPARE(reply->format, uint8_t(8));
@@ -382,7 +382,7 @@ void KWindowEffectsTest::testMarkAsDashboard()
     KWindowEffects::markAsDashboard(m_window->winId());
     cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
                                         XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 0, 100);
-    reply.reset(xcb_get_property_reply(c, cookie, NULL));
+    reply.reset(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_STRING));
     QCOMPARE(reply->format, uint8_t(8));

@@ -167,7 +167,7 @@ public:
      * @param parent the parent of this QObject (can be 0 for no parent)
      *
      */
-    explicit KStartupInfo(int flags, QObject *parent = 0);
+    explicit KStartupInfo(int flags, QObject *parent = nullptr);
     /**
      * Creates an instance that will receive the startup notifications.
      *
@@ -180,7 +180,7 @@ public:
      * @deprecated since 5.0
      */
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED
-    KWINDOWSYSTEM_DEPRECATED explicit KStartupInfo(bool clean_on_cantdetect, QObject *parent = 0);
+    KWINDOWSYSTEM_DEPRECATED explicit KStartupInfo(bool clean_on_cantdetect, QObject *parent = nullptr);
 #endif
     virtual ~KStartupInfo();
     /**

@@ -121,7 +121,7 @@ struct NETIcon {
     /**
        Constructor to initialize this icon to 0x0 with data=0
     **/
-    NETIcon() : data(0) { }
+    NETIcon() : data(nullptr) { }
 
     /**
        Size of the icon.

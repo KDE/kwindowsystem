@@ -28,7 +28,7 @@ Q_DECLARE_METATYPE(NET::Actions)
 class Property : public QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>
 {
 public:
-    Property(xcb_get_property_reply_t *p = 0) : QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>(p) {}
+    Property(xcb_get_property_reply_t *p = nullptr) : QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>(p) {}
 };
 
 #define INFO NETWinInfo info(m_connection, m_testWindow, m_rootWindow, NET::WMAllProperties, NET::WM2AllProperties, NET::WindowManager);
@@ -264,7 +264,7 @@ void NetWinInfoTestWM::testAllowedActions()
     ATOM(_NET_WM_ALLOWED_ACTIONS)
     INFO
 
-    QCOMPARE(info.allowedActions(), NET::Actions(0));
+    QCOMPARE(info.allowedActions(), NET::Actions(nullptr));
     QFETCH(NET::Actions, actions);
     info.setAllowedActions(actions);
     QCOMPARE(info.allowedActions(), actions);
@@ -472,9 +472,9 @@ void NetWinInfoTestWM::testState()
     ATOM(_NET_WM_STATE)
     INFO
 
-    QCOMPARE(info.state(), NET::States(0));
+    QCOMPARE(info.state(), NET::States(nullptr));
     QFETCH(NET::States, states);
-    info.setState(states, 0);
+    info.setState(states, nullptr);
     QCOMPARE(info.state(), states);
 
     // compare with the X property

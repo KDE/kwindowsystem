@@ -71,7 +71,7 @@ public:
 
 void KWindowSystemThreadTest::initTestCase()
 {
-    m_widget = 0;
+    m_widget = nullptr;
     QRunnable *creator = new KWindowSystemCreator;
     creator->setAutoDelete(true);
     QThreadPool::globalInstance()->start(creator);

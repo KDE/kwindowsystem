@@ -99,7 +99,7 @@ public:
      * @return the window information
      * @deprecated use KWindowInfo directly
      */
-    KWINDOWSYSTEM_DEPRECATED static KWindowInfo windowInfo(WId win, NET::Properties properties, NET::Properties2 properties2 = 0);
+    KWINDOWSYSTEM_DEPRECATED static KWindowInfo windowInfo(WId win, NET::Properties properties, NET::Properties2 properties2 = nullptr);
 #endif
 
     /**

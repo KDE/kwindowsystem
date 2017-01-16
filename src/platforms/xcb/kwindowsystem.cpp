@@ -265,7 +265,7 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
             emit s_q->showingDesktopChanged(showingDesktop());
         }
     } else if (windows.contains(eventWindow)) {
-        NETWinInfo ni(QX11Info::connection(), eventWindow, m_appRootWindow, 0, 0);
+        NETWinInfo ni(QX11Info::connection(), eventWindow, m_appRootWindow, nullptr, nullptr);
         NET::Properties dirtyProperties;
         NET::Properties2 dirtyProperties2;
         ni.event(ev, &dirtyProperties, &dirtyProperties2);
@@ -347,7 +347,7 @@ void NETEventFilter::addClient(xcb_window_t w)
     bool emit_strutChanged = false;
 
     if (strutSignalConnected) {
-        NETWinInfo info(QX11Info::connection(), w, QX11Info::appRootWindow(), NET::WMStrut | NET::WMDesktop, 0);
+        NETWinInfo info(QX11Info::connection(), w, QX11Info::appRootWindow(), NET::WMStrut | NET::WMDesktop, nullptr);
         NETStrut strut = info.strut();
         if (strut.left || strut.top || strut.right || strut.bottom) {
             strutWindows.append(StrutData(w, strut, info.desktop()));
@@ -370,7 +370,7 @@ void NETEventFilter::removeClient(xcb_window_t w)
 
     bool emit_strutChanged = removeStrutWindow(w);
     if (strutSignalConnected && possibleStrutWindows.contains(w)) {
-        NETWinInfo info(QX11Info::connection(), w, QX11Info::appRootWindow(), NET::WMStrut, 0);
+        NETWinInfo info(QX11Info::connection(), w, QX11Info::appRootWindow(), NET::WMStrut, nullptr);
         NETStrut strut = info.strut();
         if (strut.left || strut.top || strut.right || strut.bottom) {
             emit_strutChanged = true;
@@ -562,7 +562,7 @@ void KWindowSystemPrivateX11::setCurrentDesktop(int desktop)
     if (mapViewport()) {
         init(INFO_BASIC);
         NETEventFilter *const s_d = s_d_func();
-        NETRootInfo info(QX11Info::connection(), 0);
+        NETRootInfo info(QX11Info::connection(), nullptr);
         QPoint pos = desktopToViewport(desktop, true);
         NETPoint p;
         p.x = pos.x();
@@ -570,7 +570,7 @@ void KWindowSystemPrivateX11::setCurrentDesktop(int desktop)
         info.setDesktopViewport(s_d->currentDesktop(true), p);
         return;
     }
-    NETRootInfo info(QX11Info::connection(), 0);
+    NETRootInfo info(QX11Info::connection(), nullptr);
     info.setCurrentDesktop(desktop, true);
 }
 
@@ -584,7 +584,7 @@ void KWindowSystemPrivateX11::setOnAllDesktops(WId win, bool b)
         }
         return;
     }
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMDesktop, 0);
+    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMDesktop, nullptr);
     if (b) {
         info.setDesktop(NETWinInfo::OnAllDesktops, true);
     } else if (info.desktop(true)  == NETWinInfo::OnAllDesktops) {
@@ -630,13 +630,13 @@ void KWindowSystemPrivateX11::setOnDesktop(WId win, int desktop)
         s_d->moveResizeWindowRequest(win, flags, p.x(), p.y(), w, h);
         return;
     }
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMDesktop, 0);
+    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMDesktop, nullptr);
     info.setDesktop(desktop, true);
 }
 
 void KWindowSystemPrivateX11::setOnActivities(WId win, const QStringList &activities)
 {
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), 0, NET::WM2Activities);
+    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), nullptr, NET::WM2Activities);
     info.setActivities(activities.join(QLatin1Char(',')).toLatin1().constData());
 }
 
@@ -652,7 +652,7 @@ WId KWindowSystemPrivateX11::activeWindow()
 
 void KWindowSystemPrivateX11::activateWindow(WId win, long time)
 {
-    NETRootInfo info(QX11Info::connection(), 0);
+    NETRootInfo info(QX11Info::connection(), nullptr);
     if (time == 0) {
         time = QX11Info::appUserTime();
     }
@@ -662,7 +662,7 @@ void KWindowSystemPrivateX11::activateWindow(WId win, long time)
 
 void KWindowSystemPrivateX11::forceActiveWindow(WId win, long time)
 {
-    NETRootInfo info(QX11Info::connection(), 0);
+    NETRootInfo info(QX11Info::connection(), nullptr);
     if (time == 0) {
         time = QX11Info::appTime();
     }
@@ -671,14 +671,14 @@ void KWindowSystemPrivateX11::forceActiveWindow(WId win, long time)
 
 void KWindowSystemPrivateX11::demandAttention(WId win, bool set)
 {
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMState, 0);
-    info.setState(set ? NET::DemandsAttention : NET::States(0), NET::DemandsAttention);
+    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMState, nullptr);
+    info.setState(set ? NET::DemandsAttention : NET::States(nullptr), NET::DemandsAttention);
 }
 
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED
 WId KWindowSystemPrivateX11::transientFor(WId win)
 {
-    KWindowInfo info(win, 0, NET::WM2TransientFor);
+    KWindowInfo info(win, nullptr, NET::WM2TransientFor);
     return info.transientFor();
 }
 #endif
@@ -686,7 +686,7 @@ WId KWindowSystemPrivateX11::transientFor(WId win)
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED
 WId KWindowSystemPrivateX11::groupLeader(WId win)
 {
-    KWindowInfo info(win, 0, NET::WM2GroupLeader);
+    KWindowInfo info(win, nullptr, NET::WM2GroupLeader);
     return info.groupLeader();
 }
 #endif
@@ -785,7 +785,7 @@ void KWindowSystemPrivateX11::setIcons(WId win, const QPixmap &icon, const QPixm
     if (icon.isNull()) {
         return;
     }
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), 0, 0);
+    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), nullptr, nullptr);
     QImage img = icon.toImage().convertToFormat(QImage::Format_ARGB32);
     NETIcon ni;
     ni.size.width = img.size().width();
@@ -807,20 +807,20 @@ void KWindowSystemPrivateX11::setIcons(WId win, const QPixmap &icon, const QPixm
 
 void KWindowSystemPrivateX11::setType(WId win, NET::WindowType windowType)
 {
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), 0, 0);
+    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), nullptr, nullptr);
     info.setWindowType(windowType);
 }
 
 void KWindowSystemPrivateX11::setState(WId win, NET::States state)
 {
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMState, 0);
+    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMState, nullptr);
     info.setState(state, state);
 }
 
 void KWindowSystemPrivateX11::clearState(WId win, NET::States state)
 {
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMState, 0);
-    info.setState(0, state);
+    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMState, nullptr);
+    info.setState(nullptr, state);
 }
 
 // enum values for ICCCM 4.1.2.4 and 4.1.4, defined to not depend on xcb-icccm
@@ -941,7 +941,7 @@ QRect KWindowSystemPrivateX11::workArea(const QList<WId> &exclude, int desktop)
             strut = (*it2).strut;
         } else if (s_d->possibleStrutWindows.contains(*it1)) {
 
-            NETWinInfo info(QX11Info::connection(), (*it1), QX11Info::appRootWindow(), NET::WMStrut | NET::WMDesktop, 0);
+            NETWinInfo info(QX11Info::connection(), (*it1), QX11Info::appRootWindow(), NET::WMStrut | NET::WMDesktop, nullptr);
             strut = info.strut();
             s_d->possibleStrutWindows.removeAll(*it1);
             s_d->strutWindows.append(NETEventFilter::StrutData(*it1, info.strut(), info.desktop()));
@@ -1000,7 +1000,7 @@ void KWindowSystemPrivateX11::setDesktopName(int desktop, const QString &name)
         return;
     }
 
-    NETRootInfo info(QX11Info::connection(), 0);
+    NETRootInfo info(QX11Info::connection(), nullptr);
     info.setDesktopName(desktop, name.toUtf8().constData());
 }
 
@@ -1012,13 +1012,13 @@ bool KWindowSystemPrivateX11::showingDesktop()
 
 void KWindowSystemPrivateX11::setShowingDesktop(bool showing)
 {
-    NETRootInfo info(QX11Info::connection(), 0, NET::WM2ShowingDesktop);
+    NETRootInfo info(QX11Info::connection(), nullptr, NET::WM2ShowingDesktop);
     info.setShowingDesktop(showing);
 }
 
 void KWindowSystemPrivateX11::setUserTime(WId win, long time)
 {
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), 0, 0);
+    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), nullptr, nullptr);
     info.setUserTime(time);
 }
 
@@ -1026,7 +1026,7 @@ void KWindowSystemPrivateX11::setExtendedStrut(WId win, int left_width, int left
                                      int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
                                      int bottom_width, int bottom_start, int bottom_end)
 {
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), 0, 0);
+    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), nullptr, nullptr);
     NETExtendedStrut strut;
     strut.left_width = left_width;
     strut.right_width = right_width;
@@ -1080,21 +1080,21 @@ bool KWindowSystemPrivateX11::allowedActionsSupported()
 QString KWindowSystemPrivateX11::readNameProperty(WId win, unsigned long atom)
 {
     XTextProperty tp;
-    char **text = NULL;
+    char **text = nullptr;
     int count;
     QString result;
-    if (XGetTextProperty(QX11Info::display(), win, &tp, atom) != 0 && tp.value != NULL) {
+    if (XGetTextProperty(QX11Info::display(), win, &tp, atom) != 0 && tp.value != nullptr) {
         create_atoms();
 
         if (tp.encoding == kwm_utf8_string) {
             result = QString::fromUtf8((const char *) tp.value);
         } else if (XmbTextPropertyToTextList(QX11Info::display(), &tp, &text, &count) == Success &&
-                   text != NULL && count > 0) {
+                   text != nullptr && count > 0) {
             result = QString::fromLocal8Bit(text[0]);
         } else if (tp.encoding == XA_STRING) {
             result = QString::fromLocal8Bit((const char *) tp.value);
         }
-        if (text != NULL) {
+        if (text != nullptr) {
             XFreeStringList(text);
         }
         XFree(tp.value);
@@ -1110,7 +1110,7 @@ void KWindowSystemPrivateX11::allowExternalProcessWindowActivation(int pid)
 
 void KWindowSystemPrivateX11::setBlockingCompositing(WId window, bool active)
 {
-    NETWinInfo info(QX11Info::connection(), window, QX11Info::appRootWindow(), 0, 0);
+    NETWinInfo info(QX11Info::connection(), window, QX11Info::appRootWindow(), nullptr, nullptr);
     info.setBlockingCompositing(active);
 }
 

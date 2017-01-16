@@ -57,7 +57,7 @@ public:
      * @param screen X screen, or -1 for default
      * @param parent parent object, or NULL if there is none
      */
-    explicit KSelectionOwner(xcb_atom_t selection, int screen = -1, QObject *parent = NULL);
+    explicit KSelectionOwner(xcb_atom_t selection, int screen = -1, QObject *parent = nullptr);
 
     /**
      * @overload
@@ -68,7 +68,7 @@ public:
      * @param screen X screen, or -1 for default
      * @param parent parent object, or NULL if there is none
      */
-    explicit KSelectionOwner(const char *selection, int screen = -1, QObject *parent = NULL);
+    explicit KSelectionOwner(const char *selection, int screen = -1, QObject *parent = nullptr);
     /**
      * @overload
      * This constructor accepts the xcb_connection_t and root window and doesn't depend on

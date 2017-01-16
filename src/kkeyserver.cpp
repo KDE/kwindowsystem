@@ -42,10 +42,10 @@ struct ModInfo {
 // no need for I18N_NOOP2's here.
 #define KEYCTXT "keyboard-key-name"
 static ModInfo g_rgModInfo[4] = {
-    { Qt::SHIFT,   "Shift", 0 },
-    { Qt::CTRL,    "Ctrl", 0 },
-    { Qt::ALT,     "Alt", 0 },
-    { Qt::META,    "Meta", 0 }
+    { Qt::SHIFT,   "Shift", nullptr },
+    { Qt::CTRL,    "Ctrl", nullptr },
+    { Qt::ALT,     "Alt", nullptr },
+    { Qt::META,    "Meta", nullptr }
 };
 
 //---------------------------------------------------------------------
