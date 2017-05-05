@@ -26,6 +26,7 @@
 #include <KWayland/Client/registry.h>
 #include <KWayland/Client/compositor.h>
 #include <KWayland/Client/plasmawindowmanagement.h>
+#include <KWayland/Client/plasmashell.h>
 #include <KWayland/Client/surface.h>
 #include <KWayland/Client/blur.h>
 #include <KWayland/Client/contrast.h>
@@ -33,6 +34,8 @@
 #include <KWayland/Client/slide.h>
 
 #include <KWindowSystem/KWindowSystem>
+
+#include <QGuiApplication>
 
 class WaylandIntegrationSingleton
 {
@@ -62,6 +65,33 @@ void WaylandIntegration::setupKWaylandIntegration()
     m_registry = new Registry(this);
     m_registry->create(m_waylandConnection);
     m_waylandCompositor = Compositor::fromApplication(this);
+
+    //when the Qt QPA closes it deletes the wl_display
+    //closing wl_display deletes the wl_registry
+    //when we destroy the kwayland wrapper we double delete
+    //as we're a singleton we're not deleted till after qApp
+    //we want to release our wayland parts first
+    connect(qApp, &QCoreApplication::aboutToQuit, this, [=]() {
+        if (m_waylandBlurManager) {
+            m_waylandBlurManager->release();
+        }
+        if (m_waylandContrastManager) {
+           m_waylandContrastManager->release();
+        }
+        if (m_waylandSlideManager) {
+            m_waylandSlideManager->release();
+        }
+        if (m_waylandCompositor) {
+            m_waylandCompositor->release();
+        }
+        if (m_wm) {
+            m_wm->release();
+        }
+        if (m_waylandPlasmaShell) {
+            m_waylandPlasmaShell->release();
+        }
+        m_registry->release();
+    });
 
     m_registry->setup();
     m_waylandConnection->roundtrip();
