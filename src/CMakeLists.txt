@@ -125,6 +125,30 @@ install(
         Devel
 )
 
+if(BUILD_QCH)
+    ecm_add_qch(
+        KF5WindowSystem_QCH
+        NAME KWindowSystem
+        BASE_NAME KF5WindowSystem
+        VERSION ${KF5_VERSION}
+        ORG_DOMAIN org.kde
+        SOURCE_DIRS
+            # using dir for now, to cover any platform dependant code
+            # TODO: should only use public headers, to cover only public API
+            ${CMAKE_CURRENT_SOURCE_DIR}
+        MD_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md"
+        LINK_QCHS
+            Qt5Widgets_QCH
+        BLANK_MACROS
+            KWINDOWSYSTEM_EXPORT
+            KWINDOWSYSTEM_DEPRECATED
+            KWINDOWSYSTEM_DEPRECATED_EXPORT
+        TAGFILE_INSTALL_DESTINATION ${KDE_INSTALL_QTQCHDIR}
+        QCH_INSTALL_DESTINATION ${KDE_INSTALL_QTQCHDIR}
+        COMPONENT Devel
+    )
+endif()
+
 add_subdirectory(platforms)
 
 include(ECMGeneratePriFile)
