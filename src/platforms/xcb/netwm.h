@@ -1415,7 +1415,7 @@ public:
      * The default value is @c XCB_PIXMAP_NONE.
      *
      * Using the ICCCM variant for the icon is deprecated and only
-     * offers a limited functionality compared to @link {icon}.
+     * offers a limited functionality compared to {@link icon}.
      * Only use this variant as a fallback.
      *
      * @see icccmIconPixmapMask

@@ -48,7 +48,7 @@ public:
  * can be used to check whether the returned value is valid.
  *
  * This class has two modes of operations: a direct one which performs the request directly
- * during construction, and an indirect one which needs an explicit call to @link fetch.
+ * during construction, and an indirect one which needs an explicit call to {@link fetch}.
  *
  * @code
  * Atom direct(QX11Info::connection(), QByteArrayLiteral("myAtomName"));
