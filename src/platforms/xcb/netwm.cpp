@@ -549,11 +549,11 @@ NETRootInfo::NETRootInfo(xcb_connection_t *connection, NET::Properties propertie
     setDefaultProperties();
     p->clientProperties = properties;
     p->clientProperties2 = properties2;
-    p->properties = nullptr;
-    p->properties2 = nullptr;
-    p->windowTypes = nullptr;
-    p->states = nullptr;
-    p->actions = nullptr;
+    p->properties = NET::Properties();
+    p->properties2 = NET::Properties2();
+    p->windowTypes = NET::WindowTypes();
+    p->states = NET::States();
+    p->actions = NET::Actions();
 
     p->role = Client;
 
@@ -596,10 +596,10 @@ void NETRootInfo::setDefaultProperties()
                                     | ToolbarMask | MenuMask | DialogMask;
     p->states = Modal | Sticky | MaxVert | MaxHoriz | Shaded
                               | SkipTaskbar | StaysOnTop;
-    p->properties2 = nullptr;
-    p->actions = nullptr;
-    p->clientProperties = nullptr;
-    p->clientProperties2 = nullptr;
+    p->properties2 = NET::Properties2();
+    p->actions = NET::Actions();
+    p->clientProperties = NET::Properties();
+    p->clientProperties2 = NET::Properties2();
 }
 
 void NETRootInfo::activate()
@@ -1973,11 +1973,11 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
 
     if (dirty & Supported) {
         // Only in Client mode
-        p->properties = nullptr;
-        p->properties2 = nullptr;
-        p->windowTypes = nullptr;
-        p->states = nullptr;
-        p->actions = nullptr;
+        p->properties = NET::Properties();
+        p->properties2 = NET::Properties2();
+        p->windowTypes = NET::WindowTypes();
+        p->states = NET::States();
+        p->actions = NET::Actions();
 
         const QVector<xcb_atom_t> atoms = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
         Q_FOREACH (const xcb_atom_t atom, atoms) {
@@ -2325,21 +2325,21 @@ NET::States NETRootInfo::passedStates() const
 {
     return p->role == WindowManager
            ? p->states
-           : NET::States(nullptr);
+           : NET::States();
 }
 
 NET::WindowTypes NETRootInfo::passedWindowTypes() const
 {
     return p->role == WindowManager
            ? p->windowTypes
-           : NET::WindowTypes(nullptr);
+           : NET::WindowTypes();
 }
 
 NET::Actions NETRootInfo::passedActions() const
 {
     return p->role == WindowManager
            ? p->actions
-           : NET::Actions(nullptr);
+           : NET::Actions();
 }
 
 void NETRootInfo::setSupported(NET::Property property, bool on)
@@ -2565,7 +2565,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->root = rootWindow;
     p->mapping_state = Withdrawn;
     p->mapping_state_dirty = true;
-    p->state = nullptr;
+    p->state = NET::States();
     p->types[ 0 ] = Unknown;
     p->name = (char *) nullptr;
     p->visible_name = (char *) nullptr;
@@ -2580,7 +2580,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->window_group = XCB_NONE;
     p->icon_pixmap = XCB_PIXMAP_NONE;
     p->icon_mask = XCB_PIXMAP_NONE;
-    p->allowed_actions = nullptr;
+    p->allowed_actions = NET::Actions();
     p->has_net_support = false;
     p->class_class = (char *) nullptr;
     p->class_name = (char *) nullptr;
@@ -2628,7 +2628,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->root = rootWindow;
     p->mapping_state = Withdrawn;
     p->mapping_state_dirty = true;
-    p->state = nullptr;
+    p->state = NET::States();
     p->types[ 0 ] = Unknown;
     p->name = (char *) nullptr;
     p->visible_name = (char *) nullptr;
@@ -2643,7 +2643,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->window_group = XCB_NONE;
     p->icon_pixmap = XCB_PIXMAP_NONE;
     p->icon_mask = XCB_PIXMAP_NONE;
-    p->allowed_actions = nullptr;
+    p->allowed_actions = NET::Actions();
     p->has_net_support = false;
     p->class_class = (char *) nullptr;
     p->class_name = (char *) nullptr;
@@ -2663,7 +2663,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     // p->frame_strut.bottom = 0;
 
     p->properties = properties;
-    p->properties2 = nullptr;
+    p->properties2 = NET::Properties2();
 
     p->icon_count = 0;
 
@@ -3607,7 +3607,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
 #endif
 
             int i;
-            NET::States state = nullptr, mask = nullptr;
+            NET::States state = NET::States(), mask = NET::States();
 
             for (i = 1; i < 3; i++) {
 #ifdef NETWMDEBUG
@@ -3999,7 +3999,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     }
 
     if (dirty & WMState) {
-        p->state = nullptr;
+        p->state = NET::States();
         const QVector<xcb_atom_t> states = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
 
 #ifdef NETWMDEBUG
@@ -4354,7 +4354,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     }
 
     if (dirty2 & WM2AllowedActions) {
-        p->allowed_actions = nullptr;
+        p->allowed_actions = NET::Actions();
 
         const QVector<xcb_atom_t> actions = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
         if (actions.count() > 0) {

@@ -964,11 +964,11 @@ QByteArray KStartupInfo::windowStartupId(WId w_P)
     if (!QX11Info::isPlatformX11()) {
         return QByteArray();
     }
-    NETWinInfo info(QX11Info::connection(), w_P, QX11Info::appRootWindow(), nullptr, NET::WM2StartupId | NET::WM2GroupLeader);
+    NETWinInfo info(QX11Info::connection(), w_P, QX11Info::appRootWindow(), NET::Properties(), NET::WM2StartupId | NET::WM2GroupLeader);
     QByteArray ret = info.startupId();
     if (ret.isEmpty() && info.groupLeader() != XCB_WINDOW_NONE) {
         // retry with window group leader, as the spec says
-        NETWinInfo groupLeaderInfo(QX11Info::connection(), info.groupLeader(), QX11Info::appRootWindow(), nullptr, NET::WM2StartupId);
+        NETWinInfo groupLeaderInfo(QX11Info::connection(), info.groupLeader(), QX11Info::appRootWindow(), NET::Properties(), NET::Properties2());
         ret = groupLeaderInfo.startupId();
     }
     return ret;
@@ -987,7 +987,7 @@ void KStartupInfo::setWindowStartupId(WId w_P, const QByteArray &id_P)
     if (id_P.isNull()) {
         return;
     }
-    NETWinInfo info(QX11Info::connection(), w_P, QX11Info::appRootWindow(), nullptr, nullptr);
+    NETWinInfo info(QX11Info::connection(), w_P, QX11Info::appRootWindow(), NET::Properties(), NET::Properties2());
     info.setStartupId(id_P.constData());
 #else
     Q_UNUSED(w_P)

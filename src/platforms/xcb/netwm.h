@@ -120,7 +120,7 @@ public:
        @param doActivate true to call activate() to do an initial data read/update
        of the query information.
     **/
-    NETRootInfo(xcb_connection_t *connection, NET::Properties properties, NET::Properties2 properties2 = nullptr,
+    NETRootInfo(xcb_connection_t *connection, NET::Properties properties, NET::Properties2 properties2 = NET::Properties2(),
                 int screen = -1, bool doActivate = true);
 
 
@@ -1654,7 +1654,7 @@ protected:
     }
 
 private:
-    void update(NET::Properties dirtyProperties, NET::Properties2 dirtyProperties2 = nullptr);
+    void update(NET::Properties dirtyProperties, NET::Properties2 dirtyProperties2 = NET::Properties2());
     void updateWMState();
     void setIconInternal(NETRArray<NETIcon> &icons, int &icon_count, xcb_atom_t property, NETIcon icon, bool replace);
     NETIcon iconInternal(NETRArray<NETIcon> &icons, int icon_count, int width, int height) const;

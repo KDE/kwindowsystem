@@ -502,7 +502,7 @@ void KWindowInfoX11Test::testActivities()
     QSignalSpy spyReal(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId,NET::Properties,NET::Properties2)>(&KWindowSystem::windowChanged));
     QVERIFY(spyReal.isValid());
 
-    KWindowInfo info(window->winId(), nullptr, NET::WM2Activities);
+    KWindowInfo info(window->winId(), NET::Properties(), NET::WM2Activities);
     QVERIFY(info.valid());
 
     QStringList startingActivities = info.activities();
@@ -517,7 +517,7 @@ void KWindowInfoX11Test::testActivities()
 
     QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
-    KWindowInfo info2(window->winId(), nullptr, NET::WM2Activities);
+    KWindowInfo info2(window->winId(), NET::Properties(), NET::WM2Activities);
 
     QVERIFY(info2.activities().size() == 0);
 
@@ -526,7 +526,7 @@ void KWindowInfoX11Test::testActivities()
 
     QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
-    KWindowInfo info3(window->winId(), nullptr, NET::WM2Activities);
+    KWindowInfo info3(window->winId(), NET::Properties(), NET::WM2Activities);
 
     QVERIFY(info3.activities().size() == 1);
     QVERIFY(info3.activities()[0] == "test-activity");
@@ -536,7 +536,7 @@ void KWindowInfoX11Test::testActivities()
 
     QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
-    KWindowInfo info4(window->winId(), nullptr, NET::WM2Activities);
+    KWindowInfo info4(window->winId(), NET::Properties(), NET::WM2Activities);
 
     QVERIFY(info4.activities().size() == 2);
     QVERIFY(info4.activities()[0] == "test-activity");
@@ -547,14 +547,14 @@ void KWindowInfoX11Test::testActivities()
 
     QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
-    KWindowInfo info5(window->winId(), nullptr, NET::WM2Activities);
+    KWindowInfo info5(window->winId(), NET::Properties(), NET::WM2Activities);
 
     QVERIFY(info5.activities() == startingActivities);
 }
 
 void KWindowInfoX11Test::testWindowClass()
 {
-    KWindowInfo info(window->winId(), nullptr, NET::WM2WindowClass);
+    KWindowInfo info(window->winId(), NET::Properties(), NET::WM2WindowClass);
     QCOMPARE(info.windowClassName(), QByteArrayLiteral("kwindowinfox11test"));
     QCOMPARE(info.windowClassClass(), QByteArrayLiteral("kwindowinfox11test"));
 
@@ -566,14 +566,14 @@ void KWindowInfoX11Test::testWindowClass()
     // it's just a property change so we can easily refresh
     QX11Info::getTimestamp();
 
-    KWindowInfo info2(window->winId(), nullptr, NET::WM2WindowClass);
+    KWindowInfo info2(window->winId(), NET::Properties(), NET::WM2WindowClass);
     QCOMPARE(info2.windowClassName(), QByteArrayLiteral("foo"));
     QCOMPARE(info2.windowClassClass(), QByteArrayLiteral("bar"));
 }
 
 void KWindowInfoX11Test::testWindowRole()
 {
-    KWindowInfo info(window->winId(), nullptr, NET::WM2WindowRole);
+    KWindowInfo info(window->winId(), NET::Properties(), NET::WM2WindowRole);
     QVERIFY(info.windowRole().isNull());
 
     // window role needs to be changed using xcb
@@ -585,13 +585,13 @@ void KWindowInfoX11Test::testWindowRole()
     // it's just a property change so we can easily refresh
     QX11Info::getTimestamp();
 
-    KWindowInfo info2(window->winId(), nullptr, NET::WM2WindowRole);
+    KWindowInfo info2(window->winId(), NET::Properties(), NET::WM2WindowRole);
     QCOMPARE(info2.windowRole(), QByteArrayLiteral("bar"));
 }
 
 void KWindowInfoX11Test::testClientMachine()
 {
-    KWindowInfo info(window->winId(), nullptr, NET::WM2ClientMachine);
+    KWindowInfo info(window->winId(), NET::Properties(), NET::WM2ClientMachine);
     QVERIFY(info.clientMachine().isNull());
 
     // client machine needs to be set through xcb
@@ -602,7 +602,7 @@ void KWindowInfoX11Test::testClientMachine()
     // it's just a property change so we can easily refresh
     QX11Info::getTimestamp();
 
-    KWindowInfo info2(window->winId(), nullptr, NET::WM2ClientMachine);
+    KWindowInfo info2(window->winId(), NET::Properties(), NET::WM2ClientMachine);
     QCOMPARE(info2.clientMachine(), QByteArrayLiteral("localhost"));
 }
 
@@ -637,7 +637,7 @@ void KWindowInfoX11Test::testName()
     }
 
     // create a low level NETWinInfo to manipulate the name
-    NETWinInfo winInfo(QX11Info::connection(), window->winId(), QX11Info::appRootWindow(), NET::WMName, nullptr);
+    NETWinInfo winInfo(QX11Info::connection(), window->winId(), QX11Info::appRootWindow(), NET::WMName, NET::Properties2());
     winInfo.setName("foobar");
 
     QX11Info::getTimestamp();
@@ -653,7 +653,7 @@ void KWindowInfoX11Test::testName()
 
 void KWindowInfoX11Test::testTransientFor()
 {
-    KWindowInfo info(window->winId(), nullptr, NET::WM2TransientFor);
+    KWindowInfo info(window->winId(), NET::Properties(), NET::WM2TransientFor);
     QCOMPARE(info.transientFor(), WId(0));
 
     // let's create a second window
@@ -667,13 +667,13 @@ void KWindowInfoX11Test::testTransientFor()
                         XCB_ATOM_WM_TRANSIENT_FOR, XCB_ATOM_WINDOW, 32, 1, &id);
     xcb_flush(QX11Info::connection());
 
-    KWindowInfo info2(window->winId(), nullptr, NET::WM2TransientFor);
+    KWindowInfo info2(window->winId(), NET::Properties(), NET::WM2TransientFor);
     QCOMPARE(info2.transientFor(), window2->winId());
 }
 
 void KWindowInfoX11Test::testGroupLeader()
 {
-    KWindowInfo info(window->winId(), nullptr, NET::WM2GroupLeader);
+    KWindowInfo info(window->winId(), NET::Properties(), NET::WM2GroupLeader);
     QCOMPARE(info.groupLeader(), WId(0));
 
     // TODO: here we should try to set a group leader and re-read it
@@ -682,7 +682,7 @@ void KWindowInfoX11Test::testGroupLeader()
 
 void KWindowInfoX11Test::testExtendedStrut()
 {
-    KWindowInfo info(window->winId(), nullptr, NET::WM2ExtendedStrut);
+    KWindowInfo info(window->winId(), NET::Properties(), NET::WM2ExtendedStrut);
     NETExtendedStrut strut = info.extendedStrut();
     QCOMPARE(strut.bottom_end, 0);
     QCOMPARE(strut.bottom_start, 0);
@@ -702,7 +702,7 @@ void KWindowInfoX11Test::testExtendedStrut()
     // it's just an xprop, so one roundtrip is good enough
     QX11Info::getTimestamp();
 
-    KWindowInfo info2(window->winId(), nullptr, NET::WM2ExtendedStrut);
+    KWindowInfo info2(window->winId(), NET::Properties(), NET::WM2ExtendedStrut);
     strut = info2.extendedStrut();
     QCOMPARE(strut.bottom_end, 32);
     QCOMPARE(strut.bottom_start, 22);

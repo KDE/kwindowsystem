@@ -264,7 +264,7 @@ void NetWinInfoTestWM::testAllowedActions()
     ATOM(_NET_WM_ALLOWED_ACTIONS)
     INFO
 
-    QCOMPARE(info.allowedActions(), NET::Actions(nullptr));
+    QCOMPARE(info.allowedActions(), NET::Actions());
     QFETCH(NET::Actions, actions);
     info.setAllowedActions(actions);
     QCOMPARE(info.allowedActions(), actions);
@@ -472,9 +472,9 @@ void NetWinInfoTestWM::testState()
     ATOM(_NET_WM_STATE)
     INFO
 
-    QCOMPARE(info.state(), NET::States(nullptr));
+    QCOMPARE(info.state(), NET::States());
     QFETCH(NET::States, states);
-    info.setState(states, nullptr);
+    info.setState(states, NET::States());
     QCOMPARE(info.state(), states);
 
     // compare with the X property

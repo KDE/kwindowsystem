@@ -146,7 +146,7 @@ void KWindowSystemX11Test::testNumberOfDesktopsChanged()
     // KWin has arbitrary max number of 20 desktops, so don't fail the test if we use +1
     const int newNumber = oldNumber < 20 ? oldNumber + 1 : oldNumber - 1;
 
-    NETRootInfo info(QX11Info::connection(), NET::NumberOfDesktops, nullptr);
+    NETRootInfo info(QX11Info::connection(), NET::NumberOfDesktops, NET::Properties2());
     info.setNumberOfDesktops(newNumber);
 
     QVERIFY(spy.wait());
@@ -196,7 +196,7 @@ void KWindowSystemX11Test::testShowingDesktopChanged()
 
     QSignalSpy spy(KWindowSystem::self(), SIGNAL(showingDesktopChanged(bool)));
 
-    NETRootInfo info(QX11Info::connection(), nullptr, NET::WM2ShowingDesktop);
+    NETRootInfo info(QX11Info::connection(), NET::Properties(), NET::WM2ShowingDesktop);
     info.setShowingDesktop(!showingDesktop);
 
     QVERIFY(spy.wait());
@@ -344,7 +344,7 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     // now let's verify the info in KWindowInfo
     // we wait a little bit more as openbox is updating the visible name
     QTest::qWait(500);
-    KWindowInfo info(widget.winId(), NET::WMName | NET::WMVisibleName | NET::WMVisibleIconName | NET::WMIconName, nullptr);
+    KWindowInfo info(widget.winId(), NET::WMName | NET::WMVisibleName | NET::WMVisibleIconName | NET::WMIconName, NET::Properties2());
     QVERIFY(info.valid());
     const QString expectedName = QStringLiteral("bar");
     QCOMPARE(info.name(), expectedName);

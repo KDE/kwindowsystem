@@ -272,7 +272,7 @@ void KStartupInfo_UnitTest::checkStartupTest()
                         wmClass.length() * 2 + 1,
                         "kstartupinfotest\0kstartupinfotest");
     xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLIENT_MACHINE, XCB_ATOM_STRING, 8, 9, "localhost");
-    NETWinInfo winInfo(QX11Info::connection(), window, QX11Info::appRootWindow(), nullptr, nullptr);
+    NETWinInfo winInfo(QX11Info::connection(), window, QX11Info::appRootWindow(), NET::Properties(), NET::Properties2());
     winInfo.setPid(pid);
 
     KStartupInfo info(KStartupInfo::DisableKWinModule | KStartupInfo::AnnounceSilenceChanges, this);
