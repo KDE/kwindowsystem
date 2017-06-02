@@ -85,8 +85,7 @@ void TestKWindowsystemPlatformWayland::testWithHelper()
     QScopedPointer<QProcess> helper(new QProcess);
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert(QStringLiteral("WAYLAND_DISPLAY"), QStringLiteral("kwindowsystem-platform-wayland-0"));
-    // enclose program name with "" to not fail with spaces in the path
-    helper->setProgram(QLatin1Char('"')+processName+QLatin1Char('"'));
+    helper->setProgram(processName);
     helper->setProcessEnvironment(env);
     helper->start();
     QVERIFY(helper->waitForFinished());
