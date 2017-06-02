@@ -283,7 +283,7 @@ static QByteArray get_atom_name(xcb_connection_t *c, xcb_atom_t atom)
 {
     const xcb_get_atom_name_cookie_t cookie = xcb_get_atom_name(c, atom);
 
-    xcb_get_atom_name_reply_t *reply = xcb_get_atom_name_reply(p->conn, cookie, 0);
+    xcb_get_atom_name_reply_t *reply = xcb_get_atom_name_reply(c, cookie, 0);
     if (!reply) {
         return QByteArray();
     }
@@ -3611,12 +3611,9 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
 
             for (i = 1; i < 3; i++) {
 #ifdef NETWMDEBUG
-                char *debug_txt = XGetAtomName(p->display, (xcb_atom_t) message->data.data32[i]);
+                const QByteArray ba = get_atom_name(p->conn, (xcb_atom_t) message->data.data32[i]);
                 fprintf(stderr, "NETWinInfo::event:  message %ld '%s'\n",
-                        message->data.data32[i], debug_txt);
-                if (debug_txt) {
-                    XFree(debug_txt);
-                }
+                        message->data.data32[i], ba.constData());
 #endif
 
                 if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_MODAL)) {
