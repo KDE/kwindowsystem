@@ -861,8 +861,7 @@ void NetRootInfoTestWM::testWorkArea()
 void NetRootInfoTestWM::testDontCrashMapViewports()
 {
     QProcess p;
-    // enclose program name with "" to not fail with spaces in the path
-    p.start(QStringLiteral("\"%1/dontcrashmapviewport\"").arg(AUTOTEST_BUILD_DIR));
+    p.start(QLatin1String(AUTOTEST_BUILD_DIR) + QLatin1String("/dontcrashmapviewport"), QStringList());
     QVERIFY(p.waitForFinished());
     QCOMPARE(p.exitStatus(), QProcess::NormalExit);
     QCOMPARE(p.exitCode(), 0);
