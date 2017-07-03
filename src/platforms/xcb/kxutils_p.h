@@ -40,7 +40,7 @@ template <typename T>
 class ScopedCPointer : public QScopedPointer<T, QScopedPointerPodDeleter>
 {
 public:
-    ScopedCPointer(T *p = 0) : QScopedPointer<T, QScopedPointerPodDeleter>(p) {}
+    ScopedCPointer(T *p = nullptr) : QScopedPointer<T, QScopedPointerPodDeleter>(p) {}
 };
 
 /**
