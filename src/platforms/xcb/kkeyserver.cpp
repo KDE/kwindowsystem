@@ -19,6 +19,7 @@
 */
 
 #include "kkeyserver_x11.h"
+#include "kkeyserver.h"
 
 #include "../../debug_p.h"
 #include <QDebug>
@@ -88,7 +89,6 @@ static const TransKey g_rgQtToSymX[] = {
     { Qt::Key_Backtab,    XK_ISO_Left_Tab },
     { Qt::Key_Backspace,  XK_BackSpace },
     { Qt::Key_Return,     XK_Return },
-    { Qt::Key_Enter,      XK_KP_Enter },
     { Qt::Key_Insert,     XK_Insert },
     { Qt::Key_Delete,     XK_Delete },
     { Qt::Key_Pause,      XK_Pause },
@@ -157,11 +157,27 @@ static const TransKey g_rgQtToSymX[] = {
     //{ Qt::Key_Direction_L, XK_Direction_L }, These keys don't exist in X11
     //{ Qt::Key_Direction_R, XK_Direction_R },
 
-    { '/',                XK_KP_Divide },
-    { '*',                XK_KP_Multiply },
-    { '-',                XK_KP_Subtract },
-    { '+',                XK_KP_Add },
-    { Qt::Key_Return,     XK_KP_Enter }
+    { Qt::Key_Space,      XK_KP_Space },
+    { Qt::Key_Tab,        XK_KP_Tab },
+    { Qt::Key_Enter,      XK_KP_Enter },
+    { Qt::Key_Home,       XK_KP_Home },
+    { Qt::Key_Left,       XK_KP_Left },
+    { Qt::Key_Up,         XK_KP_Up },
+    { Qt::Key_Right,      XK_KP_Right },
+    { Qt::Key_Down,       XK_KP_Down },
+    { Qt::Key_PageUp,     XK_KP_Prior },
+    { Qt::Key_PageDown,   XK_KP_Next },
+    { Qt::Key_End,        XK_KP_End },
+    { Qt::Key_Clear,      XK_KP_Begin },
+    { Qt::Key_Insert,     XK_KP_Insert },
+    { Qt::Key_Delete,     XK_KP_Delete },
+    { Qt::Key_Equal,      XK_KP_Equal },
+    { Qt::Key_Asterisk,   XK_KP_Multiply },
+    { Qt::Key_Plus,       XK_KP_Add },
+    { Qt::Key_Comma,      XK_KP_Separator },
+    { Qt::Key_Minus,      XK_KP_Subtract },
+    { Qt::Key_Period,     XK_KP_Decimal },
+    { Qt::Key_Slash,      XK_KP_Divide },
 
 // the next lines are taken on 10/2009 from X.org (X11/XF86keysym.h), defining some special
 // multimedia keys. They are included here as not every system has them.
@@ -304,7 +320,6 @@ static const TransKey g_rgQtToSymX[] = {
 #define XF86XK_TouchpadOff         0x1008FFB1
 #define XF86XK_AudioMicMute        0x1008FFB2
 // end of XF86keysyms.h
-    ,
 
     // All of the stuff below really has to match qxcbkeyboard.cpp in Qt!
     { Qt::Key_Back,       XF86XK_Back },
@@ -612,6 +627,15 @@ bool initializeMods()
 }
 
 //---------------------------------------------------------------------
+// Helper functions
+//---------------------------------------------------------------------
+
+static bool is_keypad_key(xcb_keysym_t keysym)
+{
+    return keysym >= XK_KP_Space && keysym <= XK_KP_9;
+}
+
+//---------------------------------------------------------------------
 // Public functions
 //---------------------------------------------------------------------
 
@@ -733,13 +757,22 @@ bool keyQtToSymX(int keyQt, int *keySym)
 {
     int symQt = keyQt & ~Qt::KeyboardModifierMask;
 
-    if (symQt < 0x1000) {
-        *keySym = QChar(symQt).toUpper().unicode();
-        return true;
+    if (keyQt & Qt::KeypadModifier) {
+        if (symQt >= Qt::Key_0 && symQt <= Qt::Key_9) {
+            *keySym = XK_KP_0 + (symQt - Qt::Key_0);
+            return true;
+        }
+    } else {
+        if (symQt < 0x1000) {
+            *keySym = QChar(symQt).toUpper().unicode();
+            return true;
+        }
     }
 
     for (uint i = 0; i < sizeof(g_rgQtToSymX) / sizeof(TransKey); i++) {
         if (g_rgQtToSymX[i].keySymQt == symQt) {
+            if ((keyQt & Qt::KeypadModifier) && !is_keypad_key(g_rgQtToSymX[i].keySymX))
+                continue;
             *keySym = g_rgQtToSymX[i].keySymX;
             return true;
         }
@@ -753,10 +786,16 @@ bool keyQtToSymX(int keyQt, int *keySym)
     return false;
 }
 
-bool symXToKeyQt(uint keySym, int *keyQt)
+bool symXModXToKeyQt(uint32_t keySym, uint16_t modX, int *keyQt)
 {
+    int keyModQt = 0;
     *keyQt = Qt::Key_unknown;
-    if (keySym < 0x1000) {
+
+    if (keySym >= XK_KP_0 && keySym <= XK_KP_9) {
+        // numeric keypad keys
+        *keyQt = Qt::Key_0 + ((int)keySym - XK_KP_0);
+    }
+    else if (keySym < 0x1000) {
         if (keySym >= 'a' && keySym <= 'z') {
             *keyQt = QChar(keySym).toUpper().unicode();
         } else {
@@ -776,11 +815,26 @@ bool symXToKeyQt(uint keySym, int *keyQt)
             }
     }
 
-    return (*keyQt != Qt::Key_unknown);
+    if (*keyQt == Qt::Key_unknown) {
+        return false;
+    }
+
+    if (modXToQt(modX, &keyModQt)) {
+        *keyQt |= keyModQt;
+        if (is_keypad_key(keySym)) {
+            *keyQt |= Qt::KeypadModifier;
+        }
+        return true;
+    }
+    return false;
 }
 
-/* are these things actually used anywhere?  there's no way
-   they can do anything on non-X11 */
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+bool symXToKeyQt(uint keySym, int *keyQt)
+{
+    return symXModXToKeyQt(keySym, 0, keyQt);
+}
+#endif
 
 bool keyQtToModX(int modQt, uint *modX)
 {
@@ -882,13 +936,7 @@ bool xEventToQt(XEvent *e, int *keyQt)
         }
     }
 
-    int keyCodeQt;
-    int keyModQt;
-    symXToKeyQt(keySymX, &keyCodeQt);
-    modXToQt(keyModX, &keyModQt);
-
-    *keyQt = keyCodeQt | keyModQt;
-    return true;
+    return KKeyServer::symXModXToKeyQt(keySymX, keyModX, keyQt);
 }
 
 bool xcbKeyPressEventToQt(xcb_generic_event_t *e, int *keyQt)
@@ -901,44 +949,40 @@ bool xcbKeyPressEventToQt(xcb_generic_event_t *e, int *keyQt)
 
 bool xcbKeyPressEventToQt(xcb_key_press_event_t *e, int *keyQt)
 {
-    xcb_keycode_t keyCodeX = e->detail;
-    uint keyModX = e->state & (accelModMaskX() | MODE_SWITCH);
+    const uint16_t keyModX = e->state & (accelModMaskX() | MODE_SWITCH);
 
     xcb_key_symbols_t *symbols = xcb_key_symbols_alloc(QX11Info::connection());
-    xcb_keysym_t keySymX = xcb_key_symbols_get_keysym(symbols, keyCodeX, 0);
 
-    // If numlock is active and a keypad key is pressed, XOR the SHIFT state.
-    //  e.g., KP_4 => Shift+KP_Left, and Shift+KP_4 => KP_Left.
-    if (e->state & modXNumLock()) {
-        // If this is a keypad key,
-        if (keySymX >= XK_KP_Space && keySymX <= XK_KP_9) {
-            switch (keySymX) {
-            // Leave the following keys unaltered
-            // FIXME: The proper solution is to see which keysyms don't change when shifted.
-            case XK_KP_Multiply:
-            case XK_KP_Add:
-            case XK_KP_Subtract:
-            case XK_KP_Divide:
-                break;
-            default:
-                if (keyModX & modXShift()) {
-                    keyModX &= ~modXShift();
-                } else {
-                    keyModX |= modXShift();
-                }
-            }
-        }
+    // We might have to use 4,5 instead of 0,1 here when mode_switch is active, just not sure how to test that.
+    const xcb_keysym_t keySym0 = xcb_key_press_lookup_keysym(symbols, e, 0);
+    const xcb_keysym_t keySym1 = xcb_key_press_lookup_keysym(symbols, e, 1);
+    xcb_keysym_t keySymX;
+
+    if ((e->state & KKeyServer::modXNumLock()) && is_keypad_key(keySym1) ) {
+        if ((e->state & XCB_MOD_MASK_SHIFT))
+            keySymX = keySym0;
+        else
+            keySymX = keySym1;
+    } else {
+        if ((e->state & XCB_MOD_MASK_SHIFT))
+            keySymX = keySym1;
+        else
+            keySymX = keySym0;
     }
 
-    int keyCodeQt;
-    int keyModQt;
-    symXToKeyQt(keySymX, &keyCodeQt);
-    modXToQt(keyModX, &keyModQt);
+    bool ok = KKeyServer::symXModXToKeyQt(keySymX, keyModX, keyQt);
 
-    *keyQt = keyCodeQt | keyModQt;
+    if ((*keyQt & Qt::ShiftModifier) && !KKeyServer::isShiftAsModifierAllowed(*keyQt)) {
+        if (*keyQt != Qt::Key_Tab) { // KKeySequenceWidget does not map shift+tab to backtab
+            static const int FirstLevelShift = 1;
+            keySymX = xcb_key_symbols_get_keysym(symbols, e->detail, FirstLevelShift);
+            KKeyServer::symXModXToKeyQt(keySymX, keyModX, keyQt);
+        }
+        *keyQt &= ~Qt::ShiftModifier;
+    }
 
     xcb_key_symbols_free(symbols);
-    return true;
+    return ok;
 }
 
 } // end of namespace KKeyServer block

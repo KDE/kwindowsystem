@@ -39,6 +39,7 @@ if(X11_FOUND)
         kmanagerselectiontest
         kstartupinfo_unittest
         kxmessages_unittest
+        kkeyserver_x11_unittest
     )
 
     kwindowsystem_unit_tests(

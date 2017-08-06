@@ -140,13 +140,25 @@ KWINDOWSYSTEM_EXPORT bool keyQtToCodeX(int keyQt, int *keyCode);
  */
 KWINDOWSYSTEM_EXPORT bool keyQtToModX(int keyQt, uint *mod);
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 /**
  * Converts the given symbol to a Qt key code.
  * @param sym the symbol
  * @param keyQt if successful, the qt key code will be written here
  * @return true if successful, false otherwise
+ * @deprecated since 5.38, use symXModXToKeyQt in order to support numeric keypad keys too
  */
-KWINDOWSYSTEM_EXPORT bool symXToKeyQt(uint sym, int *keyQt);
+KWINDOWSYSTEM_DEPRECATED_EXPORT bool symXToKeyQt(uint sym, int *keyQt);
+#endif
+
+/**
+ * Converts the given symbol and modifier combination to a Qt key code.
+ * @param keySym the X key symbol
+ * @param modX the mask of X11 modifiers
+ * @param keyQt if successful, the qt key code will be written here
+ * @return true if successful, false otherwise
+ */
+KWINDOWSYSTEM_EXPORT bool symXModXToKeyQt(uint32_t keySym, uint16_t modX, int *keyQt);
 
 /**
  * Converts the mask of ORed X11 modifiers to
