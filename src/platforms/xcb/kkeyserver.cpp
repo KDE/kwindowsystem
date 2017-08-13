@@ -832,7 +832,7 @@ bool symXModXToKeyQt(uint32_t keySym, uint16_t modX, int *keyQt)
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED
 bool symXToKeyQt(uint keySym, int *keyQt)
 {
-    return symXModXToKeyQt(keySym, 0, keyQt);
+    return symXModXToKeyQt(keySym, 0, keyQt) & ~Qt::KeyboardModifierMask;
 }
 #endif
 
