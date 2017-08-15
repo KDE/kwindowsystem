@@ -41,7 +41,7 @@ KWindowInfoPrivateDesktopFileNameExtension::~KWindowInfoPrivateDesktopFileNameEx
 KWindowInfoPrivatePidExtension::KWindowInfoPrivatePidExtension() = default;
 KWindowInfoPrivatePidExtension::~KWindowInfoPrivatePidExtension() = default;
 
-class KWindowInfoPrivate::Private
+class Q_DECL_HIDDEN KWindowInfoPrivate::Private
 {
 public:
     Private(WId window, NET::Properties properties, NET::Properties2 properties2);

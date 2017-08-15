@@ -28,7 +28,7 @@
 #undef check
 #endif
 
-struct KWindowInfo::Private {
+struct Q_DECL_HIDDEN KWindowInfo::Private {
     Private();
     ~Private();
     int ref;

@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <QCoreApplication>
 
-class KWindowInfo::Private
+class Q_DECL_HIDDEN KWindowInfo::Private
 {
 public:
     Private()

@@ -61,7 +61,7 @@ static xcb_atom_t intern_atom(xcb_connection_t *c, const char *name)
     return atom;
 }
 
-class KSelectionOwner::Private
+class Q_DECL_HIDDEN KSelectionOwner::Private
     : public QAbstractNativeEventFilter
 {
 public:
