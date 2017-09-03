@@ -1,0 +1,24 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kdeorg\n"
+"Report-Msgid-Bugs-To: http://bugs.kde.org\n"
+"POT-Creation-Date: 2016-11-19 20:11+0100\n"
+"PO-Revision-Date: 2017-07-13 11:17-0400\n"
+"Last-Translator: guoyunhebrave <guoyunhebrave@gmail.com>\n"
+"Language-Team: Chinese Simplified\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: kdeorg\n"
+"X-Crowdin-Language: zh-CN\n"
+"X-Crowdin-File: /kf5-trunk/messages/frameworks/baloo_file5.pot\n"
+
+#: platforms/osx/kwindowsystem.cpp:578 platforms/windows/kwindowsystem.cpp:630
+#: platforms/xcb/kwindowsystem.cpp:987
+#, qt-format
+msgctxt "KWindowSystem|"
+msgid "Desktop %1"
+msgstr "桌面 %1"
