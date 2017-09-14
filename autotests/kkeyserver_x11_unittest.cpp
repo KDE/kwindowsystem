@@ -39,6 +39,8 @@ private Q_SLOTS:
         QTest::newRow("CTRL_keypad_1") << int(Qt::ControlModifier|Qt::KeypadModifier|Qt::Key_1) << KKeyServer::modXCtrl() << XK_KP_1;
         QTest::newRow("CTRL_keypad_slash") << int(Qt::ControlModifier|Qt::KeypadModifier|Qt::Key_Slash) << KKeyServer::modXCtrl() << XK_KP_Divide;
         QTest::newRow("CTRL_ampersand") << int(Qt::ControlModifier|Qt::Key_Ampersand) << KKeyServer::modXCtrl() << XK_ampersand;
+        QTest::newRow("ALT_SHIFT_right") << int(Qt::AltModifier|Qt::ShiftModifier|Qt::Key_Right) << (KKeyServer::modXAlt() | KKeyServer::modXShift()) << XK_Right;
+        QTest::newRow("META_SHIFT_print") << int(Qt::MetaModifier|Qt::ShiftModifier|Qt::Key_Print) << (KKeyServer::modXMeta() | KKeyServer::modXShift()) << XK_Print;
     }
 
     void keyQtToSymX()
