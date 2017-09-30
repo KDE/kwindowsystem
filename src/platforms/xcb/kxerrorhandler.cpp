@@ -30,6 +30,7 @@
 #include <stdio.h>
 
 #include <QByteArray>
+#include <QString>
 
 class KXErrorHandlerPrivate
 {
