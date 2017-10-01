@@ -964,10 +964,7 @@ bool xcbKeyPressEventToQt(xcb_key_press_event_t *e, int *keyQt)
         else
             keySymX = keySym1;
     } else {
-        if ((e->state & XCB_MOD_MASK_SHIFT))
-            keySymX = keySym1;
-        else
-            keySymX = keySym0;
+        keySymX = keySym0;
     }
 
     bool ok = KKeyServer::symXModXToKeyQt(keySymX, keyModX, keyQt);
