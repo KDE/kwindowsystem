@@ -79,7 +79,7 @@ void TestKWindowsystemPlatformWayland::testWithHelper()
 {
     // This test starts a helper binary on platform wayland
     // it executes the actual test and will return 0 on success, and an error value otherwise
-    QString processName = QFINDTESTDATA("helper/kwindowsystem_platform_wayland_helper");
+    QString processName = QFINDTESTDATA("kwindowsystem_platform_wayland_helper");
     QVERIFY(!processName.isEmpty());
 
     QScopedPointer<QProcess> helper(new QProcess);
