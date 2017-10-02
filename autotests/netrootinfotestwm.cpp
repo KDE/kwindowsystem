@@ -861,7 +861,10 @@ void NetRootInfoTestWM::testWorkArea()
 void NetRootInfoTestWM::testDontCrashMapViewports()
 {
     QProcess p;
-    p.start(QLatin1String(AUTOTEST_BUILD_DIR) + QLatin1String("/dontcrashmapviewport"), QStringList());
+    const QString processName = QFINDTESTDATA("dontcrashmapviewport");
+    QVERIFY(!processName.isEmpty());
+
+    p.start(processName, QStringList());
     QVERIFY(p.waitForFinished());
     QCOMPARE(p.exitStatus(), QProcess::NormalExit);
     QCOMPARE(p.exitCode(), 0);
