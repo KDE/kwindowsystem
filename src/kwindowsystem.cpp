@@ -507,7 +507,7 @@ QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int flag
     height *= qApp->devicePixelRatio();
 #if KWINDOWSYSTEM_HAVE_X11
     if (info) {
-        if (QGuiApplication::platformName().compare(QLatin1String("xcb"), Qt::CaseInsensitive) == 0) {
+        if (isPlatformX11()) {
             // this is the xcb plugin, we can just delegate
             return d->iconFromNetWinInfo(width, height, scale, flags, info);
         } else {

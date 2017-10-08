@@ -18,6 +18,7 @@
 #include "kusertimestamp.h"
 
 #include "config-kwindowsystem.h"
+#include "kwindowsystem.h"
 #include <QGuiApplication>
 
 #if KWINDOWSYSTEM_HAVE_X11
@@ -27,7 +28,7 @@
 
 unsigned long KUserTimestamp::userTimestamp()
 {
-    if (QGuiApplication::platformName() == QStringLiteral("xcb")) {
+    if (KWindowSystem::isPlatformX11()) {
 #if KWINDOWSYSTEM_HAVE_X11
         return QX11Info::appUserTime();
 #endif
@@ -38,7 +39,7 @@ unsigned long KUserTimestamp::userTimestamp()
 void KUserTimestamp::updateUserTimestamp(unsigned long time)
 {
 #if KWINDOWSYSTEM_HAVE_X11
-    if (QGuiApplication::platformName() != QStringLiteral("xcb")) {
+    if (!KWindowSystem::isPlatformX11()) {
         return;
     }
     if (time == 0) { // get current X timestamp
