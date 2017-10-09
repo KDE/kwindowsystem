@@ -51,6 +51,14 @@ static QStringList pluginCandidates()
 
 static KWindowSystemPluginInterface *loadPlugin()
 {
+    QString platformName = QGuiApplication::platformName();
+    if (platformName == QLatin1String("flatpak")) {
+        // here we cannot know what is the actual windowing system, let's try it's env variable
+        const auto flatpakPlatform = QString::fromLocal8Bit(qgetenv("QT_QPA_FLATPAK_PLATFORM"));
+        if (!flatpakPlatform.isEmpty()) {
+            platformName = flatpakPlatform;
+        }
+    }
     foreach (const QString &candidate, pluginCandidates()) {
         if (!QLibrary::isLibrary(candidate)) {
             continue;
@@ -59,10 +67,10 @@ static KWindowSystemPluginInterface *loadPlugin()
         QJsonObject metaData = loader.metaData();
         const QJsonArray platforms = metaData.value(QStringLiteral("MetaData")).toObject().value(QStringLiteral("platforms")).toArray();
         for (auto it = platforms.begin(); it != platforms.end(); ++it) {
-            if (QString::compare(QGuiApplication::platformName(), (*it).toString(), Qt::CaseInsensitive) == 0) {
+            if (QString::compare(platformName, (*it).toString(), Qt::CaseInsensitive) == 0) {
                 KWindowSystemPluginInterface *interface = qobject_cast< KWindowSystemPluginInterface* >(loader.instance());
                 if (interface) {
-                    qCDebug(LOG_KWINDOWSYSTEM) << "Loaded plugin" << candidate << "for platform" << QGuiApplication::platformName();
+                    qCDebug(LOG_KWINDOWSYSTEM) << "Loaded plugin" << candidate << "for platform" << platformName;
                     return interface;
                 }
             }
