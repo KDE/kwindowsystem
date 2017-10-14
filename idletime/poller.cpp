@@ -49,15 +49,15 @@ Poller::~Poller() = default;
 bool Poller::initWayland()
 {
     using namespace KWayland::Client;
-    ConnectionThread *connection = ConnectionThread::fromApplication(this);
-    if (!connection) {
+    m_connectionThread = ConnectionThread::fromApplication(this);
+    if (!m_connectionThread) {
         return false;
     }
     // need to be able to cleanup prior to the Wayland connection being destroyed
     // otherwise we get a crash in libwayland
     connect(reinterpret_cast<QObject*>(qApp->platformNativeInterface()), &QObject::destroyed, this, &Poller::unloadPoller);
     m_registry = new Registry(this);
-    m_registry->create(connection);
+    m_registry->create(m_connectionThread);
     connect(m_registry, &Registry::seatAnnounced, this,
         [this] (quint32 name, quint32 version) {
             QMutexLocker locker(m_registryMutex.data());
@@ -90,7 +90,7 @@ bool Poller::initWayland()
     );
 
     m_registry->setup();
-    connection->roundtrip();
+    m_connectionThread->roundtrip();
     return true;
 }
 
@@ -133,6 +133,9 @@ void Poller::unloadPoller()
     m_seat.seat = nullptr;
     delete m_idle.idle;
     m_idle.idle = nullptr;
+
+    delete m_connectionThread;
+    m_connectionThread = nullptr;
 }
 
 void Poller::addTimeout(int nextTimeout)

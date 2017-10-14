@@ -33,6 +33,7 @@ namespace Client
 {
 class Seat;
 class Idle;
+class ConnectionThread;
 class IdleTimeout;
 class Registry;
 }
@@ -76,6 +77,7 @@ private:
     bool m_inited = false;
     QScopedPointer<QMutex> m_registryMutex;
     QScopedPointer<QWaitCondition> m_registryAnnouncedCondition;
+    KWayland::Client::ConnectionThread *m_connectionThread = nullptr;
     KWayland::Client::Registry *m_registry = nullptr;
     KWayland::Client::IdleTimeout *m_catchResumeTimeout = nullptr;
     QHash<int, KWayland::Client::IdleTimeout*> m_timeouts;
