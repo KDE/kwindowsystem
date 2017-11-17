@@ -11,6 +11,7 @@ add_library(KF5WindowSystemKWaylandPlugin MODULE ${wayland_plugin_SRCS})
 target_link_libraries(KF5WindowSystemKWaylandPlugin
     KF5::WindowSystem
     KF5::WaylandClient
+    Qt5::Widgets
 )
 
 install(

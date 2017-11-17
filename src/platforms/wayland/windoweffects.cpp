@@ -23,6 +23,7 @@
 #include "waylandintegration.h"
 
 #include <QDebug>
+#include <QWidget>
 
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/plasmawindowmanagement.h>
