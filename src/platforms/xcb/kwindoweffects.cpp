@@ -258,6 +258,7 @@ void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const Q
     if (enable) {
         QVector<QRect> rects = region.rects();
         QVector<uint32_t> data;
+        data.reserve(rects.count() * 4);
         Q_FOREACH (const QRect &r, rects) {
             data << r.x() << r.y() << r.width() << r.height();
         }
@@ -282,6 +283,7 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
     if (enable) {
         QVector<QRect> rects = region.rects();
         QVector<uint32_t> data;
+        data.reserve(rects.count() * 4 + 16);
         Q_FOREACH (const QRect &r, rects) {
             data << r.x() << r.y() << r.width() << r.height();
         }
