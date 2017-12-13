@@ -659,7 +659,7 @@ void KWindowInfoX11Test::testTransientFor()
     // let's create a second window
     QScopedPointer<QWidget> window2(new QWidget());
     window2->show();
-    QTest::qWaitForWindowExposed(window2.data());
+    QVERIFY(QTest::qWaitForWindowExposed(window2.data()));
 
     // update the transient for of window1 to window2
     const uint32_t id = window2->winId();

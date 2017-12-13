@@ -73,7 +73,7 @@ void KWindowSystemX11Test::testWindowAdded()
     QSignalSpy stackingOrderSpy(KWindowSystem::self(), SIGNAL(stackingOrderChanged()));
     QScopedPointer<QWidget> widget(new QWidget);
     widget->show();
-    QTest::qWaitForWindowExposed(widget.data());
+    QVERIFY(QTest::qWaitForWindowExposed(widget.data()));
     QVERIFY(spy.count() > 0);
     bool hasWId = false;
     for (auto it = spy.constBegin(); it != spy.constEnd(); ++it) {
@@ -96,7 +96,7 @@ void KWindowSystemX11Test::testWindowRemoved()
     qRegisterMetaType<WId>("WId");
     QScopedPointer<QWidget> widget(new QWidget);
     widget->show();
-    QTest::qWaitForWindowExposed(widget.data());
+    QVERIFY(QTest::qWaitForWindowExposed(widget.data()));
     QVERIFY(KWindowSystem::hasWId(widget->winId()));
 
     QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowRemoved(WId)));
@@ -270,7 +270,7 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     QWidget widget;
     widget.setWindowTitle(QStringLiteral("foo"));
     widget.show();
-    QTest::qWaitForWindowExposed(&widget);
+    QVERIFY(QTest::qWaitForWindowExposed(&widget));
 
     // wait till the window is mapped, etc.
     QTest::qWait(200);
@@ -362,7 +362,7 @@ void KWindowSystemX11Test::testMinimizeWindow()
     }
     QWidget widget;
     widget.show();
-    QTest::qWaitForWindowExposed(&widget);
+    QVERIFY(QTest::qWaitForWindowExposed(&widget));
 
     KWindowInfo info(widget.winId(), NET::WMState | NET::XAWMState);
     QVERIFY(!info.isMinimized());

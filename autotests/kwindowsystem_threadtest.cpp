@@ -84,7 +84,7 @@ void KWindowSystemThreadTest::testWindowAdded()
     QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowAdded(WId)));
     m_widget = new QWidget;
     m_widget->show();
-    QTest::qWaitForWindowExposed(m_widget);
+    QVERIFY(QTest::qWaitForWindowExposed(m_widget));
     QVERIFY(spy.count() > 0);
     bool hasWId = false;
     for (auto it = spy.constBegin(); it != spy.constEnd(); ++it) {

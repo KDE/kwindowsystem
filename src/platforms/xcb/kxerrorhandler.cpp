@@ -152,6 +152,7 @@ QByteArray KXErrorHandler::errorMessage(const XErrorEvent &event, Display *dpy)
             *paren = '\0';    // it more verbose and is not really useful
         }
         // the various casts are to get overloads non-ambiguous :-/
+/*
         ret = QByteArray("error: ") + (const char *)tmp + '[' + QByteArray::number(event.error_code) + ']';
         sprintf(num, "%d", event.request_code);
         XGetErrorDatabaseText(dpy, "XRequest", num, "<unknown>", tmp, 256);
@@ -159,6 +160,7 @@ QByteArray KXErrorHandler::errorMessage(const XErrorEvent &event, Display *dpy)
         if (event.resourceid != 0) {
             ret += QByteArray(", resource: 0x") + QByteArray::number((qlonglong)event.resourceid, 16);
         }
+*/
     }
 #if 0
     else { // extensions
