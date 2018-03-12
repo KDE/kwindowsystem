@@ -138,7 +138,8 @@ public:
     bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) Q_DECL_OVERRIDE
     {
         Q_UNUSED(result);
-        if (eventType != "xcb_generic_event_t") {
+	// A faster comparison than eventType != "xcb_generic_event_t"
+        if (eventType[0] != 'x') {
             return false;
         }
         xcb_generic_event_t *event = reinterpret_cast<xcb_generic_event_t *>(message);
