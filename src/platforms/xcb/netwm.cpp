@@ -2841,20 +2841,24 @@ void NETWinInfo::setStrut(NETStrut strut)
 
 void NETWinInfo::setFullscreenMonitors(NETFullscreenMonitors topology)
 {
-    if (p->role != Client) {
-        return;
+    if (p->role == Client) {
+        const uint32_t data[5] = {
+            topology.top, topology.bottom, topology.left, topology.right, 1
+        };
+
+        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->window, p->atom(_NET_WM_FULLSCREEN_MONITORS), data);
+    } else {
+        p->fullscreen_monitors = topology;
+
+        uint32_t data[4];
+        data[0] = topology.top;
+        data[1] = topology.bottom;
+        data[2] = topology.left;
+        data[3] = topology.right;
+
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_FULLSCREEN_MONITORS),
+                            XCB_ATOM_CARDINAL, 32, 4, (const void *) data);
     }
-
-    p->fullscreen_monitors = topology;
-
-    uint32_t data[4];
-    data[0] = topology.top;
-    data[1] = topology.bottom;
-    data[2] = topology.left;
-    data[3] = topology.right;
-
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_FULLSCREEN_MONITORS),
-                        XCB_ATOM_CARDINAL, 32, 4, (const void *) data);
 }
 
 void NETWinInfo::setState(NET::States state, NET::States mask)
@@ -3775,6 +3779,8 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             dirty2 |= WM2OpaqueRegion;
         } else if (pe->atom == p->atom(_KDE_NET_WM_DESKTOP_FILE)) {
             dirty2 = WM2DesktopFileName;
+        } else if (pe->atom == p->atom(_NET_WM_FULLSCREEN_MONITORS)) {
+            dirty2 = WM2FullscreenMonitors;
         }
 
         do_update = true;

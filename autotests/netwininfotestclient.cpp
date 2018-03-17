@@ -70,7 +70,6 @@ private Q_SLOTS:
     void testStrut();
     void testExtendedStrut();
     void testIconGeometry();
-    void testFullscreenMonitors();
     void testWindowType_data();
     void testWindowType();
 
@@ -572,49 +571,6 @@ void NetWinInfoTestClient::testIconGeometry()
     QCOMPARE(geo.pos.y,       newGeo.pos.y);
     QCOMPARE(geo.size.width,  newGeo.size.width);
     QCOMPARE(geo.size.height, newGeo.size.height);
-}
-
-void NetWinInfoTestClient::testFullscreenMonitors()
-{
-    QVERIFY(connection());
-    ATOM(_NET_WM_FULLSCREEN_MONITORS)
-    INFO
-
-    NETFullscreenMonitors topology = info.fullscreenMonitors();
-    QCOMPARE(topology.bottom, 0);
-    QCOMPARE(topology.left, 0);
-    QCOMPARE(topology.right, 0);
-    QCOMPARE(topology.top, -1);
-
-    NETFullscreenMonitors newTopology;
-    newTopology.bottom = 10;
-    newTopology.left   = 20;
-    newTopology.right  = 30;
-    newTopology.top    = 40;
-    info.setFullscreenMonitors(newTopology);
-    topology = info.fullscreenMonitors();
-    QCOMPARE(topology.bottom, newTopology.bottom);
-    QCOMPARE(topology.left,   newTopology.left);
-    QCOMPARE(topology.right,  newTopology.right);
-    QCOMPARE(topology.top,    newTopology.top);
-
-    // compare with the X property
-    QVERIFY(atom != XCB_ATOM_NONE);
-    GETPROP(XCB_ATOM_CARDINAL, 4, 32)
-    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()));
-    QCOMPARE(data[0], uint32_t(newTopology.top));
-    QCOMPARE(data[1], uint32_t(newTopology.bottom));
-    QCOMPARE(data[2], uint32_t(newTopology.left));
-    QCOMPARE(data[3], uint32_t(newTopology.right));
-
-    // and wait for our event
-    QEXPECT_FAIL("", "FullscreenMonitors not handled in events", Continue);
-    waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2FullscreenMonitors);
-    topology = info.fullscreenMonitors();
-    QCOMPARE(topology.bottom, newTopology.bottom);
-    QCOMPARE(topology.left,   newTopology.left);
-    QCOMPARE(topology.right,  newTopology.right);
-    QCOMPARE(topology.top,    newTopology.top);
 }
 
 Q_DECLARE_METATYPE(NET::WindowType)
