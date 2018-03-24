@@ -2843,7 +2843,7 @@ void NETWinInfo::setFullscreenMonitors(NETFullscreenMonitors topology)
 {
     if (p->role == Client) {
         const uint32_t data[5] = {
-            topology.top, topology.bottom, topology.left, topology.right, 1
+            uint32_t(topology.top), uint32_t(topology.bottom), uint32_t(topology.left), uint32_t(topology.right), 1
         };
 
         send_client_message(p->conn, netwm_sendevent_mask, p->root, p->window, p->atom(_NET_WM_FULLSCREEN_MONITORS), data);
