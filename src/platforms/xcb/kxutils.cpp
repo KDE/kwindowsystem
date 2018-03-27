@@ -66,9 +66,7 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap, xcb_connection_t *c)
             pixels[i] = qRgba(r, g, b, 0xff);
         }
         // fall through, Qt format is still Format_ARGB32_Premultiplied
-#if QT_VERSION >= QT_VERSION_CHECK(5,8,0)
         Q_FALLTHROUGH();
-#endif
     }
     case 32:
         format = QImage::Format_ARGB32_Premultiplied;
