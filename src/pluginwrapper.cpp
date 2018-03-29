@@ -22,7 +22,7 @@
 #include "kwindowsystemplugininterface_p.h"
 #include "kwindoweffects_dummy_p.h"
 #include "kwindowsystem_dummy_p.h"
-#include "debug_p.h"
+#include "kwindowsystem_debug.h"
 
 #include <QDebug>
 #include <QDir>

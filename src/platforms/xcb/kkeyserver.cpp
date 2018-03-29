@@ -21,7 +21,7 @@
 #include "kkeyserver_x11.h"
 #include "kkeyserver.h"
 
-#include "../../debug_p.h"
+#include "platforms/xcb/kwindowsystem_xcb_debug.h"
 #include <QDebug>
 
 #include <QX11Info>

@@ -15,9 +15,10 @@ set(kwindowsystem_SRCS
     platforms/wayland/kwindowsystem.cpp
     pluginwrapper.cpp
     kwindowsystemplugininterface.cpp
-    debug_p.cpp
     ${kwindowsystem_QM_LOADER}
     )
+ecm_qt_declare_logging_category(kwindowsystem_SRCS HEADER kwindowsystem_debug.h IDENTIFIER LOG_KWINDOWSYSTEM CATEGORY_NAME org.kde.kwindowsystem DEFAULT_SEVERITY Warning)
+ecm_qt_declare_logging_category(kwindowsystem_SRCS HEADER kwindowsystem_xcb_debug.h IDENTIFIER LOG_KKEYSERVER_X11 CATEGORY_NAME org.kde.kwindowsystem.keyserver.x11 DEFAULT_SEVERITY Warning)
 
 if (KWINDOWSYSTEM_HAVE_X11)
   set(kwindowsystem_SRCS ${kwindowsystem_SRCS}
