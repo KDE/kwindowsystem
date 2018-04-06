@@ -133,6 +133,8 @@ ENUM_BEGIN(KwsAtom)
     ENUM(_NET_WM_STATE_ABOVE),
     ENUM(_NET_WM_STATE_BELOW),
     ENUM(_NET_WM_STATE_DEMANDS_ATTENTION),
+    // KDE-specific atom
+    ENUM(_KDE_NET_WM_STATE_SKIP_SWITCHER),
 
     // allowed actions
     ENUM(_NET_WM_ACTION_MOVE),

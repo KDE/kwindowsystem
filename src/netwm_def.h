@@ -418,10 +418,10 @@ public:
 
        To set the state of a window, you'll typically do something like:
        \code
-         KWindowSystem::setState( winId(), NET::SkipTaskbar | NET::SkipPager );
+         KWindowSystem::setState( winId(), NET::SkipTaskbar | NET::SkipPager | NET::SkipSwitcher );
        \endcode
 
-       for example to not show the window on the taskbar and desktop pager.
+       for example to not show the window on the taskbar, desktop pager, or window switcher.
        winId() is a function of QWidget()
 
        Note that KeepAbove (StaysOnTop) and KeepBelow are meant as user preference and
@@ -493,7 +493,13 @@ public:
            this. E.g. taskbar should mark such window specially to bring user's attention to
            this window. Only the window manager is allowed to change it.
         **/
-        DemandsAttention = 1u << 11
+        DemandsAttention = 1u << 11,
+        /**
+           indicates that a window should not be included on a switcher.
+
+           @since 5.45
+        **/
+        SkipSwitcher = 1u << 12
     };
     Q_DECLARE_FLAGS(States, State)
 
