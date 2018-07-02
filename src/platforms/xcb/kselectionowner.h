@@ -100,7 +100,7 @@ public:
     /**
      * Destructor. Calls release().
      */
-    virtual ~KSelectionOwner();
+    ~KSelectionOwner() override;
 
     /**
      * Try to claim ownership of the manager selection using the current X timestamp.
@@ -137,7 +137,7 @@ public:
     /**
      * @internal
      */
-    void timerEvent(QTimerEvent *event) Q_DECL_OVERRIDE;
+    void timerEvent(QTimerEvent *event) override;
 
 Q_SIGNALS:
     /**

@@ -74,7 +74,7 @@ public:
      **/
     explicit KXMessages(xcb_connection_t *connection, xcb_window_t rootWindow, const char *accept_broadcast = nullptr, QObject *parent = nullptr);
 
-    virtual ~KXMessages();
+    ~KXMessages() override;
     /**
      * Broadcasts the given message with the given message type.
      * @param msg_type the type of the message

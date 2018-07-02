@@ -28,7 +28,7 @@ class BlurTestWindow: public QWidget
 public:
     BlurTestWindow();
 
-    void resizeEvent(QResizeEvent *) Q_DECL_OVERRIDE;
+    void resizeEvent(QResizeEvent *) override;
 
 private:
     QPushButton *m_btnNothing;

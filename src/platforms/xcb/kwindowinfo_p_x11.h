@@ -28,37 +28,37 @@ class KWindowInfoPrivateX11 : public KWindowInfoPrivate, public KWindowInfoPriva
 {
 public:
     KWindowInfoPrivateX11(WId window, NET::Properties properties, NET::Properties2 properties2);
-    ~KWindowInfoPrivateX11();
+    ~KWindowInfoPrivateX11() override;
 
-    bool valid(bool withdrawn_is_valid) const Q_DECL_OVERRIDE;
-    NET::States state() const Q_DECL_OVERRIDE;
-    bool isMinimized() const Q_DECL_OVERRIDE;
-    NET::MappingState mappingState() const Q_DECL_OVERRIDE;
-    NETExtendedStrut extendedStrut() const Q_DECL_OVERRIDE;
-    NET::WindowType windowType(NET::WindowTypes supported_types) const Q_DECL_OVERRIDE;
-    QString visibleName() const Q_DECL_OVERRIDE;
-    QString visibleNameWithState() const Q_DECL_OVERRIDE;
-    QString name() const Q_DECL_OVERRIDE;
-    QString visibleIconName() const Q_DECL_OVERRIDE;
-    QString visibleIconNameWithState() const Q_DECL_OVERRIDE;
-    QString iconName() const Q_DECL_OVERRIDE;
-    bool onAllDesktops() const Q_DECL_OVERRIDE;
-    bool isOnDesktop(int desktop) const Q_DECL_OVERRIDE;
-    int desktop() const Q_DECL_OVERRIDE;
-    QStringList activities() const Q_DECL_OVERRIDE;
-    QRect geometry() const Q_DECL_OVERRIDE;
-    QRect frameGeometry() const Q_DECL_OVERRIDE;
-    WId transientFor() const Q_DECL_OVERRIDE;
-    WId groupLeader() const Q_DECL_OVERRIDE;
-    QByteArray windowClassClass() const Q_DECL_OVERRIDE;
-    QByteArray windowClassName() const Q_DECL_OVERRIDE;
-    QByteArray windowRole() const Q_DECL_OVERRIDE;
-    QByteArray clientMachine() const Q_DECL_OVERRIDE;
-    bool actionSupported(NET::Action action) const Q_DECL_OVERRIDE;
+    bool valid(bool withdrawn_is_valid) const override;
+    NET::States state() const override;
+    bool isMinimized() const override;
+    NET::MappingState mappingState() const override;
+    NETExtendedStrut extendedStrut() const override;
+    NET::WindowType windowType(NET::WindowTypes supported_types) const override;
+    QString visibleName() const override;
+    QString visibleNameWithState() const override;
+    QString name() const override;
+    QString visibleIconName() const override;
+    QString visibleIconNameWithState() const override;
+    QString iconName() const override;
+    bool onAllDesktops() const override;
+    bool isOnDesktop(int desktop) const override;
+    int desktop() const override;
+    QStringList activities() const override;
+    QRect geometry() const override;
+    QRect frameGeometry() const override;
+    WId transientFor() const override;
+    WId groupLeader() const override;
+    QByteArray windowClassClass() const override;
+    QByteArray windowClassName() const override;
+    QByteArray windowRole() const override;
+    QByteArray clientMachine() const override;
+    bool actionSupported(NET::Action action) const override;
 
-    QByteArray desktopFileName() const Q_DECL_OVERRIDE;
+    QByteArray desktopFileName() const override;
 
-    int pid() const Q_DECL_OVERRIDE;
+    int pid() const override;
 
 private:
     QScopedPointer<NETWinInfo> m_info;

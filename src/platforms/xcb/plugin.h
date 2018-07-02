@@ -30,11 +30,11 @@ class X11Plugin : public KWindowSystemPluginInterface
 
 public:
     explicit X11Plugin(QObject *parent = nullptr);
-    virtual ~X11Plugin();
+    ~X11Plugin() override;
 
-    KWindowEffectsPrivate *createEffects() Q_DECL_OVERRIDE;
-    KWindowSystemPrivate *createWindowSystem() Q_DECL_OVERRIDE;
-    KWindowInfoPrivate *createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2) Q_DECL_OVERRIDE;
+    KWindowEffectsPrivate *createEffects() override;
+    KWindowSystemPrivate *createWindowSystem() override;
+    KWindowInfoPrivate *createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2) override;
 };
 
 #endif

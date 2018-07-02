@@ -25,17 +25,17 @@ class KWindowEffectsPrivateX11 : public KWindowEffectsPrivate
 {
 public:
     KWindowEffectsPrivateX11();
-    virtual ~KWindowEffectsPrivateX11();
-    bool isEffectAvailable(KWindowEffects::Effect effect) Q_DECL_OVERRIDE;
-    void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) Q_DECL_OVERRIDE;
-    void slideWindow(QWidget* widget, KWindowEffects::SlideFromLocation location) Q_DECL_OVERRIDE;
-    QList< QSize > windowSizes(const QList<WId> &ids) Q_DECL_OVERRIDE;
-    void presentWindows(WId controller, const QList<WId> &ids) Q_DECL_OVERRIDE;
-    void presentWindows(WId controller, int desktop = NET::OnAllDesktops) Q_DECL_OVERRIDE;
-    void highlightWindows(WId controller, const QList<WId> &ids) Q_DECL_OVERRIDE;
-    void enableBlurBehind(WId window, bool enable = true, const QRegion& region = QRegion()) Q_DECL_OVERRIDE;
-    void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion()) Q_DECL_OVERRIDE;
-    void markAsDashboard(WId window) Q_DECL_OVERRIDE;
+    ~KWindowEffectsPrivateX11() override;
+    bool isEffectAvailable(KWindowEffects::Effect effect) override;
+    void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) override;
+    void slideWindow(QWidget* widget, KWindowEffects::SlideFromLocation location) override;
+    QList< QSize > windowSizes(const QList<WId> &ids) override;
+    void presentWindows(WId controller, const QList<WId> &ids) override;
+    void presentWindows(WId controller, int desktop = NET::OnAllDesktops) override;
+    void highlightWindows(WId controller, const QList<WId> &ids) override;
+    void enableBlurBehind(WId window, bool enable = true, const QRegion& region = QRegion()) override;
+    void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion()) override;
+    void markAsDashboard(WId window) override;
 };
 
 #endif

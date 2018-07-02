@@ -109,7 +109,7 @@ public:
     static Private *create(KSelectionOwner *owner, const char *selection_P, xcb_connection_t *c, xcb_window_t root);
 
 protected:
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) Q_DECL_OVERRIDE {
+    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override {
         Q_UNUSED(result);
         if (eventType != "xcb_generic_event_t")
         {

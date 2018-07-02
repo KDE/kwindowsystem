@@ -83,7 +83,7 @@ public:
     void activate();
 
 protected:
-    bool nativeEvent(const QByteArray &eventType, void *message, long *result) Q_DECL_OVERRIDE;
+    bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
 
 private:
     bool activated;

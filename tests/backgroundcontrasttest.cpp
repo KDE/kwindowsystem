@@ -29,7 +29,7 @@ class ContrastTestWindow: public QWidget
 public:
     ContrastTestWindow();
 
-    void resizeEvent(QResizeEvent *) Q_DECL_OVERRIDE;
+    void resizeEvent(QResizeEvent *) override;
 
 private:
     QPushButton *m_btnNothing;

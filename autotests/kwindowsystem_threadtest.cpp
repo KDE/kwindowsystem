@@ -45,7 +45,7 @@ private:
 class KWindowSystemCreator : public QRunnable
 {
 public:
-    void run() Q_DECL_OVERRIDE
+    void run() override
     {
         (void)KWindowSystem::self();
     }
@@ -54,7 +54,7 @@ public:
 class WindowInfoLister : public QThread
 {
 public:
-    void run() Q_DECL_OVERRIDE
+    void run() override
     {
         // simulate some activity in another thread gathering window information
         const QList<WId> windows = KWindowSystem::stackingOrder();

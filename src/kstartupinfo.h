@@ -182,7 +182,7 @@ public:
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED
     KWINDOWSYSTEM_DEPRECATED explicit KStartupInfo(bool clean_on_cantdetect, QObject *parent = nullptr);
 #endif
-    virtual ~KStartupInfo();
+    ~KStartupInfo() override;
     /**
      * Sends given notification data about started application
      * with the given startup identification. If no notification for this identification
@@ -424,7 +424,7 @@ protected:
     /**
      *
      */
-    void customEvent(QEvent *e_P) Q_DECL_OVERRIDE;
+    void customEvent(QEvent *e_P) override;
 
 private:
     Q_PRIVATE_SLOT(d, void startups_cleanup())

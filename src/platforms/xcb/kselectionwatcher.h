@@ -91,7 +91,7 @@ public:
      * @since 5.8
      **/
     explicit KSelectionWatcher(const char *selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = nullptr);
-    virtual ~KSelectionWatcher();
+    ~KSelectionWatcher() override;
     /**
      * Return the current owner of the manager selection, if any. Note that if the event
      * informing about the owner change is still in the input queue, newOwner() might

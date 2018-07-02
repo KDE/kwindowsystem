@@ -34,7 +34,7 @@ class KWINDOWSYSTEM_EXPORT KWindowSystemPluginInterface : public QObject
     Q_OBJECT
 public:
     explicit KWindowSystemPluginInterface(QObject *parent = nullptr);
-    virtual ~KWindowSystemPluginInterface();
+    ~KWindowSystemPluginInterface() override;
 
     virtual KWindowEffectsPrivate *createEffects();
     virtual KWindowSystemPrivate *createWindowSystem();
