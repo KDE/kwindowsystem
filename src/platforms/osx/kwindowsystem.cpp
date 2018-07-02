@@ -103,7 +103,7 @@ static OSStatus applicationEventHandler(EventHandlerCallRef inHandlerCallRef, Ev
 
     kind = GetEventKind(inEvent);
     ProcessSerialNumber psn;
-    if (GetEventParameter(inEvent, kEventParamProcessID, typeProcessSerialNumber, NULL, sizeof psn, NULL, &psn) != noErr) {
+    if (GetEventParameter(inEvent, kEventParamProcessID, typeProcessSerialNumber, nullptr, sizeof psn, nullptr, &psn) != noErr) {
         kWarning() << "Error getting event parameter in application event";
         return eventNotHandledErr;
     }

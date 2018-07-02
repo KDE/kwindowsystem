@@ -55,7 +55,7 @@ public:
      *
      * @param selection atom representing the manager selection
      * @param screen X screen, or -1 for default
-     * @param parent parent object, or NULL if there is none
+     * @param parent parent object, or nullptr if there is none
      */
     explicit KSelectionOwner(xcb_atom_t selection, int screen = -1, QObject *parent = nullptr);
 
@@ -66,7 +66,7 @@ public:
      *
      * @param selection name of the manager selection
      * @param screen X screen, or -1 for default
-     * @param parent parent object, or NULL if there is none
+     * @param parent parent object, or nullptr if there is none
      */
     explicit KSelectionOwner(const char *selection, int screen = -1, QObject *parent = nullptr);
     /**
@@ -78,7 +78,7 @@ public:
      * @param selection atom representing the manager selection
      * @param c the xcb connection this KSelectionWatcher should use
      * @param root the root window this KSelectionWatcher should use
-     * @param parent parent object, or NULL if there is none
+     * @param parent parent object, or nullptr if there is none
      * @since 5.8
      **/
     explicit KSelectionOwner(xcb_atom_t selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = nullptr);
@@ -92,7 +92,7 @@ public:
      * @param selection name of the manager selection
      * @param c the xcb connection this KSelectionWatcher should use
      * @param root the root window this KSelectionWatcher should use
-     * @param parent parent object, or NULL if there is none
+     * @param parent parent object, or nullptr if there is none
      * @since 5.8
      **/
     explicit KSelectionOwner(const char *selection, xcb_connection_t *c, xcb_window_t root, QObject *parent = nullptr);

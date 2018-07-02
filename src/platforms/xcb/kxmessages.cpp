@@ -285,7 +285,7 @@ void KXMessages::sendMessage(WId w_P, const char *msg_type_P, const QString &mes
 bool KXMessages::sendMessageX(Display *disp, WId w_P, const char *msg_type_P,
                               const QString &message_P)
 {
-    if (disp == NULL) {
+    if (disp == nullptr) {
         return false;
     }
     Atom a2 = XInternAtom(disp, msg_type_P, false);

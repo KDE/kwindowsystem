@@ -54,7 +54,7 @@ public:
      *
      * @param selection atom representing the manager selection
      * @param screen X screen, or -1 for default
-     * @param parent parent object, or NULL if there is none
+     * @param parent parent object, or nullptr if there is none
      */
     explicit KSelectionWatcher(xcb_atom_t selection, int screen = -1, QObject *parent = nullptr);
     /**
@@ -64,7 +64,7 @@ public:
      *
      * @param selection name of the manager selection
      * @param screen X screen, or -1 for default
-     * @param parent parent object, or NULL if there is none
+     * @param parent parent object, or nullptr if there is none
      */
     explicit KSelectionWatcher(const char *selection, int screen = -1, QObject *parent = nullptr);
     /**

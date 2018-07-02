@@ -176,9 +176,9 @@ QByteArray KXErrorHandler::errorMessage(const XErrorEvent &event, Display *dpy)
         Display *dpy2 = XOpenDisplay(XDisplayString(dpy));
         int nextensions;
         char **extensions = XListExtensions(dpy2, &nextensions);
-        int *majors = NULL;
-        int *error_bases = NULL;
-        if (extensions == NULL) {
+        int *majors = nullptr;
+        int *error_bases = nullptr;
+        if (extensions == nullptr) {
             nextensions = 0;
         } else {
             majors = new int[ nextensions ];
@@ -238,7 +238,7 @@ QByteArray KXErrorHandler::errorMessage(const XErrorEvent &event, Display *dpy)
         if (event.resourceid != 0) {
             ret += QByteArray(", resource: 0x") + QByteArray::number((qlonglong)event.resourceid, 16);
         }
-        if (extensions != NULL) {
+        if (extensions != nullptr) {
             XFreeExtensionList(extensions);
         }
         delete[] majors;

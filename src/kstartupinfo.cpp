@@ -191,7 +191,7 @@ public:
     void createConnections()
     {
 #if KWINDOWSYSTEM_HAVE_X11
-        // d == NULL means "disabled"
+        // d == nullptr means "disabled"
         if (!QX11Info::isPlatformX11() || !QX11Info::display()) {
             return;
         }

@@ -55,7 +55,7 @@ public:
     /**
      * Creates an instance which will receive X messages.
      *
-     * @param accept_broadcast if non-NULL, all broadcast messages with
+     * @param accept_broadcast if non-nullptr, all broadcast messages with
      *                         this message type will be received.
      * @param parent the parent of this widget
      */
@@ -67,7 +67,7 @@ public:
      *
      * @param connection The xcb connection
      * @param rootWindow The rootWindow to use
-     * @param accept_broadcast if non-NULL, all broadcast messages with
+     * @param accept_broadcast if non-nullptr, all broadcast messages with
      *                         this message type will be received.
      * @param parent the parent of this object
      * @since 5.8

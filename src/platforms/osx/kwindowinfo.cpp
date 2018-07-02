@@ -123,13 +123,13 @@ KWindowInfo::KWindowInfo(WId win, unsigned long, unsigned long) : d(new Private)
 
 // this one is only to make QList<> or similar happy
 KWindowInfo::KWindowInfo()
-    : d(NULL)
+    : d(nullptr)
 {
 }
 
 KWindowInfo::~KWindowInfo()
 {
-    if (d != NULL) {
+    if (d != nullptr) {
         if (--d->ref == 0) {
             delete d;
         }
@@ -139,7 +139,7 @@ KWindowInfo::~KWindowInfo()
 KWindowInfo::KWindowInfo(const KWindowInfo &wininfo)
     : d(wininfo.d)
 {
-    if (d != NULL) {
+    if (d != nullptr) {
         ++d->ref;
     }
 }
@@ -147,12 +147,12 @@ KWindowInfo::KWindowInfo(const KWindowInfo &wininfo)
 KWindowInfo &KWindowInfo::operator=(const KWindowInfo &wininfo)
 {
     if (d != wininfo.d) {
-        if (d != NULL)
+        if (d != nullptr)
             if (--d->ref == 0) {
                 delete d;
             }
         d = wininfo.d;
-        if (d != NULL) {
+        if (d != nullptr) {
             ++d->ref;
         }
     }
