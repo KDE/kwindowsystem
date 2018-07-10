@@ -38,7 +38,7 @@ class WindowInfo : public KWindowInfoPrivate
 {
 public:
     WindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2);
-    ~WindowInfo();
+    ~WindowInfo() override;
 
     bool valid(bool withdrawn_is_valid) const override;
     NET::States state() const override;

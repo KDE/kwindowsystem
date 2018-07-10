@@ -46,8 +46,8 @@ class Poller : public AbstractSystemPoller
     Q_INTERFACES(AbstractSystemPoller)
 
 public:
-    Poller(QObject *parent = 0);
-    virtual ~Poller();
+    explicit Poller(QObject *parent = nullptr);
+    ~Poller() override;
 
     bool isAvailable() override;
     bool setUpPoller() override;

@@ -312,7 +312,7 @@ void WindowSystem::clearState(WId win, NET::States state)
         return;
     }
 
-    KWayland::Client::PlasmaShellSurface *plasmaShellSurface = 0;
+    KWayland::Client::PlasmaShellSurface *plasmaShellSurface = nullptr;
 
     if (state & NET::SkipTaskbar) {
         if (!WaylandIntegration::self()->waylandPlasmaShell()) {
@@ -373,7 +373,7 @@ void WindowSystem::setState(WId win, NET::States state)
         return;
     }
 
-    KWayland::Client::PlasmaShellSurface *plasmaShellSurface = 0;
+    KWayland::Client::PlasmaShellSurface *plasmaShellSurface = nullptr;
 
     if (state & NET::SkipTaskbar) {
         if (!WaylandIntegration::self()->waylandPlasmaShell()) {

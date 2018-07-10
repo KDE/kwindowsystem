@@ -29,8 +29,8 @@ class KWaylandPlugin : public KWindowSystemPluginInterface
     Q_INTERFACES(KWindowSystemPluginInterface)
 
 public:
-    explicit KWaylandPlugin(QObject *parent = 0);
-    virtual ~KWaylandPlugin();
+    explicit KWaylandPlugin(QObject *parent = nullptr);
+    ~KWaylandPlugin() override;
 
     KWindowEffectsPrivate *createEffects() override;
     KWindowSystemPrivate *createWindowSystem() override;

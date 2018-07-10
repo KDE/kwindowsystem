@@ -37,8 +37,8 @@ namespace KWayland
 class WindowEffects : public QObject, public KWindowEffectsPrivate
 {
 public:
-    explicit WindowEffects();
-    ~WindowEffects();
+    WindowEffects();
+    ~WindowEffects() override;
 
     bool isEffectAvailable(KWindowEffects::Effect effect) override;
     void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) override;

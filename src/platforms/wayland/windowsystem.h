@@ -38,7 +38,7 @@ class WindowSystem : public QObject, public KWindowSystemPrivate
 {
     Q_OBJECT
 public:
-    explicit WindowSystem();
+    WindowSystem();
     QList<WId> windows() override;
     QList<WId> stackingOrder() override;
     WId activeWindow() override;

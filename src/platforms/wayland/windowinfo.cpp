@@ -56,7 +56,7 @@ bool WindowInfo::valid(bool withdrawn_is_valid) const
 
 NET::States WindowInfo::state() const
 {
-    return 0;
+    return {};
 }
 
 bool WindowInfo::isMinimized() const
