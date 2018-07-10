@@ -6,6 +6,8 @@ set(wayland_plugin_SRCS
     windowsystem.cpp
     windowinfo.cpp
 )
+ecm_qt_declare_logging_category(wayland_plugin_SRCS HEADER logging.h IDENTIFIER KWAYLAND_KWS CATEGORY_NAME org.kde.kf5.kwindowsystem.kwayland DEFAULT_SEVERITY Warning)
+
 
 add_library(KF5WindowSystemKWaylandPlugin MODULE ${wayland_plugin_SRCS})
 target_link_libraries(KF5WindowSystemKWaylandPlugin
