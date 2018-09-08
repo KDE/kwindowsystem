@@ -961,7 +961,7 @@ void NETRootInfo::setSupported()
             atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
         }
         if (p->windowTypes & ComboBoxMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_COMBOBOX);
+            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_COMBO);
         }
         if (p->windowTypes & DNDIconMask) {
             atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_DND);
@@ -1286,7 +1286,7 @@ void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
         p->windowTypes |= TooltipMask;
     } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION)) {
         p->windowTypes |= NotificationMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_COMBOBOX)) {
+    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_COMBO)) {
         p->windowTypes |= ComboBoxMask;
     } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_DND)) {
         p->windowTypes |= DNDIconMask;
@@ -3194,7 +3194,7 @@ void NETWinInfo::setWindowType(WindowType type)
         break;
 
     case ComboBox:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_COMBOBOX);
+        data[0] = p->atom(_NET_WM_WINDOW_TYPE_COMBO);
         data[1] = XCB_NONE;
         len = 1;
         break;
@@ -4213,7 +4213,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
                     p->types[pos++] = Notification;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_COMBOBOX)) {
+                else if (type == p->atom(_NET_WM_WINDOW_TYPE_COMBO)) {
                     p->types[pos++] = ComboBox;
                 }
 

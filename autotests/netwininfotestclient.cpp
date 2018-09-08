@@ -597,7 +597,7 @@ void NetWinInfoTestClient::testWindowType_data()
     QTest::newRow("Dock")         << NET::Dock         << 1 << QByteArrayLiteral("_NET_WM_WINDOW_TYPE_DOCK")     << QByteArray();
     QTest::newRow("Desktop")      << NET::Desktop      << 1 << QByteArrayLiteral("_NET_WM_WINDOW_TYPE_DESKTOP")  << QByteArray();
     QTest::newRow("Tooltip")      << NET::Tooltip      << 1 << QByteArrayLiteral("_NET_WM_WINDOW_TYPE_TOOLTIP")  << QByteArray();
-    QTest::newRow("ComboBox")     << NET::ComboBox     << 1 << QByteArrayLiteral("_NET_WM_WINDOW_TYPE_COMBOBOX") << QByteArray();
+    QTest::newRow("ComboBox")     << NET::ComboBox     << 1 << QByteArrayLiteral("_NET_WM_WINDOW_TYPE_COMBO")    << QByteArray();
     QTest::newRow("DNDIcon")      << NET::DNDIcon      << 1 << QByteArrayLiteral("_NET_WM_WINDOW_TYPE_DND")      << QByteArray();
     QTest::newRow("Normal")       << NET::Normal       << 1 << QByteArrayLiteral("_NET_WM_WINDOW_TYPE_NORMAL")   << QByteArray();
     QTest::newRow("OnScreenDisplay") << NET::OnScreenDisplay << 1 << QByteArrayLiteral("_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY") << QByteArray();
