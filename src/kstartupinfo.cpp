@@ -486,7 +486,7 @@ bool KStartupInfo::sendStartupX(Display *disp_P, const KStartupInfoId &id_P,
     }
 #if KWINDOWSYSTEM_HAVE_X11
     QString msg = QString::fromLatin1("new: %1 %2")
-                  .arg(id_P.d->to_text()).arg(data_P.d->to_text());
+                  .arg(id_P.d->to_text(), data_P.d->to_text());
     msg = Private::check_required_startup_fields(msg, data_P, DefaultScreen(disp_P));
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
@@ -508,7 +508,7 @@ bool KStartupInfo::sendStartupXcb(xcb_connection_t *conn, int screen, const KSta
     }
 #if KWINDOWSYSTEM_HAVE_X11
     QString msg = QString::fromLatin1("new: %1 %2")
-                  .arg(id_P.d->to_text()).arg(data_P.d->to_text());
+                  .arg(id_P.d->to_text(), data_P.d->to_text());
     msg = Private::check_required_startup_fields(msg, data_P, screen);
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
@@ -562,7 +562,7 @@ bool KStartupInfo::sendChangeX(Display *disp_P, const KStartupInfoId &id_P,
     }
 #if KWINDOWSYSTEM_HAVE_X11
     QString msg = QString::fromLatin1("change: %1 %2")
-                  .arg(id_P.d->to_text()).arg(data_P.d->to_text());
+                  .arg(id_P.d->to_text(), data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
@@ -583,7 +583,7 @@ bool KStartupInfo::sendChangeXcb(xcb_connection_t *conn, int screen,
     }
 #if KWINDOWSYSTEM_HAVE_X11
     QString msg = QString::fromLatin1("change: %1 %2")
-                  .arg(id_P.d->to_text()).arg(data_P.d->to_text());
+                  .arg(id_P.d->to_text(), data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
@@ -665,7 +665,7 @@ bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P,
 //        return false;
 #if KWINDOWSYSTEM_HAVE_X11
     QString msg = QString::fromLatin1("remove: %1 %2")
-                  .arg(id_P.d->to_text()).arg(data_P.d->to_text());
+                  .arg(id_P.d->to_text(), data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
@@ -686,7 +686,7 @@ bool KStartupInfo::sendFinishXcb(xcb_connection_t *conn, int screen,
 //        return false;
 #if KWINDOWSYSTEM_HAVE_X11
     QString msg = QString::fromLatin1("remove: %1 %2")
-                  .arg(id_P.d->to_text()).arg(data_P.d->to_text());
+                  .arg(id_P.d->to_text(), data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
