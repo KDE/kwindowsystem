@@ -164,7 +164,7 @@ public:
      *     With this flag, the change is normally announced with gotStartupChange().
      *
      * @param flags OR-ed combination of flags
-     * @param parent the parent of this QObject (can be 0 for no parent)
+     * @param parent the parent of this QObject (can be @c nullptr for no parent)
      *
      */
     explicit KStartupInfo(int flags, QObject *parent = nullptr);
@@ -174,7 +174,7 @@ public:
      * @param clean_on_cantdetect if true, and a new unknown window appears,
      *  removes all notification for applications that are not compliant
      *  with the app startup protocol
-     * @param parent the parent of this QObject (can be 0 for no parent)
+     * @param parent the parent of this QObject (can be @c nullptr for no parent)
      *
      * @obsolete
      * @deprecated since 5.0
