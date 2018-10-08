@@ -48,6 +48,7 @@ void KWindowEffectsPrivateDummy::slideWindow(QWidget *widget, KWindowEffects::Sl
 QList<QSize> KWindowEffectsPrivateDummy::windowSizes(const QList<WId> &ids)
 {
     QList<QSize> windowSizes;
+    windowSizes.reserve(ids.size());
     for (int i = 0; i < ids.size(); ++i) {
         windowSizes.append(QSize());
     }

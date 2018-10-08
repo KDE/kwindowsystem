@@ -2028,6 +2028,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
             fprintf(stderr, "NETRootInfo::update: client list null, creating\n");
 #endif
 
+            clientsToAdd.reserve(clients.count());
             for (int i = 0; i < clients.count(); i++) {
                 clientsToAdd.append(clients[i]);
             }
