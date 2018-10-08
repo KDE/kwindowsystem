@@ -454,10 +454,9 @@ void KStartupInfo::Private::remove_startup_pids(const KStartupInfoId &id_P,
     } else {
         return;
     }
-    for (QList< pid_t >::ConstIterator it2 = data_P.pids().constBegin();
-            it2 != data_P.pids().constEnd();
-            ++it2) {
-        data->d->remove_pid(*it2);    // remove all pids from the info
+    const auto pids = data_P.pids();
+    for (auto pid : pids) {
+        data->d->remove_pid(pid);    // remove all pids from the info
     }
     if (data->pids().count() == 0) { // all pids removed -> remove info
         removeAllStartupInfoInternal(id_P);
