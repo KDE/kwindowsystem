@@ -1291,7 +1291,6 @@ KStartupInfoData::KStartupInfoData(const QString &txt_P) : d(new Private)
     const QString hostname_str = QString::fromLatin1("HOSTNAME="); // added to version 1 (2014)
     const QString pid_str = QString::fromLatin1("PID=");           // added to version 1 (2014)
     const QString silent_str = QString::fromLatin1("SILENT=");
-    const QString timestamp_str = QString::fromLatin1("TIMESTAMP=");
     const QString screen_str = QString::fromLatin1("SCREEN=");
     const QString xinerama_str = QString::fromLatin1("XINERAMA=");
     const QString launched_by_str = QString::fromLatin1("LAUNCHED_BY=");
