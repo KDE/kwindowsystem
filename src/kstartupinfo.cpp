@@ -713,7 +713,7 @@ void KStartupInfo::appStarted(const QByteArray &startup_id)
         return;
     }
 #if KWINDOWSYSTEM_HAVE_X11
-    if (QX11Info::isPlatformX11() && !qgetenv("DISPLAY").isEmpty()) {  // don't rely on QX11Info::display()
+    if (QX11Info::isPlatformX11() && !qEnvironmentVariableIsEmpty("DISPLAY")) {  // don't rely on QX11Info::display()
         Display *disp = XOpenDisplay(nullptr);
         if (disp != nullptr) {
             KStartupInfo::sendFinishX(disp, id);
