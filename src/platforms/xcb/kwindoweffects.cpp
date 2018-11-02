@@ -320,7 +320,6 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
         }
 
         QMatrix4x4 colorMatrix = contMatrix * satMatrix * intMatrix;
-        colorMatrix = colorMatrix;
         colorMatrix = colorMatrix.transposed();
 
         uint32_t *rawData = reinterpret_cast<uint32_t *>(colorMatrix.data());
