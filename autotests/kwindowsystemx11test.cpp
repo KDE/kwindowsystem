@@ -276,7 +276,7 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     QTest::qWait(200);
 
     QSignalSpy propertiesChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,NET::Properties,NET::Properties2)));
-    QSignalSpy propertyChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,unsigned int)));
+    QSignalSpy propertyChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,uint)));
     QSignalSpy windowChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId)));
 
     QVERIFY(propertiesChangedSpy.isValid());
