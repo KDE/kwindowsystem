@@ -27,9 +27,9 @@ DEALINGS IN THE SOFTWARE.
 
 #include <kwindowsystem_export.h>
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QChildEvent>
+#include <QObject>
+#include <QString>
+#include <QChildEvent>
 #include <QWidgetList>
 
 #include <sys/types.h>

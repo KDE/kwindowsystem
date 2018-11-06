@@ -20,8 +20,8 @@
 
 #include "kwindowinfo.h"
 #include <Carbon/Carbon.h>
-#include <QtCore/QString>
-#include <QtCore/QList>
+#include <QString>
+#include <QList>
 
 // bah, why do header files invade my namespace and define such normal words as check...
 #ifdef check

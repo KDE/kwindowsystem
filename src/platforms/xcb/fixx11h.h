@@ -25,7 +25,7 @@ DEALINGS IN THE SOFTWARE.
 //#ifdef    don't do this, this file is supposed to be included
 //#define   multiple times
 
-#include <QtCore/QtGlobal>
+#include <QtGlobal>
 
 /* Usage:
 

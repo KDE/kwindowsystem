@@ -56,7 +56,7 @@ DEALINGS IN THE SOFTWARE.
 #include <process.h>
 #endif
 #include <stdlib.h>
-#include <QtCore/QTimer>
+#include <QTimer>
 #include <QActionEvent>
 #if KWINDOWSYSTEM_HAVE_X11
 #include <qx11info_x11.h>

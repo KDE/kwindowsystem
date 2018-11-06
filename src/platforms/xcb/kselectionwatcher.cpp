@@ -27,7 +27,7 @@ DEALINGS IN THE SOFTWARE.
 #include <config-kwindowsystem.h>
 #include "kwindowsystem.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <QGuiApplication>
 #include <QAbstractNativeEventFilter>
 

@@ -19,8 +19,8 @@
 #ifndef KMANAGERSELECTIONTESTTEST_H
 #define KMANAGERSELECTIONTESTTEST_H
 
-#include <QtCore/QObject>
-#include <QtTest/QtTest>
+#include <QObject>
+#include <QtTest>
 
 class KSelectionOwner;
 

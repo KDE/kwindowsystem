@@ -26,7 +26,7 @@ DEALINGS IN THE SOFTWARE.
 #define KSELECTIONWATCHER_H
 
 #include <kwindowsystem_export.h>
-#include <QtCore/QObject>
+#include <QObject>
 
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>

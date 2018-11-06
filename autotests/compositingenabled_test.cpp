@@ -16,7 +16,7 @@
  */
 #include <KWindowSystem>
 #include <kmanagerselection.h>
-#include <QtTest/QtTest>
+#include <QtTest>
 
 class CompositingEnabledTest : public QObject
 {
