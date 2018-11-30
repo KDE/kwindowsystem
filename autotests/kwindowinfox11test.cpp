@@ -227,7 +227,7 @@ void KWindowInfoX11Test::testState()
 
     KWindowInfo info3(window->winId(), NET::WMState);
     QVERIFY(info3.valid());
-    QCOMPARE(info3.state(), state);
+    QCOMPARE(int(info3.state()), int(state));
     QVERIFY(info3.hasState(state));
 }
 
