@@ -384,7 +384,7 @@ void KStartupInfo::Private::got_remove_startup_info(const QString &msg_P)
 {
     KStartupInfoId id(msg_P);
     KStartupInfoData data(msg_P);
-    if (data.pids().count() > 0) {
+    if (!data.pids().isEmpty()) {
         if (!id.isNull()) {
             remove_startup_pids(id, data);
         } else {
