@@ -29,6 +29,7 @@ class KWindowEffectsPrivate;
 class KWindowInfoPrivate;
 class KWindowSystemPluginInterface;
 class KWindowSystemPrivate;
+class KWindowShadowPrivate;
 
 class KWindowSystemPluginWrapper
 {
@@ -40,6 +41,7 @@ public:
     KWindowEffectsPrivate *effects() const;
     KWindowSystemPrivate *createWindowSystem() const;
     KWindowInfoPrivate *createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2) const;
+    KWindowShadowPrivate *createShadow() const;
 
 private:
     QScopedPointer<KWindowSystemPluginInterface> m_plugin;

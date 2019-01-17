@@ -94,3 +94,4 @@ void KWindowEffectsPrivateDummy::markAsDashboard(WId window)
 {
     Q_UNUSED(window)
 }
+

@@ -21,6 +21,9 @@
 #define KWINDOWEFFECTS_X11_H
 #include "kwindoweffects_p.h"
 
+#include <xcb/xcb.h>
+class QWindow;
+
 class KWindowEffectsPrivateX11 : public KWindowEffectsPrivate
 {
 public:
@@ -36,6 +39,23 @@ public:
     void enableBlurBehind(WId window, bool enable = true, const QRegion& region = QRegion()) override;
     void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion()) override;
     void markAsDashboard(WId window) override;
+};
+
+class KWindowShadowPrivateX11 : public KWindowShadowPrivate
+{
+public:
+    KWindowShadowPrivateX11();
+    ~KWindowShadowPrivateX11() override;
+    void updateShadow() override;
+    void decorateWindow(QWindow *window, ShadowData::EnabledBorders) override;
+    void undecorateWindow(QWindow *window) override;
+private:
+    xcb_pixmap_t createShadowPixmap(const QImage &image);
+    void clearShadowPixmaps(QWindow *window);
+
+    xcb_gcontext_t m_gc = 0;
+    QVector<xcb_pixmap_t> m_pixmaps;
+    QHash<QWindow*, ShadowData::EnabledBorders> m_windows;
 };
 
 #endif

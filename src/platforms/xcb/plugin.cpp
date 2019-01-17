@@ -45,3 +45,8 @@ KWindowInfoPrivate *X11Plugin::createWindowInfo(WId window, NET::Properties prop
 {
     return new KWindowInfoPrivateX11(window, properties, properties2);
 }
+
+KWindowShadowPrivate *X11Plugin::createShadow()
+{
+    return new KWindowShadowPrivateX11();
+}

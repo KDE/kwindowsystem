@@ -18,6 +18,7 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "kwindowsystemplugininterface_p.h"
+#include "kwindoweffects_p.h"
 
 KWindowSystemPluginInterface::KWindowSystemPluginInterface(QObject *parent)
     : QObject(parent)
@@ -26,6 +27,11 @@ KWindowSystemPluginInterface::KWindowSystemPluginInterface(QObject *parent)
 
 KWindowSystemPluginInterface::~KWindowSystemPluginInterface()
 {
+}
+
+KWindowShadowPrivate *KWindowSystemPluginInterface::createShadow()
+{
+    return nullptr;
 }
 
 KWindowEffectsPrivate *KWindowSystemPluginInterface::createEffects()

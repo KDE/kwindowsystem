@@ -18,6 +18,7 @@ kwindowsystem_executable_tests(
   createpixmapfromhandletest
   blurbehindtest
   backgroundcontrasttest
+  shadowtest
 )
 
 if(KWINDOWSYSTEM_HAVE_X11)

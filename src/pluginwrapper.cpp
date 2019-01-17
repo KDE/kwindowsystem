@@ -125,6 +125,18 @@ KWindowInfoPrivate *KWindowSystemPluginWrapper::createWindowInfo(WId window, NET
     return p;
 }
 
+KWindowShadowPrivate *KWindowSystemPluginWrapper::createShadow() const
+{
+    KWindowShadowPrivate *p = nullptr;
+    if (!m_plugin.isNull()) {
+        p = m_plugin->createShadow();
+    }
+    if (!p) {
+        qDebug() << "OMGWTFBBQ FIXME";
+    }
+    return p;
+}
+
 const KWindowSystemPluginWrapper &KWindowSystemPluginWrapper::self()
 {
     return *s_pluginWrapper;

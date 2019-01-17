@@ -8,6 +8,7 @@ set(kwindowsystem_SRCS
     kkeyserver.cpp
     kstartupinfo.cpp
     kusertimestamp.cpp
+    kwindowshadow.cpp
     kwindoweffects.cpp
     kwindoweffects_dummy.cpp
     kwindowinfo.cpp

@@ -25,9 +25,14 @@
 #include <QObject>
 #include <QWidgetList> //For WId
 
+namespace KWindowEffects {
+    class ShadowData;
+}
+
 class KWindowEffectsPrivate;
 class KWindowInfoPrivate;
 class KWindowSystemPrivate;
+class KWindowShadowPrivate;
 
 class KWINDOWSYSTEM_EXPORT KWindowSystemPluginInterface : public QObject
 {
@@ -39,6 +44,7 @@ public:
     virtual KWindowEffectsPrivate *createEffects();
     virtual KWindowSystemPrivate *createWindowSystem();
     virtual KWindowInfoPrivate *createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2);
+    virtual KWindowShadowPrivate *createShadow();
 };
 
 Q_DECLARE_INTERFACE(KWindowSystemPluginInterface, "org.kde.kwindowsystem.KWindowSystemPluginInterface")

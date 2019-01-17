@@ -20,6 +20,7 @@
 #ifndef KWINDOWEFFECTS_P_H
 #define KWINDOWEFFECTS_P_H
 #include "kwindoweffects.h"
+#include "kwindowshadow.h"
 
 class KWINDOWSYSTEM_EXPORT KWindowEffectsPrivate
 {
@@ -37,6 +38,29 @@ public:
     virtual void markAsDashboard(WId window) = 0;
 protected:
     KWindowEffectsPrivate();
+};
+
+class KWINDOWSYSTEM_EXPORT KWindowShadowPrivate
+{
+public:
+    KWindowShadowPrivate();
+    virtual ~KWindowShadowPrivate() = default;
+    bool isValid() const;
+
+    virtual void updateShadow() = 0;
+
+    virtual void decorateWindow(QWindow *window, ShadowData::EnabledBorders) = 0;
+    virtual void undecorateWindow(QWindow *window) = 0;
+
+    QImage m_top;
+    QImage m_left;
+    QImage m_right;
+    QImage m_bottom;
+    QImage m_topLeft;
+    QImage m_topRight;
+    QImage m_bottomLeft;
+    QImage m_bottomRight;
+    QMargins m_margins;
 };
 
 #endif

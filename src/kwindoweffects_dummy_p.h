@@ -38,4 +38,10 @@ public:
     void markAsDashboard(WId window) override;
 };
 
+class KWindowShadowPrivateDummy : public KWindowShadowPrivate
+{
+public:
+    void updateShadow() override {};
+};
+
 #endif

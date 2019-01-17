@@ -26,8 +26,14 @@
 class QWidget;
 #endif
 
+#include <QImage>
+#include <QMargins>
+#include <QSharedPointer>
+
 #include <QRegion>
 #include <netwm_def.h>
+
+class KWindowShadowPrivate;
 
 /**
  * Namespace for common standardized window effects
@@ -41,7 +47,8 @@ enum Effect {
     HighlightWindows = 5,
     BlurBehind = 7,
     Dashboard = 8,
-    BackgroundContrast = 9
+    BackgroundContrast = 9,
+    Shadow = 10
 };
 
 enum SlideFromLocation {
@@ -51,6 +58,7 @@ enum SlideFromLocation {
     BottomEdge,
     LeftEdge
 };
+
 /**
  * @return if an atom property is available
  *
@@ -161,6 +169,7 @@ KWINDOWSYSTEM_EXPORT void enableBackgroundContrast(WId window, bool enable = tru
  * @param window The window for which to enable the blur effect
  */
 KWINDOWSYSTEM_EXPORT void markAsDashboard(WId window);
+
 }
 
 #endif

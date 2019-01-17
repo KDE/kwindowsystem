@@ -81,5 +81,4 @@ QList< QSize > windowSizes(const QList< WId > &ids)
 {
     return KWindowSystemPluginWrapper::self().effects()->windowSizes(ids);
 }
-
 }

@@ -23,10 +23,13 @@
 #include "kwindowsystem.h"
 #include <config-kwindowsystem.h>
 
-#include <xcb/xcb.h>
 #include <QX11Info>
 #include <QMatrix4x4>
 #include <QWidget>
+#include <QWindow>
+#include <QGuiApplication>
+
+#include <xcb/xcb.h>
 
 static const char DASHBOARD_WIN_CLASS[] = "dashboard\0dashboard";
 using namespace KWindowEffects;
@@ -44,9 +47,11 @@ bool KWindowEffectsPrivateX11::isEffectAvailable(Effect effect)
     if (!KWindowSystem::self()->compositingActive()) {
         return false;
     }
-    QByteArray effectName;
 
+    QByteArray effectName;
     switch (effect) {
+    case Shadow:
+        return true;
     case Slide:
         effectName = QByteArrayLiteral("_KDE_SLIDE");
         break;
@@ -167,7 +172,6 @@ void KWindowEffectsPrivateX11::presentWindows(WId controller, const QList<WId> &
     for (int i = 0; i < numWindows; ++i) {
         data[i] = ids.at(i);
         ++actualCount;
-
     }
 
     if (actualCount != numWindows) {
@@ -345,3 +349,105 @@ void KWindowEffectsPrivateX11::markAsDashboard(WId window)
                         XCB_ATOM_STRING, 8, 19, DASHBOARD_WIN_CLASS);
 }
 
+KWindowShadowPrivateX11::KWindowShadowPrivateX11()
+    :KWindowShadowPrivate()
+{
+}
+
+KWindowShadowPrivateX11::~KWindowShadowPrivateX11()
+{
+    foreach (quint32 id, qAsConst(m_pixmaps)) {
+        xcb_free_pixmap(QX11Info::connection(), id);
+    }
+    m_pixmaps.clear();
+}
+
+void KWindowShadowPrivateX11::updateShadow()
+{
+    m_pixmaps.clear();
+    m_pixmaps.reserve(8);
+    m_pixmaps << createShadowPixmap(m_top);
+    m_pixmaps << createShadowPixmap(m_topRight);
+    m_pixmaps << createShadowPixmap(m_right);
+    m_pixmaps << createShadowPixmap(m_bottomRight);
+    m_pixmaps << createShadowPixmap(m_bottom);
+    m_pixmaps << createShadowPixmap(m_bottomLeft);
+    m_pixmaps << createShadowPixmap(m_left);
+    m_pixmaps << createShadowPixmap(m_topLeft);
+}
+
+void KWindowShadowPrivateX11::decorateWindow(QWindow *window, ShadowData::EnabledBorders borders)
+{
+    xcb_connection_t *c = QX11Info::connection();
+    if (!c) {
+        return;
+    }
+    const QByteArray effectName = QByteArrayLiteral("_KDE_NET_WM_SHADOW");
+    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
+    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
+    if (!atom) {
+        return;
+    }
+    xcb_window_t wid = window->winId();
+
+    if (!isValid()) {
+        undecorateWindow(window);
+    }
+
+    QVector<quint32> data;
+    data.reserve(8 + 4);
+    data.append(m_pixmaps);
+
+    const quint32 topSize = m_margins.top();
+    const quint32 bottomSize = m_margins.bottom();
+    const quint32 leftSize = m_margins.left();
+    const quint32 rightSize = m_margins.right();
+
+    // assign to data and xcb property
+    data << QVector<quint32>{topSize, rightSize, bottomSize, leftSize};
+
+    xcb_change_property(c, XCB_PROP_MODE_REPLACE, wid, atom->atom, XCB_ATOM_CARDINAL, 32, data.size(), data.constData());
+    xcb_flush(c);
+}
+
+void KWindowShadowPrivateX11::undecorateWindow(QWindow *window)
+{
+    xcb_connection_t *c = QX11Info::connection();
+    if (!c) {
+        return;
+    }
+    const QByteArray effectName = QByteArrayLiteral("_KDE_NET_WM_SHADOW");
+    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
+    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
+    if (!atom) {
+        return;
+    }
+    xcb_window_t wid = window->winId();
+    xcb_delete_property(c, wid, atom->atom);
+}
+
+xcb_pixmap_t KWindowShadowPrivateX11::createShadowPixmap(const QImage &image)
+{
+    if (image.isNull()) {
+        return 0;
+    }
+    xcb_connection_t *c = QX11Info::connection();
+
+    const int width( image.width() );
+    const int height( image.height() );
+
+    // create X11 pixmap
+    xcb_pixmap_t pixmap = xcb_generate_id(c);
+    xcb_create_pixmap(c, 32, pixmap, QX11Info::appRootWindow(), width, height );
+
+    // create gc
+    if (!m_gc) {
+        m_gc = xcb_generate_id(c);
+        xcb_create_gc(c, m_gc, pixmap, 0, nullptr);
+    }
+
+    // create image from QPixmap and assign to pixmap
+    xcb_put_image( c, XCB_IMAGE_FORMAT_Z_PIXMAP, pixmap, m_gc, width, height, 0, 0, 0, 32, image.byteCount(), image.constBits());
+
+    return pixmap;
+}
