@@ -197,10 +197,14 @@ void KWindowInfoX11Test::testState_data()
     QTest::newRow("shaded")       << NET::States(NET::Shaded);
     QTest::newRow("skipTaskbar")  << NET::States(NET::SkipTaskbar);
     QTest::newRow("skipPager")    << NET::States(NET::SkipPager);
-    QTest::newRow("skipSwitcher") << NET::States(NET::SkipSwitcher);
     QTest::newRow("keep above")   << NET::States(NET::KeepAbove);
     QTest::newRow("keep below")   << NET::States(NET::KeepBelow);
     QTest::newRow("fullscreen")   << NET::States(NET::FullScreen);
+
+    NETRootInfo info(QX11Info::connection(), NET::Supported);
+    if (info.isSupported(NET::SkipSwitcher)) {
+        QTest::newRow("skipSwitcher") << NET::States(NET::SkipSwitcher);
+    }
 
     // NOTE: modal, sticky and hidden cannot be tested with this variant
     // demands attention is not tested as that's already part of the first run adjustments
