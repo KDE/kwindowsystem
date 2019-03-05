@@ -127,7 +127,7 @@ KWINDOWSYSTEM_EXPORT void highlightWindows(WId controller, const QList<WId> &ids
  *
  * @param window The window for which to enable the blur effect
  * @param enable Enable the effect if @c true, disable it if @c false
- * @param region The region within the window where the background will be blurred
+ * @param region The region within the window where the background will be blurred, specified in logical pixels
  */
 KWINDOWSYSTEM_EXPORT void enableBlurBehind(WId window, bool enable = true, const QRegion &region = QRegion());
 
@@ -149,7 +149,7 @@ KWINDOWSYSTEM_EXPORT void enableBlurBehind(WId window, bool enable = true, const
  * @param window The window for which to enable the background contrast effect
  * @param enable Enable the effect if @c true, disable it if @c false
  * @param brightness How to modify the area brightness: from 0 (make it black) to 2 (make it white), 1 leaves it unchanged
- * @param region The region within the window where the background will be modified
+ * @param region The region within the window where the background will be modified, specified in logical pixels
  */
 KWINDOWSYSTEM_EXPORT void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());
 

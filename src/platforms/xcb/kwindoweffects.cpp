@@ -19,6 +19,7 @@
 #include "kwindoweffects_x11.h"
 
 #include <QVarLengthArray>
+#include <QGuiApplication>
 
 #include "kwindowsystem.h"
 #include <config-kwindowsystem.h>
@@ -260,7 +261,9 @@ void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const Q
         QVector<uint32_t> data;
         data.reserve(rects.count() * 4);
         Q_FOREACH (const QRect &r, rects) {
-            data << r.x() << r.y() << r.width() << r.height();
+            // kwin on X uses device pixels, convert from logical
+            auto dpr = qApp->devicePixelRatio();
+            data << r.x() * dpr << r.y() * dpr << r.width() * dpr << r.height() * dpr;
         }
 
         xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, XCB_ATOM_CARDINAL,
@@ -285,7 +288,8 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
         QVector<uint32_t> data;
         data.reserve(rects.count() * 4 + 16);
         Q_FOREACH (const QRect &r, rects) {
-            data << r.x() << r.y() << r.width() << r.height();
+            auto dpr = qApp->devicePixelRatio();
+            data << r.x() * dpr << r.y() * dpr << r.width() * dpr << r.height() * dpr;
         }
 
         QMatrix4x4 satMatrix; //saturation
