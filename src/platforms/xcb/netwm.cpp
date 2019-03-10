@@ -1994,7 +1994,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
         QList<xcb_window_t> clientsToAdd;
 
         QVector<xcb_window_t> clients = get_array_reply<xcb_window_t>(p->conn, cookies[c++], XCB_ATOM_WINDOW);
-        qSort(clients);
+        std::sort(clients.begin(), clients.end());
 
         if (p->clients) {
             if (p->role == Client) {
