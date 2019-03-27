@@ -18,10 +18,9 @@
 */
 
 #include "kxutils_p.h"
-
+#include "kwindowsystem_xcb_debug.h"
 #include <qbitmap.h>
 #include <QX11Info>
-#include <QDebug>
 
 #include <xcb/xcb.h>
 
@@ -98,12 +97,12 @@ QPixmap createPixmapFromHandle(WId pixmap, WId pixmap_mask)
 QPixmap createPixmapFromHandle(xcb_connection_t *c, WId pixmap, WId pixmap_mask)
 {
 #if Q_BYTE_ORDER == Q_BIG_ENDIAN
-    qDebug() << "Byte order not supported";
+    qCDebug(LOG_KKEYSERVER_X11) << "Byte order not supported";
     return QPixmap();
 #endif
     const xcb_setup_t *setup = xcb_get_setup(c);
     if (setup->image_byte_order != XCB_IMAGE_ORDER_LSB_FIRST) {
-        qDebug() << "Byte order not supported";
+        qCDebug(LOG_KKEYSERVER_X11) << "Byte order not supported";
         return QPixmap();
     }
 
