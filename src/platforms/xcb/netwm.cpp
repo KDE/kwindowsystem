@@ -1025,6 +1025,9 @@ void NETRootInfo::setSupported()
         if (p->states & StaysOnTop) {
             atoms[pnum++] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
         }
+        if (p->states & Focused) {
+            atoms[pnum++] = p->atom(_NET_WM_STATE_FOCUSED);
+        }
     }
 
     if (p->properties & WMStrut) {
@@ -1331,10 +1334,10 @@ void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
         p->states |= KeepBelow;
     } else if (atom == p->atom(_NET_WM_STATE_DEMANDS_ATTENTION)) {
         p->states |= DemandsAttention;
-    }
-
-    else if (atom == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
+    } else if (atom == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
         p->states |= StaysOnTop;
+    } else if (atom == p->atom(_NET_WM_STATE_FOCUSED)) {
+        p->states |= Focused;
     }
 
     else if (atom == p->atom(_NET_WM_STRUT)) {
@@ -3035,6 +3038,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
         }
 
+        //Focused is not added here as it is effectively "read only" set by the WM, a client setting it would be silly
     } else {
         p->state &= ~mask;
         p->state |= state;
@@ -3063,6 +3067,9 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
         }
         if (p->state & DemandsAttention) {
             data[count++] = p->atom(_NET_WM_STATE_DEMANDS_ATTENTION);
+        }
+        if (p->state & Focused) {
+            data[count++] = p->atom(_NET_WM_STATE_FOCUSED);
         }
 
         // Policy
@@ -3664,6 +3671,8 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
                     mask |= DemandsAttention;
                 } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
                     mask |= StaysOnTop;
+                }  else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_FOCUSED)) {
+                    mask |= Focused;
                 }
             }
 
@@ -4087,6 +4096,10 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
 
             else if (state == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
                 p->state |= StaysOnTop;
+            }
+
+            else if (state == p->atom(_NET_WM_STATE_FOCUSED)) {
+                p->state |= Focused;
             }
         }
     }

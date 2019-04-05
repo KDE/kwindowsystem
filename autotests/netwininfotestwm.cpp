@@ -437,6 +437,7 @@ void NetWinInfoTestWM::testState_data()
     const QByteArray fullScreen       = QByteArrayLiteral("_NET_WM_STATE_FULLSCREEN");
     const QByteArray keepBelow        = QByteArrayLiteral("_NET_WM_STATE_BELOW");
     const QByteArray demandsAttention = QByteArrayLiteral("_NET_WM_STATE_DEMANDS_ATTENTION");
+    const QByteArray focused          = QByteArrayLiteral("_NET_WM_STATE_FOCUSED");
 
     QTest::newRow("modal")            << NET::States(NET::Modal)            << (QVector<QByteArray>() << modal);
     QTest::newRow("sticky")           << NET::States(NET::Sticky)           << (QVector<QByteArray>() << sticky);
@@ -452,6 +453,7 @@ void NetWinInfoTestWM::testState_data()
     QTest::newRow("keepBelow")        << NET::States(NET::KeepBelow)        << (QVector<QByteArray>() << keepBelow);
     QTest::newRow("demandsAttention") << NET::States(NET::DemandsAttention) << (QVector<QByteArray>() << demandsAttention);
     QTest::newRow("skipSwitcher")     << NET::States(NET::SkipSwitcher)     << (QVector<QByteArray>() << skipSwitcher);
+    QTest::newRow("focused")          << NET::States(NET::Focused)          << (QVector<QByteArray>() << focused);
 
     // TODO: it's possible to be keep above and below at the same time?!?
     QTest::newRow("all") << NET::States(NET::Modal |
@@ -465,11 +467,12 @@ void NetWinInfoTestWM::testState_data()
                                    NET::Hidden |
                                    NET::FullScreen |
                                    NET::DemandsAttention |
-                                   NET::SkipSwitcher)
+                                   NET::SkipSwitcher  |
+                                   NET::Focused)
                          << (QVector<QByteArray>() << modal << sticky << maxVert << maxHoriz
                              << shaded << skipTaskbar << keepAbove
                              << skipPager << hidden << fullScreen
-                             << keepBelow << demandsAttention << staysOnTop << skipSwitcher);
+                             << keepBelow << demandsAttention << staysOnTop << skipSwitcher << focused);
 }
 
 void NetWinInfoTestWM::testState()
