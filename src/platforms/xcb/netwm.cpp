@@ -4304,7 +4304,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
 
         QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
 
-        if (data.count() == 0) {
+        if (data.isEmpty()) {
             data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
         } else {
             xcb_discard_reply(p->conn, cookies[c++].sequence);

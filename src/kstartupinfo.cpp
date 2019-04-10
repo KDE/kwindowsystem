@@ -441,8 +441,8 @@ void KStartupInfo::Private::remove_startup_pids(const KStartupInfoData &data_P)
 void KStartupInfo::Private::remove_startup_pids(const KStartupInfoId &id_P,
         const KStartupInfoData &data_P)
 {
-    if (data_P.pids().count() == 0) {
-        qFatal("data_P.pids().count() == 0");
+    if (data_P.pids().isEmpty()) {
+        qFatal("data_P.pids().isEmpty()");
     }
     Data *data = nullptr;
     if (startups.contains(id_P)) {
@@ -458,7 +458,7 @@ void KStartupInfo::Private::remove_startup_pids(const KStartupInfoId &id_P,
     for (auto pid : pids) {
         data->d->remove_pid(pid);    // remove all pids from the info
     }
-    if (data->pids().count() == 0) { // all pids removed -> remove info
+    if (data->pids().isEmpty()) { // all pids removed -> remove info
         removeAllStartupInfoInternal(id_P);
     }
 }
@@ -827,7 +827,7 @@ KStartupInfo::startup_t KStartupInfo::checkStartup(WId w_P)
 KStartupInfo::startup_t KStartupInfo::Private::check_startup_internal(WId w_P, KStartupInfoId *id_O,
         KStartupInfoData *data_O)
 {
-    if (startups.count() == 0) {
+    if (startups.isEmpty()) {
         return NoMatch;    // no startups
     }
     // Strategy:
@@ -1010,8 +1010,8 @@ void KStartupInfo::Private::startups_cleanup_no_age()
 
 void KStartupInfo::Private::startups_cleanup()
 {
-    if (startups.count() == 0 && silent_startups.count() == 0
-            && uninited_startups.count() == 0) {
+    if (startups.isEmpty() && silent_startups.isEmpty()
+            && uninited_startups.isEmpty()) {
         cleanup->stop();
         return;
     }
