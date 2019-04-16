@@ -47,12 +47,12 @@ namespace KKeyServer
  * Converts the mask of ORed KKey::ModFlag modifiers to a
  * user-readable string.
  * @param mod the mask of ORed KKey::ModFlag modifiers
- * @return the user-readable string
+ * @return the user-readable string (in English)
  */
 KWINDOWSYSTEM_EXPORT QString modToStringUser(uint mod);
 
 /**
- * Converts the modifier given as user-readable string
+ * Converts the modifier given as user-readable string (in English)
  * to KKey::ModFlag modifier, or 0.
  * @internal
  */
