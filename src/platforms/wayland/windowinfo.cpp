@@ -102,6 +102,16 @@ NET::WindowType WindowInfo::windowType(NET::WindowTypes supported_types) const
                 return NET::OnScreenDisplay;
             }
             break;
+        case KWayland::Client::PlasmaShellSurface::Role::Notification:
+            if (supported_types & NET::NotificationMask) {
+                return NET::Notification;
+            }
+            break;
+        case KWayland::Client::PlasmaShellSurface::Role::ToolTip:
+            if (supported_types & NET::TooltipMask) {
+                return NET::Tooltip;
+            }
+            break;
         default:
             break;
         }
