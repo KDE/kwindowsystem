@@ -601,6 +601,7 @@ void NetWinInfoTestClient::testWindowType_data()
     QTest::newRow("DNDIcon")      << NET::DNDIcon      << 1 << QByteArrayLiteral("_NET_WM_WINDOW_TYPE_DND")      << QByteArray();
     QTest::newRow("Normal")       << NET::Normal       << 1 << QByteArrayLiteral("_NET_WM_WINDOW_TYPE_NORMAL")   << QByteArray();
     QTest::newRow("OnScreenDisplay") << NET::OnScreenDisplay << 1 << QByteArrayLiteral("_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY") << QByteArray();
+    QTest::newRow("CriticalNotification") << NET::CriticalNotification << 1 << QByteArrayLiteral("_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION") << QByteArray();
 }
 
 void NetWinInfoTestClient::testWindowType()

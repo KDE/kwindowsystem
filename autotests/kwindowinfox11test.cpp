@@ -415,6 +415,7 @@ void KWindowInfoX11Test::testWindowType_data()
     QTest::newRow("ComboBox")           << NET::ComboBoxMask     << NET::ComboBox     << NET::ComboBox;
     QTest::newRow("DNDIcon")            << NET::DNDIconMask      << NET::DNDIcon      << NET::DNDIcon;
     QTest::newRow("OnScreenDisplay")    << NET::OnScreenDisplayMask << NET::OnScreenDisplay << NET::OnScreenDisplay;
+    QTest::newRow("CriticalNotification") << NET::CriticalNotificationMask << NET::CriticalNotification << NET::CriticalNotification;
 
     // incorrect masks
     QTest::newRow("desktop-unknown")      << NET::NormalMask << NET::Desktop      << NET::Unknown;
@@ -433,6 +434,7 @@ void KWindowInfoX11Test::testWindowType_data()
     QTest::newRow("ComboBox-unknown")     << NET::NormalMask << NET::ComboBox     << NET::Unknown;
     QTest::newRow("DNDIcon-unknown")      << NET::NormalMask << NET::DNDIcon      << NET::Unknown;
     QTest::newRow("OnScreenDisplay-unknown") << NET::NormalMask << NET::OnScreenDisplay << NET::Unknown;
+    QTest::newRow("CriticalNotification-unknown") << NET::NormalMask << NET::CriticalNotification << NET::Unknown;
 }
 
 void KWindowInfoX11Test::testWindowType()

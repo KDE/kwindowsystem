@@ -976,6 +976,9 @@ void NETRootInfo::setSupported()
         if (p->windowTypes & OnScreenDisplayMask) {
             atoms[pnum++] = p->atom(_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY);
         }
+        if (p->windowTypes & CriticalNotificationMask) {
+            atoms[pnum++] = p->atom(_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION);
+        }
     }
 
     if (p->properties & WMState) {
@@ -1301,6 +1304,8 @@ void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
         p->windowTypes |= TopMenuMask;
     } else if (atom == p->atom(_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY)) {
         p->windowTypes |= OnScreenDisplayMask;
+    } else if (atom == p->atom(_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION)) {
+        p->windowTypes |= CriticalNotificationMask;
     }
 
     else if (atom == p->atom(_NET_WM_STATE)) {
@@ -3219,6 +3224,12 @@ void NETWinInfo::setWindowType(WindowType type)
         len = 1;
         break;
 
+    case CriticalNotification:
+        data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION);
+        data[1] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
+        len = 1;
+        break;
+
     default:
     case Normal:
         data[0] = p->atom(_NET_WM_WINDOW_TYPE_NORMAL);
@@ -4246,6 +4257,10 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
                 else if (type == p->atom(_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY)) {
                     p->types[pos++] = OnScreenDisplay;
                 }
+
+                else if (type == p->atom(_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION)) {
+                    p->types[pos++] = CriticalNotification;
+                }
             }
         }
     }
@@ -4633,6 +4648,7 @@ case type: \
         CHECK_TYPE_MASK(ComboBox)
         CHECK_TYPE_MASK(DNDIcon)
         CHECK_TYPE_MASK(OnScreenDisplay)
+        CHECK_TYPE_MASK(CriticalNotification)
 #undef CHECK_TYPE_MASK
     default:
         break;
