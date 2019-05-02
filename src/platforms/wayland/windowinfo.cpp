@@ -112,6 +112,11 @@ NET::WindowType WindowInfo::windowType(NET::WindowTypes supported_types) const
                 return NET::Tooltip;
             }
             break;
+        case KWayland::Client::PlasmaShellSurface::Role::CriticalNotification:
+            if (supported_types & NET::CriticalNotificationMask) {
+                return NET::CriticalNotification;
+            }
+            break;
         default:
             break;
         }
