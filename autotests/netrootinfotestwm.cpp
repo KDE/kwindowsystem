@@ -231,7 +231,7 @@ void NetRootInfoTestWM::testSupported()
         QVERIFY(rootInfo.isSupported(NET::WindowTypeMask(1 << i)));
         count++;
     }
-    for (int i = 0; i < 12; ++i) {
+    for (int i = 0; i < 13; ++i) {
         QVERIFY(rootInfo.isSupported(NET::State(1 << i)));
         count++;
     }
