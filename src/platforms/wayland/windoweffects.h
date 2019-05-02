@@ -36,9 +36,16 @@ namespace KWayland
 
 class WindowEffects : public QObject, public KWindowEffectsPrivate
 {
+    Q_OBJECT
 public:
     WindowEffects();
     ~WindowEffects() override;
+
+    static QWindow *windowForId(WId);
+
+    bool eventFilter(QObject *watched, QEvent *event) override;
+    void trackWindow(QWindow *window);
+    void releaseWindow(QWindow *window);
 
     bool isEffectAvailable(KWindowEffects::Effect effect) override;
     void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) override;
@@ -47,9 +54,22 @@ public:
     void presentWindows(WId controller, const QList<WId> &ids) override;
     void presentWindows(WId controller, int desktop = NET::OnAllDesktops) override;
     void highlightWindows(WId controller, const QList<WId> &ids) override;
-    void enableBlurBehind(WId window, bool enable = true, const QRegion &region = QRegion()) override;
-    void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion()) override;
+    void enableBlurBehind(WId winId, bool enable = true, const QRegion &region = QRegion()) override;
+    void enableBlurBehind(QWindow *window, bool enable, const QRegion &region);
+    void enableBackgroundContrast(WId winId, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion()) override;
+    void enableBackgroundContrast(QWindow *window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());
     void markAsDashboard(WId window) override;
+private:
+    QHash<QWindow *, QMetaObject::Connection> m_windowWatchers;
+    QHash<QWindow *, QRegion> m_blurRegions;
+    struct BackgroundContrastData {
+        qreal contrast = 1;
+        qreal intensity = 1;
+        qreal saturation = 1;
+        QRegion region;
+    };
+    QHash<QWindow *, BackgroundContrastData> m_backgroundConstrastRegions;
+
 };
 
 #endif

@@ -24,6 +24,8 @@
 
 #include <QDebug>
 #include <QWidget>
+#include <QGuiApplication>
+#include <QExposeEvent>
 
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/plasmawindowmanagement.h>
@@ -44,6 +46,71 @@ WindowEffects::WindowEffects()
 
 WindowEffects::~WindowEffects()
 {}
+
+QWindow *WindowEffects::windowForId(WId wid)
+{
+    QWindow *window = nullptr;
+
+    for (auto win : qApp->allWindows()) {
+        if (win->winId() == wid) {
+            window = win;
+            break;
+        }
+    }
+    return window;
+}
+
+void WindowEffects::trackWindow(QWindow *window)
+{
+    if (!m_windowWatchers.contains(window)) {
+        window->installEventFilter(this);
+        auto conn = connect(window, &QObject::destroyed, this, [this, window]() {
+            m_blurRegions.remove(window);
+            m_backgroundConstrastRegions.remove(window);
+            m_windowWatchers.remove(window);
+        });
+        m_windowWatchers[window] = conn;
+    }
+}
+
+void WindowEffects::releaseWindow(QWindow *window)
+{
+    if (!m_blurRegions.contains(window) && !m_backgroundConstrastRegions.contains(window)) {
+        disconnect(m_windowWatchers[window]);
+        window->removeEventFilter(this);
+        m_windowWatchers.remove(window);
+    }
+}
+
+bool WindowEffects::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::Expose) {
+        auto ee = static_cast<QExposeEvent*>(event);
+
+        if ((ee->region().isNull())) {
+            return false;
+        }
+
+        auto window = qobject_cast<QWindow *>(watched);
+        if (!window) {
+            return false;
+        }
+
+        {
+            auto it = m_blurRegions.constFind(window);
+            if (it != m_blurRegions.constEnd()) {
+                enableBlurBehind(window, true, *it);
+            }
+        }
+        {
+            auto it = m_backgroundConstrastRegions.constFind(window);
+            if (it != m_backgroundConstrastRegions.constEnd()) {
+                enableBackgroundContrast(window, true, it->contrast, it->intensity, it->saturation, it->region);
+            }
+        }
+    }
+    return false;
+}
 
 bool WindowEffects::isEffectAvailable(KWindowEffects::Effect effect)
 {
@@ -128,12 +195,30 @@ void WindowEffects::highlightWindows(WId controller, const QList<WId> &ids)
     Q_UNUSED(ids)
 }
 
-void WindowEffects::enableBlurBehind(WId window, bool enable, const QRegion &region)
+void WindowEffects::enableBlurBehind(WId winId, bool enable, const QRegion &region)
+{
+    auto window = windowForId(winId);
+    if (!window) {
+        return;
+    }
+    if (enable) {
+        trackWindow(window);
+        m_blurRegions[window] = region;
+    } else {
+        m_blurRegions.remove(window);
+        releaseWindow(window);
+    }
+
+    enableBlurBehind(window, enable, region);
+}
+
+void WindowEffects::enableBlurBehind(QWindow *window, bool enable, const QRegion &region)
 {
     if (!WaylandIntegration::self()->waylandBlurManager()) {
         return;
     }
-    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromQtWinId(window);
+    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
+
     if (surface) {
         if (enable) {
             auto blur = WaylandIntegration::self()->waylandBlurManager()->createBlur(surface, surface);
@@ -148,12 +233,32 @@ void WindowEffects::enableBlurBehind(WId window, bool enable, const QRegion &reg
     }
 }
 
-void WindowEffects::enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+void WindowEffects::enableBackgroundContrast(WId winId, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+{
+    auto window = windowForId(winId);
+    if (!window) {
+        return;
+    }
+    if (enable) {
+        trackWindow(window);
+        m_backgroundConstrastRegions[window].contrast = contrast;
+        m_backgroundConstrastRegions[window].intensity = intensity;
+        m_backgroundConstrastRegions[window].saturation = saturation;
+        m_backgroundConstrastRegions[window].region = region;
+    } else {
+        m_backgroundConstrastRegions.remove(window);
+        releaseWindow(window);
+    }
+
+    enableBackgroundContrast(window, enable, contrast, intensity, saturation, region);
+}
+
+void WindowEffects::enableBackgroundContrast(QWindow *window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
 {
     if (!WaylandIntegration::self()->waylandContrastManager()) {
         return;
     }
-    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromQtWinId(window);
+    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
     if (surface) {
         if (enable) {
             auto backgroundContrast = WaylandIntegration::self()->waylandContrastManager()->createContrast(surface, surface);
