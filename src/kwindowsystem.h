@@ -482,7 +482,7 @@ public:
      */
     static void setUserTime(WId win, long time);
     /**
-     * Sets the strut of window @p win to @p to @p left width
+     * Sets the strut of window @p win to @p left_width
      * ranging from @p left_start to @p left_end on the left edge,
      * and simiarly for the other edges. For not reserving a strut, pass 0 as the width.
      * E.g. to reserve 10x10 square in the topleft corner, use e.g.
