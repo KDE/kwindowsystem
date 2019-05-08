@@ -1310,6 +1310,20 @@ public:
     NETStrut frameOverlap() const;
 
     /**
+       Sets the extents of the drop-shadow drawn by the client.
+
+       @since 5.65
+    **/
+    void setGtkFrameExtents(NETStrut strut);
+
+    /**
+       Returns the extents of the drop-shadow drawn by a GTK client.
+
+       @since 5.65
+    **/
+    NETStrut gtkFrameExtents() const;
+
+    /**
        Returns an icon.  If width and height are passed, the icon returned will be
        the closest it can find (the next biggest).  If width and height are omitted,
        then the largest icon in the list is returned.

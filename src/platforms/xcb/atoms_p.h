@@ -160,6 +160,9 @@ ENUM_BEGIN(KwsAtom)
     // deprecated and naming convention violation
     ENUM(_NET_WM_STATE_STAYS_ON_TOP),
 
+    // GTK extensions
+    ENUM(_GTK_FRAME_EXTENTS),
+
     // application protocols
     ENUM(WM_PROTOCOLS),
     ENUM(WM_TAKE_FOCUS),

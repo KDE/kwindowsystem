@@ -1146,6 +1146,10 @@ void NETRootInfo::setSupported()
         atoms[pnum++] = p->atom(_NET_WM_OPAQUE_REGION);
     }
 
+    if (p->properties2 & WM2GTKFrameExtents) {
+        atoms[pnum++] = p->atom(_GTK_FRAME_EXTENTS);
+    }
+
     xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_SUPPORTED),
                         XCB_ATOM_ATOM, 32, pnum, (const void *) atoms);
 
@@ -1445,6 +1449,10 @@ void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
 
     else if (atom == p->atom(_NET_WM_OPAQUE_REGION)) {
         p->properties2 |= WM2OpaqueRegion;
+    }
+
+    else if (atom == p->atom(_GTK_FRAME_EXTENTS)) {
+        p->properties2 |= WM2GTKFrameExtents;
     }
 }
 
@@ -3500,6 +3508,25 @@ NETStrut NETWinInfo::frameOverlap() const
     return p->frame_overlap;
 }
 
+void NETWinInfo::setGtkFrameExtents(NETStrut strut)
+{
+    p->gtk_frame_extents = strut;
+
+    uint32_t d[4];
+    d[0] = strut.left;
+    d[1] = strut.right;
+    d[2] = strut.top;
+    d[3] = strut.bottom;
+
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_GTK_FRAME_EXTENTS),
+                        XCB_ATOM_CARDINAL, 32, 4, (const void *) d);
+}
+
+NETStrut NETWinInfo::gtkFrameExtents() const
+{
+    return p->gtk_frame_extents;
+}
+
 void NETWinInfo::kdeGeometry(NETRect &frame, NETRect &window)
 {
     if (p->win_geom.size.width == 0 || p->win_geom.size.height == 0) {
@@ -3818,6 +3845,8 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             dirty2 = WM2DesktopFileName;
         } else if (pe->atom == p->atom(_NET_WM_FULLSCREEN_MONITORS)) {
             dirty2 = WM2FullscreenMonitors;
+        } else if (pe->atom == p->atom(_GTK_FRAME_EXTENTS)) {
+            dirty2 |= WM2GTKFrameExtents;
         }
 
         do_update = true;
@@ -4007,6 +4036,10 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
 
     if (dirty2 & WM2DesktopFileName) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_DESKTOP_FILE), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
+    }
+
+    if (dirty2 & WM2GTKFrameExtents) {
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_GTK_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 0, 4);
     }
 
     c = 0;
@@ -4592,6 +4625,18 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         const QByteArray id = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
         if (id.length() > 0) {
             p->desktop_file = nstrndup(id.constData(), id.length());
+        }
+    }
+
+    if (dirty2 & WM2GTKFrameExtents) {
+        p->gtk_frame_extents = NETStrut();
+
+        QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        if (data.count() == 4) {
+            p->gtk_frame_extents.left   = data[0];
+            p->gtk_frame_extents.right  = data[1];
+            p->gtk_frame_extents.top    = data[2];
+            p->gtk_frame_extents.bottom = data[3];
         }
     }
 }
