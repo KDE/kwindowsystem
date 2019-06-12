@@ -159,7 +159,6 @@ void WindowEffects::slideWindow(WId id, KWindowEffects::SlideFromLocation locati
         } else {
             WaylandIntegration::self()->waylandSlideManager()->removeSlide(surface);
         }
-        surface->commit(KWayland::Client::Surface::CommitFlag::None);
 
         WaylandIntegration::self()->waylandConnection()->flush();
     }
@@ -229,7 +228,6 @@ void WindowEffects::enableBlurBehind(QWindow *window, bool enable, const QRegion
         } else {
             WaylandIntegration::self()->waylandBlurManager()->removeBlur(surface);
         }
-        surface->commit(KWayland::Client::Surface::CommitFlag::None);
 
         WaylandIntegration::self()->waylandConnection()->flush();
     }
@@ -272,7 +270,6 @@ void WindowEffects::enableBackgroundContrast(QWindow *window, bool enable, qreal
         } else {
             WaylandIntegration::self()->waylandContrastManager()->removeContrast(surface);
         }
-        surface->commit(KWayland::Client::Surface::CommitFlag::None);
 
         WaylandIntegration::self()->waylandConnection()->flush();
     }
