@@ -23,4 +23,9 @@ install(
         ${PLUGIN_INSTALL_DIR}/kf5/org.kde.kwindowsystem.platforms/
 )
 
-install( FILES kwindowsystem.kwayland.categories DESTINATION ${KDE_INSTALL_CONFDIR} )
+if (${ECM_VERSION} STRGREATER "5.58.0")
+    install(FILES kwindowsystem.kwayland.categories DESTINATION  ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
+else()
+    install(FILES kwindowsystem.kwayland.categories DESTINATION ${KDE_INSTALL_CONFDIR})
+endif()
+
