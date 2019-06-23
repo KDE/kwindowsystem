@@ -23,7 +23,6 @@
 #include <KWayland/Client/connection_thread.h>
 #include <QDebug>
 #include <QTimer>
-#include <xkbcommon/xkbcommon-names.h>
 
 using namespace KWayland::Client;
 
