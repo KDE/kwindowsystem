@@ -22,6 +22,7 @@
 #define WAYLANDINTEGRATION_H
 #include <KWindowSystem/private/kwindoweffects_p.h>
 
+#include <QPointer>
 
 namespace KWayland
 {
@@ -56,14 +57,14 @@ public:
     KWayland::Client::PlasmaShell *waylandPlasmaShell();
 
 private:
-    KWayland::Client::ConnectionThread *m_waylandConnection = nullptr;
-    KWayland::Client::BlurManager *m_waylandBlurManager = nullptr;
-    KWayland::Client::ContrastManager *m_waylandContrastManager = nullptr;
-    KWayland::Client::SlideManager *m_waylandSlideManager = nullptr;
-    KWayland::Client::Compositor *m_waylandCompositor = nullptr;
-    KWayland::Client::PlasmaWindowManagement *m_wm = nullptr;
-    KWayland::Client::PlasmaShell *m_waylandPlasmaShell = nullptr;
-    KWayland::Client::Registry *m_registry = nullptr;
+    QPointer<KWayland::Client::ConnectionThread> m_waylandConnection;
+    QPointer<KWayland::Client::Compositor> m_waylandCompositor;
+    QPointer<KWayland::Client::Registry> m_registry;
+    QPointer<KWayland::Client::BlurManager> m_waylandBlurManager;
+    QPointer<KWayland::Client::ContrastManager> m_waylandContrastManager;
+    QPointer<KWayland::Client::SlideManager> m_waylandSlideManager;
+    QPointer<KWayland::Client::PlasmaWindowManagement> m_wm;
+    QPointer<KWayland::Client::PlasmaShell> m_waylandPlasmaShell;
 };
 
 #endif
