@@ -62,36 +62,9 @@ void WaylandIntegration::setupKWaylandIntegration()
         qCWarning(KWAYLAND_KWS) << "Failed getting Wayland connection from QPA";
         return;
     }
-    m_registry = new Registry(this);
+    m_registry = new Registry(qApp);
     m_registry->create(m_waylandConnection);
     m_waylandCompositor = Compositor::fromApplication(this);
-
-    //when the Qt QPA closes it deletes the wl_display
-    //closing wl_display deletes the wl_registry
-    //when we destroy the kwayland wrapper we double delete
-    //as we're a singleton we're not deleted till after qApp
-    //we want to release our wayland parts first
-    connect(qApp, &QCoreApplication::aboutToQuit, this, [=]() {
-        if (m_waylandBlurManager) {
-            m_waylandBlurManager->release();
-        }
-        if (m_waylandContrastManager) {
-           m_waylandContrastManager->release();
-        }
-        if (m_waylandSlideManager) {
-            m_waylandSlideManager->release();
-        }
-        if (m_waylandCompositor) {
-            m_waylandCompositor->release();
-        }
-        if (m_wm) {
-            m_wm->release();
-        }
-        if (m_waylandPlasmaShell) {
-            m_waylandPlasmaShell->release();
-        }
-        m_registry->release();
-    });
 
     m_registry->setup();
     m_waylandConnection->roundtrip();
@@ -110,19 +83,18 @@ KWayland::Client::ConnectionThread *WaylandIntegration::waylandConnection() cons
 
 KWayland::Client::BlurManager *WaylandIntegration::waylandBlurManager()
 {
-    if (!m_waylandBlurManager) {
+    if (!m_waylandBlurManager && m_registry) {
         const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Blur);
 
         if (wmInterface.name == 0) {
             return nullptr;
         }
 
-        m_waylandBlurManager = m_registry->createBlurManager(wmInterface.name, wmInterface.version, this);
+        m_waylandBlurManager = m_registry->createBlurManager(wmInterface.name, wmInterface.version, qApp);
 
         connect(m_waylandBlurManager, &KWayland::Client::BlurManager::removed, this,
             [this] () {
                 m_waylandBlurManager->deleteLater();
-                m_waylandBlurManager = nullptr;
             }
         );
     }
@@ -132,41 +104,38 @@ KWayland::Client::BlurManager *WaylandIntegration::waylandBlurManager()
 
 KWayland::Client::ContrastManager *WaylandIntegration::waylandContrastManager()
 {
-    if (!m_waylandContrastManager) {
+    if (!m_waylandContrastManager && m_registry) {
         const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Contrast);
 
         if (wmInterface.name == 0) {
             return nullptr;
         }
 
-        m_waylandContrastManager = m_registry->createContrastManager(wmInterface.name, wmInterface.version, this);
+        m_waylandContrastManager = m_registry->createContrastManager(wmInterface.name, wmInterface.version, qApp);
 
         connect(m_waylandContrastManager, &KWayland::Client::ContrastManager::removed, this,
             [this] () {
                 m_waylandContrastManager->deleteLater();
-                m_waylandContrastManager = nullptr;
             }
         );
     }
-
     return m_waylandContrastManager;
 }
 
 KWayland::Client::SlideManager *WaylandIntegration::waylandSlideManager()
 {
-    if (!m_waylandSlideManager) {
+    if (!m_waylandSlideManager && m_registry) {
         const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Slide);
 
         if (wmInterface.name == 0) {
             return nullptr;
         }
 
-        m_waylandSlideManager = m_registry->createSlideManager(wmInterface.name, wmInterface.version, this);
+        m_waylandSlideManager = m_registry->createSlideManager(wmInterface.name, wmInterface.version, qApp);
 
         connect(m_waylandSlideManager, &KWayland::Client::SlideManager::removed, this,
             [this] () {
                 m_waylandSlideManager->deleteLater();
-                m_waylandSlideManager = nullptr;
             }
         );
     }
@@ -183,7 +152,7 @@ KWayland::Client::PlasmaWindowManagement *WaylandIntegration::plasmaWindowManage
 {
     using namespace KWayland::Client;
 
-    if (!m_wm) {
+    if (!m_wm && m_registry) {
         const Registry::AnnouncedInterface wmInterface = m_registry->interface(Registry::Interface::PlasmaWindowManagement);
 
         if (wmInterface.name == 0) {
@@ -191,7 +160,7 @@ KWayland::Client::PlasmaWindowManagement *WaylandIntegration::plasmaWindowManage
             return nullptr;
         }
 
-        m_wm = m_registry->createPlasmaWindowManagement(wmInterface.name, wmInterface.version, this);
+        m_wm = m_registry->createPlasmaWindowManagement(wmInterface.name, wmInterface.version, qApp);
         connect(m_wm, &PlasmaWindowManagement::windowCreated, this,
             [this] (PlasmaWindow *w) {
                 emit KWindowSystem::self()->windowAdded(w->internalId());
@@ -215,6 +184,12 @@ KWayland::Client::PlasmaWindowManagement *WaylandIntegration::plasmaWindowManage
         );
         connect(m_wm, &PlasmaWindowManagement::showingDesktopChanged, KWindowSystem::self(), &KWindowSystem::showingDesktopChanged);
         qCDebug(KWAYLAND_KWS) << "Plasma Window Management interface bound";
+
+        connect(m_wm, &KWayland::Client::PlasmaWindowManagement::removed, this,
+            [this] () {
+                m_wm->deleteLater();
+            }
+        );
     }
 
     return m_wm;
@@ -222,14 +197,14 @@ KWayland::Client::PlasmaWindowManagement *WaylandIntegration::plasmaWindowManage
 
 KWayland::Client::PlasmaShell *WaylandIntegration::waylandPlasmaShell()
 {
-    if (!m_waylandPlasmaShell) {
+    if (!m_waylandPlasmaShell && m_registry) {
         const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::PlasmaShell);
 
         if (wmInterface.name == 0) {
             return nullptr;
         }
 
-        m_waylandPlasmaShell = m_registry->createPlasmaShell(wmInterface.name, wmInterface.version, this);
+        m_waylandPlasmaShell = m_registry->createPlasmaShell(wmInterface.name, wmInterface.version, qApp);
     }
     return m_waylandPlasmaShell;
 }
