@@ -30,7 +30,7 @@ DEALINGS IN THE SOFTWARE.
 
 #include <qcoreapplication.h>
 #include <QDebug>
-#include <QWidget> // WId
+#include <QWindow> // WId
 #include <QAbstractNativeEventFilter>
 
 #include <xcb/xcb.h>
@@ -112,7 +112,7 @@ public:
     KXMessagesPrivate(KXMessages *parent, const char *acceptBroadcast, xcb_connection_t *c, xcb_window_t root)
         : accept_atom1(acceptBroadcast ? QByteArray(acceptBroadcast) + QByteArrayLiteral("_BEGIN") : QByteArray())
         , accept_atom2(acceptBroadcast ? QByteArray(acceptBroadcast) : QByteArray())
-        , handle(new QWidget)
+        , handle(new QWindow)
         , q(parent)
         , valid(c)
         , connection(c)
@@ -129,7 +129,7 @@ public:
     XcbAtom accept_atom1;
     XcbAtom accept_atom2;
     QMap< WId, QByteArray > incoming_messages;
-    QScopedPointer<QWidget> handle;
+    QScopedPointer<QWindow> handle;
     KXMessages *q;
     bool valid;
     xcb_connection_t *connection;
