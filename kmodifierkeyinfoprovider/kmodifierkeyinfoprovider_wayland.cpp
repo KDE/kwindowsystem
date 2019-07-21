@@ -38,7 +38,6 @@ KModifierKeyInfoProviderWayland::KModifierKeyInfoProviderWayland()
     registry->create(m_waylandConnection);
     registry->setup();
 
-    const auto ifaces = registry->interfaces(KWayland::Client::Registry::Interface::Keystate);
     connect(registry, &Registry::keystateAnnounced, this, [this, registry](quint32 name, quint32 version) {
         m_keystate = registry->createKeystate(name, version, this);
         connect(m_keystate, &Keystate::stateChanged, this, &KModifierKeyInfoProviderWayland::updateModifiers);
