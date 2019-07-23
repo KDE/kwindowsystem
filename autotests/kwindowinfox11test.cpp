@@ -25,7 +25,10 @@
 #include <qtest_widgets.h>
 #include <QScreen>
 #include <QSignalSpy>
+#include <QSysInfo>
 #include <QX11Info>
+
+#include <xcb/xcb_icccm.h>
 
 #include <unistd.h>
 
@@ -598,19 +601,23 @@ void KWindowInfoX11Test::testWindowRole()
 
 void KWindowInfoX11Test::testClientMachine()
 {
+    const QByteArray oldHostName = QSysInfo::machineHostName().toLocal8Bit();
+
     KWindowInfo info(window->winId(), NET::Properties(), NET::WM2ClientMachine);
-    QVERIFY(info.clientMachine().isNull());
+    QCOMPARE(info.clientMachine(), oldHostName);
 
     // client machine needs to be set through xcb
+    const QByteArray newHostName = oldHostName + "2";
     xcb_change_property(QX11Info::connection(), XCB_PROP_MODE_REPLACE, window->winId(),
-                        XCB_ATOM_WM_CLIENT_MACHINE, XCB_ATOM_STRING, 8, 9, "localhost");
+                        XCB_ATOM_WM_CLIENT_MACHINE, XCB_ATOM_STRING, 8, newHostName.count(),
+                        newHostName.data());
     xcb_flush(QX11Info::connection());
 
     // it's just a property change so we can easily refresh
     QX11Info::getTimestamp();
 
     KWindowInfo info2(window->winId(), NET::Properties(), NET::WM2ClientMachine);
-    QCOMPARE(info2.clientMachine(), QByteArrayLiteral("localhost"));
+    QCOMPARE(info2.clientMachine(), newHostName);
 }
 
 void KWindowInfoX11Test::testName()
@@ -680,11 +687,25 @@ void KWindowInfoX11Test::testTransientFor()
 
 void KWindowInfoX11Test::testGroupLeader()
 {
-    KWindowInfo info(window->winId(), NET::Properties(), NET::WM2GroupLeader);
-    QCOMPARE(info.groupLeader(), WId(0));
+    // WM_CLIENT_LEADER is set by default
+    KWindowInfo info1(window->winId(), NET::Properties(), NET::WM2GroupLeader);
+    QVERIFY(info1.groupLeader() != XCB_WINDOW_NONE);
 
-    // TODO: here we should try to set a group leader and re-read it
-    // this needs setting and parsing the WMHints
+    xcb_connection_t *connection = QX11Info::connection();
+    xcb_window_t rootWindow = QX11Info::appRootWindow();
+
+    xcb_window_t leader = xcb_generate_id(connection);
+    xcb_create_window(connection, XCB_COPY_FROM_PARENT, leader, rootWindow, 0, 0, 1, 1,
+        0, XCB_WINDOW_CLASS_INPUT_OUTPUT, XCB_COPY_FROM_PARENT, 0, nullptr);
+
+    xcb_icccm_wm_hints_t hints = {};
+    hints.flags = XCB_ICCCM_WM_HINT_WINDOW_GROUP;
+    hints.window_group = leader;
+    xcb_icccm_set_wm_hints(connection, leader, &hints);
+    xcb_icccm_set_wm_hints(connection, window->winId(), &hints);
+
+    KWindowInfo info2(window->winId(), NET::Properties(), NET::WM2GroupLeader);
+    QCOMPARE(info2.groupLeader(), leader);
 }
 
 void KWindowInfoX11Test::testExtendedStrut()
