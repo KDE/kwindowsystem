@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 3.5)
 set(KF5_VERSION "5.61.0") # handled by release scripts
 project(KWindowSystem VERSION ${KF5_VERSION})
 
+if (EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    conan_basic_setup(TARGETS)
+endif()
+
 # ECM setup
 include(FeatureSummary)
 find_package(ECM 5.60.0  NO_MODULE)

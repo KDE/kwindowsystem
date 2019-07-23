@@ -1,5 +1,8 @@
-maintainer: 
+maintainer:
+name: kwindowsystem
 description: Access to the windowing system
+license: LGPLv2.1
+url: https://api.kde.org/frameworks/kwindowsystem/html/index.html
 tier: 1
 type: integration
 platforms:
