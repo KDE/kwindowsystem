@@ -27,6 +27,21 @@
 #include <QX11Info>
 #include <X11/Xatom.h>
 
+#include <xcb/res.h>
+
+static bool haveXRes()
+{
+    static bool s_checked = false;
+    static bool s_haveXRes = false;
+    if (!s_checked) {
+        auto cookie  = xcb_res_query_version(QX11Info::connection(), XCB_RES_MAJOR_VERSION, XCB_RES_MINOR_VERSION);
+        QScopedPointer<xcb_res_query_version_reply_t, QScopedPointerPodDeleter >reply(xcb_res_query_version_reply(QX11Info::connection(), cookie, nullptr));
+        s_haveXRes = !reply.isNull();
+        s_checked = true;
+    }
+    return s_haveXRes;
+}
+
 // KWindowSystem::info() should be updated too if something has to be changed here
 KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, NET::Properties properties, NET::Properties2 properties2)
     : KWindowInfoPrivate(_win, properties, properties2)
@@ -75,6 +90,19 @@ KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, NET::Properties propertie
         m_frame_geometry.setRect(frame.pos.x, frame.pos.y, frame.size.width, frame.size.height);
     }
     m_valid = !handler.error(false);   // no sync - NETWinInfo did roundtrips
+
+    if (haveXRes()) {
+        xcb_res_client_id_spec_t specs;
+        specs.client = win();
+        specs.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
+        auto cookie = xcb_res_query_client_ids(QX11Info::connection(), 1, &specs);
+
+        QScopedPointer<xcb_res_query_client_ids_reply_t, QScopedPointerPodDeleter> reply( xcb_res_query_client_ids_reply(QX11Info::connection(), cookie, nullptr));
+        if (reply && xcb_res_query_client_ids_ids_length(reply.data()) > 0) {
+            uint32_t pid = *xcb_res_client_id_value_value((xcb_res_query_client_ids_ids_iterator(reply.data()).data));
+            m_pid = pid;
+        }
+    }
 }
 
 KWindowInfoPrivateX11::~KWindowInfoPrivateX11()
@@ -431,10 +459,18 @@ QByteArray KWindowInfoPrivateX11::desktopFileName() const
 
 int KWindowInfoPrivateX11::pid() const
 {
+    // If pid is found using the XRes extension use that instead.
+    // It is more reliable than the app reporting it's own PID as apps
+    // within an app namespace are unable to do so correctly
+    if (m_pid > 0) {
+        return m_pid;
+    }
+
 #if !defined(KDE_NO_WARNING_OUTPUT)
     if (!(m_info->passedProperties() & NET::WMPid)) {
         qWarning() << "Pass NET::WMPid to KWindowInfo";
     }
 #endif
+
     return m_info->pid();
 }

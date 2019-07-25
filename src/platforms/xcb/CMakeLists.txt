@@ -13,6 +13,7 @@ target_link_libraries(KF5WindowSystemX11Plugin
     KF5WindowSystem
     Qt5::X11Extras
     XCB::XCB
+    XCB::RES
     ${X11_LIBRARIES}
     ${X11_Xfixes_LIB}
 )

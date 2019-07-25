@@ -66,6 +66,7 @@ private:
     QString m_iconic_name;
     QRect m_geometry;
     QRect m_frame_geometry;
+    int m_pid = -1; // real PID from XResources. Valid if > 0
     bool m_valid;
 };
 
