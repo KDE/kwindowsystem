@@ -60,7 +60,9 @@ static inline const QRect &displayGeometry()
         for (int i = 0; i < screenList.count(); ++i) {
             const QScreen *screen = screenList.at(i);
             connections << QObject::connect(screen, &QScreen::geometryChanged, dirtify);
-            region += screen->geometry();
+            const QRect geometry = screen->geometry();
+            const qreal dpr = screen->devicePixelRatio();
+            region += QRect(geometry.topLeft(), geometry.size() * dpr);
         }
         displayGeometry = region.boundingRect();
         isDirty = false;
