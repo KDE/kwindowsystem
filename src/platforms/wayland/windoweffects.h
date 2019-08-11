@@ -22,6 +22,7 @@
 #define WINDOWEFFECTS_H
 #include <KWindowSystem/private/kwindoweffects_p.h>
 
+#include <QHash>
 
 namespace KWayland
 {
