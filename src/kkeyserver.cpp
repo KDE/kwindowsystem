@@ -20,7 +20,7 @@
 
 #include "kkeyserver.h"
 
-#include <QApplication>
+#include <QCoreApplication>
 
 namespace KKeyServer
 {
@@ -56,10 +56,10 @@ static bool g_bMacLabels;
 
 static void intializeKKeyLabels()
 {
-    g_rgModInfo[0].sLabel = new QString(QApplication::translate("KKeyServer", (g_rgModInfo[0].psName), KEYCTXT));
-    g_rgModInfo[1].sLabel = new QString(QApplication::translate("KKeyServer", (g_rgModInfo[1].psName), KEYCTXT));
-    g_rgModInfo[2].sLabel = new QString(QApplication::translate("KKeyServer", (g_rgModInfo[2].psName), KEYCTXT));
-    g_rgModInfo[3].sLabel = new QString(QApplication::translate("KKeyServer", (g_rgModInfo[3].psName), KEYCTXT));
+    g_rgModInfo[0].sLabel = new QString(QCoreApplication::translate("KKeyServer", (g_rgModInfo[0].psName), KEYCTXT));
+    g_rgModInfo[1].sLabel = new QString(QCoreApplication::translate("KKeyServer", (g_rgModInfo[1].psName), KEYCTXT));
+    g_rgModInfo[2].sLabel = new QString(QCoreApplication::translate("KKeyServer", (g_rgModInfo[2].psName), KEYCTXT));
+    g_rgModInfo[3].sLabel = new QString(QCoreApplication::translate("KKeyServer", (g_rgModInfo[3].psName), KEYCTXT));
     g_bMacLabels = (*g_rgModInfo[2].sLabel == QLatin1String("Command"));
     g_bInitializedKKeyLabels = true;
 
