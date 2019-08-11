@@ -777,9 +777,18 @@ void KStartupInfo::setStartupId(const QByteArray &startup_id)
 
 void KStartupInfo::setNewStartupId(QWidget *window, const QByteArray &startup_id)
 {
-    bool activate = true;
+    // Set the WA_NativeWindow attribute to force the creation of the QWindow.
+    // Without this QWidget::windowHandle() returns 0.
+    window->setAttribute(Qt::WA_NativeWindow, true);
+    setNewStartupId(window->window()->windowHandle(), startup_id);
+}
+
+void KStartupInfo::setNewStartupId(QWindow *window, const QByteArray &startup_id)
+{
+    Q_ASSERT(window);
     setStartupId(startup_id);
 #if KWINDOWSYSTEM_HAVE_X11
+    bool activate = true;
     if (window != nullptr && QX11Info::isPlatformX11()) {
         if (!startup_id.isEmpty() && startup_id != "0") {
             NETRootInfo i(QX11Info::connection(), NET::Supported);
@@ -798,7 +807,6 @@ void KStartupInfo::setNewStartupId(QWidget *window, const QByteArray &startup_id
         }
     }
 #else
-    Q_UNUSED(activate)
     Q_UNUSED(window)
 #endif
 }

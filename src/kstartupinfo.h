@@ -30,7 +30,8 @@ DEALINGS IN THE SOFTWARE.
 #include <QObject>
 #include <QString>
 #include <QChildEvent>
-#include <QWidgetList>
+#include <QWidgetList> // for WId
+#include <QWindow>
 
 #include <sys/types.h>
 
@@ -109,7 +110,20 @@ public:
      * or a new one, before being shown. Note that this function is usually
      * needed only when a window is reused.
      */
-    static void setNewStartupId(QWidget *window, const QByteArray &startup_id);
+    static void setNewStartupId(QWindow *window, const QByteArray &startup_id);
+
+    /**
+     * Use this function if the application got a request with startup
+     * notification from outside (for example, when KUniqueApplication::newInstance()
+     * is called, or e.g. when khelpcenter opens new URL in its window).
+     * The window can be either an already existing and visible window,
+     * or a new one, before being shown. Note that this function is usually
+     * needed only when a window is reused.
+     * @deprecated since 5.62, use setNewStartupId(QWindow *) instead
+     */
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    KWINDOWSYSTEM_DEPRECATED static void setNewStartupId(QWidget *window, const QByteArray &startup_id);
+#endif
 
     /**
      * If your application shows temporarily some window during its startup,

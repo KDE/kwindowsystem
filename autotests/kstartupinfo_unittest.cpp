@@ -1,6 +1,6 @@
 /* This file is part of the KDE libraries
 
-    Copyright 2012 David Faure <faure@kde.org>
+    Copyright 2012,2019 David Faure <faure@kde.org>
     Copyright 2012 Kai Dombrowe <just89@gmx.de>
 
     This library is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@
 #include <QSignalSpy>
 #include <qtest_widgets.h>
 #include <QX11Info>
+#include <QWidget>
 
 #include <xcb/xcb.h>
 
@@ -62,6 +63,7 @@ private Q_SLOTS:
     void checkStartupTest();
     void createNewStartupIdTest();
     void createNewStartupIdForTimestampTest();
+    void setNewStartupIdTest();
 
 private:
     KStartupInfo m_listener;
@@ -303,6 +305,23 @@ void KStartupInfo_UnitTest::createNewStartupIdForTimestampTest()
     const int index = id.indexOf(QByteArrayLiteral("TIME"));
     QVERIFY(index != -1);
     QCOMPARE(id.mid(index + 4).toULongLong(), 5u);
+}
+
+void KStartupInfo_UnitTest::setNewStartupIdTest()
+{
+    {
+        QWindow window;
+        const QByteArray str = "somefancyidwhichisrandom_kstartupinfo_unittest_2";
+        KStartupInfo::setNewStartupId(&window, str);
+        QCOMPARE(KStartupInfo::startupId(), str);
+    }
+
+    {
+        QWidget widget;
+        const QByteArray str = "somefancyidwhichisrandom_kstartupinfo_unittest_3";
+        KStartupInfo::setNewStartupId(&widget, str); // deprecated
+        QCOMPARE(KStartupInfo::startupId(), str);
+    }
 }
 
 QTEST_MAIN(KStartupInfo_UnitTest)
