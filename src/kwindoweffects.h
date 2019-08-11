@@ -20,11 +20,7 @@
 
 #include "kwindowsystem_export.h"
 
-#ifndef KWINDOWSYSTEM_NO_QWIDGET
-#include <QWidget> // for WId, etc.
-#else
-class QWidget;
-#endif
+#include <QWidgetList> // for WId, etc.
 
 #include <QRegion>
 #include <netwm_def.h>

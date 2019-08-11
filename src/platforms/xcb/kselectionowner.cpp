@@ -34,7 +34,6 @@ DEALINGS IN THE SOFTWARE.
 #include <QAbstractNativeEventFilter>
 
 #include <qx11info_x11.h>
-#include <qwidget.h>
 
 static xcb_window_t get_selection_owner(xcb_connection_t *c, xcb_atom_t selection)
 {

@@ -21,12 +21,12 @@
 #include "kwindowsystem.h"
 #include "kwindowsystem_p_x11.h"
 
-#include <QDebug>
 #include <kxerrorhandler_p.h>
-#include <kxutils_p.h>
 #include <fixx11h.h>
+#include <kxutils_p.h>
 
 #include <QBitmap>
+#include <QDebug>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QMetaMethod>

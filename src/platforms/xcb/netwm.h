@@ -31,12 +31,9 @@
 #include <config-kwindowsystem.h>
 #if KWINDOWSYSTEM_HAVE_X11
 #include <xcb/xcb.h>
+#include <vector>
 
 #include "netwm_def.h"
-
-#ifndef KWINDOWSYSTEM_NO_QWIDGET
-#include <QWidget>
-#endif
 
 #define KDE_ALL_ACTIVITIES_UUID "00000000-0000-0000-0000-000000000000"
 
