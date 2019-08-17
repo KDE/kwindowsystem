@@ -75,9 +75,12 @@ add_library(KF5::WindowSystem ALIAS KF5WindowSystem)
 target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem>")
 
 target_link_libraries(KF5WindowSystem
-    PUBLIC Qt5::Widgets
+    PUBLIC Qt5::Gui
     PRIVATE ${platformLinkLibraries}
 )
+if(NOT KWINDOWSYSTEM_NO_WIDGETS)
+    target_link_libraries(KF5WindowSystem PUBLIC Qt5::Widgets)
+endif()
 
 if(KWINDOWSYSTEM_HAVE_X11)
     # we install kkeyserver_x11.h which needs the X11 headers available
@@ -139,7 +142,7 @@ if(BUILD_QCH)
             ${CMAKE_CURRENT_SOURCE_DIR}
         MD_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md"
         LINK_QCHS
-            Qt5Widgets_QCH
+            Qt5Gui_QCH
         BLANK_MACROS
             KWINDOWSYSTEM_EXPORT
             KWINDOWSYSTEM_DEPRECATED
