@@ -28,7 +28,9 @@
 #include <QMetaMethod>
 #include <QPixmap>
 #include <QPluginLoader>
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 #include <QWidget>
+#endif
 #include <QWindow>
 #if KWINDOWSYSTEM_HAVE_X11
 #include <QX11Info>

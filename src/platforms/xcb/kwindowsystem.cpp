@@ -233,35 +233,36 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
         xcb_window_t old_active_window = activeWindow();
         int old_number_of_desktops = numberOfDesktops();
         bool old_showing_desktop = showingDesktop();
-        unsigned long m[ 5 ];
-        NETRootInfo::event(ev, m, 5);
+        NET::Properties props;
+        NET::Properties2 props2;
+        NETRootInfo::event(ev, &props, &props2);
 
-        if ((m[ PROTOCOLS ] & CurrentDesktop) && currentDesktop() != old_current_desktop) {
+        if ((props & CurrentDesktop) && currentDesktop() != old_current_desktop) {
             emit s_q->currentDesktopChanged(currentDesktop());
         }
-        if ((m[ PROTOCOLS ] & DesktopViewport) && mapViewport() && currentDesktop() != old_current_desktop) {
+        if ((props & DesktopViewport) && mapViewport() && currentDesktop() != old_current_desktop) {
             emit s_q->currentDesktopChanged(currentDesktop());
         }
-        if ((m[ PROTOCOLS ] & ActiveWindow) && activeWindow() != old_active_window) {
+        if ((props & ActiveWindow) && activeWindow() != old_active_window) {
             emit s_q->activeWindowChanged(activeWindow());
         }
-        if (m[ PROTOCOLS ] & DesktopNames) {
+        if (props & DesktopNames) {
             emit s_q->desktopNamesChanged();
         }
-        if ((m[ PROTOCOLS ] & NumberOfDesktops) && numberOfDesktops() != old_number_of_desktops) {
+        if ((props & NumberOfDesktops) && numberOfDesktops() != old_number_of_desktops) {
             emit s_q->numberOfDesktopsChanged(numberOfDesktops());
         }
-        if ((m[ PROTOCOLS ] & DesktopGeometry) && mapViewport() && numberOfDesktops() != old_number_of_desktops) {
+        if ((props & DesktopGeometry) && mapViewport() && numberOfDesktops() != old_number_of_desktops) {
             emit s_q->numberOfDesktopsChanged(numberOfDesktops());
         }
-        if (m[ PROTOCOLS ] & WorkArea) {
+        if (props & WorkArea) {
             emit s_q->workAreaChanged();
         }
-        if (m[ PROTOCOLS ] & ClientListStacking) {
+        if (props & ClientListStacking) {
             updateStackingOrder();
             emit s_q->stackingOrderChanged();
         }
-        if ((m[ PROTOCOLS2 ] & WM2ShowingDesktop) && showingDesktop() != old_showing_desktop) {
+        if ((props2 & WM2ShowingDesktop) && showingDesktop() != old_showing_desktop) {
             emit s_q->showingDesktopChanged(showingDesktop());
         }
     } else if (windows.contains(eventWindow)) {

@@ -38,7 +38,9 @@ DEALINGS IN THE SOFTWARE.
 #include "netwm_def.h"
 #include "kwindowsystem_debug.h"
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 #include <QWidget>
+#endif
 #include <QDateTime>
 
 #include <config-kwindowsystem.h> // KWINDOWSYSTEM_HAVE_X11
@@ -62,7 +64,7 @@ DEALINGS IN THE SOFTWARE.
 #include <qx11info_x11.h>
 #include <netwm.h>
 #endif
-#include <QApplication>
+#include <QCoreApplication>
 #include <QDebug>
 #include <signal.h>
 #include <qstandardpaths.h>
@@ -714,11 +716,7 @@ void KStartupInfo::appStarted(const QByteArray &startup_id)
     }
 #if KWINDOWSYSTEM_HAVE_X11
     if (QX11Info::isPlatformX11() && !qEnvironmentVariableIsEmpty("DISPLAY")) {  // don't rely on QX11Info::display()
-        Display *disp = XOpenDisplay(nullptr);
-        if (disp != nullptr) {
-            KStartupInfo::sendFinishX(disp, id);
-            XCloseDisplay(disp);
-        }
+        KStartupInfo::sendFinish(id);
     }
 #endif
 }
@@ -775,6 +773,7 @@ void KStartupInfo::setStartupId(const QByteArray &startup_id)
     }
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 void KStartupInfo::setNewStartupId(QWidget *window, const QByteArray &startup_id)
 {
     // Set the WA_NativeWindow attribute to force the creation of the QWindow.
@@ -782,6 +781,7 @@ void KStartupInfo::setNewStartupId(QWidget *window, const QByteArray &startup_id
     window->setAttribute(Qt::WA_NativeWindow, true);
     setNewStartupId(window->window()->windowHandle(), startup_id);
 }
+#endif
 
 void KStartupInfo::setNewStartupId(QWindow *window, const QByteArray &startup_id)
 {

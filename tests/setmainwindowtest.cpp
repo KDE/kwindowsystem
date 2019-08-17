@@ -67,7 +67,8 @@ void Window::showWindow()
     layout->addWidget(new QLabel("Test Dialog.\nYou should not be able to bring the parent window on top of me."));
 
     // Show it
-    KWindowSystem::setMainWindow(dialog, id);
+    dialog->setAttribute(Qt::WA_NativeWindow, true);
+    KWindowSystem::setMainWindow(dialog->windowHandle(), id);
     dialog->exec();
 
     m_label->setText(QString());

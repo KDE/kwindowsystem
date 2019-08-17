@@ -316,12 +316,14 @@ void KStartupInfo_UnitTest::setNewStartupIdTest()
         QCOMPARE(KStartupInfo::startupId(), str);
     }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
     {
         QWidget widget;
         const QByteArray str = "somefancyidwhichisrandom_kstartupinfo_unittest_3";
         KStartupInfo::setNewStartupId(&widget, str); // deprecated
         QCOMPARE(KStartupInfo::startupId(), str);
     }
+#endif
 }
 
 QTEST_MAIN(KStartupInfo_UnitTest)

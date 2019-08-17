@@ -276,11 +276,12 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     QTest::qWait(200);
 
     QSignalSpy propertiesChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,NET::Properties,NET::Properties2)));
-    QSignalSpy propertyChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,uint)));
-    QSignalSpy windowChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId)));
-
     QVERIFY(propertiesChangedSpy.isValid());
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    QSignalSpy propertyChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,uint)));
     QVERIFY(propertyChangedSpy.isValid());
+#endif
+    QSignalSpy windowChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId)));
     QVERIFY(windowChangedSpy.isValid());
 
     widget.setWindowTitle(QStringLiteral("bar"));
@@ -308,6 +309,7 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     }
     QVERIFY(gotWMName);
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
     gotWMName = false;
     QCOMPARE(propertyChangedSpy.isEmpty(), false);
     for (auto it = propertyChangedSpy.constBegin(); it != propertyChangedSpy.constEnd(); ++it) {
@@ -325,6 +327,7 @@ void KWindowSystemX11Test::testWindowTitleChanged()
         }
     }
     QVERIFY(gotWMName);
+#endif
 
     QCOMPARE(windowChangedSpy.isEmpty(), false);
     bool gotWindow = false;
