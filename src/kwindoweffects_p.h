@@ -27,7 +27,6 @@ public:
     virtual ~KWindowEffectsPrivate();
     virtual bool isEffectAvailable(KWindowEffects::Effect effect) = 0;
     virtual void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) = 0;
-    virtual void slideWindow(QWidget *widget, KWindowEffects::SlideFromLocation location) = 0;
     virtual QList<QSize> windowSizes(const QList<WId> &ids) = 0;
     virtual void presentWindows(WId controller, const QList<WId> &ids) = 0;
     virtual void presentWindows(WId controller, int desktop = NET::OnAllDesktops) = 0;

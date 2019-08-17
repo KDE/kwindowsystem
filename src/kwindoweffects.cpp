@@ -20,6 +20,9 @@
 #include "kwindoweffects_p.h"
 #include "pluginwrapper_p.h"
 #include <QGuiApplication>
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#include <QWidget>
+#endif
 
 KWindowEffectsPrivate::KWindowEffectsPrivate()
 {
@@ -72,10 +75,12 @@ void slideWindow(WId id, SlideFromLocation location, int offset)
     KWindowSystemPluginWrapper::self().effects()->slideWindow(id, location, offset);
 }
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 void slideWindow(QWidget *widget, SlideFromLocation location)
 {
-    KWindowSystemPluginWrapper::self().effects()->slideWindow(widget, location);
+    slideWindow(widget->effectiveWinId(), location, -1);
 }
+#endif
 
 QList< QSize > windowSizes(const QList< WId > &ids)
 {

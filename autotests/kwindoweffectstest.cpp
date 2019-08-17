@@ -142,7 +142,7 @@ void KWindowEffectsTest::testSlideWindowWidget()
 {
     QFETCH(KWindowEffects::SlideFromLocation, location);
 
-    KWindowEffects::slideWindow(m_widget.data(), location);
+    KWindowEffects::slideWindow(m_widget->effectiveWinId(), location);
     performSlideWindowTest(m_widget->effectiveWinId(), -1, location);
 }
 
@@ -150,11 +150,11 @@ void KWindowEffectsTest::testSlideWindowWidgetRemove()
 {
     xcb_window_t window = m_widget->effectiveWinId();
     // first install the atom
-    KWindowEffects::slideWindow(m_widget.data(), KWindowEffects::TopEdge);
+    KWindowEffects::slideWindow(m_widget->effectiveWinId(), KWindowEffects::TopEdge);
     performSlideWindowTest(window, -1, KWindowEffects::TopEdge);
 
     // now delete it
-    KWindowEffects::slideWindow(m_widget.data(), KWindowEffects::NoEdge);
+    KWindowEffects::slideWindow(m_widget->effectiveWinId(), KWindowEffects::NoEdge);
     performSlideWindowRemoveTest(window);
 }
 

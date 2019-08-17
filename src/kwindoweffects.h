@@ -62,8 +62,9 @@ KWINDOWSYSTEM_EXPORT bool isEffectAvailable(Effect effect);
  *               Desktop and Floating won't have effect.
  * @param offset distance in pixels from the screen edge defined by location
  */
-KWINDOWSYSTEM_EXPORT void slideWindow(WId id, SlideFromLocation location, int offset);
+KWINDOWSYSTEM_EXPORT void slideWindow(WId id, SlideFromLocation location, int offset = -1);
 
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 /**
  * Mark a window as sliding from screen edge
  * This is an overloaded member function provided for convenience
@@ -71,8 +72,10 @@ KWINDOWSYSTEM_EXPORT void slideWindow(WId id, SlideFromLocation location, int of
  * @param widget QWidget corresponding to the top level window we want to animate
  * @param location edge of the screen from which we want the sliding effect.
  *               Desktop and Floating won't have effect.
+ * @deprecated since 5.62, use slideWindow(widget->effectiveWinId(), location);
  */
-KWINDOWSYSTEM_EXPORT void slideWindow(QWidget *widget, SlideFromLocation location);
+KWINDOWSYSTEM_DEPRECATED_EXPORT void slideWindow(QWidget *widget, SlideFromLocation location);
+#endif
 
 /**
  * @return dimension of all the windows passed as parameter

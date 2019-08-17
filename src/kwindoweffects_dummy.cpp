@@ -39,12 +39,6 @@ void KWindowEffectsPrivateDummy::slideWindow(WId id, KWindowEffects::SlideFromLo
     Q_UNUSED(offset)
 }
 
-void KWindowEffectsPrivateDummy::slideWindow(QWidget *widget, KWindowEffects::SlideFromLocation location)
-{
-    Q_UNUSED(widget)
-    Q_UNUSED(location)
-}
-
 QList<QSize> KWindowEffectsPrivateDummy::windowSizes(const QList<WId> &ids)
 {
     QList<QSize> windowSizes;

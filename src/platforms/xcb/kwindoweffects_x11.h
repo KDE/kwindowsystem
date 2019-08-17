@@ -28,7 +28,6 @@ public:
     ~KWindowEffectsPrivateX11() override;
     bool isEffectAvailable(KWindowEffects::Effect effect) override;
     void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) override;
-    void slideWindow(QWidget* widget, KWindowEffects::SlideFromLocation location) override;
     QList< QSize > windowSizes(const QList<WId> &ids) override;
     void presentWindows(WId controller, const QList<WId> &ids) override;
     void presentWindows(WId controller, int desktop = NET::OnAllDesktops) override;

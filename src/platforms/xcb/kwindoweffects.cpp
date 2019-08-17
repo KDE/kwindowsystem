@@ -27,7 +27,6 @@
 #include <xcb/xcb.h>
 #include <QX11Info>
 #include <QMatrix4x4>
-#include <QWidget>
 
 static const char DASHBOARD_WIN_CLASS[] = "dashboard\0dashboard";
 using namespace KWindowEffects;
@@ -133,11 +132,6 @@ void KWindowEffectsPrivateX11::slideWindow(WId id, SlideFromLocation location, i
     } else {
         xcb_change_property(c, XCB_PROP_MODE_REPLACE, id, atom->atom, atom->atom, 32, size, data);
     }
-}
-
-void KWindowEffectsPrivateX11::slideWindow(QWidget *widget, SlideFromLocation location)
-{
-    slideWindow(widget->effectiveWinId(), location, -1);
 }
 
 QList<QSize> KWindowEffectsPrivateX11::windowSizes(const QList<WId> &ids)
