@@ -226,6 +226,20 @@ public:
 
     /**
      * Sets the parent window of @p subwindow to be @p mainwindow.
+     * This overrides the parent set the usual way as the QWidget or QWindow parent,
+     * but only for the window manager - e.g. stacking order and window grouping
+     * will be affected, but features like automatic deletion of children
+     * when the parent is deleted are unaffected and normally use
+     * the QObject parent.
+     *
+     * This function should be used before a dialog is shown for a window
+     * that belongs to another application.
+     */
+    static void setMainWindow(QWindow *subwindow, WId mainwindow);
+
+#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    /**
+     * Sets the parent window of @p subwindow to be @p mainwindow.
      * This overrides the parent set the usual way as the QWidget parent,
      * but only for the window manager - e.g. stacking order and window grouping
      * will be affected, but features like automatic deletion of children
@@ -234,9 +248,12 @@ public:
      *
      * This function should be used before a dialog is shown for a window
      * that belongs to another application.
+     * @deprecated since 5.62, use setMainWindow(QWindow *). If all you have is a QWidget*,
+     * you might need to call setAttribute(Qt::WA_NativeWindow, true); before calling
+     * >window()->windowHandle().
      */
-    static void setMainWindow(QWidget *subwindow, WId mainwindow);
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+    KWINDOWSYSTEM_DEPRECATED static void setMainWindow(QWidget *subwindow, WId mainwindow);
+
     /**
      * Returns the WM_TRANSIENT_FOR property for the given window, i.e. the mainwindow
      * for this window.

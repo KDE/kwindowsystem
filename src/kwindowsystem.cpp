@@ -461,7 +461,6 @@ WId KWindowSystem::transientFor(WId win)
     Q_D(KWindowSystem);
     return d->transientFor(win);
 }
-#endif
 
 void KWindowSystem::setMainWindow(QWidget *subWidget, WId mainWindowId)
 {
@@ -470,15 +469,19 @@ void KWindowSystem::setMainWindow(QWidget *subWidget, WId mainWindowId)
     subWidget->setAttribute(Qt::WA_NativeWindow, true);
     QWindow *subWindow = subWidget->windowHandle();
     Q_ASSERT(subWindow);
+    setMainWindow(subWindow, mainWindowId);
+}
+#endif
 
+void KWindowSystem::setMainWindow(QWindow *subWindow, WId mainWindowId)
+{
     QWindow *mainWindow = QWindow::fromWinId(mainWindowId);
-    if (!mainWindow) {
-        // foreign windows not supported on all platforms
-        return;
+    if (mainWindow) { // foreign windows not supported on all platforms
+        subWindow->setTransientParent(mainWindow);
+
+        // mainWindow is not the child of any object, so make sure it gets deleted at some point
+        connect(subWindow, &QObject::destroyed, mainWindow, &QObject::deleteLater);
     }
-    // mainWindow is not the child of any object, so make sure it gets deleted at some point
-    connect(subWidget, &QObject::destroyed, mainWindow, &QObject::deleteLater);
-    subWindow->setTransientParent(mainWindow);
 }
 
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED

@@ -120,6 +120,8 @@ public:
      * or a new one, before being shown. Note that this function is usually
      * needed only when a window is reused.
      * @deprecated since 5.62, use setNewStartupId(QWindow *) instead
+     * Note: if all you have is a QWidget*, you might need to call
+     * setAttribute(Qt::WA_NativeWindow, true); before calling window()->windowHandle().
      */
 #ifndef KWINDOWSYSTEM_NO_DEPRECATED
     KWINDOWSYSTEM_DEPRECATED static void setNewStartupId(QWidget *window, const QByteArray &startup_id);
