@@ -21,6 +21,7 @@
 #ifndef WINDOWEFFECTS_H
 #define WINDOWEFFECTS_H
 #include <KWindowSystem/private/kwindoweffects_p.h>
+#include <kwindowsystem_version.h>
 
 #include <QHash>
 
@@ -50,7 +51,9 @@ public:
 
     bool isEffectAvailable(KWindowEffects::Effect effect) override;
     void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) override;
+#if KWINDOWSYSTEM_VERSION <= QT_VERSION_CHECK(5, 61, 0)
     void slideWindow(QWidget *widget, KWindowEffects::SlideFromLocation location) override;
+#endif
     QList<QSize> windowSizes(const QList<WId> &ids) override;
     void presentWindows(WId controller, const QList<WId> &ids) override;
     void presentWindows(WId controller, int desktop = NET::OnAllDesktops) override;
