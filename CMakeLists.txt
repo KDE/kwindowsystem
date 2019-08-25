@@ -11,6 +11,9 @@ feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKA
 
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
+include(KDEInstallDirs)
+include(KDECMakeSettings)
+include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
 
 include(GenerateExportHeader)
 include(CMakePackageConfigHelpers)
@@ -39,10 +42,6 @@ ecm_setup_version(PROJECT VARIABLE_PREFIX KWINDOWSYSTEM
 # Dependencies
 set(REQUIRED_QT_VERSION 5.11.0)
 find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Widgets)
-
-include(KDEInstallDirs)
-include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
-include(KDECMakeSettings)
 
 if (APPLE)
     cmake_find_frameworks(Carbon)
