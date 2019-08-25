@@ -1242,6 +1242,9 @@ unsigned long KStartupInfoId::timestamp() const
 QString KStartupInfoData::Private::to_text() const
 {
     QString ret;
+    // prepare some space which should be always enough.
+    // No need to squeze at the end, as the result is only used as intermediate string
+    ret.reserve(256);
     if (!bin.isEmpty()) {
         ret += QStringLiteral(" BIN=\"%1\"").arg(escape_str(bin));
     }
@@ -1645,6 +1648,9 @@ QStringList get_fields(const QString &txt_P)
 static QString escape_str(const QString &str_P)
 {
     QString ret;
+    // prepare some space which should be always enough.
+    // No need to squeze at the end, as the result is only used as intermediate string
+    ret.reserve(str_P.size() * 2);
     for (int pos = 0;
             pos < str_P.length();
             ++pos) {
