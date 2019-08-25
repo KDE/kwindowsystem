@@ -1633,7 +1633,7 @@ QStringList get_fields(const QString &txt_P)
             in = !in;
         } else if (txt[ pos ] == QLatin1Char(' ') && !in) {
             ret.append(item);
-            item = "";
+            item = QString();
         } else {
             item += txt[ pos ];
         }
