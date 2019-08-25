@@ -486,7 +486,7 @@ bool KStartupInfo::sendStartupX(Display *disp_P, const KStartupInfoId &id_P,
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
-    QString msg = QString::fromLatin1("new: %1 %2")
+    QString msg = QStringLiteral("new: %1 %2")
                   .arg(id_P.d->to_text(), data_P.d->to_text());
     msg = Private::check_required_startup_fields(msg, data_P, DefaultScreen(disp_P));
 #ifdef KSTARTUPINFO_ALL_DEBUG
@@ -508,7 +508,7 @@ bool KStartupInfo::sendStartupXcb(xcb_connection_t *conn, int screen, const KSta
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
-    QString msg = QString::fromLatin1("new: %1 %2")
+    QString msg = QStringLiteral("new: %1 %2")
                   .arg(id_P.d->to_text(), data_P.d->to_text());
     msg = Private::check_required_startup_fields(msg, data_P, screen);
 #ifdef KSTARTUPINFO_ALL_DEBUG
@@ -533,10 +533,10 @@ QString KStartupInfo::Private::check_required_startup_fields(const QString &msg,
         if (name.isEmpty()) {
             name = "UNKNOWN";
         }
-        ret += QString(" NAME=\"%1\"").arg(escape_str(name));
+        ret += QStringLiteral(" NAME=\"%1\"").arg(escape_str(name));
     }
     if (data_P.screen() == -1) { // add automatically if needed
-        ret += QString(" SCREEN=%1").arg(screen);
+        ret += QStringLiteral(" SCREEN=%1").arg(screen);
     }
     return ret;
 }
@@ -562,7 +562,7 @@ bool KStartupInfo::sendChangeX(Display *disp_P, const KStartupInfoId &id_P,
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
-    QString msg = QString::fromLatin1("change: %1 %2")
+    QString msg = QStringLiteral("change: %1 %2")
                   .arg(id_P.d->to_text(), data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
@@ -583,7 +583,7 @@ bool KStartupInfo::sendChangeXcb(xcb_connection_t *conn, int screen,
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
-    QString msg = QString::fromLatin1("change: %1 %2")
+    QString msg = QStringLiteral("change: %1 %2")
                   .arg(id_P.d->to_text(), data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
@@ -615,7 +615,7 @@ bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P)
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
-    QString msg = QString::fromLatin1("remove: %1").arg(id_P.d->to_text());
+    QString msg = QStringLiteral("remove: %1").arg(id_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
@@ -633,7 +633,7 @@ bool KStartupInfo::sendFinishXcb(xcb_connection_t *conn, int screen, const KStar
         return false;
     }
 #if KWINDOWSYSTEM_HAVE_X11
-    QString msg = QString::fromLatin1("remove: %1").arg(id_P.d->to_text());
+    QString msg = QStringLiteral("remove: %1").arg(id_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
@@ -665,7 +665,7 @@ bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P,
 //    if( id_P.isNull()) // id may be null, the pids and hostname matter then
 //        return false;
 #if KWINDOWSYSTEM_HAVE_X11
-    QString msg = QString::fromLatin1("remove: %1 %2")
+    QString msg = QStringLiteral("remove: %1 %2")
                   .arg(id_P.d->to_text(), data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
@@ -686,7 +686,7 @@ bool KStartupInfo::sendFinishXcb(xcb_connection_t *conn, int screen,
 //    if( id_P.isNull()) // id may be null, the pids and hostname matter then
 //        return false;
 #if KWINDOWSYSTEM_HAVE_X11
-    QString msg = QString::fromLatin1("remove: %1 %2")
+    QString msg = QStringLiteral("remove: %1 %2")
                   .arg(id_P.d->to_text(), data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
@@ -1101,7 +1101,7 @@ QByteArray KStartupInfo::createNewStartupIdForTimestamp(quint32 timestamp)
     if (!gethostname(hostname, 255)) {
         hostname[sizeof(hostname) - 1] = '\0';
     }
-    QByteArray id = QString::fromLatin1("%1;%2;%3;%4_TIME%5").arg(hostname).arg(tm.tv_sec)
+    QByteArray id = QStringLiteral("%1;%2;%3;%4_TIME%5").arg(hostname).arg(tm.tv_sec)
                     .arg(tm.tv_usec).arg(getpid()).arg(timestamp).toUtf8();
     //qCDebug(LOG_KWINDOWSYSTEM) << "creating: " << id << ":" << (qApp ? qAppName() : QString("unnamed app") /* e.g. kdeinit */);
     return id;
@@ -1114,7 +1114,7 @@ const QByteArray &KStartupInfoId::id() const
 
 QString KStartupInfoId::Private::to_text() const
 {
-    return QString::fromLatin1(" ID=\"%1\" ").arg(escape_str(id));
+    return QStringLiteral(" ID=\"%1\" ").arg(escape_str(id));
 }
 
 KStartupInfoId::KStartupInfoId(const QString &txt_P) : d(new Private)
@@ -1243,45 +1243,45 @@ QString KStartupInfoData::Private::to_text() const
 {
     QString ret;
     if (!bin.isEmpty()) {
-        ret += QString::fromLatin1(" BIN=\"%1\"").arg(escape_str(bin));
+        ret += QStringLiteral(" BIN=\"%1\"").arg(escape_str(bin));
     }
     if (!name.isEmpty()) {
-        ret += QString::fromLatin1(" NAME=\"%1\"").arg(escape_str(name));
+        ret += QStringLiteral(" NAME=\"%1\"").arg(escape_str(name));
     }
     if (!description.isEmpty()) {
-        ret += QString::fromLatin1(" DESCRIPTION=\"%1\"").arg(escape_str(description));
+        ret += QStringLiteral(" DESCRIPTION=\"%1\"").arg(escape_str(description));
     }
     if (!icon.isEmpty()) {
-        ret += QString::fromLatin1(" ICON=\"%1\"").arg(icon);
+        ret += QStringLiteral(" ICON=\"%1\"").arg(icon);
     }
     if (desktop != 0)
-        ret += QString::fromLatin1(" DESKTOP=%1")
+        ret += QStringLiteral(" DESKTOP=%1")
                .arg(desktop == NET::OnAllDesktops ? NET::OnAllDesktops : desktop - 1);   // spec counts from 0
     if (!wmclass.isEmpty()) {
-        ret += QString::fromLatin1(" WMCLASS=\"%1\"").arg(QString(wmclass));
+        ret += QStringLiteral(" WMCLASS=\"%1\"").arg(QString(wmclass));
     }
     if (!hostname.isEmpty()) {
-        ret += QString::fromLatin1(" HOSTNAME=%1").arg(QString(hostname));
+        ret += QStringLiteral(" HOSTNAME=%1").arg(QString(hostname));
     }
     for (QList< pid_t >::ConstIterator it = pids.begin();
             it != pids.end();
             ++it) {
-        ret += QString::fromLatin1(" PID=%1").arg(*it);
+        ret += QStringLiteral(" PID=%1").arg(*it);
     }
     if (silent != KStartupInfoData::Unknown) {
-        ret += QString::fromLatin1(" SILENT=%1").arg(silent == KStartupInfoData::Yes ? 1 : 0);
+        ret += QStringLiteral(" SILENT=%1").arg(silent == KStartupInfoData::Yes ? 1 : 0);
     }
     if (screen != -1) {
-        ret += QString::fromLatin1(" SCREEN=%1").arg(screen);
+        ret += QStringLiteral(" SCREEN=%1").arg(screen);
     }
     if (xinerama != -1) {
-        ret += QString::fromLatin1(" XINERAMA=%1").arg(xinerama);
+        ret += QStringLiteral(" XINERAMA=%1").arg(xinerama);
     }
     if (launched_by != 0) {
-        ret += QString::fromLatin1(" LAUNCHED_BY=%1").arg((qptrdiff)launched_by);
+        ret += QStringLiteral(" LAUNCHED_BY=%1").arg((qptrdiff)launched_by);
     }
     if (!application_id.isEmpty()) {
-        ret += QString::fromLatin1(" APPLICATION_ID=\"%1\"").arg(application_id);
+        ret += QStringLiteral(" APPLICATION_ID=\"%1\"").arg(application_id);
     }
     return ret;
 }
