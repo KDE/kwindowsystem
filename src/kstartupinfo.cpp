@@ -1618,7 +1618,7 @@ QStringList get_fields(const QString &txt_P)
 {
     QString txt = txt_P.simplified();
     QStringList ret;
-    QString item = "";
+    QString item;
     bool in = false;
     bool escape = false;
     for (int pos = 0;
@@ -1644,7 +1644,7 @@ QStringList get_fields(const QString &txt_P)
 
 static QString escape_str(const QString &str_P)
 {
-    QString ret = "";
+    QString ret;
     for (int pos = 0;
             pos < str_P.length();
             ++pos) {
