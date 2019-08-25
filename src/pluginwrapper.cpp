@@ -38,7 +38,7 @@ static QStringList pluginCandidates()
 {
     QStringList ret;
     foreach (const QString &path, QCoreApplication::libraryPaths()) {
-        QDir pluginDir(path + QLatin1Literal("/kf5/org.kde.kwindowsystem.platforms"));
+        QDir pluginDir(path + QLatin1String("/kf5/org.kde.kwindowsystem.platforms"));
         if (!pluginDir.exists()) {
             continue;
         }
