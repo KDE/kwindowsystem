@@ -1566,7 +1566,7 @@ WId KStartupInfoData::launchedBy() const
 
 void KStartupInfoData::setApplicationId(const QString &desktop)
 {
-    if (desktop.startsWith('/')) {
+    if (desktop.startsWith(QLatin1Char('/'))) {
         d->application_id = desktop;
         return;
     }
