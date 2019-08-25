@@ -769,7 +769,7 @@ QPixmap KWindowSystemPrivateX11::iconFromNetWinInfo(int width, int height, bool 
         // If the icon is still a null pixmap, load the icon for X applications
         // as a last resort:
         if (result.isNull()) {
-            const QIcon icon = QIcon::fromTheme(QLatin1String("xorg"));
+            const QIcon icon = QIcon::fromTheme(QStringLiteral("xorg"));
             const QPixmap pm = icon.isNull() ? QPixmap() : icon.pixmap(iconWidth, iconWidth);
             if (scale && !pm.isNull()) {
                 result = QPixmap::fromImage(pm.toImage().scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));

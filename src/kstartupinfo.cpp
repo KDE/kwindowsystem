@@ -531,7 +531,7 @@ QString KStartupInfo::Private::check_required_startup_fields(const QString &msg,
 //        qWarning() << "NAME not specified in initial startup message";
         QString name = data_P.bin();
         if (name.isEmpty()) {
-            name = "UNKNOWN";
+            name = QStringLiteral("UNKNOWN");
         }
         ret += QStringLiteral(" NAME=\"%1\"").arg(escape_str(name));
     }
