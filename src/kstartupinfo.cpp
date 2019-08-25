@@ -1120,11 +1120,10 @@ QString KStartupInfoId::Private::to_text() const
 KStartupInfoId::KStartupInfoId(const QString &txt_P) : d(new Private)
 {
     const QStringList items = get_fields(txt_P);
-    const QString id_str = QLatin1String("ID=");
     for (QStringList::ConstIterator it = items.begin();
             it != items.end();
             ++it) {
-        if ((*it).startsWith(id_str)) {
+        if ((*it).startsWith(QLatin1String("ID="))) {
             d->id = get_cstr(*it);
         }
     }
@@ -1290,49 +1289,36 @@ QString KStartupInfoData::Private::to_text() const
 KStartupInfoData::KStartupInfoData(const QString &txt_P) : d(new Private)
 {
     const QStringList items = get_fields(txt_P);
-    const QString bin_str = QString::fromLatin1("BIN=");
-    const QString name_str = QString::fromLatin1("NAME=");
-    const QString description_str = QString::fromLatin1("DESCRIPTION=");
-    const QString icon_str = QString::fromLatin1("ICON=");
-    const QString desktop_str = QString::fromLatin1("DESKTOP=");
-    const QString wmclass_str = QString::fromLatin1("WMCLASS=");
-    const QString hostname_str = QString::fromLatin1("HOSTNAME="); // added to version 1 (2014)
-    const QString pid_str = QString::fromLatin1("PID=");           // added to version 1 (2014)
-    const QString silent_str = QString::fromLatin1("SILENT=");
-    const QString screen_str = QString::fromLatin1("SCREEN=");
-    const QString xinerama_str = QString::fromLatin1("XINERAMA=");
-    const QString launched_by_str = QString::fromLatin1("LAUNCHED_BY=");
-    const QString application_id_str = QString::fromLatin1("APPLICATION_ID=");
     for (QStringList::ConstIterator it = items.begin();
             it != items.end();
             ++it) {
-        if ((*it).startsWith(bin_str)) {
+        if ((*it).startsWith(QLatin1String("BIN="))) {
             d->bin = get_str(*it);
-        } else if ((*it).startsWith(name_str)) {
+        } else if ((*it).startsWith(QLatin1String("NAME="))) {
             d->name = get_str(*it);
-        } else if ((*it).startsWith(description_str)) {
+        } else if ((*it).startsWith(QLatin1String("DESCRIPTION="))) {
             d->description = get_str(*it);
-        } else if ((*it).startsWith(icon_str)) {
+        } else if ((*it).startsWith(QLatin1String("ICON="))) {
             d->icon = get_str(*it);
-        } else if ((*it).startsWith(desktop_str)) {
+        } else if ((*it).startsWith(QLatin1String("DESKTOP="))) {
             d->desktop = get_num(*it);
             if (d->desktop != NET::OnAllDesktops)
                 ++d->desktop; // spec counts from 0
-        } else if ((*it).startsWith(wmclass_str)) {
+        } else if ((*it).startsWith(QLatin1String("WMCLASS="))) {
             d->wmclass = get_cstr(*it);
-        } else if ((*it).startsWith(hostname_str)) {
+        } else if ((*it).startsWith(QLatin1String("HOSTNAME="))) { // added to version 1 (2014)
             d->hostname = get_cstr(*it);
-        } else if ((*it).startsWith(pid_str)) {
+        } else if ((*it).startsWith(QLatin1String("PID="))) {  // added to version 1 (2014)
             addPid(get_num(*it));
-        } else if ((*it).startsWith(silent_str)) {
+        } else if ((*it).startsWith(QLatin1String("SILENT="))) {
             d->silent = get_num(*it) != 0 ? Yes : No;
-        } else if ((*it).startsWith(screen_str)) {
+        } else if ((*it).startsWith(QLatin1String("SCREEN="))) {
             d->screen = get_num(*it);
-        } else if ((*it).startsWith(xinerama_str)) {
+        } else if ((*it).startsWith(QLatin1String("XINERAMA="))) {
             d->xinerama = get_num(*it);
-        } else if ((*it).startsWith(launched_by_str)) {
+        } else if ((*it).startsWith(QLatin1String("LAUNCHED_BY="))) {
             d->launched_by = (WId) get_num(*it);
-        } else if ((*it).startsWith(application_id_str)) {
+        } else if ((*it).startsWith(QLatin1String("APPLICATION_ID="))) {
             d->application_id = get_str(*it);
         }
     }
