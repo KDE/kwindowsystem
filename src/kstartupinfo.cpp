@@ -1627,11 +1627,11 @@ QStringList get_fields(const QString &txt_P)
         if (escape) {
             item += txt[ pos ];
             escape = false;
-        } else if (txt[ pos ] == '\\') {
+        } else if (txt[ pos ] == QLatin1Char('\\')) {
             escape = true;
-        } else if (txt[ pos ] == '\"') {
+        } else if (txt[ pos ] == QLatin1Char('\"')) {
             in = !in;
-        } else if (txt[ pos ] == ' ' && !in) {
+        } else if (txt[ pos ] == QLatin1Char(' ') && !in) {
             ret.append(item);
             item = "";
         } else {
@@ -1648,9 +1648,9 @@ static QString escape_str(const QString &str_P)
     for (int pos = 0;
             pos < str_P.length();
             ++pos) {
-        if (str_P[ pos ] == '\\'
-                || str_P[ pos ] == '"') {
-            ret += '\\';
+        if (str_P[ pos ] == QLatin1Char('\\')
+                || str_P[ pos ] == QLatin1Char('"')) {
+            ret += QLatin1Char('\\');
         }
         ret += str_P[ pos ];
     }
