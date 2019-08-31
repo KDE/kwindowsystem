@@ -334,14 +334,12 @@ void KWindowEffectsTest::testBlur()
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(blur.rectCount() * 4));
     uint32_t *data = static_cast<uint32_t *>(xcb_get_property_value(reply.data()));
-    QVector<QRect> rects = blur.rects();
-    for (int i = 0; i < rects.count(); ++i) {
-        int counter = i * 4;
-        const QRect &rect = rects.at(i);
-        QCOMPARE(data[counter++], uint32_t(rect.x()));
-        QCOMPARE(data[counter++], uint32_t(rect.y()));
-        QCOMPARE(data[counter++], uint32_t(rect.width()));
-        QCOMPARE(data[counter++], uint32_t(rect.height()));
+    int dataOffset = 0;
+    for (const QRect& rect : blur) {
+        QCOMPARE(data[dataOffset++], uint32_t(rect.x()));
+        QCOMPARE(data[dataOffset++], uint32_t(rect.y()));
+        QCOMPARE(data[dataOffset++], uint32_t(rect.width()));
+        QCOMPARE(data[dataOffset++], uint32_t(rect.height()));
     }
 }
 

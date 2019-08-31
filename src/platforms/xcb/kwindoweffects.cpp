@@ -251,10 +251,9 @@ void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const Q
     }
 
     if (enable) {
-        QVector<QRect> rects = region.rects();
         QVector<uint32_t> data;
-        data.reserve(rects.count() * 4);
-        Q_FOREACH (const QRect &r, rects) {
+        data.reserve(region.rectCount() * 4);
+        for (const QRect& r : region) {
             // kwin on X uses device pixels, convert from logical
             auto dpr = qApp->devicePixelRatio();
             data << r.x() * dpr << r.y() * dpr << r.width() * dpr << r.height() * dpr;
@@ -278,10 +277,9 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
     }
 
     if (enable) {
-        QVector<QRect> rects = region.rects();
         QVector<uint32_t> data;
-        data.reserve(rects.count() * 4 + 16);
-        Q_FOREACH (const QRect &r, rects) {
+        data.reserve(region.rectCount() * 4 + 16);
+        for (const QRect& r : region) {
             auto dpr = qApp->devicePixelRatio();
             data << r.x() * dpr << r.y() * dpr << r.width() * dpr << r.height() * dpr;
         }
