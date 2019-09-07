@@ -594,7 +594,7 @@ void NETRootInfo::setDefaultProperties()
     p->windowTypes = NormalMask | DesktopMask | DockMask
                                     | ToolbarMask | MenuMask | DialogMask;
     p->states = Modal | Sticky | MaxVert | MaxHoriz | Shaded
-                              | SkipTaskbar | StaysOnTop;
+                              | SkipTaskbar | KeepAbove;
     p->properties2 = NET::Properties2();
     p->actions = NET::Actions();
     p->clientProperties = NET::Properties();
@@ -1017,6 +1017,8 @@ void NETRootInfo::setSupported()
         }
         if (p->states & KeepAbove) {
             atoms[pnum++] = p->atom(_NET_WM_STATE_ABOVE);
+            // deprecated variant
+            atoms[pnum++] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
         }
         if (p->states & KeepBelow) {
             atoms[pnum++] = p->atom(_NET_WM_STATE_BELOW);
@@ -1025,9 +1027,6 @@ void NETRootInfo::setSupported()
             atoms[pnum++] = p->atom(_NET_WM_STATE_DEMANDS_ATTENTION);
         }
 
-        if (p->states & StaysOnTop) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
-        }
         if (p->states & Focused) {
             atoms[pnum++] = p->atom(_NET_WM_STATE_FOCUSED);
         }
@@ -1340,7 +1339,7 @@ void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
     } else if (atom == p->atom(_NET_WM_STATE_DEMANDS_ATTENTION)) {
         p->states |= DemandsAttention;
     } else if (atom == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
-        p->states |= StaysOnTop;
+        p->states |= KeepAbove;
     } else if (atom == p->atom(_NET_WM_STATE_FOCUSED)) {
         p->states |= Focused;
     }
@@ -3017,19 +3016,18 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
-        }
 
-        if ((mask & KeepBelow) && ((p->state & KeepBelow) != (state & KeepBelow))) {
-            event.data.data32[0] = (state & KeepBelow) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_BELOW);
+            // deprecated variant
+            event.data.data32[0] = (state & KeepAbove) ? 1 : 0;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
         }
 
-        if ((mask & StaysOnTop) && ((p->state & StaysOnTop) != (state & StaysOnTop))) {
-            event.data.data32[0] = (state & StaysOnTop) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
+        if ((mask & KeepBelow) && ((p->state & KeepBelow) != (state & KeepBelow))) {
+            event.data.data32[0] = (state & KeepBelow) ? 1 : 0;
+            event.data.data32[1] = p->atom(_NET_WM_STATE_BELOW);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *) &event);
@@ -3080,12 +3078,11 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
         // Policy
         if (p->state & KeepAbove) {
             data[count++] = p->atom(_NET_WM_STATE_ABOVE);
+            // deprecated variant
+            data[count++] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
         }
         if (p->state & KeepBelow) {
             data[count++] = p->atom(_NET_WM_STATE_BELOW);
-        }
-        if (p->state & StaysOnTop) {
-            data[count++] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
         }
         if (p->state & Sticky) {
             data[count++] = p->atom(_NET_WM_STATE_STICKY);
@@ -3681,7 +3678,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
                 } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_DEMANDS_ATTENTION)) {
                     mask |= DemandsAttention;
                 } else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
-                    mask |= StaysOnTop;
+                    mask |= KeepAbove;
                 }  else if ((xcb_atom_t) message->data.data32[i] == p->atom(_NET_WM_STATE_FOCUSED)) {
                     mask |= Focused;
                 }
@@ -4106,7 +4103,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
             }
 
             else if (state == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
-                p->state |= StaysOnTop;
+                p->state |= KeepAbove;
             }
 
             else if (state == p->atom(_NET_WM_STATE_FOCUSED)) {

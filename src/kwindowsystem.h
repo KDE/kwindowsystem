@@ -362,7 +362,7 @@ public:
      * Possible values are or'ed combinations of NET::Modal,
      * NET::Sticky, NET::MaxVert, NET::MaxHoriz, NET::Shaded,
      * NET::SkipTaskbar, NET::SkipPager, NET::Hidden,
-     * NET::FullScreen, NET::KeepAbove, NET::KeepBelow, NET::StaysOnTop,
+     * NET::FullScreen, NET::KeepAbove, NET::KeepBelow,
      * NET::SkipSwitcher
      *
      * @param win the id of the window
@@ -376,7 +376,7 @@ public:
      * Possible values are or'ed combinations of NET::Modal,
      * NET::Sticky, NET::MaxVert, NET::MaxHoriz, NET::Shaded,
      * NET::SkipTaskbar, NET::SkipPager, NET::Hidden,
-     * NET::FullScreen, NET::KeepAbove, NET::KeepBelow, NET::StaysOnTop,
+     * NET::FullScreen, NET::KeepAbove, NET::KeepBelow,
      * NET::SkipSwitcher
      *
      * @param win the id of the window

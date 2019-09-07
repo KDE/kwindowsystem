@@ -446,7 +446,6 @@ void NetWinInfoTestWM::testState_data()
     QTest::newRow("shaded")           << NET::States(NET::Shaded)           << (QVector<QByteArray>() << shaded);
     QTest::newRow("skipTaskbar")      << NET::States(NET::SkipTaskbar)      << (QVector<QByteArray>() << skipTaskbar);
     QTest::newRow("keepAbove")        << NET::States(NET::KeepAbove)        << (QVector<QByteArray>() << keepAbove << staysOnTop);
-    QTest::newRow("staysOnTop")       << NET::States(NET::StaysOnTop)       << (QVector<QByteArray>() << keepAbove << staysOnTop);
     QTest::newRow("skipPager")        << NET::States(NET::SkipPager)        << (QVector<QByteArray>() << skipPager);
     QTest::newRow("hidden")           << NET::States(NET::Hidden)           << (QVector<QByteArray>() << hidden);
     QTest::newRow("fullScreen")       << NET::States(NET::FullScreen)       << (QVector<QByteArray>() << fullScreen);
