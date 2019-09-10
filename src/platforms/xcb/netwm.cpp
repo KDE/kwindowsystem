@@ -36,6 +36,7 @@
 #if KWINDOWSYSTEM_HAVE_X11 //FIXME
 
 #include <qx11info_x11.h>
+#include <QHash>
 
 #include <kwindowsystem.h>
 #include <kxutils_p.h>
