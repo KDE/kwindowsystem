@@ -1992,7 +1992,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
         p->actions = NET::Actions();
 
         const QVector<xcb_atom_t> atoms = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
-        Q_FOREACH (const xcb_atom_t atom, atoms) {
+        for (const xcb_atom_t atom : atoms) {
             updateSupportedProperties(atom);
         }
     }
@@ -4045,7 +4045,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         fprintf(stderr, "NETWinInfo::update: updating window state (%ld)\n", states.count());
 #endif
 
-        Q_FOREACH (const xcb_atom_t state, states) {
+        for (const xcb_atom_t state : states) {
 #ifdef NETWMDEBUG
             const QByteArray ba = get_atom_name(p->conn, state);
             fprintf(stderr, "NETWinInfo::update:   adding window state %ld '%s'\n",
@@ -4182,7 +4182,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
             p->has_net_support = true;
             int pos = 0;
 
-            Q_FOREACH (const xcb_atom_t type, types) {
+            for (const xcb_atom_t type : types) {
 #ifdef NETWMDEBUG
                 const QByteArray name = get_atom_name(p->conn, type);
                 fprintf(stderr,  "NETWinInfo::update:   examining window type %ld %s\n",
@@ -4413,7 +4413,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
             fprintf(stderr, "NETWinInfo::update: updating allowed actions (%ld)\n", actions.count());
 #endif
 
-            Q_FOREACH (const xcb_atom_t action, actions) {
+            for (const xcb_atom_t action : actions) {
 #ifdef NETWMDEBUG
                 const QByteArray name = get_atom_name(p->conn, action);
                 fprintf(stderr,

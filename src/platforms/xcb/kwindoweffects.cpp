@@ -137,7 +137,7 @@ void KWindowEffectsPrivateX11::slideWindow(WId id, SlideFromLocation location, i
 QList<QSize> KWindowEffectsPrivateX11::windowSizes(const QList<WId> &ids)
 {
     QList<QSize> windowSizes;
-    Q_FOREACH (WId id, ids) {
+    for (WId id : ids) {
         if (id > 0) {
             KWindowInfo info(id, NET::WMGeometry | NET::WMFrameExtents);
             windowSizes.append(info.frameGeometry().size());
