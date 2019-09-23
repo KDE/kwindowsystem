@@ -1,3 +1,3 @@
 {
-    "platforms": ["wayland", "wayland-egl", "wayland-org.kde.kwin.qpa"]
+    "platforms": ["wayland", "wayland-egl"]
 }
