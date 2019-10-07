@@ -69,8 +69,16 @@ if (WIN32)
 endif ()
 
 add_library(KF5WindowSystem ${kwindowsystem_SRCS})
-generate_export_header(KF5WindowSystem BASE_NAME KWindowSystem)
 add_library(KF5::WindowSystem ALIAS KF5WindowSystem)
+
+ecm_generate_export_header(KF5WindowSystem
+    BASE_NAME KWindowSystem
+    # GROUP_BASE_NAME KF enable once all of KF modules use ecm_generate_export_header
+    VERSION ${KF5_VERSION}
+    DEPRECATED_BASE_VERSION 0
+    DEPRECATION_VERSIONS 5.0 5.18 5.38 5.62
+    EXCLUDE_DEPRECATED_BEFORE_AND_AT ${EXCLUDE_DEPRECATED_BEFORE_AND_AT}
+)
 
 target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem>")
 

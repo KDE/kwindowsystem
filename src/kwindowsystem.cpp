@@ -28,7 +28,7 @@
 #include <QMetaMethod>
 #include <QPixmap>
 #include <QPluginLoader>
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 62)
 #include <QWidget>
 #endif
 #include <QWindow>
@@ -155,7 +155,7 @@ void KWindowSystemPrivateDummy::setOnActivities(WId win, const QStringList &acti
     Q_UNUSED(activities)
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 WId KWindowSystemPrivateDummy::transientFor(WId window)
 {
     Q_UNUSED(window)
@@ -379,7 +379,7 @@ QList<WId> KWindowSystem::windows()
     return d->windows();
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 KWindowInfo KWindowSystem::windowInfo(WId win, NET::Properties properties, NET::Properties2 properties2)
 {
     return KWindowInfo(win, properties, properties2);
@@ -457,7 +457,7 @@ void KWindowSystem::demandAttention(WId win, bool set)
     d->demandAttention(win, set);
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 WId KWindowSystem::transientFor(WId win)
 {
     Q_D(KWindowSystem);
@@ -486,7 +486,7 @@ void KWindowSystem::setMainWindow(QWindow *subWindow, WId mainWindowId)
     }
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 WId KWindowSystem::groupLeader(WId win)
 {
     Q_D(KWindowSystem);
@@ -564,7 +564,7 @@ void KWindowSystem::unminimizeWindow(WId win)
     d->unminimizeWindow(win);
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 void KWindowSystem::minimizeWindow(WId win, bool animation)
 {
     Q_UNUSED(animation)
@@ -572,7 +572,7 @@ void KWindowSystem::minimizeWindow(WId win, bool animation)
 }
 #endif
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 void KWindowSystem::unminimizeWindow(WId win, bool animation)
 {
     Q_UNUSED(animation)

@@ -44,7 +44,7 @@ public:
     virtual void setOnAllDesktops(WId win, bool b) = 0;
     virtual void setOnDesktop(WId win, int desktop) = 0;
     virtual void setOnActivities(WId win, const QStringList &activities) = 0;
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
     virtual WId transientFor(WId window) = 0;
     virtual WId groupLeader(WId window) = 0;
 #endif

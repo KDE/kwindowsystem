@@ -67,7 +67,9 @@ private Q_SLOTS:
     void testPid();
     void testName();
     void testIconName();
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
     void testStrut();
+#endif
     void testExtendedStrut();
     void testIconGeometry();
     void testWindowType_data();
@@ -407,6 +409,7 @@ void NetWinInfoTestClient::testName()
     performNameTest(atom, &NETWinInfo::name, &NETWinInfo::setName, NET::WMName);
 }
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
 void NetWinInfoTestClient::testStrut()
 {
     QVERIFY(connection());
@@ -448,6 +451,7 @@ void NetWinInfoTestClient::testStrut()
     QCOMPARE(extents.right,  newExtents.right);
     QCOMPARE(extents.top,    newExtents.top);
 }
+#endif
 
 void NetWinInfoTestClient::testExtendedStrut()
 {

@@ -38,7 +38,7 @@ DEALINGS IN THE SOFTWARE.
 #include "netwm_def.h"
 #include "kwindowsystem_debug.h"
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 62)
 #include <QWidget>
 #endif
 #include <QDateTime>
@@ -219,7 +219,7 @@ KStartupInfo::KStartupInfo(int flags_P, QObject *parent_P)
     d->createConnections();
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 KStartupInfo::KStartupInfo(bool clean_on_cantdetect_P, QObject *parent_P)
     : QObject(parent_P),
       d(new Private(clean_on_cantdetect_P ? CleanOnCantDetect : 0, this))
@@ -478,7 +478,7 @@ bool KStartupInfo::sendStartup(const KStartupInfoId &id_P, const KStartupInfoDat
     return true;
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
 bool KStartupInfo::sendStartupX(Display *disp_P, const KStartupInfoId &id_P,
                                 const KStartupInfoData &data_P)
 {
@@ -554,7 +554,7 @@ bool KStartupInfo::sendChange(const KStartupInfoId &id_P, const KStartupInfoData
     return true;
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
 bool KStartupInfo::sendChangeX(Display *disp_P, const KStartupInfoId &id_P,
                                const KStartupInfoData &data_P)
 {
@@ -608,7 +608,7 @@ bool KStartupInfo::sendFinish(const KStartupInfoId &id_P)
     return true;
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
 bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P)
 {
     if (id_P.isNull()) {
@@ -658,7 +658,7 @@ bool KStartupInfo::sendFinish(const KStartupInfoId &id_P, const KStartupInfoData
     return true;
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
 bool KStartupInfo::sendFinishX(Display *disp_P, const KStartupInfoId &id_P,
                                const KStartupInfoData &data_P)
 {
@@ -773,7 +773,7 @@ void KStartupInfo::setStartupId(const QByteArray &startup_id)
     }
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 62)
 void KStartupInfo::setNewStartupId(QWidget *window, const QByteArray &startup_id)
 {
     // Set the WA_NativeWindow attribute to force the creation of the QWindow.

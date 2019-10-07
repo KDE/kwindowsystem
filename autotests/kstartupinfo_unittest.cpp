@@ -316,7 +316,7 @@ void KStartupInfo_UnitTest::setNewStartupIdTest()
         QCOMPARE(KStartupInfo::startupId(), str);
     }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 62)
     {
         QWidget widget;
         const QByteArray str = "somefancyidwhichisrandom_kstartupinfo_unittest_3";

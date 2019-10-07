@@ -179,7 +179,7 @@ public:
     }
 };
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
 static void send_message_internal(WId w_P, const QString &msg_P, long mask_P,
                                   Display *disp, Atom atom1_P, Atom atom2_P, Window handle_P);
 // for broadcasting
@@ -233,7 +233,7 @@ void KXMessages::broadcastMessage(const char *msg_type_P, const QString &message
                           a1, a2, d->handle->winId());
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
 bool KXMessages::broadcastMessageX(Display *disp, const char *msg_type_P,
                                    const QString &message_P, int screen_P)
 {
@@ -299,7 +299,7 @@ bool KXMessages::sendMessageX(Display *disp, WId w_P, const char *msg_type_P,
 }
 #endif
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
 static void send_message_internal(WId w_P, const QString &msg_P, long mask_P,
                                   Display *disp, Atom atom1_P, Atom atom2_P, Window handle_P)
 {

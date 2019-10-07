@@ -277,7 +277,7 @@ void KWindowSystemX11Test::testWindowTitleChanged()
 
     QSignalSpy propertiesChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,NET::Properties,NET::Properties2)));
     QVERIFY(propertiesChangedSpy.isValid());
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
     QSignalSpy propertyChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,uint)));
     QVERIFY(propertyChangedSpy.isValid());
 #endif
@@ -309,7 +309,7 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     }
     QVERIFY(gotWMName);
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
     gotWMName = false;
     QCOMPARE(propertyChangedSpy.isEmpty(), false);
     for (auto it = propertyChangedSpy.constBegin(); it != propertyChangedSpy.constEnd(); ++it) {

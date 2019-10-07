@@ -15,7 +15,7 @@ include(KDEInstallDirs)
 include(KDECMakeSettings)
 include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
 
-include(GenerateExportHeader)
+include(ECMGenerateExportHeader)
 include(CMakePackageConfigHelpers)
 include(ECMSetupVersion)
 include(ECMGenerateHeaders)
@@ -25,13 +25,19 @@ include(ECMQtDeclareLoggingCategory)
 include(ECMAddQch)
 include(ECMPoQmTools)
 
+set(EXCLUDE_DEPRECATED_BEFORE_AND_AT 0 CACHE STRING "Control the range of deprecated API excluded from the build [default=0].")
+
 option(BUILD_QCH "Build API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)" OFF)
 add_feature_info(QCH ${BUILD_QCH} "API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)")
 
 # TODO KF6: remove
 option(KWINDOWSYSTEM_NO_WIDGETS "Disable deprecated API including QWidget usage, so that KWindowSystem does not link to QtWidgets. Warning: this is binary and source incompatible.")
 if (KWINDOWSYSTEM_NO_WIDGETS)
-    add_compile_definitions(KWINDOWSYSTEM_NO_DEPRECATED)
+    # ensure EXCLUDE_DEPRECATED_BEFORE_AND_AT is at least at the version where all QWidgets API is deprecated
+    if (NOT EXCLUDE_DEPRECATED_BEFORE_AND_AT STREQUAL "CURRENT" AND
+        EXCLUDE_DEPRECATED_BEFORE_AND_AT VERSION_LESS "5.62.0")
+        set(EXCLUDE_DEPRECATED_BEFORE_AND_AT "5.62.0")
+    endif()
 endif()
 
 ecm_setup_version(PROJECT VARIABLE_PREFIX KWINDOWSYSTEM

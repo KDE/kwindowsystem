@@ -140,7 +140,7 @@ KWINDOWSYSTEM_EXPORT bool keyQtToCodeX(int keyQt, int *keyCode);
  */
 KWINDOWSYSTEM_EXPORT bool keyQtToModX(int keyQt, uint *mod);
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 38)
 /**
  * Converts the given symbol to a Qt key code.
  * @param sym the symbol
@@ -148,7 +148,8 @@ KWINDOWSYSTEM_EXPORT bool keyQtToModX(int keyQt, uint *mod);
  * @return true if successful, false otherwise
  * @deprecated since 5.38, use symXModXToKeyQt in order to support numeric keypad keys too
  */
-KWINDOWSYSTEM_DEPRECATED_EXPORT bool symXToKeyQt(uint sym, int *keyQt);
+KWINDOWSYSTEM_DEPRECATED_VERSION(5, 38, "Use KKeyServer::symXModXToKeyQt(uint32_t, uint16_t, int *)")
+KWINDOWSYSTEM_EXPORT bool symXToKeyQt(uint sym, int *keyQt);
 #endif
 
 /**

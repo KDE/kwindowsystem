@@ -333,6 +333,8 @@ public:
            indicates that this is a dialog window
         **/
         Dialog   = 5,
+        // cannot deprecate to compiler: used both by clients & manager, later needs to keep supporting it for now
+        // KF6: remove
         /**
                @deprecated has unclear meaning and is KDE-only
         **/
@@ -472,10 +474,12 @@ public:
            windows).
         **/
         KeepAbove    = 1u << 6,
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
         /**
            @deprecated This is an obsolete name for KeepAbove.
         **/
         StaysOnTop   = KeepAbove,   // NOT STANDARD
+#endif
         /**
            indicates that a window should not be included on a pager.
         **/

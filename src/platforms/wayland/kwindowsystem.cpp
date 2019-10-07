@@ -93,7 +93,7 @@ void KWindowSystemPrivateWayland::setOnActivities(WId win, const QStringList &ac
     Q_UNUSED(activities)
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 WId KWindowSystemPrivateWayland::transientFor(WId window)
 {
     Q_UNUSED(window)

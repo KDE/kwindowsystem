@@ -64,7 +64,7 @@ KWINDOWSYSTEM_EXPORT bool isEffectAvailable(Effect effect);
  */
 KWINDOWSYSTEM_EXPORT void slideWindow(WId id, SlideFromLocation location, int offset = -1);
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 62)
 /**
  * Mark a window as sliding from screen edge
  * This is an overloaded member function provided for convenience
@@ -74,7 +74,8 @@ KWINDOWSYSTEM_EXPORT void slideWindow(WId id, SlideFromLocation location, int of
  *               Desktop and Floating won't have effect.
  * @deprecated since 5.62, use slideWindow(widget->effectiveWinId(), location);
  */
-KWINDOWSYSTEM_DEPRECATED_EXPORT void slideWindow(QWidget *widget, SlideFromLocation location);
+KWINDOWSYSTEM_DEPRECATED_VERSION(5, 62, "Use KWindowEffects::slideWindow(WId, SlideFromLocation, int)")
+KWINDOWSYSTEM_EXPORT void slideWindow(QWidget *widget, SlideFromLocation location);
 #endif
 
 /**

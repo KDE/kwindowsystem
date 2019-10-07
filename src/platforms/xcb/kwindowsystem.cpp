@@ -296,7 +296,7 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
         if (dirtyProperties || dirtyProperties2) {
             emit s_q->windowChanged(eventWindow);
             emit s_q->windowChanged(eventWindow, dirtyProperties, dirtyProperties2);
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
             unsigned long dirty[ 2 ] = {dirtyProperties, dirtyProperties2};
             emit s_q->windowChanged(eventWindow, dirty);
             emit s_q->windowChanged(eventWindow, dirtyProperties);
@@ -451,7 +451,7 @@ void KWindowSystemPrivateX11::connectNotify(const QMetaMethod &signal)
     } else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, NET::Properties, NET::Properties2)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     }
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
     else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, const unsigned long *)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     } else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, uint)>(&KWindowSystem::windowChanged))) {
@@ -677,15 +677,13 @@ void KWindowSystemPrivateX11::demandAttention(WId win, bool set)
     info.setState(set ? NET::DemandsAttention : NET::States(), NET::DemandsAttention);
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 WId KWindowSystemPrivateX11::transientFor(WId win)
 {
     KWindowInfo info(win, NET::Properties(), NET::WM2TransientFor);
     return info.transientFor();
 }
-#endif
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
 WId KWindowSystemPrivateX11::groupLeader(WId win)
 {
     KWindowInfo info(win, NET::Properties(), NET::WM2GroupLeader);

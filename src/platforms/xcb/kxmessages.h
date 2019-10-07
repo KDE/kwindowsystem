@@ -82,6 +82,8 @@ public:
          * @param screen X11 screen to use, -1 for the default
      */
     void broadcastMessage(const char *msg_type, const QString &message, int screen = -1);
+// Not 5.0, as KStartupInfo::sendStartupX uses this, and is only deprecated for 5.18
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 18)
     /**
      * Broadcasts the given message with the given message type.
      *
@@ -93,8 +95,8 @@ public:
      * @return false when an error occurred, true otherwise
      * @deprecated since 5.0 use xcb variant
      */
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
-    KWINDOWSYSTEM_DEPRECATED static bool broadcastMessageX(Display *disp, const char *msg_type,
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KXMessages::broadcastMessageX(xcb_connection_t *, const char *,                                   const QString &, int)")
+    static bool broadcastMessageX(Display *disp, const char *msg_type,
                                   const QString &message, int screen = -1);
 #endif
     /**

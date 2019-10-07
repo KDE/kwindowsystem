@@ -27,7 +27,7 @@ class KXMessages_UnitTest : public QObject
 public:
     enum BroadcastType {
         BroadcastMessageObject,
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
         BroadcastStaticDisplay,
 #endif
         BroadcastStaticConnection
@@ -58,12 +58,12 @@ void KXMessages_UnitTest::testStart_data()
     QTest::addColumn<KXMessages_UnitTest::ReceiverType>("receiverType");
 
     QTest::newRow("object")     << BroadcastMessageObject << ReceiverTypeDefault;
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
     QTest::newRow("display")    << BroadcastStaticDisplay << ReceiverTypeDefault;
 #endif
     QTest::newRow("connection") << BroadcastStaticConnection << ReceiverTypeDefault;
     QTest::newRow("object/xcb")     << BroadcastMessageObject << ReceiverTypeConnection;
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
     QTest::newRow("display/xcb")    << BroadcastStaticDisplay << ReceiverTypeConnection;
 #endif
     QTest::newRow("connection/xcb") << BroadcastStaticConnection << ReceiverTypeConnection;
@@ -97,7 +97,7 @@ void KXMessages_UnitTest::testStart()
         case KXMessages_UnitTest::BroadcastMessageObject:
             m_msgs.broadcastMessage(type, message);
             break;
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
         case KXMessages_UnitTest::BroadcastStaticDisplay:
             QVERIFY(KXMessages::broadcastMessageX(QX11Info::display(), type.constData(), message));
             break;

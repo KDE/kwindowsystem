@@ -681,6 +681,7 @@ public:
     */
     void sendPing(xcb_window_t window, xcb_timestamp_t timestamp);
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
     /**
        This function takes the passed XEvent and returns an OR'ed list of
        NETRootInfo properties that have changed in the properties argument.
@@ -696,8 +697,8 @@ public:
        @deprecated since 5.0 use event(xcb_generic_event_t*, NET::Properties*, NET::Properties2*)
 
     **/
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
-    KWINDOWSYSTEM_DEPRECATED void event(xcb_generic_event_t *event, unsigned long *properties, int properties_size);
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use NETRootInfo::event(xcb_generic_event_t*, NET::Properties*, NET::Properties2*)")
+    void event(xcb_generic_event_t *event, unsigned long *properties, int properties_size);
 #endif
     /**
      * This function takes the passed xcb_generic_event_t and returns the updated properties in the passed in arguments.
@@ -980,13 +981,14 @@ public:
                NET::Properties properties, NET::Properties2 properties2,
                Role role = Client);
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
     /**
         This constructor differs from the above one only in the way it accepts
         the list of properties the client is interested in.
         @deprecated since 5.0 use above ctor
     **/
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
-    KWINDOWSYSTEM_DEPRECATED NETWinInfo(xcb_connection_t *connection, xcb_window_t window,
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use NETWinInfo(xcb_connection_t *, xcb_window_t, xcb_window_t, NET::Properties, NET::Properties2, Role")
+    NETWinInfo(xcb_connection_t *connection, xcb_window_t window,
                xcb_window_t rootWindow, NET::Properties properties,
                Role role = Client);
 #endif
@@ -1058,6 +1060,7 @@ public:
     **/
     NETExtendedStrut extendedStrut() const;
 
+    // Still used internally, e.g. by KWindowSystem::strutChanged() logic
     /**
        @deprecated use strutPartial()
        Returns the strut specified by this client.
@@ -1186,6 +1189,7 @@ public:
     **/
     void setExtendedStrut(const NETExtendedStrut &extended_strut);
 
+    // Still used internally, e.g. by KWindowSystem::strutChanged() logic
     /**
        @deprecated use setExtendedStrut()
        Set the strut for the application window.
@@ -1518,6 +1522,7 @@ public:
     **/
     NETFullscreenMonitors fullscreenMonitors() const;
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
     /**
        This function takes the passed XEvent and returns an OR'ed list of
        NETWinInfo properties that have changed in the properties argument.
@@ -1532,8 +1537,8 @@ public:
        @param properties_size size of the passed properties array
        @deprecated since 5.0 use event(xcb_generic_event_t*, NET::Properties*, NET::Properties2*)
     **/
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
-    KWINDOWSYSTEM_DEPRECATED void event(xcb_generic_event_t *event, unsigned long *properties, int properties_size);
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use NETWinInfo::event(xcb_generic_event_t*, NET::Properties*, NET::Properties2*)")
+    void event(xcb_generic_event_t *event, unsigned long *properties, int properties_size);
 #endif
     /**
      * This function takes the passed in xcb_generic_event_t and returns the updated properties

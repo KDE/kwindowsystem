@@ -1674,7 +1674,7 @@ NET::Properties NETRootInfo::event(xcb_generic_event_t *ev)
     return props;
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 void NETRootInfo::event(xcb_generic_event_t *ev, unsigned long *properties, int properties_size)
 {
     unsigned long props[ PROPERTIES_SIZE ] = { 0, 0, 0, 0, 0 };
@@ -2622,7 +2622,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     update(p->properties, p->properties2);
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_window_t rootWindow,
                        NET::Properties properties, Role role)
 {
@@ -3849,7 +3849,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
     }
 }
 
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 void NETWinInfo::event(xcb_generic_event_t *ev, unsigned long *properties, int properties_size)
 {
     NET::Properties p;
