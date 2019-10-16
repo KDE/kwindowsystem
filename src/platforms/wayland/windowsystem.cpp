@@ -162,10 +162,32 @@ bool WindowSystem::icccmCompliantMappingState()
 
 QPixmap WindowSystem::icon(WId win, int width, int height, bool scale, int flags)
 {
-    Q_UNUSED(scale)
     Q_UNUSED(flags)
+
+    // Since width can be any arbitrary size, but the icons cannot,
+    // take the nearest value for best results (ignoring 22 pixel
+    // icons as they don't exist for apps):
+    int iconWidth;
+    if (width < 24) {
+        iconWidth = 16;
+    } else if (width < 40) {
+        iconWidth = 32;
+    } else if (width < 56) {
+        iconWidth = 48;
+    } else if (width < 96) {
+        iconWidth = 64;
+    } else if (width < 192) {
+        iconWidth = 128;
+    } else {
+        iconWidth = 256;
+    }
+
     if (PlasmaWindow *w = window(win)) {
-        return w->icon().pixmap(width, height);
+        QPixmap pixmap = w->icon().pixmap(iconWidth, iconWidth);
+        if (scale) {
+            return pixmap.scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        }
+        return pixmap;
     }
     return QPixmap();
 }
