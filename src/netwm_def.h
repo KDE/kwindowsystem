@@ -476,7 +476,7 @@ public:
         KeepAbove    = 1u << 6,
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
         /**
-           @deprecated This is an obsolete name for KeepAbove.
+           @deprecated Since 5.0. This is an obsolete name for KeepAbove.
         **/
         StaysOnTop   = KeepAbove,   // NOT STANDARD
 #endif
