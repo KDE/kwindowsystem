@@ -142,8 +142,8 @@ QByteArray KXErrorHandler::errorMessage(const XErrorEvent &event, Display *dpy)
     // "Error: <error> (<value>), Request: <request>(<value>), Resource: <value>"
     QByteArray ret;
     char tmp[ 256 ];
-    char num[ 256 ];
 #if 0 // see below
+    char num[ 256 ];
     if (event.request_code < 128)  // core request
 #endif
     {
