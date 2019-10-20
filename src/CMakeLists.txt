@@ -73,7 +73,7 @@ add_library(KF5::WindowSystem ALIAS KF5WindowSystem)
 
 ecm_generate_export_header(KF5WindowSystem
     BASE_NAME KWindowSystem
-    # GROUP_BASE_NAME KF enable once all of KF modules use ecm_generate_export_header
+    GROUP_BASE_NAME KF
     VERSION ${KF5_VERSION}
     DEPRECATED_BASE_VERSION 0
     DEPRECATION_VERSIONS 5.0 5.18 5.38 5.62
