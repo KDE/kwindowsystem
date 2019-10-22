@@ -1,2 +1,8 @@
+### KApiDox Project-specific Overrides File
+
 # Define this so that X11-specific classes are parsed by Doxygen
-PREDEFINED += KWINDOWSYSTEM_HAVE_X11
+# and that deprecated API is not skipped
+PREDEFINED += KWINDOWSYSTEM_HAVE_X11 \
+    "KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(x, y)=1" \
+    "KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(x, y)=1" \
+    "KWINDOWSYSTEM_DEPRECATED_VERSION(x, y, t)="
