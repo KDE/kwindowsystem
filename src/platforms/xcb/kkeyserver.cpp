@@ -769,11 +769,11 @@ bool keyQtToSymX(int keyQt, int *keySym)
         }
     }
 
-    for (uint i = 0; i < sizeof(g_rgQtToSymX) / sizeof(TransKey); i++) {
-        if (g_rgQtToSymX[i].keySymQt == symQt) {
-            if ((keyQt & Qt::KeypadModifier) && !is_keypad_key(g_rgQtToSymX[i].keySymX))
+    for (const TransKey &tk : g_rgQtToSymX) {
+        if (tk.keySymQt == symQt) {
+            if ((keyQt & Qt::KeypadModifier) && !is_keypad_key(tk.keySymX))
                 continue;
-            *keySym = g_rgQtToSymX[i].keySymX;
+            *keySym = tk.keySymX;
             return true;
         }
     }
@@ -808,11 +808,12 @@ bool symXModXToKeyQt(uint32_t keySym, uint16_t modX, int *keyQt)
     }
 
     else {
-        for (uint i = 0; i < sizeof(g_rgQtToSymX) / sizeof(TransKey); i++)
-            if (g_rgQtToSymX[i].keySymX == keySym) {
-                *keyQt = g_rgQtToSymX[i].keySymQt;
+        for (const TransKey &tk : g_rgQtToSymX) {
+            if (tk.keySymX == keySym) {
+                *keyQt = tk.keySymQt;
                 break;
             }
+        }
     }
 
     if (*keyQt == Qt::Key_unknown) {
