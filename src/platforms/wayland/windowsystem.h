@@ -52,7 +52,7 @@ public:
     void setOnAllDesktops(WId win, bool b) override;
     void setOnDesktop(WId win, int desktop) override;
     void setOnActivities(WId win, const QStringList &activities) override;
-#ifndef KWINDOWSYSTEM_NO_DEPRECATED
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
     WId transientFor(WId window) override;
     WId groupLeader(WId window) override;
 #endif
