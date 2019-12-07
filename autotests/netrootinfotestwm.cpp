@@ -245,6 +245,8 @@ void NetRootInfoTestWM::testSupported()
     count -= 7;
     // WM2BlockCompositing has 3 properties
     count += 2;
+    // Add _GTK_FRAME_EXTENTS
+    ++count;
 
     QVERIFY(supported  != XCB_ATOM_NONE);
     QVERIFY(utf8String != XCB_ATOM_NONE);
