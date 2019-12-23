@@ -111,7 +111,6 @@ private:
 
 void NetWinInfoTestClient::initTestCase()
 {
-    qsrand(QDateTime::currentMSecsSinceEpoch());
 }
 
 void NetWinInfoTestClient::cleanupTestCase()

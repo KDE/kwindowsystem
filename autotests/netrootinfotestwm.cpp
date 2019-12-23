@@ -81,7 +81,6 @@ void NetRootInfoTestWM::cleanupTestCase()
 
 void NetRootInfoTestWM::initTestCase()
 {
-    qsrand(QDateTime::currentMSecsSinceEpoch());
 }
 
 void NetRootInfoTestWM::init()
