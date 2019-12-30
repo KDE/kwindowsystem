@@ -467,9 +467,9 @@ inline void checkDisplay()
 {
     // Some non-GUI apps might try to use us.
     if (!QX11Info::display()) {
-        qCCritical(LOG_KKEYSERVER_X11) << "QX11Info::display() returns 0.  I'm probably going to crash now." << endl;
+        qCCritical(LOG_KKEYSERVER_X11) << "QX11Info::display() returns 0.  I'm probably going to crash now.";
         qCCritical(LOG_KKEYSERVER_X11) << "If this is a KApplication initialized without GUI stuff, change it to be "
-                    "initialized with GUI stuff." << endl;
+                    "initialized with GUI stuff.";
     }
 }
 #else // NDEBUG
