@@ -18,6 +18,7 @@
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "plugin.h"
+#include "windowshadow.h"
 #include "windowsystem.h"
 #include "windoweffects.h"
 #include "windowinfo.h"
@@ -44,4 +45,14 @@ KWindowSystemPrivate *KWaylandPlugin::createWindowSystem()
 KWindowInfoPrivate *KWaylandPlugin::createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2)
 {
     return new WindowInfo(window, properties, properties2);
+}
+
+KWindowShadowTilePrivate *KWaylandPlugin::createWindowShadowTile()
+{
+    return new WindowShadowTile();
+}
+
+KWindowShadowPrivate *KWaylandPlugin::createWindowShadow()
+{
+    return new WindowShadow();
 }

@@ -1,6 +1,7 @@
 /*
  * Copyright 2014 Martin Gräßlin <mgraesslin@kde.org>
  * Copyright 2015 Marco Martin <mart@kde.org>
+ * Copyright 2020 Vlad Zahorodnii <vlad.zahorodnii@kde.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,6 +33,8 @@
 #include <KWayland/Client/contrast.h>
 #include <KWayland/Client/region.h>
 #include <KWayland/Client/slide.h>
+#include <KWayland/Client/shadow.h>
+#include <KWayland/Client/shm_pool.h>
 
 #include <KWindowSystem/KWindowSystem>
 
@@ -143,6 +146,28 @@ KWayland::Client::SlideManager *WaylandIntegration::waylandSlideManager()
     return m_waylandSlideManager;
 }
 
+KWayland::Client::ShadowManager *WaylandIntegration::waylandShadowManager()
+{
+    if (!m_waylandShadowManager && m_registry) {
+        const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Shadow);
+
+        if (wmInterface.name == 0) {
+            qCWarning(KWAYLAND_KWS) << "This compositor does not support the Shadow interface";
+            return nullptr;
+        }
+
+        m_waylandShadowManager = m_registry->createShadowManager(wmInterface.name, wmInterface.version, qApp);
+
+        connect(m_waylandShadowManager, &KWayland::Client::ShadowManager::removed, this,
+            [this] () {
+                m_waylandShadowManager->deleteLater();
+            }
+        );
+    }
+
+    return m_waylandShadowManager;
+}
+
 KWayland::Client::Compositor *WaylandIntegration::waylandCompositor() const
 {
     return m_waylandCompositor;
@@ -207,4 +232,25 @@ KWayland::Client::PlasmaShell *WaylandIntegration::waylandPlasmaShell()
         m_waylandPlasmaShell = m_registry->createPlasmaShell(wmInterface.name, wmInterface.version, qApp);
     }
     return m_waylandPlasmaShell;
+}
+
+KWayland::Client::ShmPool *WaylandIntegration::waylandShmPool()
+{
+    if (!m_waylandShmPool && m_registry) {
+        const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Shm);
+
+        if (wmInterface.name == 0) {
+            return nullptr;
+        }
+
+        m_waylandShmPool = m_registry->createShmPool(wmInterface.name, wmInterface.version, qApp);
+
+        connect(m_waylandShmPool, &KWayland::Client::ShmPool::removed, this,
+            [this] () {
+                m_waylandShmPool->deleteLater();
+            }
+        );
+    }
+
+    return m_waylandShmPool;
 }

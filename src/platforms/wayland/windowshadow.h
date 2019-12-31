@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Martin Gräßlin <mgraesslin@kde.org>
+ * Copyright 2020 Vlad Zahorodnii <vlad.zahorodnii@kde.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,26 +17,32 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef KWINDOWSYSTEM_KWAYLAND_PLUGIN_H
-#define KWINDOWSYSTEM_KWAYLAND_PLUGIN_H
 
-#include <KWindowSystem/private/kwindowsystemplugininterface_p.h>
+#ifndef WINDOWSHADOW_H
+#define WINDOWSHADOW_H
 
-class KWaylandPlugin : public KWindowSystemPluginInterface
+#include <KWayland/Client/buffer.h>
+#include <KWayland/Client/shadow.h>
+#include <KWindowSystem/private/kwindowshadow_p.h>
+
+class WindowShadowTile final : public KWindowShadowTilePrivate
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.kde.kwindowsystem.KWindowSystemPluginInterface" FILE "wayland.json")
-    Q_INTERFACES(KWindowSystemPluginInterface)
-
 public:
-    explicit KWaylandPlugin(QObject *parent = nullptr);
-    ~KWaylandPlugin() override;
+    bool create() override;
+    void destroy() override;
 
-    KWindowEffectsPrivate *createEffects() override;
-    KWindowSystemPrivate *createWindowSystem() override;
-    KWindowInfoPrivate *createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2) override;
-    KWindowShadowTilePrivate *createWindowShadowTile() override;
-    KWindowShadowPrivate *createWindowShadow() override;
+    static WindowShadowTile *get(const KWindowShadowTile *tile);
+
+    KWayland::Client::Buffer::Ptr buffer;
 };
 
-#endif
+class WindowShadow final : public KWindowShadowPrivate
+{
+public:
+    bool create() override;
+    void destroy() override;
+
+    QPointer<KWayland::Client::Shadow> shadow;
+};
+
+#endif // WINDOWSHADOW_H
