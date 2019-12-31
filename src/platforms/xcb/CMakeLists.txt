@@ -1,6 +1,7 @@
 set(xcb_plugin_SRCS
     kwindoweffects.cpp
     kwindowinfo.cpp
+    kwindowshadow.cpp
     kwindowsystem.cpp
     kxerrorhandler.cpp
     kxutils.cpp

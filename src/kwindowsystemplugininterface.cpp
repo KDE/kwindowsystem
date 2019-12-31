@@ -45,3 +45,13 @@ KWindowInfoPrivate *KWindowSystemPluginInterface::createWindowInfo(WId window, N
     Q_UNUSED(properties2)
     return nullptr;
 }
+
+KWindowShadowPrivate *KWindowSystemPluginInterface::createWindowShadow()
+{
+    return nullptr;
+}
+
+KWindowShadowTilePrivate *KWindowSystemPluginInterface::createWindowShadowTile()
+{
+    return nullptr;
+}

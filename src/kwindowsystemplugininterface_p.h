@@ -27,6 +27,8 @@
 
 class KWindowEffectsPrivate;
 class KWindowInfoPrivate;
+class KWindowShadowPrivate;
+class KWindowShadowTilePrivate;
 class KWindowSystemPrivate;
 
 class KWINDOWSYSTEM_EXPORT KWindowSystemPluginInterface : public QObject
@@ -39,6 +41,8 @@ public:
     virtual KWindowEffectsPrivate *createEffects();
     virtual KWindowSystemPrivate *createWindowSystem();
     virtual KWindowInfoPrivate *createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2);
+    virtual KWindowShadowPrivate *createWindowShadow();
+    virtual KWindowShadowTilePrivate *createWindowShadowTile();
 };
 
 Q_DECLARE_INTERFACE(KWindowSystemPluginInterface, "org.kde.kwindowsystem.KWindowSystemPluginInterface")

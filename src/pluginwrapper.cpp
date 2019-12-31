@@ -21,6 +21,7 @@
 #include "kwindowinfo_dummy_p.h"
 #include "kwindowsystemplugininterface_p.h"
 #include "kwindoweffects_dummy_p.h"
+#include "kwindowshadow_dummy_p.h"
 #include "kwindowsystem_dummy_p.h"
 #include "kwindowsystem_debug.h"
 
@@ -124,6 +125,30 @@ KWindowInfoPrivate *KWindowSystemPluginWrapper::createWindowInfo(WId window, NET
     }
     if (!p) {
         p = new KWindowInfoPrivateDummy(window, properties, properties2);
+    }
+    return p;
+}
+
+KWindowShadowPrivate *KWindowSystemPluginWrapper::createWindowShadow() const
+{
+    KWindowShadowPrivate *p = nullptr;
+    if (!m_plugin.isNull()) {
+        p = m_plugin->createWindowShadow();
+    }
+    if (!p) {
+        p = new KWindowShadowPrivateDummy();
+    }
+    return p;
+}
+
+KWindowShadowTilePrivate *KWindowSystemPluginWrapper::createWindowShadowTile() const
+{
+    KWindowShadowTilePrivate *p = nullptr;
+    if (!m_plugin.isNull()) {
+        p = m_plugin->createWindowShadowTile();
+    }
+    if (!p) {
+        p = new KWindowShadowTilePrivateDummy();
     }
     return p;
 }

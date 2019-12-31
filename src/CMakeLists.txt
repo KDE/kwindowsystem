@@ -11,6 +11,7 @@ set(kwindowsystem_SRCS
     kwindoweffects.cpp
     kwindoweffects_dummy.cpp
     kwindowinfo.cpp
+    kwindowshadow.cpp
     kwindowsystem.cpp
     platforms/wayland/kwindowsystem.cpp
     pluginwrapper.cpp
@@ -109,6 +110,7 @@ ecm_generate_headers(KWindowSystem_HEADERS
   KUserTimestamp
   KWindowEffects
   KWindowInfo
+  KWindowShadow,KWindowShadowTile
   KWindowSystem
 
   REQUIRED_HEADERS KWindowSystem_HEADERS
@@ -129,6 +131,7 @@ install(
     FILES
         kwindoweffects_p.h
         kwindowinfo_p.h
+        kwindowshadow_p.h
         kwindowsystem_p.h
         kwindowsystemplugininterface_p.h
     DESTINATION

@@ -20,6 +20,7 @@
 #include "plugin.h"
 #include "kwindoweffects_x11.h"
 #include "kwindowinfo_p_x11.h"
+#include "kwindowshadow_p_x11.h"
 #include "kwindowsystem_p_x11.h"
 
 X11Plugin::X11Plugin(QObject *parent)
@@ -44,4 +45,14 @@ KWindowSystemPrivate *X11Plugin::createWindowSystem()
 KWindowInfoPrivate *X11Plugin::createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2)
 {
     return new KWindowInfoPrivateX11(window, properties, properties2);
+}
+
+KWindowShadowPrivate *X11Plugin::createWindowShadow()
+{
+    return new KWindowShadowPrivateX11();
+}
+
+KWindowShadowTilePrivate *X11Plugin::createWindowShadowTile()
+{
+    return new KWindowShadowTilePrivateX11();
 }
