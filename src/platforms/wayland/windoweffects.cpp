@@ -275,9 +275,9 @@ void WindowEffects::enableBackgroundContrast(QWindow *window, bool enable, qreal
     }
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
 void WindowEffects::markAsDashboard(WId window)
 {
     Q_UNUSED(window)
 }
-
-
+#endif
