@@ -84,7 +84,9 @@ void KWindowEffectsPrivateDummy::enableBackgroundContrast(WId window, bool enabl
     Q_UNUSED(region)
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
 void KWindowEffectsPrivateDummy::markAsDashboard(WId window)
 {
     Q_UNUSED(window)
 }
+#endif

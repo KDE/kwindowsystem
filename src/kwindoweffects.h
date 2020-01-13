@@ -36,7 +36,9 @@ enum Effect {
     PresentWindowsGroup = 4,
     HighlightWindows = 5,
     BlurBehind = 7,
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 67)
     Dashboard = 8,
+#endif
     BackgroundContrast = 9
 };
 
@@ -153,14 +155,18 @@ KWINDOWSYSTEM_EXPORT void enableBlurBehind(WId window, bool enable = true, const
  */
 KWINDOWSYSTEM_EXPORT void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 67)
 /**
  * Instructs the window manager to handle the given window as dashboard window as
  * Dashboard windows should be handled diffrently and may have special effects
  * applied to them.
  *
  * @param window The window for which to enable the blur effect
+ * @deprecated since 5.67, support for dashboard windows was removed
  */
+KWINDOWSYSTEM_DEPRECATED_VERSION(5, 67, "Support for dashboard windows was removed")
 KWINDOWSYSTEM_EXPORT void markAsDashboard(WId window);
+#endif
 }
 
 #endif

@@ -28,7 +28,6 @@
 #include <QX11Info>
 #include <QMatrix4x4>
 
-static const char DASHBOARD_WIN_CLASS[] = "dashboard\0dashboard";
 using namespace KWindowEffects;
 
 KWindowEffectsPrivateX11::KWindowEffectsPrivateX11()
@@ -62,10 +61,12 @@ bool KWindowEffectsPrivateX11::isEffectAvailable(Effect effect)
     case BlurBehind:
         effectName = QByteArrayLiteral("_KDE_NET_WM_BLUR_BEHIND_REGION");
         break;
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
     case Dashboard:
         // TODO: Better namespacing for atoms
         effectName = QByteArrayLiteral("_WM_EFFECT_KDE_DASHBOARD");
         break;
+#endif
     case BackgroundContrast:
         effectName = QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_CONTRAST_REGION");
         break;
@@ -331,8 +332,10 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
     }
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
 void KWindowEffectsPrivateX11::markAsDashboard(WId window)
 {
+    static const char DASHBOARD_WIN_CLASS[] = "dashboard\0dashboard";
     xcb_connection_t *c = QX11Info::connection();
     if (!c) {
         return;
@@ -340,4 +343,4 @@ void KWindowEffectsPrivateX11::markAsDashboard(WId window)
     xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLASS,
                         XCB_ATOM_STRING, 8, 19, DASHBOARD_WIN_CLASS);
 }
-
+#endif

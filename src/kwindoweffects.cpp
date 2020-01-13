@@ -55,10 +55,12 @@ void highlightWindows(WId controller, const QList< WId > &ids)
     KWindowSystemPluginWrapper::self().effects()->highlightWindows(controller, ids);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
 void markAsDashboard(WId window)
 {
     KWindowSystemPluginWrapper::self().effects()->markAsDashboard(window);
 }
+#endif
 
 void presentWindows(WId controller, const QList< WId > &ids)
 {

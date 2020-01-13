@@ -49,7 +49,9 @@ private Q_SLOTS:
     void testBlur_data();
     void testBlur();
     void testBlurDisable();
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 67)
     void testMarkAsDashboard();
+#endif
     void testEffectAvailable_data();
     void testEffectAvailable();
 
@@ -362,6 +364,7 @@ void KWindowEffectsTest::testBlurDisable()
     performAtomIsRemoveTest(m_window->winId(), m_blur);
 }
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 67)
 void KWindowEffectsTest::testMarkAsDashboard()
 {
     const QByteArray className = QByteArrayLiteral("dashboard");
@@ -390,6 +393,7 @@ void KWindowEffectsTest::testMarkAsDashboard()
     data = data + 10;
     QCOMPARE(QByteArray(data), className);
 }
+#endif
 
 void KWindowEffectsTest::testEffectAvailable_data()
 {
@@ -401,7 +405,9 @@ void KWindowEffectsTest::testEffectAvailable_data()
     QTest::newRow("PresentWindowsGroup") << KWindowEffects::PresentWindowsGroup << QByteArrayLiteral("_KDE_PRESENT_WINDOWS_GROUP");
     QTest::newRow("HighlightWindows") << KWindowEffects::HighlightWindows << QByteArrayLiteral("_KDE_WINDOW_HIGHLIGHT");
     QTest::newRow("BlurBehind") << KWindowEffects::BlurBehind << QByteArrayLiteral("_KDE_NET_WM_BLUR_BEHIND_REGION");
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 67)
     QTest::newRow("Dashboard") << KWindowEffects::Dashboard << QByteArrayLiteral("_WM_EFFECT_KDE_DASHBOARD");
+#endif
     QTest::newRow("BackgroundContrast") << KWindowEffects::BackgroundContrast << QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_CONTRAST_REGION");
 }
 
