@@ -21,6 +21,8 @@
 #include "kwindowsystem_debug.h"
 #include "pluginwrapper_p.h"
 
+#include <array>
+
 KWindowShadowTile::KWindowShadowTile()
     : d(KWindowSystemPluginWrapper::self().createWindowShadowTile())
 {
