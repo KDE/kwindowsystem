@@ -45,10 +45,10 @@ bool KWindowShadowTilePrivateX11::create()
 void KWindowShadowTilePrivateX11::destroy()
 {
     xcb_connection_t *connection = QX11Info::connection();
-
-    xcb_free_pixmap(connection, pixmap);
-    xcb_free_gc(connection, gc);
-
+    if (connection) {
+        xcb_free_pixmap(connection, pixmap);
+        xcb_free_gc(connection, gc);
+    }
     pixmap = XCB_PIXMAP_NONE;
     gc = XCB_NONE;
 }
