@@ -18,8 +18,22 @@ set(kwindowsystem_SRCS
     kwindowsystemplugininterface.cpp
     ${kwindowsystem_QM_LOADER}
     )
-ecm_qt_declare_logging_category(kwindowsystem_SRCS HEADER kwindowsystem_debug.h IDENTIFIER LOG_KWINDOWSYSTEM CATEGORY_NAME org.kde.kwindowsystem DEFAULT_SEVERITY Warning)
-ecm_qt_declare_logging_category(kwindowsystem_SRCS HEADER kwindowsystem_xcb_debug.h IDENTIFIER LOG_KKEYSERVER_X11 CATEGORY_NAME org.kde.kwindowsystem.keyserver.x11 DEFAULT_SEVERITY Warning)
+ecm_qt_declare_logging_category(kwindowsystem_SRCS
+    HEADER kwindowsystem_debug.h
+    IDENTIFIER LOG_KWINDOWSYSTEM
+    CATEGORY_NAME org.kde.kwindowsystem
+    DEFAULT_SEVERITY Warning
+    DESCRIPTION "KWindowSystem"
+    EXPORT KWINDOWSYSTEM
+)
+ecm_qt_declare_logging_category(kwindowsystem_SRCS
+    HEADER kwindowsystem_xcb_debug.h
+    IDENTIFIER LOG_KKEYSERVER_X11
+    CATEGORY_NAME org.kde.kwindowsystem.keyserver.x11
+    DEFAULT_SEVERITY Warning
+    DESCRIPTION "KKeyServer (KWindowSystem)"
+    EXPORT KWINDOWSYSTEM
+)
 
 if (KWINDOWSYSTEM_HAVE_X11)
   set(kwindowsystem_SRCS ${kwindowsystem_SRCS}
@@ -168,6 +182,12 @@ if(BUILD_QCH)
 endif()
 
 add_subdirectory(platforms)
+
+ecm_qt_install_logging_categories(
+    EXPORT KWINDOWSYSTEM
+    FILE kwindowsystem.categories
+    DESTINATION ${KDE_INSTALL_LOGGINGCATEGORIESDIR}
+)
 
 include(ECMGeneratePriFile)
 ecm_generate_pri_file(BASE_NAME KWindowSystem LIB_NAME KF5WindowSystem DEPS "gui" FILENAME_VAR PRI_FILENAME INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem)
