@@ -331,7 +331,11 @@ QStringList KWindowInfoPrivateX11::activities() const
 #endif
 
     const QStringList result = QString::fromLatin1(m_info->activities()).split(
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
         QLatin1Char(','), QString::SkipEmptyParts);
+#else
+        QLatin1Char(','), Qt::SkipEmptyParts);
+#endif
 
     return result.contains(QStringLiteral(KDE_ALL_ACTIVITIES_UUID)) ?
         QStringList() : result;
