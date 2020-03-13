@@ -695,17 +695,21 @@ public:
            */
     void setXinerama(int xinerama);
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 69)
     /**
      * The toplevel window of the application that caused this startup notification,
      * 0 if unknown.
      */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 69, "Deprecated because not used anywhere. Tell kde-frameworks-devel@kde.org if you disagree")
     WId launchedBy() const;
 
     /**
-    * Sets the toplevel window of the application that caused this startup notification.
+     * Sets the toplevel window of the application that caused this startup notification.
      * @param window window ID of the toplevel window that is responsible for this startup
-           */
+     */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 69, "Deprecated because launchedBy() is not used anywhere. Tell kde-frameworks-devel@kde.org if you disagree")
     void setLaunchedBy(WId window);
+#endif
 
     /**
      * The .desktop file used to initiate this startup notification, or empty. This information

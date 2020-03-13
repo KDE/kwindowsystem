@@ -93,7 +93,7 @@ struct Q_DECL_HIDDEN KStartupInfoId::Private
 struct Q_DECL_HIDDEN KStartupInfoData::Private
 {
     Private() : desktop(0), wmclass(""), hostname(""),
-        silent(KStartupInfoData::Unknown), screen(-1), xinerama(-1), launched_by(0) {}
+        silent(KStartupInfoData::Unknown), screen(-1), xinerama(-1) {}
 
     QString to_text() const;
     void remove_pid(pid_t pid);
@@ -109,7 +109,9 @@ struct Q_DECL_HIDDEN KStartupInfoData::Private
     KStartupInfoData::TriState silent;
     int screen;
     int xinerama;
-    WId launched_by;
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 69)
+    WId launched_by = 0;
+#endif
     QString application_id;
 };
 
@@ -1262,9 +1264,11 @@ QString KStartupInfoData::Private::to_text() const
     if (xinerama != -1) {
         ret += QStringLiteral(" XINERAMA=%1").arg(xinerama);
     }
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 69)
     if (launched_by != 0) {
         ret += QStringLiteral(" LAUNCHED_BY=%1").arg((qptrdiff)launched_by);
     }
+#endif
     if (!application_id.isEmpty()) {
         ret += QStringLiteral(" APPLICATION_ID=\"%1\"").arg(application_id);
     }
@@ -1301,8 +1305,10 @@ KStartupInfoData::KStartupInfoData(const QString &txt_P) : d(new Private)
             d->screen = get_num(*it);
         } else if ((*it).startsWith(QLatin1String("XINERAMA="))) {
             d->xinerama = get_num(*it);
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 69)
         } else if ((*it).startsWith(QLatin1String("LAUNCHED_BY="))) {
             d->launched_by = (WId) get_num(*it);
+#endif
         } else if ((*it).startsWith(QLatin1String("APPLICATION_ID="))) {
             d->application_id = get_str(*it);
         }
@@ -1359,9 +1365,11 @@ void KStartupInfoData::update(const KStartupInfoData &data_P)
     if (data_P.xinerama() != -1 && xinerama() != -1) { // don't overwrite
         d->xinerama = data_P.xinerama();
     }
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 69)
     if (data_P.launchedBy() != 0 && launchedBy() != 0) { // don't overwrite
         d->launched_by = data_P.launchedBy();
     }
+#endif
     if (!data_P.applicationId().isEmpty() && applicationId().isEmpty()) { // don't overwrite
         d->application_id = data_P.applicationId();
     }
@@ -1539,6 +1547,7 @@ int KStartupInfoData::xinerama() const
     return d->xinerama;
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 69)
 void KStartupInfoData::setLaunchedBy(WId window)
 {
     d->launched_by = window;
@@ -1548,6 +1557,7 @@ WId KStartupInfoData::launchedBy() const
 {
     return d->launched_by;
 }
+#endif
 
 void KStartupInfoData::setApplicationId(const QString &desktop)
 {
