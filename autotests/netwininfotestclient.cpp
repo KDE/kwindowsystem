@@ -52,6 +52,8 @@ private Q_SLOTS:
     void testUserTime();
     void testStartupId();
     void testDesktopFileName();
+    void testAppMenuObjectPath();
+    void testAppMenuServiceName();
     void testHandledIcons_data();
     void testHandledIcons();
     void testPid();
@@ -274,6 +276,36 @@ void NetWinInfoTestClient::testStartupId()
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2StartupId);
     QCOMPARE(info.startupId(), "foo");
+}
+
+void NetWinInfoTestClient::testAppMenuObjectPath()
+{
+    ATOM(_KDE_NET_WM_APPMENU_OBJECT_PATH)
+    INFO
+
+    QVERIFY(!info.appMenuObjectPath());
+
+    xcb_change_property(connection(), XCB_PROP_MODE_REPLACE, m_testWindow,
+                        atom, XCB_ATOM_STRING, 8, 3, "foo");
+    xcb_flush(connection());
+
+    waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2AppMenuObjectPath);
+    QCOMPARE(info.appMenuObjectPath(), "foo");
+}
+
+void NetWinInfoTestClient::testAppMenuServiceName()
+{
+    ATOM(_KDE_NET_WM_APPMENU_SERVICE_NAME)
+    INFO
+
+    QVERIFY(!info.appMenuServiceName());
+
+    xcb_change_property(connection(), XCB_PROP_MODE_REPLACE, m_testWindow,
+                        atom, XCB_ATOM_STRING, 8, 3, "foo");
+    xcb_flush(connection());
+
+    waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2AppMenuServiceName);
+    QCOMPARE(info.appMenuServiceName(), "foo");
 }
 
 void NetWinInfoTestClient::testDesktopFileName()

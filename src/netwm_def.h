@@ -724,6 +724,8 @@ public:
         WM2OpaqueRegion        = 1u << 25, // @since 5.7
         WM2DesktopFileName     = 1u << 26, // NOT STANDARD @since 5.28
         WM2GTKFrameExtents     = 1u << 27, // NOT STANDARD @since 5.65
+        WM2AppMenuServiceName  = 1u << 28, // NOT STANDARD @since 5.69
+        WM2AppMenuObjectPath   = 1u << 29, // NOT STANDARD @since 5.69
         WM2AllProperties       = ~0u
     };
     Q_DECLARE_FLAGS(Properties2, Property2)

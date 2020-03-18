@@ -28,6 +28,9 @@ KWindowInfoPrivateDesktopFileNameExtension::~KWindowInfoPrivateDesktopFileNameEx
 KWindowInfoPrivatePidExtension::KWindowInfoPrivatePidExtension() = default;
 KWindowInfoPrivatePidExtension::~KWindowInfoPrivatePidExtension() = default;
 
+KWindowInfoPrivateAppMenuExtension::KWindowInfoPrivateAppMenuExtension() = default;
+KWindowInfoPrivateAppMenuExtension::~KWindowInfoPrivateAppMenuExtension() = default;
+
 class Q_DECL_HIDDEN KWindowInfoPrivate::Private
 {
 public:
@@ -37,6 +40,7 @@ public:
     NET::Properties2 properties2;
     KWindowInfoPrivateDesktopFileNameExtension *desktopFileNameExtension;
     KWindowInfoPrivatePidExtension *pidExtension;
+    KWindowInfoPrivateAppMenuExtension *appMenuExtension;
 };
 
 KWindowInfoPrivate::Private::Private(WId window, NET::Properties properties, NET::Properties2 properties2)
@@ -45,6 +49,7 @@ KWindowInfoPrivate::Private::Private(WId window, NET::Properties properties, NET
     , properties2(properties2)
     , desktopFileNameExtension(nullptr)
     , pidExtension(nullptr)
+    , appMenuExtension(nullptr)
 {
 }
 
@@ -80,6 +85,16 @@ KWindowInfoPrivatePidExtension *KWindowInfoPrivate::pidExtension() const
 void KWindowInfoPrivate::installPidExtension(KWindowInfoPrivatePidExtension *extension)
 {
     d->pidExtension = extension;
+}
+
+KWindowInfoPrivateAppMenuExtension *KWindowInfoPrivate::appMenuExtension() const
+{
+    return d->appMenuExtension;
+}
+
+void KWindowInfoPrivate::installAppMenuExtension(KWindowInfoPrivateAppMenuExtension *extension)
+{
+    d->appMenuExtension = extension;
 }
 
 KWindowInfoPrivateDummy::KWindowInfoPrivateDummy(WId window, NET::Properties properties, NET::Properties2 properties2)
@@ -390,6 +405,22 @@ QByteArray KWindowInfo::desktopFileName() const
 {
     if (auto extension = d->desktopFileNameExtension()) {
         return extension->desktopFileName();
+    }
+    return QByteArray();
+}
+
+QByteArray KWindowInfo::applicationMenuServiceName() const
+{
+    if (auto extension = d->appMenuExtension()) {
+        return extension->applicationMenuServiceName();
+    }
+    return QByteArray();
+}
+
+QByteArray KWindowInfo::applicationMenuObjectPath() const
+{
+    if (auto extension = d->appMenuExtension()) {
+        return extension->applicationMenuObjectPath();
     }
     return QByteArray();
 }

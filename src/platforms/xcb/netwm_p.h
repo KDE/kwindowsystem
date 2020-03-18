@@ -165,7 +165,7 @@ struct NETWinInfoPrivate {
     xcb_window_t transient_for, window_group;
     xcb_pixmap_t icon_pixmap, icon_mask;
     NET::Actions allowed_actions;
-    char *class_class, *class_name, *window_role, *client_machine, *desktop_file;
+    char *class_class, *class_name, *window_role, *client_machine, *desktop_file, *appmenu_object_path, *appmenu_service_name;
 
     NET::Properties properties;
     NET::Properties2 properties2;

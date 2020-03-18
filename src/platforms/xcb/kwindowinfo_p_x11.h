@@ -11,7 +11,7 @@
 
 class NETWinInfo;
 
-class KWindowInfoPrivateX11 : public KWindowInfoPrivate, public KWindowInfoPrivateDesktopFileNameExtension, public KWindowInfoPrivatePidExtension
+class KWindowInfoPrivateX11 : public KWindowInfoPrivate, public KWindowInfoPrivateDesktopFileNameExtension, public KWindowInfoPrivatePidExtension, public KWindowInfoPrivateAppMenuExtension
 {
 public:
     KWindowInfoPrivateX11(WId window, NET::Properties properties, NET::Properties2 properties2);
@@ -44,6 +44,8 @@ public:
     bool actionSupported(NET::Action action) const override;
 
     QByteArray desktopFileName() const override;
+    QByteArray applicationMenuObjectPath() const override;
+    QByteArray applicationMenuServiceName() const override;
 
     int pid() const override;
 

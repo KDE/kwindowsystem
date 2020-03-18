@@ -19,6 +19,7 @@
 
 class KWindowInfoPrivateDesktopFileNameExtension;
 class KWindowInfoPrivatePidExtension;
+class KWindowInfoPrivateAppMenuExtension;
 
 class KWINDOWSYSTEM_EXPORT KWindowInfoPrivate  : public QSharedData
 {
@@ -55,6 +56,7 @@ public:
 
     KWindowInfoPrivateDesktopFileNameExtension *desktopFileNameExtension() const;
     KWindowInfoPrivatePidExtension *pidExtension() const;
+    KWindowInfoPrivateAppMenuExtension *appMenuExtension() const;
 
     static KWindowInfoPrivate *create(WId window, NET::Properties properties, NET::Properties2 properties2);
 
@@ -63,6 +65,7 @@ protected:
 
     void installDesktopFileNameExtension(KWindowInfoPrivateDesktopFileNameExtension *extension);
     void installPidExtension(KWindowInfoPrivatePidExtension *extension);
+    void installAppMenuExtension(KWindowInfoPrivateAppMenuExtension *extension);
 
 private:
     class Private;
@@ -89,6 +92,18 @@ public:
 
 protected:
     explicit KWindowInfoPrivatePidExtension();
+};
+
+class KWINDOWSYSTEM_EXPORT KWindowInfoPrivateAppMenuExtension
+{
+public:
+    virtual ~KWindowInfoPrivateAppMenuExtension();
+
+    virtual QByteArray applicationMenuServiceName() const = 0;
+    virtual QByteArray applicationMenuObjectPath() const = 0;
+
+protected:
+    explicit KWindowInfoPrivateAppMenuExtension();
 };
 
 #endif

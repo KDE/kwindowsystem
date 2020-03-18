@@ -574,6 +574,24 @@ public:
     int pid() const;
 
     /**
+     * Returns service name of a window's application menu if present.
+     *
+     * Requires NET::WMPid passed as properties parameter to the constructor.
+     *
+     * @since 5.69
+     */
+    QByteArray applicationMenuServiceName() const;
+
+    /**
+     * Returns object path of a window's application menu if present.
+     *
+     * Requires NET::WMPid passed as properties parameter to the constructor.
+     *
+     * @since 5.69
+     */
+    QByteArray applicationMenuObjectPath() const;
+
+    /**
      * Copy constructor.
      */
     KWindowInfo(const KWindowInfo &);

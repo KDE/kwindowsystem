@@ -36,9 +36,11 @@ KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, NET::Properties propertie
     : KWindowInfoPrivate(_win, properties, properties2)
     , KWindowInfoPrivateDesktopFileNameExtension()
     , KWindowInfoPrivatePidExtension()
+    , KWindowInfoPrivateAppMenuExtension()
 {
     installDesktopFileNameExtension(this);
     installPidExtension(this);
+    installAppMenuExtension(this);
 
     KXErrorHandler handler;
     if (properties & NET::WMVisibleIconName) {
@@ -448,6 +450,26 @@ QByteArray KWindowInfoPrivateX11::desktopFileName() const
     }
 #endif
     return QByteArray(m_info->desktopFileName());
+}
+
+QByteArray KWindowInfoPrivateX11::applicationMenuObjectPath() const
+{
+#if !defined(KDE_NO_WARNING_OUTPUT)
+    if (!(m_info->passedProperties2() & NET::WM2AppMenuObjectPath)) {
+        qWarning() << "Pass NET::WM2AppMenuObjectPath to KWindowInfo";
+    }
+#endif
+    return QByteArray(m_info->appMenuObjectPath());
+}
+
+QByteArray KWindowInfoPrivateX11::applicationMenuServiceName() const
+{
+#if !defined(KDE_NO_WARNING_OUTPUT)
+    if (!(m_info->passedProperties2() & NET::WM2AppMenuServiceName)) {
+        qWarning() << "Pass NET::WM2AppMenuServiceName to KWindowInfo";
+    }
+#endif
+    return QByteArray(m_info->appMenuServiceName());
 }
 
 int KWindowInfoPrivateX11::pid() const

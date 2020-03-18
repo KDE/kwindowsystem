@@ -155,6 +155,8 @@ static void refdec_nwi(NETWinInfoPrivate *p)
         delete [] p->activities;
         delete [] p->client_machine;
         delete [] p->desktop_file;
+        delete [] p->appmenu_object_path;
+        delete [] p->appmenu_service_name;
 
         int i;
         for (i = 0; i < p->icons.size(); i++) {
@@ -1436,6 +1438,14 @@ void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
     else if (atom == p->atom(_GTK_FRAME_EXTENTS)) {
         p->properties2 |= WM2GTKFrameExtents;
     }
+
+    else if (atom == p->atom(_KDE_NET_WM_APPMENU_OBJECT_PATH)) {
+        p->properties2 |= WM2AppMenuObjectPath;
+    }
+
+    else if (atom == p->atom(_KDE_NET_WM_APPMENU_SERVICE_NAME)) {
+        p->properties2 |= WM2AppMenuServiceName;
+    }
 }
 
 void NETRootInfo::setActiveWindow(xcb_window_t window)
@@ -2592,6 +2602,8 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->icon_sizes = nullptr;
     p->activities = (char *) nullptr;
     p->desktop_file = nullptr;
+    p->appmenu_object_path = nullptr;
+    p->appmenu_service_name = nullptr;
     p->blockCompositing = false;
     p->urgency = false;
     p->input = true;
@@ -2655,6 +2667,8 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->icon_sizes = nullptr;
     p->activities = (char *) nullptr;
     p->desktop_file = nullptr;
+    p->appmenu_object_path = nullptr;
+    p->appmenu_service_name = nullptr;
     p->blockCompositing = false;
     p->urgency = false;
     p->input = true;
@@ -3509,6 +3523,44 @@ NETStrut NETWinInfo::gtkFrameExtents() const
     return p->gtk_frame_extents;
 }
 
+void NETWinInfo::setAppMenuObjectPath(const char *name)
+{
+    if (p->role != Client) {
+        return;
+    }
+
+    delete[] p->appmenu_object_path;
+    p->appmenu_object_path = nstrdup(name);
+
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_KDE_NET_WM_APPMENU_OBJECT_PATH),
+                        XCB_ATOM_STRING, 8, strlen(p->appmenu_object_path),
+                        (const void *) p->appmenu_object_path);
+}
+
+void NETWinInfo::setAppMenuServiceName(const char *name)
+{
+    if (p->role != Client) {
+        return;
+    }
+
+    delete[] p->appmenu_service_name;
+    p->appmenu_service_name = nstrdup(name);
+
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_KDE_NET_WM_APPMENU_SERVICE_NAME),
+                        XCB_ATOM_STRING, 8, strlen(p->appmenu_service_name),
+                        (const void *) p->appmenu_service_name);
+}
+
+const char *NETWinInfo::appMenuObjectPath() const
+{
+    return p->appmenu_object_path;
+}
+
+const char *NETWinInfo::appMenuServiceName() const
+{
+    return p->appmenu_service_name;
+}
+
 void NETWinInfo::kdeGeometry(NETRect &frame, NETRect &window)
 {
     if (p->win_geom.size.width == 0 || p->win_geom.size.height == 0) {
@@ -3829,6 +3881,10 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             dirty2 = WM2FullscreenMonitors;
         } else if (pe->atom == p->atom(_GTK_FRAME_EXTENTS)) {
             dirty2 |= WM2GTKFrameExtents;
+        } else if (pe->atom == p->atom(_KDE_NET_WM_APPMENU_SERVICE_NAME)) {
+            dirty2 |= WM2AppMenuServiceName;
+        } else if (pe->atom == p->atom(_KDE_NET_WM_APPMENU_OBJECT_PATH)) {
+            dirty2 |= WM2AppMenuObjectPath;
         }
 
         do_update = true;
@@ -4022,6 +4078,14 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
 
     if (dirty2 & WM2GTKFrameExtents) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_GTK_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 0, 4);
+    }
+
+    if (dirty2 & WM2AppMenuObjectPath) {
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_APPMENU_OBJECT_PATH), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
+    }
+
+    if (dirty2 & WM2AppMenuServiceName) {
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_APPMENU_SERVICE_NAME), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
     c = 0;
@@ -4619,6 +4683,26 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
             p->gtk_frame_extents.right  = data[1];
             p->gtk_frame_extents.top    = data[2];
             p->gtk_frame_extents.bottom = data[3];
+        }
+    }
+
+    if (dirty2 & WM2AppMenuObjectPath) {
+        delete[] p->appmenu_object_path;
+        p->appmenu_object_path = nullptr;
+
+        const QByteArray id = get_string_reply(p->conn, cookies[c++], XCB_ATOM_STRING);
+        if (id.length() > 0) {
+            p->appmenu_object_path = nstrndup(id.constData(), id.length());
+        }
+    }
+
+    if (dirty2 & WM2AppMenuServiceName) {
+        delete[] p->appmenu_service_name;
+        p->appmenu_service_name = nullptr;
+
+        const QByteArray id = get_string_reply(p->conn, cookies[c++], XCB_ATOM_STRING);
+        if (id.length() > 0) {
+            p->appmenu_service_name = nstrndup(id.constData(), id.length());
         }
     }
 }

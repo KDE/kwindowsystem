@@ -1607,6 +1607,30 @@ public:
     const char *desktopFileName() const;
 
     /**
+     * Sets the @p name as the D-BUS service name for the application menu.
+     * @since 5.69
+     **/
+    void setAppMenuServiceName(const char *name);
+
+    /**
+     * Sets the @p name as the D-BUS object path for the application menu.
+     * @since 5.69
+     **/
+    void setAppMenuObjectPath(const char *path);
+
+    /**
+     * @returns The menu service name of the window's application if present.
+     * @since 5.69
+     **/
+    const char *appMenuServiceName() const;
+
+    /**
+     * @returns The menu object path of the window's application if present.
+     * @since 5.69
+     **/
+    const char *appMenuObjectPath() const;
+
+    /**
        Sentinel value to indicate that the client wishes to be visible on
        all desktops.
 
