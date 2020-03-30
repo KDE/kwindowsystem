@@ -3223,13 +3223,13 @@ void NETWinInfo::setWindowType(WindowType type)
     case OnScreenDisplay:
         data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY);
         data[1] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
-        len = 1;
+        len = 2;
         break;
 
     case CriticalNotification:
         data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION);
         data[1] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
-        len = 1;
+        len = 2;
         break;
 
     default:
