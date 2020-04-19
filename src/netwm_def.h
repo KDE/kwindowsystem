@@ -373,6 +373,7 @@ public:
     /**
         Values for WindowType when they should be OR'ed together, e.g.
         for the properties argument of the NETRootInfo constructor.
+        @see WindowTypes
     **/
     enum WindowTypeMask {
         NormalMask   = 1u << 0, ///< @see Normal
@@ -395,6 +396,9 @@ public:
         CriticalNotificationMask = 1u << 17, ///< NON STANDARD @see CriticalNotification @since 5.58
         AllTypesMask     = 0U - 1 ///< All window types.
     };
+    /**
+     * Stores a combination of #WindowTypeMask values.
+     */
     Q_DECLARE_FLAGS(WindowTypes, WindowTypeMask)
 
     /**
@@ -416,6 +420,8 @@ public:
 
        Note that KeepAbove (StaysOnTop) and KeepBelow are meant as user preference and
        applications should avoid setting these states themselves.
+
+       @see States
     **/
 
     enum State {
@@ -499,6 +505,9 @@ public:
          **/
         Focused = 1u << 13,
     };
+    /**
+     * Stores a combination of #State values.
+     */
     Q_DECLARE_FLAGS(States, State)
 
     /**
@@ -560,6 +569,7 @@ public:
 
     /**
       Actions that can be done with a window (_NET_WM_ALLOWED_ACTIONS).
+      @see Actions
     **/
     enum Action {
         ActionMove           = 1u << 0,
@@ -574,6 +584,9 @@ public:
         ActionChangeDesktop  = 1u << 8,
         ActionClose          = 1u << 9
     };
+    /**
+     * Stores a combination of #Action values.
+     */
     Q_DECLARE_FLAGS(Actions, Action)
 
     /**
@@ -619,6 +632,7 @@ public:
 
        @li XAWMState
 
+       @see Properties
     **/
 
     enum Property {
@@ -660,6 +674,9 @@ public:
         WMGeometry            = 1u << 31,
         WMAllProperties       = ~0u
     };
+    /**
+     * Stores a combination of #Property values.
+     */
     Q_DECLARE_FLAGS(Properties, Property)
 
     /**
@@ -693,6 +710,8 @@ public:
         @li WM2OpaqueRegion
         @li WM2DesktopFileName the base name of the desktop file name or the full path to the desktop file
         @li WM2GTKFrameExtents extents of the shadow drawn by the client
+
+        @see Properties2
     **/
     enum Property2 {
         WM2UserTime            = 1u << 0,
@@ -728,6 +747,9 @@ public:
         WM2AppMenuObjectPath   = 1u << 29, // NOT STANDARD @since 5.69
         WM2AllProperties       = ~0u
     };
+    /**
+     * Stores a combination of #Property2 values.
+     */
     Q_DECLARE_FLAGS(Properties2, Property2)
 
     /**
@@ -777,6 +799,7 @@ public:
      * Protocols supported by the client.
      * See ICCCM 4.1.2.7.
      *
+     * @see Protocols
      * @since 5.3
      **/
     enum Protocol {
@@ -787,6 +810,9 @@ public:
         SyncRequestProtocol = 1 << 3, ///< _NET_WM_SYNC_REQUEST from EWMH
         ContextHelpProtocol = 1 << 4 ///< _NET_WM_CONTEXT_HELP, NON STANDARD!
     };
+    /**
+     * Stores a combination of #Protocol values.
+     */
     Q_DECLARE_FLAGS(Protocols, Protocol)
 
     /**
