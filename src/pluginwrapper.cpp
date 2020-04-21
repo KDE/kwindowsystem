@@ -40,6 +40,11 @@ static QStringList pluginCandidates()
 
 static KWindowSystemPluginInterface *loadPlugin()
 {
+    if (!qobject_cast<QGuiApplication *>(QCoreApplication::instance())) {
+        qCWarning(LOG_KWINDOWSYSTEM) << "Cannot use KWindowSystem without a QGuiApplication";
+        return nullptr;
+    }
+
     QString platformName = QGuiApplication::platformName();
     if (platformName == QLatin1String("flatpak")) {
         // here we cannot know what is the actual windowing system, let's try it's env variable
