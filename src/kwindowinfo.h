@@ -566,7 +566,7 @@ public:
      * window->show();
      * KWindowInfo info(window->winId(), NET::WMPid);
      * if (info.valid())
-     *     info.desktopFileName();
+     *     info.pid();
      * @endcode
      *
      * @since 5.29
