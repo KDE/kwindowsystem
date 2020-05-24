@@ -87,7 +87,7 @@ public:
     /**
      * Use this function if the application got a request with startup
      * notification from outside (for example, when KUniqueApplication::newInstance()
-     * is called, or e.g. when khelpcenter opens new URL in its window).
+     * is called, or e.g.\ when khelpcenter opens new URL in its window).
      * The window can be either an already existing and visible window,
      * or a new one, before being shown. Note that this function is usually
      * needed only when a window is reused.
@@ -98,7 +98,7 @@ public:
     /**
      * Use this function if the application got a request with startup
      * notification from outside (for example, when KUniqueApplication::newInstance()
-     * is called, or e.g. when khelpcenter opens new URL in its window).
+     * is called, or e.g.\ when khelpcenter opens new URL in its window).
      * The window can be either an already existing and visible window,
      * or a new one, before being shown. Note that this function is usually
      * needed only when a window is reused.
@@ -293,8 +293,8 @@ public:
     static bool sendFinishXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id);
 
     /**
-     * Ends startup notification with the given identification and the given data ( e.g.
-     * PIDs of processes for this startup notification that exited ).
+     * Ends startup notification with the given identification and the given data
+     * (e.g.\ PIDs of processes for this startup notification that exited).
      * @param id the id of the application
      * @param data the application's data
      * @return true if successful, false otherwise
@@ -404,7 +404,7 @@ public:
     class Private;
 Q_SIGNALS:
     /**
-     * Emitted when a new startup notification is created (i.e. a new application is
+     * Emitted when a new startup notification is created (i.e.\ a new application is
      * being started).
      * @param id the notification identification
      * @param data the notification data
@@ -533,7 +533,7 @@ class KWINDOWSYSTEM_EXPORT KStartupInfoData
 {
 public:
     /**
-     * Sets the binary name of the application ( e.g. 'kcontrol' ).
+     * Sets the binary name of the application (e.g.\ 'kcontrol').
      * @param bin the new binary name of the application
      */
     void setBin(const QString &bin);
@@ -543,7 +543,7 @@ public:
      */
     const QString &bin() const;
     /**
-     * Sets the name for the notification (e.g. 'Control Center')
+     * Sets the name for the notification (e.g.\ 'Control Center').
      */
     void setName(const QString &name);
     /**
@@ -559,7 +559,7 @@ public:
      */
     const QString &name() const;
     /**
-     * Sets the description for the notification (e.g. 'Launching Control Center').
+     * Sets the description for the notification (e.g.\ 'Launching Control Center').
          * I.e. name() describes what is being started, while description() is
          * the actual action performed by the starting.
      */
@@ -577,7 +577,7 @@ public:
      */
     const QString &description() const;
     /**
-     * Sets the icon for the startup notification ( e.g. 'kcontrol' )
+     * Sets the icon for the startup notification (e.g.\ 'kcontrol').
      * @param icon the name of the icon
      */
     void setIcon(const QString &icon);
@@ -594,7 +594,7 @@ public:
      */
     const QString &icon() const;
     /**
-     * Sets the desktop for the startup notification ( i.e. the desktop on which
+     * Sets the desktop for the startup notification (i.e.\ the desktop on which
      * the starting application should appear ).
      * @param desktop the desktop for the startup notification
      */
