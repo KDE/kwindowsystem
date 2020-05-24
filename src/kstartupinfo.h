@@ -699,13 +699,17 @@ public:
     /**
      * The toplevel window of the application that caused this startup notification,
      * 0 if unknown.
+     * @deprecated Since 5.69. No known users.
      */
     KWINDOWSYSTEM_DEPRECATED_VERSION(5, 69, "Deprecated because not used anywhere. Tell kde-frameworks-devel@kde.org if you disagree")
     WId launchedBy() const;
+#endif
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 69)
     /**
      * Sets the toplevel window of the application that caused this startup notification.
      * @param window window ID of the toplevel window that is responsible for this startup
+     * @deprecated Since 5.69. No known users of launchedBy().
      */
     KWINDOWSYSTEM_DEPRECATED_VERSION(5, 69, "Deprecated because launchedBy() is not used anywhere. Tell kde-frameworks-devel@kde.org if you disagree")
     void setLaunchedBy(WId window);
