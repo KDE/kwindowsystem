@@ -1160,7 +1160,8 @@ public:
     /**
        Set the icon geometry for the application window.
 
-       @param geometry the new icon geometry
+       @param geometry the new icon geometry in logical geometry
+       relative the calling user's qApp->devicePixelRatio
     **/
     void setIconGeometry(NETRect geometry);
 
