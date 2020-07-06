@@ -2798,17 +2798,22 @@ void NETWinInfo::setIconGeometry(NETRect geometry)
         return;
     }
 
+    const qreal scaleFactor = qApp->devicePixelRatio();
+    geometry.pos.x *= scaleFactor;
+    geometry.pos.y *= scaleFactor;
+    geometry.size.width *= scaleFactor;
+    geometry.size.height *= scaleFactor;
+
     p->icon_geom = geometry;
 
     if (geometry.size.width == 0) { // Empty
         xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_ICON_GEOMETRY));
     } else {
-        const qreal scaleFactor = qApp->devicePixelRatio();
         uint32_t data[4];
-        data[0] = geometry.pos.x * scaleFactor;
-        data[1] = geometry.pos.y * scaleFactor;
-        data[2] = geometry.size.width * scaleFactor;
-        data[3] = geometry.size.height * scaleFactor;
+        data[0] = geometry.pos.x;
+        data[1] = geometry.pos.y;
+        data[2] = geometry.size.width;
+        data[3] = geometry.size.height;
 
         xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_ICON_GEOMETRY),
                             XCB_ATOM_CARDINAL, 32, 4, (const void *) data);
