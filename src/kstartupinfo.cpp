@@ -49,7 +49,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <signal.h>
-#include <qstandardpaths.h>
+#include <QStandardPaths>
 #if KWINDOWSYSTEM_HAVE_X11
 #include <kwindowsystem.h>
 #include <kxmessages.h>

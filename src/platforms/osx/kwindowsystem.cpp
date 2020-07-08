@@ -9,7 +9,7 @@
 #include "kwindowsystem.h"
 #include "kwindowinfo_mac_p.h"
 
-#include <kxerrorhandler.h>
+#include <KXErrorHandler>
 #include <QBitmap>
 #include <QDesktopWidget>
 #include <QDialog>

@@ -10,7 +10,7 @@
 
 #if KWINDOWSYSTEM_HAVE_X11
 
-#include <qcoreapplication.h>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QWindow> // WId
 #include <QAbstractNativeEventFilter>

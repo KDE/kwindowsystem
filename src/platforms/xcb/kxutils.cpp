@@ -8,7 +8,7 @@
 
 #include "kxutils_p.h"
 #include "kwindowsystem_xcb_debug.h"
-#include <qbitmap.h>
+#include <QBitmap>
 #include <QX11Info>
 
 #include <xcb/xcb.h>

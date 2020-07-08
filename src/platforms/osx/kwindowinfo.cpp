@@ -10,7 +10,7 @@
 #include "kwindowsystem.h"
 
 #include <QDebug>
-#include <kxerrorhandler.h>
+#include <KXErrorHandler>
 #include <netwm.h>
 #include <QBitmap>
 #include <QDesktopWidget>
