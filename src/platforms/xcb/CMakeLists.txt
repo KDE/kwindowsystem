@@ -7,7 +7,12 @@ set(xcb_plugin_SRCS
     kxutils.cpp
     plugin.cpp
 )
-ecm_qt_declare_logging_category(xcb_plugin_SRCS HEADER kwindowsystem_xcb_debug.h IDENTIFIER LOG_KKEYSERVER_X11 CATEGORY_NAME org.kde.kwindowsystem.keyserver.x11 DEFAULT_SEVERITY Warning)
+ecm_qt_declare_logging_category(xcb_plugin_SRCS
+    HEADER kwindowsystem_xcb_debug.h
+    IDENTIFIER LOG_KKEYSERVER_X11
+    CATEGORY_NAME kf.windowsystem.keyserver.x11
+    DEFAULT_SEVERITY Warning
+)
 
 add_library(KF5WindowSystemX11Plugin MODULE ${xcb_plugin_SRCS})
 target_link_libraries(KF5WindowSystemX11Plugin

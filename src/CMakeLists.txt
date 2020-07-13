@@ -21,7 +21,8 @@ set(kwindowsystem_SRCS
 ecm_qt_declare_logging_category(kwindowsystem_SRCS
     HEADER kwindowsystem_debug.h
     IDENTIFIER LOG_KWINDOWSYSTEM
-    CATEGORY_NAME org.kde.kwindowsystem
+    CATEGORY_NAME kf.windowsystem
+    OLD_CATEGORY_NAMES org.kde.kwindowsystem
     DEFAULT_SEVERITY Warning
     DESCRIPTION "KWindowSystem"
     EXPORT KWINDOWSYSTEM
@@ -29,7 +30,8 @@ ecm_qt_declare_logging_category(kwindowsystem_SRCS
 ecm_qt_declare_logging_category(kwindowsystem_SRCS
     HEADER kwindowsystem_xcb_debug.h
     IDENTIFIER LOG_KKEYSERVER_X11
-    CATEGORY_NAME org.kde.kwindowsystem.keyserver.x11
+    CATEGORY_NAME kf.windowsystem.keyserver.x11
+    OLD_CATEGORY_NAMES org.kde.kwindowsystem.keyserver.x11
     DEFAULT_SEVERITY Warning
     DESCRIPTION "KKeyServer (KWindowSystem)"
     EXPORT KWINDOWSYSTEM
