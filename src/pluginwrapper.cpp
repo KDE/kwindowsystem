@@ -26,13 +26,19 @@ static QStringList pluginCandidates()
     QStringList ret;
     const auto paths = QCoreApplication::libraryPaths();
     for (const QString &path : paths) {
-        QDir pluginDir(path + QLatin1String("/kf5/org.kde.kwindowsystem.platforms"));
-        if (!pluginDir.exists()) {
-            continue;
-        }
-        const auto entries = pluginDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
-        for (const QString &entry : entries) {
-            ret << pluginDir.absoluteFilePath(entry);
+        static const QStringList searchFolders {
+            QStringLiteral("/kf5/org.kde.kwindowsystem.platforms"),
+            QStringLiteral("/kf5/kwindowsystem"),
+        };
+        for (const QString &searchFolder : searchFolders) {
+            QDir pluginDir(path + searchFolder);
+            if (!pluginDir.exists()) {
+                continue;
+            }
+            const auto entries = pluginDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+            for (const QString &entry : entries) {
+                ret << pluginDir.absoluteFilePath(entry);
+            }
         }
     }
     return ret;

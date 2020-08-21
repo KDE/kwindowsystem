@@ -49,12 +49,12 @@ install(
 
 set_target_properties(
     KF5WindowSystemX11Plugin
-    PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/kf5/org.kde.kwindowsystem.platforms"
+    PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/kf5/kwindowsystem"
 )
 
 install(
     TARGETS
         KF5WindowSystemX11Plugin
     DESTINATION
-        ${PLUGIN_INSTALL_DIR}/kf5/org.kde.kwindowsystem.platforms/
+        ${PLUGIN_INSTALL_DIR}/kf5/kwindowsystem/
 )
