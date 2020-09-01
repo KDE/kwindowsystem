@@ -21,7 +21,7 @@ install(
     TARGETS
         KF5WindowSystemKWaylandPlugin
     DESTINATION
-        ${PLUGIN_INSTALL_DIR}/kf5/org.kde.kwindowsystem.platforms/
+        ${PLUGIN_INSTALL_DIR}/kf5/kwindowsystem/
 )
 
 install(FILES kwindowsystem.kwayland.categories DESTINATION  ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
