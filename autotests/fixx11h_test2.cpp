@@ -2,7 +2,7 @@
     SPDX-FileCopyrightText: 2009 David Faure <faure@kde.org>
     SPDX-FileCopyrightText: 2009 Maciej Mrozowski <reavertm@poczta.fm>
 
-    SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
+    SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 */
 
 // Test the case where Xdefs.h is first
