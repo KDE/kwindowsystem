@@ -22,11 +22,18 @@ public:
     KWayland::Client::Buffer::Ptr buffer;
 };
 
-class WindowShadow final : public KWindowShadowPrivate
+class WindowShadow final : public QObject, public KWindowShadowPrivate
 {
 public:
     bool create() override;
     void destroy() override;
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
+private:
+    bool internalCreate();
+    void internalDestroy();
 
     QPointer<KWayland::Client::Shadow> shadow;
 };

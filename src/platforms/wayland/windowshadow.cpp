@@ -5,10 +5,14 @@
 */
 
 #include "windowshadow.h"
+#include "logging.h"
 #include "waylandintegration.h"
 
 #include <KWayland/Client/shm_pool.h>
 #include <KWayland/Client/surface.h>
+
+#include <QDebug>
+#include <QExposeEvent>
 
 bool WindowShadowTile::create()
 {
@@ -40,8 +44,27 @@ static KWayland::Client::Buffer::Ptr bufferForTile(const KWindowShadowTile::Ptr 
     return d->buffer;
 }
 
-bool WindowShadow::create()
+bool WindowShadow::eventFilter(QObject *watched, QEvent *event)
 {
+    Q_UNUSED(watched)
+    if (event->type() == QEvent::Expose) {
+        QExposeEvent *exposeEvent = static_cast<QExposeEvent *>(event);
+        if (!exposeEvent->region().isNull()) {
+            if (!internalCreate()) {
+                qCWarning(KWAYLAND_KWS) << "Failed to recreate shadow for" << window;
+            }
+        }
+    } else if (event->type() == QEvent::Hide) {
+        internalDestroy();
+    }
+    return false;
+}
+
+bool WindowShadow::internalCreate()
+{
+    if (shadow) {
+        return true;
+    }
     KWayland::Client::ShadowManager *shadowManager = WaylandIntegration::self()->waylandShadowManager();
     if (!shadowManager) {
         return false;
@@ -69,20 +92,28 @@ bool WindowShadow::create()
     return true;
 }
 
+bool WindowShadow::create()
+{
+    if (!internalCreate()) {
+        return false;
+    }
+    window->installEventFilter(this);
+    return true;
+}
+
+void WindowShadow::internalDestroy()
+{
+    delete shadow;
+    shadow = nullptr;
+    if (window) {
+        window->requestUpdate();
+    }
+}
+
 void WindowShadow::destroy()
 {
-    if (!shadow) {
-        return;
+    if (window) {
+        window->removeEventFilter(this);
     }
-    KWayland::Client::ShadowManager *shadowManager = WaylandIntegration::self()->waylandShadowManager();
-    if (!shadowManager) {
-        return;
-    }
-    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
-    if (!surface) {
-        return;
-    }
-    shadowManager->removeShadow(surface);
-    shadow = nullptr;
-    window->requestUpdate();
+    internalDestroy();
 }
