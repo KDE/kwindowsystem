@@ -76,7 +76,6 @@ public:
     void connectNotify(const QMetaMethod &signal) override;
 
 private:
-    void setupKWaylandIntegration();
     KWayland::Client::PlasmaWindow *window(WId window) const;
 
     KWayland::Client::PlasmaShell *m_waylandPlasmaShell = nullptr;
