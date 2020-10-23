@@ -15,7 +15,6 @@
 #include <QWindow> // WId
 #include <QAbstractNativeEventFilter>
 
-#include <xcb/xcb.h>
 #include <qx11info_x11.h>
 #include <X11/Xlib.h>
 

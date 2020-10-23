@@ -8,13 +8,11 @@
 //#define NETWMDEBUG
 #include "netwm.h"
 
-#include <xcb/xcb.h>
 #include <xcb/xproto.h>
 
 #include "netwm_p.h"
 #include "atoms_p.h"
 
-#include <config-kwindowsystem.h>
 #if KWINDOWSYSTEM_HAVE_X11 //FIXME
 
 #include <qx11info_x11.h>

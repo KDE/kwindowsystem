@@ -9,7 +9,6 @@
 #include <config-kwindowsystem.h>
 #include "kwindowsystem.h"
 
-#include <QObject>
 #include <QGuiApplication>
 #include <QAbstractNativeEventFilter>
 

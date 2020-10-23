@@ -9,7 +9,6 @@
 
 #include "kmanagerselectiontest.h"
 
-#include <QtTest>
 
 #include <kselectionwatcher.h>
 #include <kselectionowner.h>
