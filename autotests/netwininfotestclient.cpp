@@ -367,17 +367,17 @@ void NetWinInfoTestClient::testPid()
     INFO
 
     QCOMPARE(info.pid(), 0);
-    info.setPid(m_xvfb->pid());
-    QCOMPARE(info.pid(), m_xvfb->pid());
+    info.setPid(m_xvfb->processId());
+    QCOMPARE(info.pid(), m_xvfb->processId());
 
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 1, 32)
-    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], uint32_t(m_xvfb->pid()));
+    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], uint32_t(m_xvfb->processId()));
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::WMPid);
-    QCOMPARE(info.pid(), m_xvfb->pid());
+    QCOMPARE(info.pid(), m_xvfb->processId());
 }
 
 void NetWinInfoTestClient::performNameTest(xcb_atom_t atom, const char *(NETWinInfo:: *getter)(void)const, void (NETWinInfo:: *setter)(const char *), NET::Property property)
