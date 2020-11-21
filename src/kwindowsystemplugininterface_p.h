@@ -17,6 +17,8 @@ class KWindowShadowPrivate;
 class KWindowShadowTilePrivate;
 class KWindowSystemPrivate;
 
+#define KWindowSystemPluginInterface_iid "org.kde.kwindowsystem.KWindowSystemPluginInterface"
+
 class KWINDOWSYSTEM_EXPORT KWindowSystemPluginInterface : public QObject
 {
     Q_OBJECT
@@ -31,6 +33,6 @@ public:
     virtual KWindowShadowTilePrivate *createWindowShadowTile();
 };
 
-Q_DECLARE_INTERFACE(KWindowSystemPluginInterface, "org.kde.kwindowsystem.KWindowSystemPluginInterface")
+Q_DECLARE_INTERFACE(KWindowSystemPluginInterface, KWindowSystemPluginInterface_iid)
 
 #endif
