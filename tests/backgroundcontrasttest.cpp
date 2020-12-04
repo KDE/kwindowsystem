@@ -92,7 +92,7 @@ ContrastTestWindow::ContrastTestWindow()
     connect(m_intSlider,     &QSlider::valueChanged, this, &ContrastTestWindow::updateIntensity);
     connect(m_satSlider,     &QSlider::valueChanged, this, &ContrastTestWindow::updateSaturation);
 
-    QVBoxLayout *layout = new QVBoxLayout;
+    QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(m_btnNothing);
     layout->addWidget(m_btnFullWindow);
     layout->addWidget(m_btnRect);
@@ -101,7 +101,6 @@ ContrastTestWindow::ContrastTestWindow()
     layout->addWidget(m_intSlider);
     layout->addWidget(m_satSlider);
     layout->addWidget(m_area);
-    setLayout(layout);
 }
 
 void ContrastTestWindow::disableContrast()

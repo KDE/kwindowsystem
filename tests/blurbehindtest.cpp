@@ -58,13 +58,12 @@ BlurTestWindow::BlurTestWindow()
     connect(m_btnRect,       &QPushButton::clicked, this, &BlurTestWindow::enableBlurRect);
     connect(m_btnEllipse,    &QPushButton::clicked, this, &BlurTestWindow::enableBlurEllipse);
 
-    QVBoxLayout *layout = new QVBoxLayout;
+    QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(m_btnNothing);
     layout->addWidget(m_btnFullWindow);
     layout->addWidget(m_btnRect);
     layout->addWidget(m_btnEllipse);
     layout->addWidget(m_area);
-    setLayout(layout);
 }
 
 void BlurTestWindow::disableBlur()

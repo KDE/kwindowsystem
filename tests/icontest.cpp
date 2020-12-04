@@ -89,7 +89,6 @@ int main(int argc, char **argv)
     addIcons(QStringLiteral("ClassHint"), KWindowSystem::ClassHint);
     addIcons(QStringLiteral("XApp"), KWindowSystem::XApp);
 
-    window.setLayout(vbox);
     window.show();
 
     return app.exec();
