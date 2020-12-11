@@ -13,6 +13,7 @@
 #include <kselectionwatcher.h>
 #include <kselectionowner.h>
 #include <qx11info_x11.h>
+#include <QSignalSpy>
 
 #define SNAME "_KDE_KMANAGERSELECTIONTEST"
 

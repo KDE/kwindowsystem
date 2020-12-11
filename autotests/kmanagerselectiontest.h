@@ -10,7 +10,7 @@
 #define KMANAGERSELECTIONTESTTEST_H
 
 #include <QObject>
-#include <QtTest>
+#include <QTest>
 
 class KSelectionOwner;
 

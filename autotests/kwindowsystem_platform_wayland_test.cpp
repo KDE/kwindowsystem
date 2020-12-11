@@ -4,8 +4,10 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
-#include <QtTest>
+#include <QTest>
 #include <QProcess>
+#include <QSignalSpy>
+#include <QFileSystemWatcher>
 
 class TestKWindowsystemPlatformWayland : public QObject
 {
