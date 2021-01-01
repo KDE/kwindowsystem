@@ -120,7 +120,7 @@ NETEventFilter::NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what)
     : NETRootInfo(QX11Info::connection(),
                   _what >= KWindowSystemPrivateX11::INFO_WINDOWS ? windowsProperties : desktopProperties,
                   _what >= KWindowSystemPrivateX11::INFO_WINDOWS ? windowsProperties2 : desktopProperties2,
-                  -1, false),
+                  QX11Info::appScreen(), false),
       QAbstractNativeEventFilter(),
       strutSignalConnected(false),
       compositingEnabled(false),
@@ -525,7 +525,7 @@ int KWindowSystemPrivateX11::currentDesktop()
     if (s_d) {
         return s_d->currentDesktop(true);
     }
-    NETRootInfo info(QX11Info::connection(), NET::CurrentDesktop);
+    NETRootInfo info(QX11Info::connection(), NET::CurrentDesktop, NET::Properties2(), QX11Info::appScreen());
     return info.currentDesktop(true);
 }
 
@@ -546,7 +546,7 @@ int KWindowSystemPrivateX11::numberOfDesktops()
     if (s_d) {
         return s_d->numberOfDesktops(true);
     }
-    NETRootInfo info(QX11Info::connection(), NET::NumberOfDesktops);
+    NETRootInfo info(QX11Info::connection(), NET::NumberOfDesktops, NET::Properties2(), QX11Info::appScreen());
     return info.numberOfDesktops(true);
 }
 
@@ -555,7 +555,7 @@ void KWindowSystemPrivateX11::setCurrentDesktop(int desktop)
     if (mapViewport()) {
         init(INFO_BASIC);
         NETEventFilter *const s_d = s_d_func();
-        NETRootInfo info(QX11Info::connection(), NET::Properties());
+        NETRootInfo info(QX11Info::connection(), NET::Properties(), NET::Properties2(), QX11Info::appScreen());
         QPoint pos = desktopToViewport(desktop, true);
         NETPoint p;
         p.x = pos.x();
@@ -563,7 +563,7 @@ void KWindowSystemPrivateX11::setCurrentDesktop(int desktop)
         info.setDesktopViewport(s_d->currentDesktop(true), p);
         return;
     }
-    NETRootInfo info(QX11Info::connection(), NET::Properties());
+    NETRootInfo info(QX11Info::connection(), NET::Properties(), NET::Properties2(), QX11Info::appScreen());
     info.setCurrentDesktop(desktop, true);
 }
 
@@ -581,7 +581,7 @@ void KWindowSystemPrivateX11::setOnAllDesktops(WId win, bool b)
     if (b) {
         info.setDesktop(NETWinInfo::OnAllDesktops, true);
     } else if (info.desktop(true)  == NETWinInfo::OnAllDesktops) {
-        NETRootInfo rinfo(QX11Info::connection(), NET::CurrentDesktop);
+        NETRootInfo rinfo(QX11Info::connection(), NET::CurrentDesktop, NET::Properties2(), QX11Info::appScreen());
         info.setDesktop(rinfo.currentDesktop(true), true);
     }
 }
@@ -639,13 +639,13 @@ WId KWindowSystemPrivateX11::activeWindow()
     if (s_d) {
         return s_d->activeWindow();
     }
-    NETRootInfo info(QX11Info::connection(), NET::ActiveWindow);
+    NETRootInfo info(QX11Info::connection(), NET::ActiveWindow, NET::Properties2(), QX11Info::appScreen());
     return info.activeWindow();
 }
 
 void KWindowSystemPrivateX11::activateWindow(WId win, long time)
 {
-    NETRootInfo info(QX11Info::connection(), NET::Properties());
+    NETRootInfo info(QX11Info::connection(), NET::Properties(), NET::Properties2(), QX11Info::appScreen());
     if (time == 0) {
         time = QX11Info::appUserTime();
     }
@@ -655,7 +655,7 @@ void KWindowSystemPrivateX11::activateWindow(WId win, long time)
 
 void KWindowSystemPrivateX11::forceActiveWindow(WId win, long time)
 {
-    NETRootInfo info(QX11Info::connection(), NET::Properties());
+    NETRootInfo info(QX11Info::connection(), NET::Properties(), NET::Properties2(), QX11Info::appScreen());
     if (time == 0) {
         time = QX11Info::appTime();
     }
@@ -848,7 +848,7 @@ void KWindowSystemPrivateX11::unminimizeWindow(WId win)
 
 void KWindowSystemPrivateX11::raiseWindow(WId win)
 {
-    NETRootInfo info(QX11Info::connection(), NET::Supported);
+    NETRootInfo info(QX11Info::connection(), NET::Supported, NET::Properties2(), QX11Info::appScreen());
     if (info.isSupported(NET::WM2RestackWindow)) {
         info.restackRequest(win, NET::FromTool, XCB_WINDOW_NONE, XCB_STACK_MODE_ABOVE, QX11Info::appUserTime());
     } else {
@@ -859,7 +859,7 @@ void KWindowSystemPrivateX11::raiseWindow(WId win)
 
 void KWindowSystemPrivateX11::lowerWindow(WId win)
 {
-    NETRootInfo info(QX11Info::connection(), NET::Supported);
+    NETRootInfo info(QX11Info::connection(), NET::Supported, NET::Properties2(), QX11Info::appScreen());
     if (info.isSupported(NET::WM2RestackWindow)) {
         info.restackRequest(win, NET::FromTool, XCB_WINDOW_NONE, XCB_STACK_MODE_BELOW, QX11Info::appUserTime());
     } else {
@@ -991,7 +991,7 @@ void KWindowSystemPrivateX11::setDesktopName(int desktop, const QString &name)
         return;
     }
 
-    NETRootInfo info(QX11Info::connection(), NET::Properties());
+    NETRootInfo info(QX11Info::connection(), NET::Properties(), NET::Properties2(), QX11Info::appScreen());
     info.setDesktopName(desktop, name.toUtf8().constData());
 }
 
@@ -1003,7 +1003,7 @@ bool KWindowSystemPrivateX11::showingDesktop()
 
 void KWindowSystemPrivateX11::setShowingDesktop(bool showing)
 {
-    NETRootInfo info(QX11Info::connection(), NET::Properties(), NET::WM2ShowingDesktop);
+    NETRootInfo info(QX11Info::connection(), NET::Properties(), NET::WM2ShowingDesktop, QX11Info::appScreen());
     info.setShowingDesktop(showing);
 }
 
@@ -1052,7 +1052,7 @@ bool KWindowSystemPrivateX11::icccmCompliantMappingState()
 {
     static enum { noidea, yes, no } wm_is_1_2_compliant = noidea;
     if (wm_is_1_2_compliant == noidea) {
-        NETRootInfo info(QX11Info::connection(), NET::Supported);
+        NETRootInfo info(QX11Info::connection(), NET::Supported, NET::Properties2(), QX11Info::appScreen());
         wm_is_1_2_compliant = info.isSupported(NET::Hidden) ? yes : no;
     }
     return wm_is_1_2_compliant == yes;
@@ -1062,7 +1062,7 @@ bool KWindowSystemPrivateX11::allowedActionsSupported()
 {
     static enum { noidea, yes, no } wm_supports_allowed_actions = noidea;
     if (wm_supports_allowed_actions == noidea) {
-        NETRootInfo info(QX11Info::connection(), NET::Supported);
+        NETRootInfo info(QX11Info::connection(), NET::Supported, NET::Properties2(), QX11Info::appScreen());
         wm_supports_allowed_actions = info.isSupported(NET::WM2AllowedActions) ? yes : no;
     }
     return wm_supports_allowed_actions == yes;
@@ -1112,11 +1112,12 @@ bool KWindowSystemPrivateX11::mapViewport()
         return s_d->mapViewport();
     }
     // avoid creating KWindowSystemPrivate
-    NETRootInfo infos(QX11Info::connection(), NET::Supported);
+    NETRootInfo infos(QX11Info::connection(), NET::Supported, NET::Properties2(), QX11Info::appScreen());
     if (!infos.isSupported(NET::DesktopViewport)) {
         return false;
     }
-    NETRootInfo info(QX11Info::connection(), NET::NumberOfDesktops | NET::CurrentDesktop | NET::DesktopGeometry);
+    NETRootInfo info(QX11Info::connection(), NET::NumberOfDesktops | NET::CurrentDesktop | NET::DesktopGeometry,
+                     NET::Properties2(), QX11Info::appScreen());
     if (info.numberOfDesktops(true) <= 1
             && (info.desktopGeometry().width > displayWidth()
                 || info.desktopGeometry().height > displayHeight())) {
