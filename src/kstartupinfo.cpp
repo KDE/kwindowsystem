@@ -320,10 +320,10 @@ void KStartupInfo::Private::new_startup_info_internal(const KStartupInfoId &id_P
                 && !(flags & AnnounceSilenceChanges)) {
             silent_startups[ id_P ] = startups[ id_P ];
             startups.remove(id_P);
-            emit q->gotRemoveStartup(id_P, silent_startups[ id_P ]);
+            Q_EMIT q->gotRemoveStartup(id_P, silent_startups[ id_P ]);
             return;
         }
-        emit q->gotStartupChange(id_P, startups[ id_P ]);
+        Q_EMIT q->gotStartupChange(id_P, startups[ id_P ]);
         return;
     }
     if (silent_startups.contains(id_P)) {
@@ -334,10 +334,10 @@ void KStartupInfo::Private::new_startup_info_internal(const KStartupInfoId &id_P
         if (silent_startups[ id_P ].silent() != Data::Yes) {
             startups[ id_P ] = silent_startups[ id_P ];
             silent_startups.remove(id_P);
-            q->emit gotNewStartup(id_P, startups[ id_P ]);
+            q->Q_EMIT gotNewStartup(id_P, startups[ id_P ]);
             return;
         }
-        emit q->gotStartupChange(id_P, silent_startups[ id_P ]);
+        Q_EMIT q->gotStartupChange(id_P, silent_startups[ id_P ]);
         return;
     }
     if (uninited_startups.contains(id_P)) {
@@ -346,7 +346,7 @@ void KStartupInfo::Private::new_startup_info_internal(const KStartupInfoId &id_P
         if (!update_P) { // uninited finally got new:
             startups[ id_P ] = uninited_startups[ id_P ];
             uninited_startups.remove(id_P);
-            emit q->gotNewStartup(id_P, startups[ id_P ]);
+            Q_EMIT q->gotNewStartup(id_P, startups[ id_P ]);
             return;
         }
         // no change announce, it's still uninited
@@ -358,7 +358,7 @@ void KStartupInfo::Private::new_startup_info_internal(const KStartupInfoId &id_P
     } else if (data_P.silent() != Data::Yes || flags & AnnounceSilenceChanges) {
         //qCDebug(LOG_KWINDOWSYSTEM) << "adding";
         startups.insert(id_P, data_P);
-        emit q->gotNewStartup(id_P, data_P);
+        Q_EMIT q->gotNewStartup(id_P, data_P);
     } else { // new silenced, and silent shouldn't be announced
         //qCDebug(LOG_KWINDOWSYSTEM) << "adding silent";
         silent_startups.insert(id_P, data_P);
@@ -386,7 +386,7 @@ void KStartupInfo::Private::removeAllStartupInfoInternal(const KStartupInfoId &i
     auto it = startups.find(id_P);
     if (it != startups.end()) {
         //qCDebug(LOG_KWINDOWSYSTEM) << "removing";
-        emit q->gotRemoveStartup(it.key(), it.value());
+        Q_EMIT q->gotRemoveStartup(it.key(), it.value());
         startups.erase(it);
         return;
     }
@@ -403,7 +403,7 @@ void KStartupInfo::Private::removeAllStartupInfoInternal(const KStartupInfoId &i
 
 QMap< KStartupInfoId, KStartupInfo::Data >::iterator KStartupInfo::Private::removeStartupInfoInternal(QMap< KStartupInfoId, Data >::iterator it)
 {
-    emit q->gotRemoveStartup(it.key(), it.value());
+    Q_EMIT q->gotRemoveStartup(it.key(), it.value());
     return startups.erase(it);
 }
 
@@ -1029,7 +1029,7 @@ void KStartupInfo::Private::startups_cleanup_internal(bool age_P)
             }
             if ((*it).age >= tout) {
                 if (doEmit) {
-                    emit q->gotRemoveStartup(it.key(), it.value());
+                    Q_EMIT q->gotRemoveStartup(it.key(), it.value());
                 }
                 it = s.erase(it);
             } else {

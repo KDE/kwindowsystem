@@ -185,7 +185,7 @@ void KSelectionOwner::Private::claimSucceeded()
 
     // qDebug() << "Claimed selection";
 
-    emit owner->claimedOwnership();
+    Q_EMIT owner->claimedOwnership();
 }
 
 void KSelectionOwner::Private::gotTimestamp()
@@ -206,7 +206,7 @@ void KSelectionOwner::Private::gotTimestamp()
         timestamp = XCB_CURRENT_TIME;
         window = XCB_NONE;
 
-        emit owner->failedToClaimOwnership();
+        Q_EMIT owner->failedToClaimOwnership();
         return;
     }
 
@@ -239,7 +239,7 @@ void KSelectionOwner::Private::timeout()
 
         claimSucceeded();
     } else {
-        emit owner->failedToClaimOwnership();
+        Q_EMIT owner->failedToClaimOwnership();
     }
 }
 
@@ -264,7 +264,7 @@ void KSelectionOwner::claim(bool force_P, bool force_kill_P)
     if (d->prev_owner != XCB_NONE) {
         if (!force_P) {
             // qDebug() << "Selection already owned, failing";
-            emit failedToClaimOwnership();
+            Q_EMIT failedToClaimOwnership();
             return;
         }
 
@@ -357,7 +357,7 @@ bool KSelectionOwner::filterEvent(void *ev_P)
 //      qDebug() << "Lost selection";
 
         xcb_window_t window = d->window;
-        emit lostOwnership();
+        Q_EMIT lostOwnership();
 
         // Unset the event mask before we destroy the window so we don't get a destroy event
         uint32_t event_mask = XCB_NONE;
@@ -384,7 +384,7 @@ bool KSelectionOwner::filterEvent(void *ev_P)
 
         d->timestamp = XCB_CURRENT_TIME;
 //      qDebug() << "Lost selection (destroyed)";
-        emit lostOwnership();
+        Q_EMIT lostOwnership();
         return true;
     }
     case XCB_SELECTION_NOTIFY: {

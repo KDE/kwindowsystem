@@ -171,7 +171,7 @@ void KWindowSystemPrivate::applicationLaunched(const ProcessSerialNumber &psn)
     AXUIElementRef app = AXUIElementCreateApplication(pid);
     winfo.d->setAxElement(app);
     if (!m_noEmit) {
-        emit KWindowSystem::self()->windowAdded(winfo.win());
+        Q_EMIT KWindowSystem::self()->windowAdded(winfo.win());
     }
 
 #ifdef EXPERIMENTAL_WINDOW_TRACKING
@@ -255,10 +255,10 @@ void KWindowSystemPrivate::applicationTerminated(const ProcessSerialNumber &psn)
         KWindowInfo winfo = windows[id];
         foreach (KWindowInfo::Private *wi, winfo.d->children) {
             winids.removeAll(wi->win);
-            emit KWindowSystem::self()->windowRemoved(wi->win);
+            Q_EMIT KWindowSystem::self()->windowRemoved(wi->win);
         }
         winids.removeAll(id);
-        emit KWindowSystem::self()->windowRemoved(winfo.win());
+        Q_EMIT KWindowSystem::self()->windowRemoved(winfo.win());
     }
 }
 
@@ -272,7 +272,7 @@ void KWindowSystemPrivate::windowClosed(AXUIElementRef element, void *refcon)
     parent->children.removeAll(wind);
     winids.removeAll(wind->win);
     if (!m_noEmit) {
-        emit KWindowSystem::self()->windowRemoved(wind->win);
+        Q_EMIT KWindowSystem::self()->windowRemoved(wind->win);
     }
 }
 
@@ -300,7 +300,7 @@ void KWindowSystemPrivate::newWindow(AXUIElementRef win, void *refcon)
     winfod->children.append(win2.d);
     win2.d->parent = winfod;
     if (!m_noEmit) {
-        emit KWindowSystem::self()->windowAdded(win2.win());
+        Q_EMIT KWindowSystem::self()->windowAdded(win2.win());
     }
 }
 #endif

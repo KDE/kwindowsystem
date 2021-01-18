@@ -153,7 +153,7 @@ public:
             incoming_messages[cm_event->window] = buf;
         }
         if (strlen(buf) < 20) { // last message fragment
-            emit q->gotMessage(QString::fromUtf8(incoming_messages[cm_event->window].constData()));
+            Q_EMIT q->gotMessage(QString::fromUtf8(incoming_messages[cm_event->window].constData()));
             incoming_messages.remove(cm_event->window);
         }
         return false; // lets other KXMessages instances get the event too

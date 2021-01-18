@@ -198,7 +198,7 @@ xcb_window_t KSelectionWatcher::owner()
 
     if (!err && current_owner == new_owner) {
         d->selection_owner = current_owner;
-        emit newOwner(d->selection_owner);
+        Q_EMIT newOwner(d->selection_owner);
     } else {
         // ### This doesn't look right - the selection could have an owner
         d->selection_owner = XCB_NONE;
@@ -237,7 +237,7 @@ void KSelectionWatcher::filterEvent(void *ev_P)
         d->selection_owner = XCB_NONE; // in case the exactly same ID gets reused as the owner
 
         if (owner() == XCB_NONE) {
-            emit lostOwner();    // it must be safe to delete 'this' in a slot
+            Q_EMIT lostOwner();    // it must be safe to delete 'this' in a slot
         }
         return;
     }

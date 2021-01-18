@@ -292,17 +292,17 @@ void KWindowSystemPrivate::windowAdded(WId wid)
 {
 //     qDebug() << "window added!";
     KWindowSystem::s_d_func()->reloadStackList();
-    emit KWindowSystem::self()->windowAdded(wid);
-    emit KWindowSystem::self()->activeWindowChanged(wid);
-    emit KWindowSystem::self()->stackingOrderChanged();
+    Q_EMIT KWindowSystem::self()->windowAdded(wid);
+    Q_EMIT KWindowSystem::self()->activeWindowChanged(wid);
+    Q_EMIT KWindowSystem::self()->stackingOrderChanged();
 }
 
 void KWindowSystemPrivate::windowRemoved(WId wid)
 {
 //     qDebug() << "window removed!";
     KWindowSystem::s_d_func()->reloadStackList();
-    emit KWindowSystem::self()->windowRemoved(wid);
-    emit KWindowSystem::self()->stackingOrderChanged();
+    Q_EMIT KWindowSystem::self()->windowRemoved(wid);
+    Q_EMIT KWindowSystem::self()->stackingOrderChanged();
 }
 
 void KWindowSystemPrivate::windowActivated(WId wid)
@@ -313,8 +313,8 @@ void KWindowSystemPrivate::windowActivated(WId wid)
     }
 
     KWindowSystem::s_d_func()->reloadStackList();
-    emit KWindowSystem::self()->activeWindowChanged(wid);
-    emit KWindowSystem::self()->stackingOrderChanged();
+    Q_EMIT KWindowSystem::self()->activeWindowChanged(wid);
+    Q_EMIT KWindowSystem::self()->stackingOrderChanged();
 }
 
 void KWindowSystemPrivate::windowRedraw(WId wid)
@@ -329,7 +329,7 @@ void KWindowSystemPrivate::windowFlash(WId wid)
 
 void KWindowSystemPrivate::windowStateChanged(WId wid)
 {
-    emit KWindowSystem::self()->windowChanged(wid);
+    Q_EMIT KWindowSystem::self()->windowChanged(wid);
 }
 
 void KWindowSystemPrivate::reloadStackList()
