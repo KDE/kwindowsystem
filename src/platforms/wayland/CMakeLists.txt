@@ -7,7 +7,9 @@ set(wayland_plugin_SRCS
     windowshadow.cpp
     windowsystem.cpp
 )
-ecm_qt_declare_logging_category(wayland_plugin_SRCS HEADER logging.h IDENTIFIER KWAYLAND_KWS CATEGORY_NAME org.kde.kf5.kwindowsystem.kwayland DEFAULT_SEVERITY Warning)
+ecm_qt_declare_logging_category(wayland_plugin_SRCS HEADER logging.h IDENTIFIER KWAYLAND_KWS
+    CATEGORY_NAME org.kde.kf5.kwindowsystem.kwayland DEFAULT_SEVERITY Warning
+    DESCRIPTION "wayland integration (windowsystem)" EXPORT KWAYLAND)
 
 
 add_library(KF5WindowSystemKWaylandPlugin MODULE ${wayland_plugin_SRCS})
@@ -24,5 +26,9 @@ install(
         ${PLUGIN_INSTALL_DIR}/kf5/kwindowsystem/
 )
 
-install(FILES kwindowsystem.kwayland.categories DESTINATION  ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
+ecm_qt_install_logging_categories(
+        EXPORT KWAYLAND
+        FILE kwindowsystem.kwayland.categories
+        DESTINATION ${KDE_INSTALL_LOGGINGCATEGORIESDIR}
+        )
 
