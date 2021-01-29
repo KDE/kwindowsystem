@@ -17,5 +17,5 @@ install(
     TARGETS
         KF5WindowSystemWaylandPlugin
     DESTINATION
-        ${PLUGIN_INSTALL_DIR}/kf5/kwindowsystem/
+        ${KDE_INSTALL_PLUGINDIR}/kf5/kwindowsystem/
 )

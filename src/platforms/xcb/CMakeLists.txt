@@ -56,5 +56,5 @@ install(
     TARGETS
         KF5WindowSystemX11Plugin
     DESTINATION
-        ${PLUGIN_INSTALL_DIR}/kf5/kwindowsystem/
+        ${KDE_INSTALL_PLUGINDIR}/kf5/kwindowsystem/
 )
