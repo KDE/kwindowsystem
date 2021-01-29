@@ -91,7 +91,7 @@ add_library(KF5::WindowSystem ALIAS KF5WindowSystem)
 ecm_generate_export_header(KF5WindowSystem
     BASE_NAME KWindowSystem
     GROUP_BASE_NAME KF
-    VERSION ${KF5_VERSION}
+    VERSION ${KF_VERSION}
     DEPRECATED_BASE_VERSION 0
     DEPRECATION_VERSIONS 5.0 5.18 5.38 5.62 5.67 5.69
     EXCLUDE_DEPRECATED_BEFORE_AND_AT ${EXCLUDE_DEPRECATED_BEFORE_AND_AT}
@@ -161,7 +161,7 @@ if(BUILD_QCH)
         KF5WindowSystem_QCH
         NAME KWindowSystem
         BASE_NAME KF5WindowSystem
-        VERSION ${KF5_VERSION}
+        VERSION ${KF_VERSION}
         ORG_DOMAIN org.kde
         SOURCE_DIRS
             # using dir for now, to cover any platform dependant code
