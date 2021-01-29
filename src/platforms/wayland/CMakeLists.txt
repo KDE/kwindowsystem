@@ -23,7 +23,7 @@ install(
     TARGETS
         KF5WindowSystemKWaylandPlugin
     DESTINATION
-        ${PLUGIN_INSTALL_DIR}/kf5/kwindowsystem/
+        ${KDE_INSTALL_PLUGINDIR}/kf5/kwindowsystem/
 )
 
 ecm_qt_install_logging_categories(
