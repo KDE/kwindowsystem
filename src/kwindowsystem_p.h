@@ -9,7 +9,7 @@
 #include <kwindowsystem_export.h>
 #include "netwm_def.h"
 #include <QWidgetList> //For WId
-#include <QtContainerFwd>
+#include <QStringList>
 
 class NETWinInfo;
 
