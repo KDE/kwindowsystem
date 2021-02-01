@@ -7,6 +7,8 @@
 
 #include "kwindoweffects_dummy_p.h"
 
+#include <QList>
+
 KWindowEffectsPrivateDummy::KWindowEffectsPrivateDummy()
 {
 }

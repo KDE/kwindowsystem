@@ -9,8 +9,8 @@
 #include <kwindowsystem_export.h>
 #include "netwm_def.h"
 #include <QWidgetList> //For WId
+#include <QtContainerFwd>
 
-class QStringList;
 class NETWinInfo;
 
 class KWINDOWSYSTEM_EXPORT KWindowSystemPrivate : public NET
