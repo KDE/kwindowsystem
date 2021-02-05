@@ -1353,11 +1353,19 @@ public:
      * Sets opacity (0 = transparent, 0xffffffff = opaque ) on the window.
      */
     void setOpacity(unsigned long opacity);
+    /**
+     * Sets opacity (0 = transparent, 1 = opaque) on the window.
+     */
+    void setOpacityF(qreal opacity);
 
     /**
      * Returns the opacity of the window.
      */
     unsigned long opacity() const;
+    /**
+     * Returns the opacity of the window.
+     */
+    qreal opacityF() const;
 
     /**
      * Sets actions that the window manager allows for the window.

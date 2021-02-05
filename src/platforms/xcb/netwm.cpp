@@ -3404,6 +3404,11 @@ void NETWinInfo::setOpacity(unsigned long opacity)
                         XCB_ATOM_CARDINAL, 32, 1, (const void *) &p->opacity);
 }
 
+void NETWinInfo::setOpacityF(qreal opacity)
+{
+    setOpacity(static_cast<unsigned long>(opacity * 0xffffffff));
+}
+
 void NETWinInfo::setAllowedActions(NET::Actions actions)
 {
     if (p->role != WindowManager) {
@@ -4835,6 +4840,14 @@ const char *NETWinInfo::startupId() const
 unsigned long NETWinInfo::opacity() const
 {
     return p->opacity;
+}
+
+qreal NETWinInfo::opacityF() const
+{
+    if (p->opacity == 0xffffffff) {
+        return 1.0;
+    }
+    return p->opacity * 1.0 / 0xffffffff;
 }
 
 NET::Actions NETWinInfo::allowedActions() const
