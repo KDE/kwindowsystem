@@ -267,12 +267,16 @@ void KWindowSystemX11Test::testWindowTitleChanged()
 
     QSignalSpy propertiesChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,NET::Properties,NET::Properties2)));
     QVERIFY(propertiesChangedSpy.isValid());
+
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
     QSignalSpy propertyChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,uint)));
     QVERIFY(propertyChangedSpy.isValid());
 #endif
+
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
     QSignalSpy windowChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId)));
     QVERIFY(windowChangedSpy.isValid());
+#endif
 
     widget.setWindowTitle(QStringLiteral("bar"));
     QX11Info::setAppTime(QX11Info::getTimestamp());
@@ -319,6 +323,7 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     QVERIFY(gotWMName);
 #endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
     QCOMPARE(windowChangedSpy.isEmpty(), false);
     bool gotWindow = false;
     for (auto it = windowChangedSpy.constBegin(); it != windowChangedSpy.constEnd(); ++it) {
@@ -333,6 +338,7 @@ void KWindowSystemX11Test::testWindowTitleChanged()
         }
     }
     QVERIFY(gotWindow);
+#endif
 
     // now let's verify the info in KWindowInfo
     // we wait a little bit more as openbox is updating the visible name

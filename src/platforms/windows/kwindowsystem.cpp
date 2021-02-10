@@ -329,7 +329,15 @@ void KWindowSystemPrivate::windowFlash(WId wid)
 
 void KWindowSystemPrivate::windowStateChanged(WId wid)
 {
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
     Q_EMIT KWindowSystem::self()->windowChanged(wid);
+#endif
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+    Q_EMIT KWindowSystem::self()->windowChanged(wid, NET::Properties{0}, NET::Properties2{0});
+#else
+    Q_EMIT KWindowSystem::self()->windowChanged(wid, NET::Properties{}, NET::Properties2{});
+#endif
 }
 
 void KWindowSystemPrivate::reloadStackList()
@@ -649,13 +657,21 @@ void KWindowSystem::connectNotify(const QMetaMethod &method)
         what = INFO_WINDOWS;
     } else if (method == QMetaMethod::fromSignal(&KWindowSystem::strutChanged)) {
         what = INFO_WINDOWS;
-    } else if (method == QMetaMethod::fromSignal(static_cast<void(KWindowSystem::*)(WId, const ulong *)>(&KWindowSystem::windowChanged))) {
+    } else if (method == QMetaMethod::fromSignal(QOverload<WId, NET::Properties, NET::Properties2>::of(&KWindowSystem::windowChanged))) {
+        what = INFO_WINDOWS;
+    }
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
+    else if (method == QMetaMethod::fromSignal(static_cast<void(KWindowSystem::*)(WId, const ulong *)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     } else if (method == QMetaMethod::fromSignal(static_cast<void(KWindowSystem::*)(WId, uint)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
-    } else if (method == QMetaMethod::fromSignal(static_cast<void(KWindowSystem::*)(WId)>(&KWindowSystem::windowChanged))) {
+    }
+#endif
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
+    else if (method == QMetaMethod::fromSignal(static_cast<void(KWindowSystem::*)(WId)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     }
+#endif
 
     init(what);
     QObject::connectNotify(method);

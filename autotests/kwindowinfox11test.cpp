@@ -496,6 +496,7 @@ void KWindowInfoX11Test::testDesktop()
 void KWindowInfoX11Test::testActivities()
 {
     NETRootInfo rootInfo(QX11Info::connection(), NET::Supported | NET::SupportingWMCheck);
+
     QSignalSpy spyReal(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId,NET::Properties,NET::Properties2)>(&KWindowSystem::windowChanged));
     QVERIFY(spyReal.isValid());
 

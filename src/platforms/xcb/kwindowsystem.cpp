@@ -285,8 +285,11 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
             }
         }
         if (dirtyProperties || dirtyProperties2) {
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
             Q_EMIT s_q->windowChanged(eventWindow);
+#endif
             Q_EMIT s_q->windowChanged(eventWindow, dirtyProperties, dirtyProperties2);
+
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
             unsigned long dirty[ 2 ] = {dirtyProperties, dirtyProperties2};
             Q_EMIT s_q->windowChanged(eventWindow, dirty);
@@ -442,6 +445,7 @@ void KWindowSystemPrivateX11::connectNotify(const QMetaMethod &signal)
     } else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, NET::Properties, NET::Properties2)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     }
+
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
     else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, const unsigned long *)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
@@ -449,9 +453,12 @@ void KWindowSystemPrivateX11::connectNotify(const QMetaMethod &signal)
         what = INFO_WINDOWS;
     }
 #endif
+
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
     else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     }
+#endif
 
     init(what);
     NETEventFilter *const s_d = s_d_func();
