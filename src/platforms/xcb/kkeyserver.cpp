@@ -328,6 +328,7 @@ static const TransKey g_rgQtToSymX[] = {
     { Qt::Key_MediaPrevious,  XF86XK_AudioPrev },
     { Qt::Key_MediaNext,  XF86XK_AudioNext },
     { Qt::Key_MediaRecord, XF86XK_AudioRecord },
+    { Qt::Key_MediaPause, XF86XK_AudioPause },
     { Qt::Key_LaunchMail, XF86XK_Mail },
     { Qt::Key_Launch0,    XF86XK_MyComputer },
     { Qt::Key_Launch1,    XF86XK_Calculator },
