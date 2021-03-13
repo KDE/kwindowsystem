@@ -25,8 +25,18 @@ bool KWindowShadowTilePrivateX11::create()
     xcb_create_pixmap(connection, depth, pixmap, rootWindow, width, height);
     xcb_create_gc(connection, gc, pixmap, 0, nullptr);
 
-    xcb_put_image(connection, XCB_IMAGE_FORMAT_Z_PIXMAP, pixmap, gc, width, height,
-                  0, 0, 0, depth, image.sizeInBytes(), image.constBits());
+    xcb_put_image(connection, //
+                  XCB_IMAGE_FORMAT_Z_PIXMAP,
+                  pixmap,
+                  gc,
+                  width,
+                  height,
+                  0,
+                  0,
+                  0,
+                  depth,
+                  image.sizeInBytes(),
+                  image.constBits());
 
     return true;
 }
@@ -55,7 +65,8 @@ static xcb_atom_t lookupAtom(const QByteArray &atomName)
         return XCB_ATOM_NONE;
     }
 
-    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(connection, false,
+    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(connection, //
+                                                                    false,
                                                                     atomName.size(),
                                                                     atomName.constData());
     xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(connection, atomCookie, nullptr);

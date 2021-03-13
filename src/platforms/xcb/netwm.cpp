@@ -4745,11 +4745,13 @@ NETFullscreenMonitors NETWinInfo::fullscreenMonitors() const
 bool NET::typeMatchesMask(WindowType type, WindowTypes mask)
 {
     switch (type) {
+    // clang-format off
 #define CHECK_TYPE_MASK( type ) \
 case type: \
     if( mask & type##Mask ) \
         return true; \
     break;
+        // clang-format on
         CHECK_TYPE_MASK(Normal)
         CHECK_TYPE_MASK(Desktop)
         CHECK_TYPE_MASK(Dock)

@@ -40,6 +40,7 @@ private Q_SLOTS:
 
         const uint numLock = KKeyServer::modXNumLock();
 
+        // clang-format off
         // Before adding any testcase below, check what `kcmshell5 keys` records, to make sure it matches
         QTest::newRow("a") << int(Qt::Key_A) << uint(0) << numLock << XK_A;
         QTest::newRow("CTRL_F1") << int(Qt::ControlModifier|Qt::Key_F1) << KKeyServer::modXCtrl() << numLock << XK_F1;
@@ -54,6 +55,7 @@ private Q_SLOTS:
         QTest::newRow("META_SHIFT_print") << int(Qt::MetaModifier|Qt::ShiftModifier|Qt::Key_Print) << (KKeyServer::modXMeta() | KKeyServer::modXShift()) << numLock << XK_Print;
         QTest::newRow("ALT_Tab") << int(Qt::AltModifier|Qt::Key_Tab) << (KKeyServer::modXAlt()) << numLock << XK_Tab;
         QTest::newRow("ALT_Shift_Tab") << int(Qt::AltModifier|Qt::ShiftModifier|Qt::Key_Tab) << (KKeyServer::modXAlt() | KKeyServer::modXShift()) << numLock << XK_Tab;
+        // clang-format on
     }
 
     void keyQtToSymX()

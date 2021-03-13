@@ -63,6 +63,7 @@ struct TransKey {
 //---------------------------------------------------------------------
 // Arrays
 //---------------------------------------------------------------------
+// clang-format off
 
 static X11ModInfo g_rgX11ModInfo[4] = {
     { Qt::SHIFT,   X11_ONLY(ShiftMask) },
@@ -448,6 +449,7 @@ static const TransKey g_rgQtToSymX[] = {
     { Qt::Key_LaunchE,    XF86XK_LaunchC },
     { Qt::Key_LaunchF,    XF86XK_LaunchD },
 };
+// clang-format on
 
 //---------------------------------------------------------------------
 // Debugging

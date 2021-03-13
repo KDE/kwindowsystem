@@ -258,8 +258,10 @@ KWindowInfo &KWindowInfo::operator=(const KWindowInfo &other)
     return *this;
 }
 
+// clang-format off
+
 #define DELEGATE(name, args) \
-    return d->name( args );
+    return d->name(args);
 
 bool KWindowInfo::valid(bool withdrawn_is_valid) const
 {

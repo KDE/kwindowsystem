@@ -280,6 +280,8 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
         QMatrix4x4 intMatrix; //intensity
         QMatrix4x4 contMatrix; //contrast
 
+        // clang-format off
+
         //Saturation matrix
         if (!qFuzzyCompare(saturation, 1.0)) {
             const qreal rval = (1.0 - saturation) * .2126;
@@ -306,6 +308,8 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
                 0,        0,        contrast, 0.0,
                 transl,   transl,   transl,   1.0);
         }
+
+        // clang-format on
 
         QMatrix4x4 colorMatrix = contMatrix * satMatrix * intMatrix;
         colorMatrix = colorMatrix.transposed();

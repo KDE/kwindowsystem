@@ -384,6 +384,7 @@ void KWindowInfoX11Test::testWindowType_data()
     QTest::addColumn<NET::WindowType>("type");
     QTest::addColumn<NET::WindowType>("expectedType");
 
+    // clang-format off
     QTest::newRow("desktop")            << NET::DesktopMask      << NET::Desktop      << NET::Desktop;
     QTest::newRow("dock")               << NET::DockMask         << NET::Dock         << NET::Dock;
     QTest::newRow("toolbar")            << NET::ToolbarMask      << NET::Toolbar      << NET::Toolbar;
@@ -425,6 +426,7 @@ void KWindowInfoX11Test::testWindowType_data()
     QTest::newRow("DNDIcon-unknown")      << NET::NormalMask << NET::DNDIcon      << NET::Unknown;
     QTest::newRow("OnScreenDisplay-unknown") << NET::NormalMask << NET::OnScreenDisplay << NET::Unknown;
     QTest::newRow("CriticalNotification-unknown") << NET::NormalMask << NET::CriticalNotification << NET::Unknown;
+    // clang-format on
 }
 
 void KWindowInfoX11Test::testWindowType()
@@ -530,7 +532,7 @@ void KWindowInfoX11Test::testActivities()
     QVERIFY(info3.activities()[0] == "test-activity");
 
     // Window on a two activities
-    KWindowSystem::self()->setOnActivities(window->winId(), QStringList() << "test-activity" << "test-activity2");
+    KWindowSystem::self()->setOnActivities(window->winId(), QStringList{"test-activity", "test-activity2"});
 
     QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
@@ -610,6 +612,7 @@ void KWindowInfoX11Test::testClientMachine()
 
 void KWindowInfoX11Test::testName()
 {
+    // clang-format off
     KWindowInfo info(window->winId(), NET::WMName | NET::WMVisibleName | NET::WMIconName | NET::WMVisibleIconName | NET::WMState | NET::XAWMState);
     QCOMPARE(info.name(),                     QStringLiteral("kwindowinfox11test"));
     QCOMPARE(info.visibleName(),              QStringLiteral("kwindowinfox11test"));
@@ -651,6 +654,7 @@ void KWindowInfoX11Test::testName()
     QCOMPARE(info3.iconName(),                 QStringLiteral("foobar"));
     QCOMPARE(info3.visibleIconName(),          QStringLiteral("foobar"));
     QCOMPARE(info3.visibleIconNameWithState(), QStringLiteral("(foobar)"));
+    // clang-format on
 }
 
 void KWindowInfoX11Test::testTransientFor()

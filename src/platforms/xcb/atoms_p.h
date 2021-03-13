@@ -25,6 +25,8 @@
 // => You *must* "#define ENUM_CREATE_CHAR_ARRAY 1" *every* time you want to create
 // a string array!
 
+// clang-format off
+
 #ifndef ENUM_CREATE_CHAR_ARRAY
 #define ATOMS_H
 #define ENUM_BEGIN(typ) enum typ {
