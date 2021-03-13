@@ -28,7 +28,7 @@ enum Effect {
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 67)
     Dashboard = 8,
 #endif
-    BackgroundContrast = 9
+    BackgroundContrast = 9,
 };
 
 enum SlideFromLocation {
@@ -36,7 +36,7 @@ enum SlideFromLocation {
     TopEdge,
     RightEdge,
     BottomEdge,
-    LeftEdge
+    LeftEdge,
 };
 /**
  * @return if an atom property is available

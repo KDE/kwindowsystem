@@ -44,7 +44,7 @@ public:
     **/
     // update also NETRootInfoPrivate::properties[] size when extending this
     enum { PROTOCOLS, WINDOW_TYPES, STATES, PROTOCOLS2, ACTIONS,
-           PROPERTIES_SIZE
+           PROPERTIES_SIZE,
          };
 
     /**
@@ -940,7 +940,7 @@ public:
     **/
     // update also NETWinInfoPrivate::properties[] size when extending this
     enum { PROTOCOLS, PROTOCOLS2,
-           PROPERTIES_SIZE
+           PROPERTIES_SIZE,
          };
     /**
        Create a NETWinInfo object, which will be used to set/read/change

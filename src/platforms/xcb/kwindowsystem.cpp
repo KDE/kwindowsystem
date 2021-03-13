@@ -825,7 +825,7 @@ void KWindowSystemPrivateX11::clearState(WId win, NET::States state)
 enum {
   _ICCCM_WM_STATE_WITHDRAWN = 0,
   _ICCCM_WM_STATE_NORMAL = 1,
-  _ICCCM_WM_STATE_ICONIC = 3
+  _ICCCM_WM_STATE_ICONIC = 3,
 };
 
 void KWindowSystemPrivateX11::minimizeWindow(WId win)

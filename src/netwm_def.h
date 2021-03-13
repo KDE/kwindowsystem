@@ -276,7 +276,7 @@ public:
         /**
            indicates that the application is a window manager application.
         **/
-        WindowManager
+        WindowManager,
     };
 
     /**
@@ -394,7 +394,7 @@ public:
         DNDIconMask      = 1u << 15, ///< @see DNDIcon
         OnScreenDisplayMask = 1u << 16, ///< NON STANDARD @see OnScreenDisplay @since 5.6
         CriticalNotificationMask = 1u << 17, ///< NON STANDARD @see CriticalNotification @since 5.58
-        AllTypesMask     = 0U - 1 ///< All window types.
+        AllTypesMask     = 0U - 1, ///< All window types.
     };
     /**
      * Stores a combination of #WindowTypeMask values.
@@ -541,7 +541,7 @@ public:
         Move         = 8,  // movement only
         KeyboardSize = 9,  // size via keyboard
         KeyboardMove = 10, // move via keyboard
-        MoveResizeCancel = 11 // to ask the WM to stop moving a window
+        MoveResizeCancel = 11, // to ask the WM to stop moving a window
     };
 
     /**
@@ -564,7 +564,7 @@ public:
            This can be when the window is minimized or when it's on a
            different virtual desktop. See also NET::Hidden.
         **/
-        Iconic = 3 // IconicState
+        Iconic = 3, // IconicState
     };
 
     /**
@@ -582,7 +582,7 @@ public:
         ActionMax            = ActionMaxVert | ActionMaxHoriz,
         ActionFullScreen     = 1u << 7,
         ActionChangeDesktop  = 1u << 8,
-        ActionClose          = 1u << 9
+        ActionClose          = 1u << 9,
     };
     /**
      * Stores a combination of #Action values.
@@ -672,7 +672,7 @@ public:
         WMIconName            = 1u << 29,
         WMVisibleIconName     = 1u << 30,
         WMGeometry            = 1u << 31,
-        WMAllProperties       = ~0u
+        WMAllProperties       = ~0u,
     };
     /**
      * Stores a combination of #Property values.
@@ -745,7 +745,7 @@ public:
         WM2GTKFrameExtents     = 1u << 27, // NOT STANDARD @since 5.65
         WM2AppMenuServiceName  = 1u << 28, // NOT STANDARD @since 5.69
         WM2AppMenuObjectPath   = 1u << 29, // NOT STANDARD @since 5.69
-        WM2AllProperties       = ~0u
+        WM2AllProperties       = ~0u,
     };
     /**
      * Stores a combination of #Property2 values.
@@ -756,7 +756,7 @@ public:
        Sentinel value to indicate that the client wishes to be visible on
        all desktops.
      **/
-    enum { OnAllDesktops = -1 };
+    enum { OnAllDesktops = -1, };
 
     /**
        Source of the request.
@@ -774,7 +774,7 @@ public:
         /**
            indicated that the request comes from pager or similar tool
         **/
-        FromTool = 2
+        FromTool = 2,
     };
 
     /**
@@ -782,7 +782,7 @@ public:
     **/
     enum Orientation {
         OrientationHorizontal = 0,
-        OrientationVertical = 1
+        OrientationVertical = 1,
     };
 
     /**
@@ -792,7 +792,7 @@ public:
         DesktopLayoutCornerTopLeft = 0,
         DesktopLayoutCornerTopRight = 1,
         DesktopLayoutCornerBottomLeft = 2,
-        DesktopLayoutCornerBottomRight = 3
+        DesktopLayoutCornerBottomRight = 3,
     };
 
     /**
@@ -808,7 +808,7 @@ public:
         DeleteWindowProtocol = 1 << 1, ///< WM_DELETE_WINDOW
         PingProtocol = 1 << 2, ///< _NET_WM_PING from EWMH
         SyncRequestProtocol = 1 << 3, ///< _NET_WM_SYNC_REQUEST from EWMH
-        ContextHelpProtocol = 1 << 4 ///< _NET_WM_CONTEXT_HELP, NON STANDARD!
+        ContextHelpProtocol = 1 << 4, ///< _NET_WM_CONTEXT_HELP, NON STANDARD!
     };
     /**
      * Stores a combination of #Protocol values.

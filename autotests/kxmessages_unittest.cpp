@@ -19,11 +19,11 @@ public:
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
         BroadcastStaticDisplay,
 #endif
-        BroadcastStaticConnection
+        BroadcastStaticConnection,
     };
     enum ReceiverType {
         ReceiverTypeDefault,
-        ReceiverTypeConnection
+        ReceiverTypeConnection,
     };
     KXMessages_UnitTest()
         : m_msgs()

@@ -613,7 +613,7 @@ public:
         /**
          * The Wayland windowing system platform.
          **/
-        Wayland
+        Wayland,
     };
     /**
      * Returns the Platform used by the QGuiApplication.

@@ -70,7 +70,7 @@ public:
 
     enum FilterInfo {
         INFO_BASIC = 1,  // desktop info, not per-window
-        INFO_WINDOWS = 2 // also per-window info
+        INFO_WINDOWS = 2, // also per-window info
     };
 
 private:

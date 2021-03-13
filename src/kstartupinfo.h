@@ -146,7 +146,7 @@ public:
     enum {
         CleanOnCantDetect       = 1 << 0,
         DisableKWinModule       = 1 << 1,
-        AnnounceSilenceChanges  = 1 << 2
+        AnnounceSilenceChanges  = 1 << 2,
     };
 
     /**
