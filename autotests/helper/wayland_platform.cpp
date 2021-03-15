@@ -3,8 +3,8 @@
 
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
-#include <QGuiApplication>
 #include <KWindowSystem>
+#include <QGuiApplication>
 
 int main(int argc, char *argv[])
 {

@@ -10,14 +10,13 @@
 
 #if KWINDOWSYSTEM_HAVE_X11
 
+#include <QAbstractNativeEventFilter>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QWindow> // WId
-#include <QAbstractNativeEventFilter>
 
-#include <qx11info_x11.h>
 #include <X11/Xlib.h>
-
+#include <qx11info_x11.h>
 
 class XcbAtom
 {
@@ -41,26 +40,31 @@ public:
     {
     }
 
-    ~XcbAtom() {
+    ~XcbAtom()
+    {
         if (!m_retrieved && m_cookie.sequence && m_connection) {
             xcb_discard_reply(m_connection, m_cookie.sequence);
         }
     }
 
-    operator xcb_atom_t() {
+    operator xcb_atom_t()
+    {
         getReply();
         return m_atom;
     }
 
-    inline const QByteArray &name() const {
+    inline const QByteArray &name() const
+    {
         return m_name;
     }
 
-    inline void setConnection(xcb_connection_t *c) {
+    inline void setConnection(xcb_connection_t *c)
+    {
         m_connection = c;
     }
 
-    inline void fetch() {
+    inline void fetch()
+    {
         if (!m_connection || m_name.isEmpty()) {
             return;
         }
@@ -68,7 +72,8 @@ public:
     }
 
 private:
-    void getReply() {
+    void getReply()
+    {
         if (m_retrieved || !m_cookie.sequence || !m_connection) {
             return;
         }
@@ -86,8 +91,7 @@ private:
     bool m_onlyIfExists;
 };
 
-class KXMessagesPrivate
-    : public QAbstractNativeEventFilter
+class KXMessagesPrivate : public QAbstractNativeEventFilter
 {
 public:
     KXMessagesPrivate(KXMessages *parent, const char *acceptBroadcast, xcb_connection_t *c, xcb_window_t root)
@@ -98,18 +102,18 @@ public:
         , valid(c)
         , connection(c)
         , rootWindow(root)
-        {
-            if (acceptBroadcast) {
-                accept_atom1.setConnection(c);
-                accept_atom1.fetch();
-                accept_atom2.setConnection(c);
-                accept_atom2.fetch();
-                QCoreApplication::instance()->installNativeEventFilter(this);
-            }
+    {
+        if (acceptBroadcast) {
+            accept_atom1.setConnection(c);
+            accept_atom1.fetch();
+            accept_atom2.setConnection(c);
+            accept_atom2.fetch();
+            QCoreApplication::instance()->installNativeEventFilter(this);
         }
+    }
     XcbAtom accept_atom1;
     XcbAtom accept_atom2;
-    QMap< WId, QByteArray > incoming_messages;
+    QMap<WId, QByteArray> incoming_messages;
     QScopedPointer<QWindow> handle;
     KXMessages *q;
     bool valid;
@@ -119,7 +123,7 @@ public:
     bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override
     {
         Q_UNUSED(result);
-	// A faster comparison than eventType != "xcb_generic_event_t"
+        // A faster comparison than eventType != "xcb_generic_event_t"
         if (eventType[0] != 'x') {
             return false;
         }
@@ -135,13 +139,13 @@ public:
         if (cm_event->type != accept_atom1 && cm_event->type != accept_atom2) {
             return false;
         }
-        char buf[ 21 ]; // can't be longer
+        char buf[21]; // can't be longer
         // Copy the data in order to null-terminate it
         qstrncpy(buf, reinterpret_cast<char *>(cm_event->data.data8), 21);
-        //qDebug() << cm_event->window << "buf=\"" << buf << "\" atom=" << (cm_event->type == accept_atom1 ? "atom1" : "atom2");
+        // qDebug() << cm_event->window << "buf=\"" << buf << "\" atom=" << (cm_event->type == accept_atom1 ? "atom1" : "atom2");
         if (incoming_messages.contains(cm_event->window)) {
             if (cm_event->type == accept_atom1)
-                // two different messages on the same window at the same time shouldn't happen anyway
+            // two different messages on the same window at the same time shouldn't happen anyway
             {
                 incoming_messages[cm_event->window] = QByteArray();
             }
@@ -161,18 +165,20 @@ public:
 };
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
-static void send_message_internal(WId w_P, const QString &msg_P, long mask_P,
-                                  Display *disp, Atom atom1_P, Atom atom2_P, Window handle_P);
+static void send_message_internal(WId w_P, const QString &msg_P, long mask_P, Display *disp, Atom atom1_P, Atom atom2_P, Window handle_P);
 // for broadcasting
 static const long BROADCAST_MASK = PropertyChangeMask;
 // CHECKME
 #endif
-static void send_message_internal(xcb_window_t w, const QString &msg, xcb_connection_t *c,
-                                  xcb_atom_t leadingMessage, xcb_atom_t followingMessage, xcb_window_t handle);
+static void
+send_message_internal(xcb_window_t w, const QString &msg, xcb_connection_t *c, xcb_atom_t leadingMessage, xcb_atom_t followingMessage, xcb_window_t handle);
 
 KXMessages::KXMessages(const char *accept_broadcast_P, QObject *parent_P)
     : QObject(parent_P)
-    , d(new KXMessagesPrivate(this, accept_broadcast_P, QX11Info::isPlatformX11() ? QX11Info::connection() : nullptr, QX11Info::isPlatformX11() ? QX11Info::appRootWindow() : 0))
+    , d(new KXMessagesPrivate(this,
+                              accept_broadcast_P,
+                              QX11Info::isPlatformX11() ? QX11Info::connection() : nullptr,
+                              QX11Info::isPlatformX11() ? QX11Info::appRootWindow() : 0))
 {
 }
 
@@ -187,12 +193,9 @@ KXMessages::~KXMessages()
     delete d;
 }
 
-static
-xcb_screen_t *defaultScreen(xcb_connection_t *c, int screen)
+static xcb_screen_t *defaultScreen(xcb_connection_t *c, int screen)
 {
-    for (xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(c));
-            it.rem;
-            --screen, xcb_screen_next(&it)) {
+    for (xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(c)); it.rem; --screen, xcb_screen_next(&it)) {
         if (screen == 0) {
             return it.data;
         }
@@ -210,13 +213,11 @@ void KXMessages::broadcastMessage(const char *msg_type_P, const QString &message
     XcbAtom a2(d->connection, msg);
     XcbAtom a1(d->connection, msg + QByteArrayLiteral("_BEGIN"));
     xcb_window_t root = screen_P == -1 ? d->rootWindow : defaultScreen(d->connection, screen_P)->root;
-    send_message_internal(root, message_P, d->connection,
-                          a1, a2, d->handle->winId());
+    send_message_internal(root, message_P, d->connection, a1, a2, d->handle->winId());
 }
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
-bool KXMessages::broadcastMessageX(Display *disp, const char *msg_type_P,
-                                   const QString &message_P, int screen_P)
+bool KXMessages::broadcastMessageX(Display *disp, const char *msg_type_P, const QString &message_P, int screen_P)
 {
     if (disp == nullptr) {
         return false;
@@ -224,11 +225,16 @@ bool KXMessages::broadcastMessageX(Display *disp, const char *msg_type_P,
     Atom a2 = XInternAtom(disp, msg_type_P, false);
     Atom a1 = XInternAtom(disp, QByteArray(QByteArray(msg_type_P) + "_BEGIN").constData(), false);
     Window root = screen_P == -1 ? DefaultRootWindow(disp) : RootWindow(disp, screen_P);
-    Window win = XCreateSimpleWindow(disp, root, 0, 0, 1, 1,
-                                     0, BlackPixel(disp, screen_P == -1 ? DefaultScreen(disp) : screen_P),
+    Window win = XCreateSimpleWindow(disp,
+                                     root,
+                                     0,
+                                     0,
+                                     1,
+                                     1,
+                                     0,
+                                     BlackPixel(disp, screen_P == -1 ? DefaultScreen(disp) : screen_P),
                                      BlackPixel(disp, screen_P == -1 ? DefaultScreen(disp) : screen_P));
-    send_message_internal(root, message_P, BROADCAST_MASK, disp,
-                          a1, a2, win);
+    send_message_internal(root, message_P, BROADCAST_MASK, disp, a1, a2, win);
     XDestroyWindow(disp, win);
     return true;
 }
@@ -248,8 +254,7 @@ bool KXMessages::broadcastMessageX(xcb_connection_t *c, const char *msg_type_P, 
     }
     const xcb_window_t root = screen->root;
     const xcb_window_t win = xcb_generate_id(c);
-    xcb_create_window(c, XCB_COPY_FROM_PARENT, win, root, 0, 0, 1, 1,
-                      0, XCB_COPY_FROM_PARENT, XCB_COPY_FROM_PARENT, 0, nullptr);
+    xcb_create_window(c, XCB_COPY_FROM_PARENT, win, root, 0, 0, 1, 1, 0, XCB_COPY_FROM_PARENT, XCB_COPY_FROM_PARENT, 0, nullptr);
     send_message_internal(root, message, c, a1, a2, win);
     xcb_destroy_window(c, win);
     return true;
@@ -281,10 +286,9 @@ bool KXMessages::sendMessageX(Display *disp, WId w_P, const char *msg_type_P,
 #endif
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
-static void send_message_internal(WId w_P, const QString &msg_P, long mask_P,
-                                  Display *disp, Atom atom1_P, Atom atom2_P, Window handle_P)
+static void send_message_internal(WId w_P, const QString &msg_P, long mask_P, Display *disp, Atom atom1_P, Atom atom2_P, Window handle_P)
 {
-    //qDebug() << "send_message_internal" << w_P << msg_P << mask_P << atom1_P << atom2_P << handle_P;
+    // qDebug() << "send_message_internal" << w_P << msg_P << mask_P << atom1_P << atom2_P << handle_P;
     unsigned int pos = 0;
     QByteArray msg = msg_P.toUtf8();
     unsigned int len = strlen(msg.constData());
@@ -296,10 +300,8 @@ static void send_message_internal(WId w_P, const QString &msg_P, long mask_P,
     e.xclient.format = 8;
     do {
         unsigned int i;
-        for (i = 0;
-                i < 20 && i + pos <= len;
-                ++i) {
-            e.xclient.data.b[ i ] = msg[ i + pos ];
+        for (i = 0; i < 20 && i + pos <= len; ++i) {
+            e.xclient.data.b[i] = msg[i + pos];
         }
         XSendEvent(disp, w_P, false, mask_P, &e);
         e.xclient.message_type = atom2_P; // following messages
@@ -309,8 +311,8 @@ static void send_message_internal(WId w_P, const QString &msg_P, long mask_P,
 }
 #endif
 
-static void send_message_internal(xcb_window_t w, const QString &msg_P, xcb_connection_t *c,
-                                  xcb_atom_t leadingMessage, xcb_atom_t followingMessage, xcb_window_t handle)
+static void
+send_message_internal(xcb_window_t w, const QString &msg_P, xcb_connection_t *c, xcb_atom_t leadingMessage, xcb_atom_t followingMessage, xcb_window_t handle)
 {
     unsigned int pos = 0;
     QByteArray msg = msg_P.toUtf8();
@@ -325,15 +327,13 @@ static void send_message_internal(xcb_window_t w, const QString &msg_P, xcb_conn
 
     do {
         unsigned int i;
-        for (i = 0;
-                i < 20 && i + pos <= len;
-                ++i) {
-            event.data.data8[i] = msg[ i + pos ];
+        for (i = 0; i < 20 && i + pos <= len; ++i) {
+            event.data.data8[i] = msg[i + pos];
         }
         for (unsigned int j = i; j < 20; ++j) {
             event.data.data8[j] = 0;
         }
-        xcb_send_event(c, false, w, XCB_EVENT_MASK_PROPERTY_CHANGE, (const char *) &event);
+        xcb_send_event(c, false, w, XCB_EVENT_MASK_PROPERTY_CHANGE, (const char *)&event);
         event.type = followingMessage;
         pos += i;
     } while (pos <= len);

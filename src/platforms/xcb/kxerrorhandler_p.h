@@ -75,6 +75,7 @@ public:
      */
     static QByteArray errorMessage(const XErrorEvent &e, Display *dpy = QX11Info::display());
     ~KXErrorHandler();
+
 private:
     void addHandler();
     int handle(Display *dpy, XErrorEvent *e);

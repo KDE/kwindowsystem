@@ -5,10 +5,10 @@
   SPDX-License-Identifier: MIT
 */
 
-#ifndef   netwm_def_h
-#define   netwm_def_h
-#include <kwindowsystem_export.h>
+#ifndef netwm_def_h
+#define netwm_def_h
 #include <QFlags>
+#include <kwindowsystem_export.h>
 
 /**
   Simple point class for NET classes.
@@ -27,13 +27,17 @@ struct NETPoint {
     /**
        Constructor to initialize this point to 0,0.
     **/
-    NETPoint() : x(0), y(0) { }
+    NETPoint()
+        : x(0)
+        , y(0)
+    {
+    }
 
     /*
        Public data member.
     **/
     int x, ///< x coordinate.
-        y;   ///< y coordinate
+        y; ///< y coordinate
 };
 
 /**
@@ -53,13 +57,17 @@ struct NETSize {
     /**
        Constructor to initialize this size to 0x0
     **/
-    NETSize() : width(0), height(0) { }
+    NETSize()
+        : width(0)
+        , height(0)
+    {
+    }
 
     /*
        Public data member.
     **/
-    int width,  ///< Width.
-        height;   ///< Height.
+    int width, ///< Width.
+        height; ///< Height.
 };
 
 /**
@@ -103,7 +111,10 @@ struct NETIcon {
     /**
        Constructor to initialize this icon to 0x0 with data=0
     **/
-    NETIcon() : data(nullptr) { }
+    NETIcon()
+        : data(nullptr)
+    {
+    }
 
     /**
        Size of the icon.
@@ -133,9 +144,21 @@ struct NETExtendedStrut {
     /**
        Constructor to initialize this struct to 0,0,0,0
     **/
-    NETExtendedStrut() : left_width(0), left_start(0), left_end(0),
-        right_width(0), right_start(0), right_end(0), top_width(0), top_start(0), top_end(0),
-        bottom_width(0), bottom_start(0), bottom_end(0) {}
+    NETExtendedStrut()
+        : left_width(0)
+        , left_start(0)
+        , left_end(0)
+        , right_width(0)
+        , right_start(0)
+        , right_end(0)
+        , top_width(0)
+        , top_start(0)
+        , top_end(0)
+        , bottom_width(0)
+        , bottom_start(0)
+        , bottom_end(0)
+    {
+    }
 
     /**
        Left border of the strut, width and range.
@@ -156,7 +179,6 @@ struct NETExtendedStrut {
        Bottom border of the strut, width and range.
            **/
     int bottom_width, bottom_start, bottom_end;
-
 };
 
 /**
@@ -174,7 +196,13 @@ struct NETStrut {
     /**
        Constructor to initialize this struct to 0,0,0,0
     **/
-    NETStrut() : left(0), right(0), top(0), bottom(0) { }
+    NETStrut()
+        : left(0)
+        , right(0)
+        , top(0)
+        , bottom(0)
+    {
+    }
 
     /**
        Left border of the strut.
@@ -214,7 +242,13 @@ struct NETFullscreenMonitors {
        Constructor to initialize this struct to -1,0,0,0 (an initialized,
        albeit invalid, topology).
     **/
-    NETFullscreenMonitors() : top(-1), bottom(0), left(0), right(0) { }
+    NETFullscreenMonitors()
+        : top(-1)
+        , bottom(0)
+        , left(0)
+        , right(0)
+    {
+    }
 
     /**
        Monitor index whose top border defines the top edge of the topology.
@@ -287,34 +321,34 @@ public:
         /**
            indicates that the window did not define a window type.
         **/
-        Unknown  = -1,
+        Unknown = -1,
         /**
            indicates that this is a normal, top-level window
         **/
-        Normal   = 0,
+        Normal = 0,
         /**
            indicates a desktop feature. This can include a single window
            containing desktop icons with the same dimensions as the screen, allowing
            the desktop environment to have full control of the desktop, without the
            need for proxying root window clicks.
         **/
-        Desktop  = 1,
+        Desktop = 1,
         /**
            indicates a dock or panel feature
         **/
-        Dock     = 2,
+        Dock = 2,
         /**
            indicates a toolbar window
         **/
-        Toolbar  = 3,
+        Toolbar = 3,
         /**
            indicates a pinnable (torn-off) menu window
         **/
-        Menu     = 4,
+        Menu = 4,
         /**
            indicates that this is a dialog window
         **/
-        Dialog   = 5,
+        Dialog = 5,
         // cannot deprecate to compiler: used both by clients & manager, later needs to keep supporting it for now
         // KF6: remove
         /**
@@ -325,15 +359,15 @@ public:
            indicates a toplevel menu (AKA macmenu). This is a KDE extension to the
            _NET_WM_WINDOW_TYPE mechanism.
         **/
-        TopMenu  = 7, // NON STANDARD
+        TopMenu = 7, // NON STANDARD
         /**
            indicates a utility window
         **/
-        Utility  = 8,
+        Utility = 8,
         /**
            indicates that this window is a splash screen window.
         **/
-        Splash   = 9,
+        Splash = 9,
         /**
            indicates a dropdown menu (from a menubar typically)
         **/
@@ -376,25 +410,25 @@ public:
         @see WindowTypes
     **/
     enum WindowTypeMask {
-        NormalMask   = 1u << 0, ///< @see Normal
-        DesktopMask  = 1u << 1, ///< @see Desktop
-        DockMask     = 1u << 2, ///< @see Dock
-        ToolbarMask  = 1u << 3, ///< @see Toolbar
-        MenuMask     = 1u << 4, ///< @see Menu
-        DialogMask   = 1u << 5, ///< @see Dialog
+        NormalMask = 1u << 0, ///< @see Normal
+        DesktopMask = 1u << 1, ///< @see Desktop
+        DockMask = 1u << 2, ///< @see Dock
+        ToolbarMask = 1u << 3, ///< @see Toolbar
+        MenuMask = 1u << 4, ///< @see Menu
+        DialogMask = 1u << 5, ///< @see Dialog
         OverrideMask = 1u << 6, ///< @see Override
-        TopMenuMask  = 1u << 7, ///< @see TopMenu
-        UtilityMask  = 1u << 8, ///< @see Utility
-        SplashMask   = 1u << 9, ///< @see Splash
+        TopMenuMask = 1u << 7, ///< @see TopMenu
+        UtilityMask = 1u << 8, ///< @see Utility
+        SplashMask = 1u << 9, ///< @see Splash
         DropdownMenuMask = 1u << 10, ///< @see DropdownMenu
-        PopupMenuMask    = 1u << 11, ///< @see PopupMenu
-        TooltipMask      = 1u << 12, ///< @see Tooltip
+        PopupMenuMask = 1u << 11, ///< @see PopupMenu
+        TooltipMask = 1u << 12, ///< @see Tooltip
         NotificationMask = 1u << 13, ///< @see Notification
-        ComboBoxMask     = 1u << 14, ///< @see ComboBox
-        DNDIconMask      = 1u << 15, ///< @see DNDIcon
+        ComboBoxMask = 1u << 14, ///< @see ComboBox
+        DNDIconMask = 1u << 15, ///< @see DNDIcon
         OnScreenDisplayMask = 1u << 16, ///< NON STANDARD @see OnScreenDisplay @since 5.6
         CriticalNotificationMask = 1u << 17, ///< NON STANDARD @see CriticalNotification @since 5.58
-        AllTypesMask     = 0U - 1, ///< All window types.
+        AllTypesMask = 0U - 1, ///< All window types.
     };
     /**
      * Stores a combination of #WindowTypeMask values.
@@ -430,21 +464,21 @@ public:
            MUST be set to indicate which window the dialog is a modal for, or set to
            the root window if the dialog is a modal for its window group.
         **/
-        Modal        = 1u << 0,
+        Modal = 1u << 0,
         /**
            indicates that the Window Manager SHOULD keep the window's position
            fixed on the screen, even when the virtual desktop scrolls. Note that this is
            different from being kept on all desktops.
         **/
-        Sticky       = 1u << 1,
+        Sticky = 1u << 1,
         /**
            indicates that the window is vertically maximized.
         **/
-        MaxVert      = 1u << 2,
+        MaxVert = 1u << 2,
         /**
            indicates that the window is horizontally maximized.
         **/
-        MaxHoriz     = 1u << 3,
+        MaxHoriz = 1u << 3,
         /**
            convenience value. Equal to MaxVert | MaxHoriz.
         **/
@@ -452,40 +486,40 @@ public:
         /**
            indicates that the window is shaded (rolled-up).
         **/
-        Shaded       = 1u << 4,
+        Shaded = 1u << 4,
         /**
            indicates that a window should not be included on a taskbar.
         **/
-        SkipTaskbar  = 1u << 5,
+        SkipTaskbar = 1u << 5,
         /**
            indicates that a window should on top of most windows (but below fullscreen
            windows).
         **/
-        KeepAbove    = 1u << 6,
+        KeepAbove = 1u << 6,
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
         /**
            @deprecated Since 5.0. This is an obsolete name for KeepAbove.
         **/
-        StaysOnTop   = KeepAbove,   // NOT STANDARD
+        StaysOnTop = KeepAbove, // NOT STANDARD
 #endif
         /**
            indicates that a window should not be included on a pager.
         **/
-        SkipPager    = 1u << 7,
+        SkipPager = 1u << 7,
         /**
            indicates that a window should not be visible on the screen (e.g. when minimised).
            Only the window manager is allowed to change it.
         **/
-        Hidden       = 1u << 8,
+        Hidden = 1u << 8,
         /**
            indicates that a window should fill the entire screen and have no window
            decorations.
         **/
-        FullScreen   = 1u << 9,
+        FullScreen = 1u << 9,
         /**
            indicates that a window should be below most windows (but above any desktop windows).
         **/
-        KeepBelow    = 1u << 10,
+        KeepBelow = 1u << 10,
         /**
            there was an attempt to activate this window, but the window manager prevented
            this. E.g. taskbar should mark such window specially to bring user's attention to
@@ -530,16 +564,16 @@ public:
     **/
 
     enum Direction {
-        TopLeft      = 0,
-        Top          = 1,
-        TopRight     = 2,
-        Right        = 3,
-        BottomRight  = 4,
-        Bottom       = 5,
-        BottomLeft   = 6,
-        Left         = 7,
-        Move         = 8,  // movement only
-        KeyboardSize = 9,  // size via keyboard
+        TopLeft = 0,
+        Top = 1,
+        TopRight = 2,
+        Right = 3,
+        BottomRight = 4,
+        Bottom = 5,
+        BottomLeft = 6,
+        Left = 7,
+        Move = 8, // movement only
+        KeyboardSize = 9, // size via keyboard
         KeyboardMove = 10, // move via keyboard
         MoveResizeCancel = 11, // to ask the WM to stop moving a window
     };
@@ -554,11 +588,11 @@ public:
         /**
            indicates the client window is visible to the user.
         **/
-        Visible = 1, //NormalState,
+        Visible = 1, // NormalState,
         /**
            indicates that neither the client window nor its icon is visible.
         **/
-        Withdrawn = 0, //WithdrawnState,
+        Withdrawn = 0, // WithdrawnState,
         /**
            indicates that the client window is not visible, but its icon is.
            This can be when the window is minimized or when it's on a
@@ -572,17 +606,17 @@ public:
       @see Actions
     **/
     enum Action {
-        ActionMove           = 1u << 0,
-        ActionResize         = 1u << 1,
-        ActionMinimize       = 1u << 2,
-        ActionShade          = 1u << 3,
-        ActionStick          = 1u << 4,
-        ActionMaxVert        = 1u << 5,
-        ActionMaxHoriz       = 1u << 6,
-        ActionMax            = ActionMaxVert | ActionMaxHoriz,
-        ActionFullScreen     = 1u << 7,
-        ActionChangeDesktop  = 1u << 8,
-        ActionClose          = 1u << 9,
+        ActionMove = 1u << 0,
+        ActionResize = 1u << 1,
+        ActionMinimize = 1u << 2,
+        ActionShade = 1u << 3,
+        ActionStick = 1u << 4,
+        ActionMaxVert = 1u << 5,
+        ActionMaxHoriz = 1u << 6,
+        ActionMax = ActionMaxVert | ActionMaxHoriz,
+        ActionFullScreen = 1u << 7,
+        ActionChangeDesktop = 1u << 8,
+        ActionClose = 1u << 9,
     };
     /**
      * Stores a combination of #Action values.
@@ -637,42 +671,42 @@ public:
 
     enum Property {
         // root
-        Supported             = 1u << 0,
-        ClientList            = 1u << 1,
-        ClientListStacking    = 1u << 2,
-        NumberOfDesktops      = 1u << 3,
-        DesktopGeometry       = 1u << 4,
-        DesktopViewport       = 1u << 5,
-        CurrentDesktop        = 1u << 6,
-        DesktopNames          = 1u << 7,
-        ActiveWindow          = 1u << 8,
-        WorkArea              = 1u << 9,
-        SupportingWMCheck     = 1u << 10,
-        VirtualRoots          = 1u << 11,
+        Supported = 1u << 0,
+        ClientList = 1u << 1,
+        ClientListStacking = 1u << 2,
+        NumberOfDesktops = 1u << 3,
+        DesktopGeometry = 1u << 4,
+        DesktopViewport = 1u << 5,
+        CurrentDesktop = 1u << 6,
+        DesktopNames = 1u << 7,
+        ActiveWindow = 1u << 8,
+        WorkArea = 1u << 9,
+        SupportingWMCheck = 1u << 10,
+        VirtualRoots = 1u << 11,
         //
-        CloseWindow           = 1u << 13,
-        WMMoveResize          = 1u << 14,
+        CloseWindow = 1u << 13,
+        WMMoveResize = 1u << 14,
 
         // window
-        WMName                = 1u << 15,
-        WMVisibleName         = 1u << 16,
-        WMDesktop             = 1u << 17,
-        WMWindowType          = 1u << 18,
-        WMState               = 1u << 19,
-        WMStrut               = 1u << 20,
-        WMIconGeometry        = 1u << 21,
-        WMIcon                = 1u << 22,
-        WMPid                 = 1u << 23,
-        WMHandledIcons        = 1u << 24,
-        WMPing                = 1u << 25,
-        XAWMState             = 1u << 27,
-        WMFrameExtents        = 1u << 28,
+        WMName = 1u << 15,
+        WMVisibleName = 1u << 16,
+        WMDesktop = 1u << 17,
+        WMWindowType = 1u << 18,
+        WMState = 1u << 19,
+        WMStrut = 1u << 20,
+        WMIconGeometry = 1u << 21,
+        WMIcon = 1u << 22,
+        WMPid = 1u << 23,
+        WMHandledIcons = 1u << 24,
+        WMPing = 1u << 25,
+        XAWMState = 1u << 27,
+        WMFrameExtents = 1u << 28,
 
         // Need to be reordered
-        WMIconName            = 1u << 29,
-        WMVisibleIconName     = 1u << 30,
-        WMGeometry            = 1u << 31,
-        WMAllProperties       = ~0u,
+        WMIconName = 1u << 29,
+        WMVisibleIconName = 1u << 30,
+        WMGeometry = 1u << 31,
+        WMAllProperties = ~0u,
     };
     /**
      * Stores a combination of #Property values.
@@ -714,38 +748,38 @@ public:
         @see Properties2
     **/
     enum Property2 {
-        WM2UserTime            = 1u << 0,
-        WM2StartupId           = 1u << 1,
-        WM2TransientFor        = 1u << 2,
-        WM2GroupLeader         = 1u << 3,
-        WM2AllowedActions      = 1u << 4,
-        WM2RestackWindow       = 1u << 5,
-        WM2MoveResizeWindow    = 1u << 6,
-        WM2ExtendedStrut       = 1u << 7,
-        WM2KDETemporaryRules   = 1u << 8, // NOT STANDARD
-        WM2WindowClass         = 1u << 9,
-        WM2WindowRole          = 1u << 10,
-        WM2ClientMachine       = 1u << 11,
-        WM2ShowingDesktop      = 1u << 12,
-        WM2Opacity             = 1u << 13,
-        WM2DesktopLayout       = 1u << 14,
-        WM2FullPlacement       = 1u << 15,
-        WM2FullscreenMonitors  = 1u << 16,
-        WM2FrameOverlap        = 1u << 17, // NOT STANDARD
-        WM2Activities          = 1u << 18, // NOT STANDARD @since 4.6
-        WM2BlockCompositing    = 1u << 19, // NOT STANDARD @since 4.7, STANDARD @since 5.17
-        WM2KDEShadow           = 1u << 20, // NOT Standard @since 4.7
-        WM2Urgency             = 1u << 21, // @since 5.3
-        WM2Input               = 1u << 22, // @since 5.3
-        WM2Protocols           = 1u << 23, // @since 5.3
+        WM2UserTime = 1u << 0,
+        WM2StartupId = 1u << 1,
+        WM2TransientFor = 1u << 2,
+        WM2GroupLeader = 1u << 3,
+        WM2AllowedActions = 1u << 4,
+        WM2RestackWindow = 1u << 5,
+        WM2MoveResizeWindow = 1u << 6,
+        WM2ExtendedStrut = 1u << 7,
+        WM2KDETemporaryRules = 1u << 8, // NOT STANDARD
+        WM2WindowClass = 1u << 9,
+        WM2WindowRole = 1u << 10,
+        WM2ClientMachine = 1u << 11,
+        WM2ShowingDesktop = 1u << 12,
+        WM2Opacity = 1u << 13,
+        WM2DesktopLayout = 1u << 14,
+        WM2FullPlacement = 1u << 15,
+        WM2FullscreenMonitors = 1u << 16,
+        WM2FrameOverlap = 1u << 17, // NOT STANDARD
+        WM2Activities = 1u << 18, // NOT STANDARD @since 4.6
+        WM2BlockCompositing = 1u << 19, // NOT STANDARD @since 4.7, STANDARD @since 5.17
+        WM2KDEShadow = 1u << 20, // NOT Standard @since 4.7
+        WM2Urgency = 1u << 21, // @since 5.3
+        WM2Input = 1u << 22, // @since 5.3
+        WM2Protocols = 1u << 23, // @since 5.3
         WM2InitialMappingState = 1u << 24, // @since 5.5
-        WM2IconPixmap          = 1u << 25, // @since 5.7
-        WM2OpaqueRegion        = 1u << 25, // @since 5.7
-        WM2DesktopFileName     = 1u << 26, // NOT STANDARD @since 5.28
-        WM2GTKFrameExtents     = 1u << 27, // NOT STANDARD @since 5.65
-        WM2AppMenuServiceName  = 1u << 28, // NOT STANDARD @since 5.69
-        WM2AppMenuObjectPath   = 1u << 29, // NOT STANDARD @since 5.69
-        WM2AllProperties       = ~0u,
+        WM2IconPixmap = 1u << 25, // @since 5.7
+        WM2OpaqueRegion = 1u << 25, // @since 5.7
+        WM2DesktopFileName = 1u << 26, // NOT STANDARD @since 5.28
+        WM2GTKFrameExtents = 1u << 27, // NOT STANDARD @since 5.65
+        WM2AppMenuServiceName = 1u << 28, // NOT STANDARD @since 5.69
+        WM2AppMenuObjectPath = 1u << 29, // NOT STANDARD @since 5.69
+        WM2AllProperties = ~0u,
     };
     /**
      * Stores a combination of #Property2 values.
@@ -756,7 +790,9 @@ public:
        Sentinel value to indicate that the client wishes to be visible on
        all desktops.
      **/
-    enum { OnAllDesktops = -1, };
+    enum {
+        OnAllDesktops = -1,
+    };
 
     /**
        Source of the request.
@@ -825,7 +861,6 @@ public:
      as returned by timestampCompare().
     */
     static int timestampDiff(unsigned long time1, unsigned long time2);
-
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(NET::Properties)

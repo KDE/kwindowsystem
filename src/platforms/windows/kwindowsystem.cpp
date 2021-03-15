@@ -8,15 +8,15 @@
 
 #include "kwindowsystem.h"
 
+#include <QApplication>
+#include <QBitmap>
+#include <QDebug>
 #include <QDesktopWidget>
 #include <QIcon>
-#include <QBitmap>
-#include <QPixmap>
 #include <QLibrary>
-#include <QDebug>
-#include <QApplication>
-#include <QtWin>
 #include <QMetaMethod>
+#include <QPixmap>
+#include <QtWin>
 
 #include <windows.h>
 #include <windowsx.h>
@@ -26,11 +26,11 @@
 #define GCL_HICONSM GCLP_HICONSM
 #endif
 
-//function to register us as taskmanager
-#define RSH_UNREGISTER  0
-#define RSH_REGISTER    1
-#define RSH_TASKMGR     3
-typedef bool (WINAPI *PtrRegisterShellHook)(HWND hWnd, DWORD method);
+// function to register us as taskmanager
+#define RSH_UNREGISTER 0
+#define RSH_REGISTER 1
+#define RSH_TASKMGR 3
+typedef bool(WINAPI *PtrRegisterShellHook)(HWND hWnd, DWORD method);
 
 static PtrRegisterShellHook pRegisterShellHook = 0;
 static int WM_SHELLHOOK = -1;
@@ -38,7 +38,10 @@ static int WM_SHELLHOOK = -1;
 class KWindowSystemStaticContainer
 {
 public:
-    KWindowSystemStaticContainer() : d(0) {}
+    KWindowSystemStaticContainer()
+        : d(0)
+    {
+    }
     KWindowSystem kwm;
     KWindowSystemPrivate *d;
 };
@@ -46,7 +49,9 @@ public:
 Q_GLOBAL_STATIC(KWindowSystemStaticContainer, g_kwmInstanceContainer)
 
 struct InternalWindowInfo {
-    InternalWindowInfo() {}
+    InternalWindowInfo()
+    {
+    }
     QPixmap bigIcon;
     QPixmap smallIcon;
     QString windowName;
@@ -55,6 +60,7 @@ struct InternalWindowInfo {
 class KWindowSystemPrivate : public QWidget
 {
     friend class KWindowSystem;
+
 public:
     KWindowSystemPrivate(int what);
     ~KWindowSystemPrivate();
@@ -90,10 +96,10 @@ static HBITMAP QPixmapMask2HBitmap(const QPixmap &pix)
         bm.fill(Qt::color1);
     }
     QImage im = bm.toImage().convertToFormat(QImage::Format_Mono);
-    im.invertPixels();                  // funny blank'n'white games on windows
+    im.invertPixels(); // funny blank'n'white games on windows
     int w = im.width();
     int h = im.height();
-    int bpl = ((w + 15) / 16) * 2;      // bpl, 16 bit alignment
+    int bpl = ((w + 15) / 16) * 2; // bpl, 16 bit alignment
     QByteArray bits(bpl * h, '\0');
     for (int y = 0; y < h; y++) {
         memcpy(bits.data() + y * bpl, im.scanLine(y), bpl);
@@ -101,9 +107,11 @@ static HBITMAP QPixmapMask2HBitmap(const QPixmap &pix)
     return CreateBitmap(w, h, 1, 1, bits.constData());
 }
 
-KWindowSystemPrivate::KWindowSystemPrivate(int what) : QWidget(0), activated(false)
+KWindowSystemPrivate::KWindowSystemPrivate(int what)
+    : QWidget(0)
+    , activated(false)
 {
-    //i think there is no difference in windows we always load everything
+    // i think there is no difference in windows we always load everything
     what = KWindowSystem::INFO_WINDOWS;
     setVisible(false);
 }
@@ -182,7 +190,7 @@ bool KWindowSystemPrivate::nativeEvent(const QByteArray &eventType, void *messag
         HSHELL_WINDOWREPLACING      14
        */
     if (message->message == WM_SHELLHOOK) {
-//         qDebug() << "what has happened?:" << message->wParam << message->message;
+        //         qDebug() << "what has happened?:" << message->wParam << message->message;
 
         switch (message->wParam) {
         case HSHELL_WINDOWCREATED:
@@ -201,7 +209,7 @@ bool KWindowSystemPrivate::nativeEvent(const QByteArray &eventType, void *messag
         case HSHELL_GETMINRECT:
             KWindowSystem::s_d_func()->windowStateChanged(static_cast<WId>(message->lParam));
             break;
-        case HSHELL_REDRAW: //the caption has changed
+        case HSHELL_REDRAW: // the caption has changed
             KWindowSystem::s_d_func()->windowRedraw(static_cast<WId>(message->lParam));
             break;
         case HSHELL_FLASH:
@@ -223,9 +231,8 @@ bool CALLBACK KWindowSystemPrivate::EnumWindProc(HWND hWnd, LPARAM lparam)
 
     QString add;
     if (!QString::fromWCharArray((wchar_t *)windowText.data()).trimmed().isEmpty() && IsWindowVisible(hWnd) && !(ex_style & WS_EX_TOOLWINDOW)
-            && !GetParent(hWnd) && !GetWindow(hWnd, GW_OWNER) && !p->winInfos.contains(win)) {
-
-//        qDebug()<<"Adding window to windowList " << add + QString(windowText).trimmed();
+        && !GetParent(hWnd) && !GetWindow(hWnd, GW_OWNER) && !p->winInfos.contains(win)) {
+        //        qDebug()<<"Adding window to windowList " << add + QString(windowText).trimmed();
 
         InternalWindowInfo winfo;
         KWindowSystemPrivate::readWindowInfo(hWnd, &winfo);
@@ -240,10 +247,10 @@ void KWindowSystemPrivate::readWindowInfo(HWND hWnd, InternalWindowInfo *winfo)
 {
     QByteArray windowText = QByteArray((GetWindowTextLength(hWnd) + 1) * sizeof(wchar_t), 0);
     GetWindowTextW(hWnd, (LPWSTR)windowText.data(), windowText.size());
-    //maybe use SendMessageTimout here?
+    // maybe use SendMessageTimout here?
     QPixmap smallIcon;
     HICON hSmallIcon = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
-    //if(!hSmallIcon) hSmallIcon = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL2, 0);
+    // if(!hSmallIcon) hSmallIcon = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL2, 0);
     if (!hSmallIcon) {
         hSmallIcon = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
     }
@@ -259,12 +266,12 @@ void KWindowSystemPrivate::readWindowInfo(HWND hWnd, InternalWindowInfo *winfo)
         hSmallIcon = (HICON)SendMessage(hWnd, WM_QUERYDRAGICON, 0, 0);
     }
     if (hSmallIcon) {
-        smallIcon  = QtWin::fromHICON(hSmallIcon);
+        smallIcon = QtWin::fromHICON(hSmallIcon);
     }
 
     QPixmap bigIcon;
     HICON hBigIcon = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
-    //if(!hBigIcon) hBigIcon = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL2, 0);
+    // if(!hBigIcon) hBigIcon = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL2, 0);
     if (!hBigIcon) {
         hBigIcon = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
     }
@@ -280,17 +287,17 @@ void KWindowSystemPrivate::readWindowInfo(HWND hWnd, InternalWindowInfo *winfo)
         hBigIcon = (HICON)SendMessage(hWnd, WM_QUERYDRAGICON, 0, 0);
     }
     if (hBigIcon) {
-        bigIcon  = QtWin::fromHICON(hBigIcon);
+        bigIcon = QtWin::fromHICON(hBigIcon);
     }
 
-    winfo->bigIcon    = bigIcon;
-    winfo->smallIcon  = smallIcon;
+    winfo->bigIcon = bigIcon;
+    winfo->smallIcon = smallIcon;
     winfo->windowName = QString::fromWCharArray((wchar_t *)windowText.data()).trimmed();
 }
 
 void KWindowSystemPrivate::windowAdded(WId wid)
 {
-//     qDebug() << "window added!";
+    //     qDebug() << "window added!";
     KWindowSystem::s_d_func()->reloadStackList();
     Q_EMIT KWindowSystem::self()->windowAdded(wid);
     Q_EMIT KWindowSystem::self()->activeWindowChanged(wid);
@@ -299,7 +306,7 @@ void KWindowSystemPrivate::windowAdded(WId wid)
 
 void KWindowSystemPrivate::windowRemoved(WId wid)
 {
-//     qDebug() << "window removed!";
+    //     qDebug() << "window removed!";
     KWindowSystem::s_d_func()->reloadStackList();
     Q_EMIT KWindowSystem::self()->windowRemoved(wid);
     Q_EMIT KWindowSystem::self()->stackingOrderChanged();
@@ -307,7 +314,7 @@ void KWindowSystemPrivate::windowRemoved(WId wid)
 
 void KWindowSystemPrivate::windowActivated(WId wid)
 {
-//     qDebug() << "window activated!";
+    //     qDebug() << "window activated!";
     if (!wid) {
         return;
     }
@@ -324,7 +331,7 @@ void KWindowSystemPrivate::windowRedraw(WId wid)
 
 void KWindowSystemPrivate::windowFlash(WId wid)
 {
-    //emit KWindowSystem::self()->demandAttention( wid );
+    // emit KWindowSystem::self()->demandAttention( wid );
 }
 
 void KWindowSystemPrivate::windowStateChanged(WId wid)
@@ -340,7 +347,7 @@ void KWindowSystemPrivate::reloadStackList()
 {
     KWindowSystem::s_d_func()->stackingOrder.clear();
     KWindowSystem::s_d_func()->winInfos.clear();
-//    EnumWindows((WNDENUMPROC)EnumWindProc, 0 );
+    //    EnumWindows((WNDENUMPROC)EnumWindProc, 0 );
 }
 
 KWindowSystem *KWindowSystem::self()
@@ -371,7 +378,6 @@ void KWindowSystem::init(int what)
         g_kwmInstanceContainer()->d = new KWindowSystemPrivate(what); // invalidates s_d
         g_kwmInstanceContainer()->d->activate();
     }
-
 }
 
 bool KWindowSystem::allowedActionsSupported()
@@ -397,18 +403,18 @@ void KWindowSystem::setMainWindow(QWidget *subwindow, WId mainwindow)
 void KWindowSystem::setCurrentDesktop(int desktop)
 {
     qDebug() << "KWindowSystem::setCurrentDesktop( int desktop ) isn't yet implemented!";
-    //TODO
+    // TODO
 }
 
 void KWindowSystem::setOnAllDesktops(WId win, bool b)
 {
     qDebug() << "KWindowSystem::setOnAllDesktops( WId win, bool b ) isn't yet implemented!";
-    //TODO
+    // TODO
 }
 
 void KWindowSystem::setOnDesktop(WId win, int desktop)
 {
-    //TODO
+    // TODO
     qDebug() << "KWindowSystem::setOnDesktop( WId win, int desktop ) isn't yet implemented!";
 }
 
@@ -437,16 +443,15 @@ void KWindowSystem::forceActiveWindow(WId win, long time)
     }
 #endif
     // Puts the window in front and activates it.
-    //to bring a window to the front while the user is active in a different apllication we
-    //have to atach our self to the current active window
+    // to bring a window to the front while the user is active in a different apllication we
+    // have to atach our self to the current active window
     HWND hwndActiveWin = GetForegroundWindow();
-    int  idActive      = GetWindowThreadProcessId(hwndActiveWin, nullptr);
+    int idActive = GetWindowThreadProcessId(hwndActiveWin, nullptr);
     if (AttachThreadInput(GetCurrentThreadId(), idActive, TRUE)) {
         SetForegroundWindow(hwnd);
         SetFocus(hwnd);
         AttachThreadInput(GetCurrentThreadId(), idActive, FALSE);
     }
-
 }
 
 void KWindowSystem::demandAttention(WId win, bool set)
@@ -505,16 +510,15 @@ void KWindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIc
     if (s_d->winInfos.contains(win)) {
         // is this safe enough or do i have to refresh() the window infos
         s_d->winInfos[win].smallIcon = miniIcon;
-        s_d->winInfos[win].bigIcon   = icon;
+        s_d->winInfos[win].bigIcon = icon;
     }
 
-    HICON hIconBig =  QtWin::toHICON(icon);
+    HICON hIconBig = QtWin::toHICON(icon);
     HICON hIconSmall = QtWin::toHICON(miniIcon);
 
     HWND hwnd = reinterpret_cast<HWND>(win);
     hIconBig = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIconBig);
     hIconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIconSmall);
-
 }
 
 void KWindowSystem::setState(WId win, NET::States state)
@@ -559,7 +563,7 @@ void KWindowSystem::clearState(WId win, NET::States state)
 #endif
     if (state & NET::KeepAbove) {
         got = true;
-        //lets hope this remove the topmost
+        // lets hope this remove the topmost
         SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     }
     if (state & NET::Max) {
@@ -585,11 +589,10 @@ void KWindowSystem::unminimizeWindow(WId win, bool animation)
 
 void KWindowSystem::raiseWindow(WId win)
 {
-
-    //to bring a window to the front while the user is active in a different apllication we
-    //have to atach our self to the current active window
+    // to bring a window to the front while the user is active in a different apllication we
+    // have to atach our self to the current active window
     HWND hwndActiveWin = GetForegroundWindow();
-    int  idActive      = GetWindowThreadProcessId(hwndActiveWin, nullptr);
+    int idActive = GetWindowThreadProcessId(hwndActiveWin, nullptr);
     if (AttachThreadInput(GetCurrentThreadId(), idActive, TRUE)) {
         SetForegroundWindow(reinterpret_cast<HWND>(win));
         AttachThreadInput(GetCurrentThreadId(), idActive, FALSE);
@@ -598,7 +601,7 @@ void KWindowSystem::raiseWindow(WId win)
 
 void KWindowSystem::lowerWindow(WId win)
 {
-    SetWindowPos(reinterpret_cast<HWND>(win), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);   // mhhh?
+    SetWindowPos(reinterpret_cast<HWND>(win), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE); // mhhh?
 }
 
 bool KWindowSystem::compositingActive()
@@ -613,7 +616,7 @@ QRect KWindowSystem::workArea(int desktop)
 
 QRect KWindowSystem::workArea(const QList<WId> &exclude, int desktop)
 {
-    //TODO
+    // TODO
     qDebug() << "QRect KWindowSystem::workArea( const QList<WId>& exclude, int desktop ) isn't yet implemented!";
     return QRect();
 }
@@ -626,7 +629,7 @@ QString KWindowSystem::desktopName(int desktop)
 void KWindowSystem::setDesktopName(int desktop, const QString &name)
 {
     qDebug() << "KWindowSystem::setDesktopName( int desktop, const QString& name ) isn't yet implemented!";
-    //TODO
+    // TODO
 }
 
 bool KWindowSystem::showingDesktop()
@@ -637,7 +640,7 @@ bool KWindowSystem::showingDesktop()
 void KWindowSystem::setUserTime(WId win, long time)
 {
     qDebug() << "KWindowSystem::setUserTime( WId win, long time ) isn't yet implemented!";
-    //TODO
+    // TODO
 }
 
 bool KWindowSystem::icccmCompliantMappingState()
@@ -657,14 +660,14 @@ void KWindowSystem::connectNotify(const QMetaMethod &method)
         what = INFO_WINDOWS;
     }
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-    else if (method == QMetaMethod::fromSignal(static_cast<void(KWindowSystem::*)(WId, const ulong *)>(&KWindowSystem::windowChanged))) {
+    else if (method == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, const ulong *)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
-    } else if (method == QMetaMethod::fromSignal(static_cast<void(KWindowSystem::*)(WId, uint)>(&KWindowSystem::windowChanged))) {
+    } else if (method == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, uint)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     }
 #endif
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
-    else if (method == QMetaMethod::fromSignal(static_cast<void(KWindowSystem::*)(WId)>(&KWindowSystem::windowChanged))) {
+    else if (method == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     }
 #endif
@@ -673,22 +676,32 @@ void KWindowSystem::connectNotify(const QMetaMethod &method)
     QObject::connectNotify(method);
 }
 
-void KWindowSystem::setExtendedStrut(WId win, int left_width, int left_start, int left_end,
-                                     int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
-                                     int bottom_width, int bottom_start, int bottom_end)
+void KWindowSystem::setExtendedStrut(WId win,
+                                     int left_width,
+                                     int left_start,
+                                     int left_end,
+                                     int right_width,
+                                     int right_start,
+                                     int right_end,
+                                     int top_width,
+                                     int top_start,
+                                     int top_end,
+                                     int bottom_width,
+                                     int bottom_start,
+                                     int bottom_end)
 {
     qDebug() << "KWindowSystem::setExtendedStrut isn't yet implemented!";
-    //TODO
+    // TODO
 }
 void KWindowSystem::setStrut(WId win, int left, int right, int top, int bottom)
 {
     qDebug() << "KWindowSystem::setStrut isn't yet implemented!";
-    //TODO
+    // TODO
 }
 
 QString KWindowSystem::readNameProperty(WId window, unsigned long atom)
 {
-    //TODO
+    // TODO
     qDebug() << "QString KWindowSystem::readNameProperty( WId window, unsigned long atom ) isn't yet implemented!";
     return QString();
 }
@@ -707,7 +720,7 @@ const QList<WId> &KWindowSystem::windows()
 
 void KWindowSystem::setType(WId win, NET::WindowType windowType)
 {
-//TODO
+    // TODO
     qDebug() << "setType( WId win, NET::WindowType windowType ) isn't yet implemented!";
 }
 
@@ -734,7 +747,7 @@ void KWindowSystem::allowExternalProcessWindowActivation(int pid)
 
 void KWindowSystem::setBlockingCompositing(WId window, bool active)
 {
-    //TODO
+    // TODO
     qDebug() << "setBlockingCompositing( WId window, bool active ) isn't yet implemented!";
 }
 

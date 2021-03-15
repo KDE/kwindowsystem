@@ -4,11 +4,11 @@
     SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 */
 
-#include <QTest>
 #include "kkeyserver_x11.h"
+#include <QTest>
+#include <QX11Info>
 #include <X11/keysym.h>
 #include <xcb/xcb_keysyms.h>
-#include <QX11Info>
 
 class KKeyServerTest : public QObject
 {
@@ -22,7 +22,6 @@ private Q_SLOTS:
         // This makes me wonder why we have KKeyServer::modXShift :-)
         QCOMPARE(XCB_MOD_MASK_SHIFT, xcb_mod_mask_t(KKeyServer::modXShift()));
     }
-
 
     void cleanupTestCase()
     {
@@ -83,7 +82,7 @@ private Q_SLOTS:
         QFETCH(int, keySymX);
         int keyCodeQt;
 
-        //qDebug() << "modX=" << modX << "keySymX=0x" << QString::number(keySymX, 16) << "keyQt=0x" << QString::number(keyQt, 16);
+        // qDebug() << "modX=" << modX << "keySymX=0x" << QString::number(keySymX, 16) << "keyQt=0x" << QString::number(keyQt, 16);
 
         QVERIFY(KKeyServer::symXModXToKeyQt(keySymX, modX, &keyCodeQt));
         QCOMPARE(keyCodeQt, keyQt);
@@ -107,21 +106,33 @@ private Q_SLOTS:
         QVERIFY(keyCodeX != XCB_NO_SYMBOL);
         free(keyCodes);
 
-        xcb_key_press_event_t event{ XCB_KEY_PRESS, keyCodeX, 0, 0 /*time*/, 0 /*root*/, 0 /*event*/, 0 /*child*/, 0 /*root_x*/, 0 /*root_y*/, 0 /*event_x*/, 0 /*event_y*/,
-            uint16_t(modX | additionalState), 0 /*same_screen*/, 0 /*pad0*/ };
+        xcb_key_press_event_t event{XCB_KEY_PRESS,
+                                    keyCodeX,
+                                    0,
+                                    0 /*time*/,
+                                    0 /*root*/,
+                                    0 /*event*/,
+                                    0 /*child*/,
+                                    0 /*root_x*/,
+                                    0 /*root_y*/,
+                                    0 /*event_x*/,
+                                    0 /*event_y*/,
+                                    uint16_t(modX | additionalState),
+                                    0 /*same_screen*/,
+                                    0 /*pad0*/};
 
         int decodedKeyQt;
         const bool ok = KKeyServer::xcbKeyPressEventToQt(&event, &decodedKeyQt);
         QVERIFY(ok);
         if (decodedKeyQt != keyQt) {
-            qDebug() << "given modX=" << modX << "keySymX=0x" << QString::number(keySymX, 16) << "I expected keyQt=0x" << QString::number(keyQt, 16) << QKeySequence(keyQt).toString() << "got" << QString::number(decodedKeyQt, 16) << QKeySequence(decodedKeyQt).toString();
+            qDebug() << "given modX=" << modX << "keySymX=0x" << QString::number(keySymX, 16) << "I expected keyQt=0x" << QString::number(keyQt, 16)
+                     << QKeySequence(keyQt).toString() << "got" << QString::number(decodedKeyQt, 16) << QKeySequence(decodedKeyQt).toString();
         }
         QCOMPARE(decodedKeyQt, keyQt);
     }
 
 private:
     xcb_key_symbols_t *m_keySymbols;
-
 };
 
 QTEST_MAIN(KKeyServerTest)

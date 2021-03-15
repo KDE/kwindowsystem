@@ -52,9 +52,19 @@ public:
     bool showingDesktop() override;
     void setShowingDesktop(bool showing) override;
     void setUserTime(WId win, long time) override;
-    void setExtendedStrut(WId win, int left_width, int left_start, int left_end,
-                          int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
-                          int bottom_width, int bottom_start, int bottom_end) override;
+    void setExtendedStrut(WId win,
+                          int left_width,
+                          int left_start,
+                          int left_end,
+                          int right_width,
+                          int right_start,
+                          int right_end,
+                          int top_width,
+                          int top_start,
+                          int top_end,
+                          int bottom_width,
+                          int bottom_start,
+                          int bottom_end) override;
     void setStrut(WId win, int left, int right, int top, int bottom) override;
     bool allowedActionsSupported() override;
     QString readNameProperty(WId window, unsigned long atom) override;
@@ -69,13 +79,14 @@ public:
     void connectNotify(const QMetaMethod &signal) override;
 
     enum FilterInfo {
-        INFO_BASIC = 1,  // desktop info, not per-window
+        INFO_BASIC = 1, // desktop info, not per-window
         INFO_WINDOWS = 2, // also per-window info
     };
 
 private:
     void init(FilterInfo info);
-    NETEventFilter *s_d_func() {
+    NETEventFilter *s_d_func()
+    {
         return d.data();
     }
     QScopedPointer<NETEventFilter> d;
@@ -93,8 +104,7 @@ private:
     KWindowSystemPrivateX11::FilterInfo m_what;
 };
 
-class NETEventFilter
-    : public NETRootInfo, public QAbstractNativeEventFilter
+class NETEventFilter : public NETRootInfo, public QAbstractNativeEventFilter
 {
 public:
     NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what);
@@ -105,7 +115,11 @@ public:
 
     struct StrutData {
         StrutData(WId window_, const NETStrut &strut_, int desktop_)
-            : window(window_), strut(strut_), desktop(desktop_) {}
+            : window(window_)
+            , strut(strut_)
+            , desktop(desktop_)
+        {
+        }
         WId window;
         NETStrut strut;
         int desktop;
@@ -132,7 +146,6 @@ private:
     bool nativeEventFilter(xcb_generic_event_t *event);
     xcb_window_t winId;
     xcb_window_t m_appRootWindow;
-
 };
 
 #endif

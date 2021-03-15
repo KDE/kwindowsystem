@@ -10,7 +10,7 @@
 
 static Bool foo()
 {
-    return 1;    // Xdefs doesn't define True!
+    return 1; // Xdefs doesn't define True!
 }
 
 #include <X11/Xlib.h>
@@ -21,4 +21,3 @@ int main(int, char **)
     Bool b = foo();
     return b;
 }
-

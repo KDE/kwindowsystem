@@ -10,9 +10,11 @@
 #include "kwindowsystem.h"
 #include "kwindowsystem_p_x11.h"
 
+// clang-format off
 #include <kxerrorhandler_p.h>
 #include <fixx11h.h>
 #include <kxutils_p.h>
+// clang-format on
 
 #include <QBitmap>
 #include <QDebug>
@@ -43,7 +45,6 @@ static inline const QRect &displayGeometry()
     static bool isDirty = true;
 
     if (isDirty) {
-
         static QList<QMetaObject::Connection> connections;
         auto dirtify = [&] {
             isDirty = true;
@@ -81,33 +82,19 @@ static inline int displayHeight()
     return displayGeometry().height();
 }
 
-static const NET::Properties windowsProperties = NET::ClientList | NET::ClientListStacking |
-                                                 NET::Supported |
-                                                 NET::NumberOfDesktops |
-                                                 NET::DesktopGeometry |
-                                                 NET::DesktopViewport |
-                                                 NET::CurrentDesktop |
-                                                 NET::DesktopNames |
-                                                 NET::ActiveWindow |
-                                                 NET::WorkArea;
+static const NET::Properties windowsProperties = NET::ClientList | NET::ClientListStacking | NET::Supported | NET::NumberOfDesktops | NET::DesktopGeometry
+    | NET::DesktopViewport | NET::CurrentDesktop | NET::DesktopNames | NET::ActiveWindow | NET::WorkArea;
 static const NET::Properties2 windowsProperties2 = NET::WM2ShowingDesktop;
 
 // ClientList and ClientListStacking is not per-window information, but a desktop information,
 // so track it even with only INFO_BASIC
-static const NET::Properties desktopProperties = NET::ClientList | NET::ClientListStacking |
-                                                 NET::Supported |
-                                                 NET::NumberOfDesktops |
-                                                 NET::DesktopGeometry |
-                                                 NET::DesktopViewport |
-                                                 NET::CurrentDesktop |
-                                                 NET::DesktopNames |
-                                                 NET::ActiveWindow |
-                                                 NET::WorkArea;
+static const NET::Properties desktopProperties = NET::ClientList | NET::ClientListStacking | NET::Supported | NET::NumberOfDesktops | NET::DesktopGeometry
+    | NET::DesktopViewport | NET::CurrentDesktop | NET::DesktopNames | NET::ActiveWindow | NET::WorkArea;
 static const NET::Properties2 desktopProperties2 = NET::WM2ShowingDesktop;
 
 MainThreadInstantiator::MainThreadInstantiator(KWindowSystemPrivateX11::FilterInfo _what)
-    : QObject(),
-      m_what(_what)
+    : QObject()
+    , m_what(_what)
 {
 }
 
@@ -120,14 +107,15 @@ NETEventFilter::NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what)
     : NETRootInfo(QX11Info::connection(),
                   _what >= KWindowSystemPrivateX11::INFO_WINDOWS ? windowsProperties : desktopProperties,
                   _what >= KWindowSystemPrivateX11::INFO_WINDOWS ? windowsProperties2 : desktopProperties2,
-                  QX11Info::appScreen(), false),
-      QAbstractNativeEventFilter(),
-      strutSignalConnected(false),
-      compositingEnabled(false),
-      haveXfixes(false),
-      what(_what),
-      winId(XCB_WINDOW_NONE),
-      m_appRootWindow(QX11Info::appRootWindow())
+                  QX11Info::appScreen(),
+                  false)
+    , QAbstractNativeEventFilter()
+    , strutSignalConnected(false)
+    , compositingEnabled(false)
+    , haveXfixes(false)
+    , what(_what)
+    , winId(XCB_WINDOW_NONE)
+    , m_appRootWindow(QX11Info::appRootWindow())
 {
     QCoreApplication::instance()->installNativeEventFilter(this);
 
@@ -136,15 +124,24 @@ NETEventFilter::NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what)
     if ((haveXfixes = XFixesQueryExtension(QX11Info::display(), &xfixesEventBase, &errorBase))) {
         create_atoms();
         winId = xcb_generate_id(QX11Info::connection());
-        uint32_t values[] = { true, XCB_EVENT_MASK_PROPERTY_CHANGE | XCB_EVENT_MASK_STRUCTURE_NOTIFY };
-        xcb_create_window(QX11Info::connection(), XCB_COPY_FROM_PARENT, winId,
-                          m_appRootWindow, 0, 0, 1, 1, 0,
-                          XCB_WINDOW_CLASS_INPUT_ONLY, XCB_COPY_FROM_PARENT,
-                          XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK, values);
-        XFixesSelectSelectionInput(QX11Info::display(), winId, net_wm_cm,
-                                   XFixesSetSelectionOwnerNotifyMask |
-                                   XFixesSelectionWindowDestroyNotifyMask |
-                                   XFixesSelectionClientCloseNotifyMask);
+        uint32_t values[] = {true, XCB_EVENT_MASK_PROPERTY_CHANGE | XCB_EVENT_MASK_STRUCTURE_NOTIFY};
+        xcb_create_window(QX11Info::connection(),
+                          XCB_COPY_FROM_PARENT,
+                          winId,
+                          m_appRootWindow,
+                          0,
+                          0,
+                          1,
+                          1,
+                          0,
+                          XCB_WINDOW_CLASS_INPUT_ONLY,
+                          XCB_COPY_FROM_PARENT,
+                          XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK,
+                          values);
+        XFixesSelectSelectionInput(QX11Info::display(),
+                                   winId,
+                                   net_wm_cm,
+                                   XFixesSetSelectionOwnerNotifyMask | XFixesSelectionWindowDestroyNotifyMask | XFixesSelectionClientCloseNotifyMask);
         compositingEnabled = XGetSelectionOwner(QX11Info::display(), net_wm_cm) != None;
     }
 #endif
@@ -269,7 +266,7 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
             } else if (event->atom == XCB_ATOM_WM_NAME) {
                 dirtyProperties |= NET::WMName; // support for old name
             } else if (event->atom == XCB_ATOM_WM_ICON_NAME) {
-                dirtyProperties |= NET::WMIconName;    // support for old iconic name
+                dirtyProperties |= NET::WMIconName; // support for old iconic name
             }
         }
         if (mapViewport() && (dirtyProperties & (NET::WMState | NET::WMGeometry))) {
@@ -291,7 +288,7 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
             Q_EMIT s_q->windowChanged(eventWindow, dirtyProperties, dirtyProperties2);
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-            unsigned long dirty[ 2 ] = {dirtyProperties, dirtyProperties2};
+            unsigned long dirty[2] = {dirtyProperties, dirtyProperties2};
             Q_EMIT s_q->windowChanged(eventWindow, dirty);
             Q_EMIT s_q->windowChanged(eventWindow, dirtyProperties);
 #endif
@@ -306,9 +303,7 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
 
 bool NETEventFilter::removeStrutWindow(WId w)
 {
-    for (QList< StrutData >::Iterator it = strutWindows.begin();
-            it != strutWindows.end();
-            ++it)
+    for (QList<StrutData>::Iterator it = strutWindows.begin(); it != strutWindows.end(); ++it)
         if ((*it).window == w) {
             strutWindows.erase(it);
             return true;
@@ -319,7 +314,7 @@ bool NETEventFilter::removeStrutWindow(WId w)
 void NETEventFilter::updateStackingOrder()
 {
     stackingOrder.clear();
-    for (int i = 0; i <  clientListStackingCount(); i++) {
+    for (int i = 0; i < clientListStackingCount(); i++) {
         stackingOrder.append(clientListStacking()[i]);
     }
 }
@@ -330,8 +325,8 @@ void NETEventFilter::addClient(xcb_window_t w)
 
     if ((what >= KWindowSystemPrivateX11::INFO_WINDOWS)) {
         xcb_connection_t *c = QX11Info::connection();
-        QScopedPointer<xcb_get_window_attributes_reply_t, QScopedPointerPodDeleter> attr(xcb_get_window_attributes_reply(c,
-                xcb_get_window_attributes_unchecked(c, w), nullptr));
+        QScopedPointer<xcb_get_window_attributes_reply_t, QScopedPointerPodDeleter> attr(
+            xcb_get_window_attributes_reply(c, xcb_get_window_attributes_unchecked(c, w), nullptr));
 
         uint32_t events = XCB_EVENT_MASK_PROPERTY_CHANGE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
         if (!attr.isNull()) {
@@ -383,13 +378,12 @@ void NETEventFilter::removeClient(xcb_window_t w)
 
 bool NETEventFilter::mapViewport()
 {
-// compiz claims support even though it doesn't use virtual desktops :(
-//    if( isSupported( NET::DesktopViewport ) && !isSupported( NET::NumberOfDesktops ))
+    // compiz claims support even though it doesn't use virtual desktops :(
+    //    if( isSupported( NET::DesktopViewport ) && !isSupported( NET::NumberOfDesktops ))
 
-// this test is duplicated in KWindowSystem::mapViewport()
+    // this test is duplicated in KWindowSystem::mapViewport()
     if (isSupported(NET::DesktopViewport) && numberOfDesktops(true) <= 1
-            && (desktopGeometry().width > displayWidth()
-                || desktopGeometry().height > displayHeight())) {
+        && (desktopGeometry().width > displayWidth() || desktopGeometry().height > displayHeight())) {
         return true;
     }
     return false;
@@ -419,7 +413,7 @@ static void create_atoms()
         atoms[n] = &kwm_utf8_string;
         names[n++] = "UTF8_STRING";
 
-        char net_wm_cm_name[ 100 ];
+        char net_wm_cm_name[100];
         sprintf(net_wm_cm_name, "_NET_WM_CM_S%d", QX11Info::appScreen());
         atoms[n] = &net_wm_cm;
         names[n++] = net_wm_cm_name;
@@ -445,7 +439,6 @@ void KWindowSystemPrivateX11::connectNotify(const QMetaMethod &signal)
     } else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, NET::Properties, NET::Properties2)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     }
-
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
     else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, const unsigned long *)>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
@@ -491,9 +484,7 @@ void KWindowSystemPrivateX11::init(FilterInfo what)
             // so we move the instantiator to the main app thread and invoke
             // the method with a blocking call
             instantiator.moveToThread(QCoreApplication::instance()->thread());
-            QMetaObject::invokeMethod(&instantiator, "createNETEventFilter",
-                                      Qt::BlockingQueuedConnection,
-                                      Q_RETURN_ARG(NETEventFilter *, filter));
+            QMetaObject::invokeMethod(&instantiator, "createNETEventFilter", Qt::BlockingQueuedConnection, Q_RETURN_ARG(NETEventFilter *, filter));
         }
         d.reset(filter);
         d->activate();
@@ -587,7 +578,7 @@ void KWindowSystemPrivateX11::setOnAllDesktops(WId win, bool b)
     NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMDesktop, NET::Properties2());
     if (b) {
         info.setDesktop(NETWinInfo::OnAllDesktops, true);
-    } else if (info.desktop(true)  == NETWinInfo::OnAllDesktops) {
+    } else if (info.desktop(true) == NETWinInfo::OnAllDesktops) {
         NETRootInfo rinfo(QX11Info::connection(), NET::CurrentDesktop, NET::Properties2(), QX11Info::appScreen());
         info.setDesktop(rinfo.currentDesktop(true), true);
     }
@@ -625,7 +616,7 @@ void KWindowSystemPrivateX11::setOnDesktop(WId win, int desktop)
         x -= w / 2; // from center back to topleft
         y -= h / 2;
         p = constrainViewportRelativePosition(QPoint(x, y));
-        int flags = (NET::FromTool << 12) | (0x03 << 8) | 10;     // from tool(?), x/y, static gravity
+        int flags = (NET::FromTool << 12) | (0x03 << 8) | 10; // from tool(?), x/y, static gravity
         NETEventFilter *const s_d = s_d_func();
         s_d->moveResizeWindowRequest(win, flags, p.x(), p.y(), w, h);
         return;
@@ -656,8 +647,7 @@ void KWindowSystemPrivateX11::activateWindow(WId win, long time)
     if (time == 0) {
         time = QX11Info::appUserTime();
     }
-    info.setActiveWindow(win, NET::FromApplication, time,
-                         QGuiApplication::focusWindow() ? QGuiApplication::focusWindow()->winId() : 0);
+    info.setActiveWindow(win, NET::FromApplication, time, QGuiApplication::focusWindow() ? QGuiApplication::focusWindow()->winId() : 0);
 }
 
 void KWindowSystemPrivateX11::forceActiveWindow(WId win, long time)
@@ -704,7 +694,7 @@ QPixmap KWindowSystemPrivateX11::iconFromNetWinInfo(int width, int height, bool 
     if (flags & KWindowSystem::NETWM) {
         NETIcon ni = info->icon(width, height);
         if (ni.data && ni.size.width > 0 && ni.size.height > 0) {
-            QImage img((uchar *) ni.data, (int) ni.size.width, (int) ni.size.height, QImage::Format_ARGB32);
+            QImage img((uchar *)ni.data, (int)ni.size.width, (int)ni.size.height, QImage::Format_ARGB32);
             if (scale && width > 0 && height > 0 && img.size() != QSize(width, height) && !img.isNull()) {
                 img = img.scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
             }
@@ -721,8 +711,7 @@ QPixmap KWindowSystemPrivateX11::iconFromNetWinInfo(int width, int height, bool 
 
         if (p != XCB_PIXMAP_NONE) {
             QPixmap pm = KXUtils::createPixmapFromHandle(info->xcbConnection(), p, p_mask);
-            if (scale && width > 0 && height > 0 && !pm.isNull()
-                    && (pm.width() != width || pm.height() != height)) {
+            if (scale && width > 0 && height > 0 && !pm.isNull() && (pm.width() != width || pm.height() != height)) {
                 result = QPixmap::fromImage(pm.toImage().scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
             } else {
                 result = pm;
@@ -788,7 +777,7 @@ void KWindowSystemPrivateX11::setIcons(WId win, const QPixmap &icon, const QPixm
     NETIcon ni;
     ni.size.width = img.size().width();
     ni.size.height = img.size().height();
-    ni.data = (unsigned char *) img.bits();
+    ni.data = (unsigned char *)img.bits();
     info.setIcon(ni, true);
     if (miniIcon.isNull()) {
         return;
@@ -799,7 +788,7 @@ void KWindowSystemPrivateX11::setIcons(WId win, const QPixmap &icon, const QPixm
     }
     ni.size.width = img.size().width();
     ni.size.height = img.size().height();
-    ni.data = (unsigned char *) img.bits();
+    ni.data = (unsigned char *)img.bits();
     info.setIcon(ni, false);
 }
 
@@ -823,9 +812,9 @@ void KWindowSystemPrivateX11::clearState(WId win, NET::States state)
 
 // enum values for ICCCM 4.1.2.4 and 4.1.4, defined to not depend on xcb-icccm
 enum {
-  _ICCCM_WM_STATE_WITHDRAWN = 0,
-  _ICCCM_WM_STATE_NORMAL = 1,
-  _ICCCM_WM_STATE_ICONIC = 3,
+    _ICCCM_WM_STATE_WITHDRAWN = 0,
+    _ICCCM_WM_STATE_NORMAL = 1,
+    _ICCCM_WM_STATE_ICONIC = 3,
 };
 
 void KWindowSystemPrivateX11::minimizeWindow(WId win)
@@ -843,9 +832,11 @@ void KWindowSystemPrivateX11::minimizeWindow(WId win)
     ev.data.data32[2] = 0;
     ev.data.data32[3] = 0;
     ev.data.data32[4] = 0;
-    xcb_send_event(QX11Info::connection(), false, QX11Info::appRootWindow(),
+    xcb_send_event(QX11Info::connection(),
+                   false,
+                   QX11Info::appRootWindow(),
                    XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
-                   reinterpret_cast<const char*>(&ev));
+                   reinterpret_cast<const char *>(&ev));
 }
 
 void KWindowSystemPrivateX11::unminimizeWindow(WId win)
@@ -859,7 +850,7 @@ void KWindowSystemPrivateX11::raiseWindow(WId win)
     if (info.isSupported(NET::WM2RestackWindow)) {
         info.restackRequest(win, NET::FromTool, XCB_WINDOW_NONE, XCB_STACK_MODE_ABOVE, QX11Info::appUserTime());
     } else {
-        const uint32_t values[] = { XCB_STACK_MODE_ABOVE };
+        const uint32_t values[] = {XCB_STACK_MODE_ABOVE};
         xcb_configure_window(QX11Info::connection(), win, XCB_CONFIG_WINDOW_STACK_MODE, values);
     }
 }
@@ -870,7 +861,7 @@ void KWindowSystemPrivateX11::lowerWindow(WId win)
     if (info.isSupported(NET::WM2RestackWindow)) {
         info.restackRequest(win, NET::FromTool, XCB_WINDOW_NONE, XCB_STACK_MODE_BELOW, QX11Info::appUserTime());
     } else {
-        const uint32_t values[] = { XCB_STACK_MODE_BELOW };
+        const uint32_t values[] = {XCB_STACK_MODE_BELOW};
         xcb_configure_window(QX11Info::connection(), win, XCB_CONFIG_WINDOW_STACK_MODE, values);
     }
 }
@@ -889,7 +880,7 @@ bool KWindowSystemPrivateX11::compositingActive()
 QRect KWindowSystemPrivateX11::workArea(int desktop)
 {
     init(INFO_BASIC);
-    int desk  = (desktop > 0 && desktop <= (int) s_d_func()->numberOfDesktops()) ? desktop : currentDesktop();
+    int desk = (desktop > 0 && desktop <= (int)s_d_func()->numberOfDesktops()) ? desktop : currentDesktop();
     if (desk <= 0) {
         return displayGeometry();
     }
@@ -904,7 +895,7 @@ QRect KWindowSystemPrivateX11::workArea(int desktop)
 
 QRect KWindowSystemPrivateX11::workArea(const QList<WId> &exclude, int desktop)
 {
-    init(INFO_WINDOWS);   // invalidates s_d_func's return value
+    init(INFO_WINDOWS); // invalidates s_d_func's return value
     NETEventFilter *const s_d = s_d_func();
 
     QRect all = displayGeometry();
@@ -916,14 +907,13 @@ QRect KWindowSystemPrivateX11::workArea(const QList<WId> &exclude, int desktop)
 
     QList<WId>::ConstIterator it1;
     for (it1 = s_d->windows.constBegin(); it1 != s_d->windows.constEnd(); ++it1) {
-
         if (exclude.contains(*it1)) {
             continue;
         }
 
-// Kicker (very) extensively calls this function, causing hundreds of roundtrips just
-// to repeatedly find out struts of all windows. Therefore strut values for strut
-// windows are cached here.
+        // Kicker (very) extensively calls this function, causing hundreds of roundtrips just
+        // to repeatedly find out struts of all windows. Therefore strut values for strut
+        // windows are cached here.
         NETStrut strut;
         auto it2 = s_d->strutWindows.begin();
         for (; it2 != s_d->strutWindows.end(); ++it2)
@@ -938,7 +928,6 @@ QRect KWindowSystemPrivateX11::workArea(const QList<WId> &exclude, int desktop)
 
             strut = (*it2).strut;
         } else if (s_d->possibleStrutWindows.contains(*it1)) {
-
             NETWinInfo info(QX11Info::connection(), (*it1), QX11Info::appRootWindow(), NET::WMStrut | NET::WMDesktop, NET::Properties2());
             strut = info.strut();
             s_d->possibleStrutWindows.removeAll(*it1);
@@ -948,21 +937,21 @@ QRect KWindowSystemPrivateX11::workArea(const QList<WId> &exclude, int desktop)
                 continue;
             }
         } else {
-            continue;    // not a strut window
+            continue; // not a strut window
         }
 
         QRect r = all;
         if (strut.left > 0) {
-            r.setLeft(r.left() + (int) strut.left);
+            r.setLeft(r.left() + (int)strut.left);
         }
         if (strut.top > 0) {
-            r.setTop(r.top() + (int) strut.top);
+            r.setTop(r.top() + (int)strut.top);
         }
         if (strut.right > 0) {
-            r.setRight(r.right() - (int) strut.right);
+            r.setRight(r.right() - (int)strut.right);
         }
         if (strut.bottom > 0) {
-            r.setBottom(r.bottom() - (int) strut.bottom);
+            r.setBottom(r.bottom() - (int)strut.bottom);
         }
 
         a = a.intersected(r);
@@ -975,7 +964,7 @@ QString KWindowSystemPrivateX11::desktopName(int desktop)
     init(INFO_BASIC);
     NETEventFilter *const s_d = s_d_func();
 
-    bool isDesktopSane = (desktop > 0 && desktop <= (int) s_d->numberOfDesktops());
+    bool isDesktopSane = (desktop > 0 && desktop <= (int)s_d->numberOfDesktops());
     const char *name = s_d->desktopName(isDesktopSane ? desktop : currentDesktop());
 
     if (name && name[0]) {
@@ -989,7 +978,7 @@ void KWindowSystemPrivateX11::setDesktopName(int desktop, const QString &name)
 {
     NETEventFilter *const s_d = s_d_func();
 
-    if (desktop <= 0 || desktop > (int) numberOfDesktops()) {
+    if (desktop <= 0 || desktop > (int)numberOfDesktops()) {
         desktop = currentDesktop();
     }
 
@@ -1020,9 +1009,19 @@ void KWindowSystemPrivateX11::setUserTime(WId win, long time)
     info.setUserTime(time);
 }
 
-void KWindowSystemPrivateX11::setExtendedStrut(WId win, int left_width, int left_start, int left_end,
-                                     int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
-                                     int bottom_width, int bottom_start, int bottom_end)
+void KWindowSystemPrivateX11::setExtendedStrut(WId win,
+                                               int left_width,
+                                               int left_start,
+                                               int left_end,
+                                               int right_width,
+                                               int right_start,
+                                               int right_end,
+                                               int top_width,
+                                               int top_start,
+                                               int top_end,
+                                               int bottom_width,
+                                               int bottom_start,
+                                               int bottom_end)
 {
     NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::Properties(), NET::Properties2());
     NETExtendedStrut strut;
@@ -1051,8 +1050,7 @@ void KWindowSystemPrivateX11::setStrut(WId win, int left, int right, int top, in
 {
     int w = displayWidth();
     int h = displayHeight();
-    setExtendedStrut(win, left, 0, left != 0 ? w : 0, right, 0, right != 0 ? w : 0,
-                     top, 0, top != 0 ? h : 0, bottom, 0, bottom != 0 ? h : 0);
+    setExtendedStrut(win, left, 0, left != 0 ? w : 0, right, 0, right != 0 ? w : 0, top, 0, top != 0 ? h : 0, bottom, 0, bottom != 0 ? h : 0);
 }
 
 bool KWindowSystemPrivateX11::icccmCompliantMappingState()
@@ -1085,12 +1083,11 @@ QString KWindowSystemPrivateX11::readNameProperty(WId win, unsigned long atom)
         create_atoms();
 
         if (tp.encoding == kwm_utf8_string) {
-            result = QString::fromUtf8((const char *) tp.value);
-        } else if (XmbTextPropertyToTextList(QX11Info::display(), &tp, &text, &count) == Success &&
-                   text != nullptr && count > 0) {
+            result = QString::fromUtf8((const char *)tp.value);
+        } else if (XmbTextPropertyToTextList(QX11Info::display(), &tp, &text, &count) == Success && text != nullptr && count > 0) {
             result = QString::fromLocal8Bit(text[0]);
         } else if (tp.encoding == XA_STRING) {
-            result = QString::fromLocal8Bit((const char *) tp.value);
+            result = QString::fromLocal8Bit((const char *)tp.value);
         }
         if (text != nullptr) {
             XFreeStringList(text);
@@ -1123,11 +1120,8 @@ bool KWindowSystemPrivateX11::mapViewport()
     if (!infos.isSupported(NET::DesktopViewport)) {
         return false;
     }
-    NETRootInfo info(QX11Info::connection(), NET::NumberOfDesktops | NET::CurrentDesktop | NET::DesktopGeometry,
-                     NET::Properties2(), QX11Info::appScreen());
-    if (info.numberOfDesktops(true) <= 1
-            && (info.desktopGeometry().width > displayWidth()
-                || info.desktopGeometry().height > displayHeight())) {
+    NETRootInfo info(QX11Info::connection(), NET::NumberOfDesktops | NET::CurrentDesktop | NET::DesktopGeometry, NET::Properties2(), QX11Info::appScreen());
+    if (info.numberOfDesktops(true) <= 1 && (info.desktopGeometry().width > displayWidth() || info.desktopGeometry().height > displayHeight())) {
         return true;
     }
     return false;
@@ -1152,8 +1146,7 @@ int KWindowSystemPrivateX11::viewportWindowToDesktop(const QRect &r)
     NETEventFilter *const s_d = s_d_func();
     QPoint p = r.center();
     // make absolute
-    p = QPoint(p.x() + s_d->desktopViewport(s_d->currentDesktop(true)).x,
-               p.y() + s_d->desktopViewport(s_d->currentDesktop(true)).y);
+    p = QPoint(p.x() + s_d->desktopViewport(s_d->currentDesktop(true)).x, p.y() + s_d->desktopViewport(s_d->currentDesktop(true)).y);
     NETSize s = s_d->desktopGeometry();
     QSize vs(displayWidth(), displayHeight());
     int xs = s.width / vs.width();
@@ -1177,8 +1170,7 @@ QPoint KWindowSystemPrivateX11::desktopToViewport(int desktop, bool absolute)
     --desktop;
     QPoint ret(vs.width() * (desktop % xs), vs.height() * (desktop / xs));
     if (!absolute) {
-        ret = QPoint(ret.x() - s_d->desktopViewport(s_d->currentDesktop(true)).x,
-                     ret.y() - s_d->desktopViewport(s_d->currentDesktop(true)).y);
+        ret = QPoint(ret.x() - s_d->desktopViewport(s_d->currentDesktop(true)).x, ret.y() - s_d->desktopViewport(s_d->currentDesktop(true)).y);
         if (ret.x() >= s.width) {
             ret.setX(ret.x() - s.width);
         }

@@ -12,12 +12,14 @@
 
 namespace KXUtils
 {
-
-template <typename T>
+template<typename T>
 class ScopedCPointer : public QScopedPointer<T, QScopedPointerPodDeleter>
 {
 public:
-    ScopedCPointer(T *p = nullptr) : QScopedPointer<T, QScopedPointerPodDeleter>(p) {}
+    ScopedCPointer(T *p = nullptr)
+        : QScopedPointer<T, QScopedPointerPodDeleter>(p)
+    {
+    }
 };
 
 /**
@@ -130,9 +132,7 @@ private:
 inline xcb_window_t rootWindow(xcb_connection_t *c, int screen)
 {
     xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(c));
-    for (xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(c));
-            it.rem;
-            --screen, xcb_screen_next(&it)) {
+    for (xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(c)); it.rem; --screen, xcb_screen_next(&it)) {
         if (screen == 0) {
             return iter.data->root;
         }

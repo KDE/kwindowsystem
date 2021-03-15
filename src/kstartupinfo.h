@@ -9,9 +9,9 @@
 
 #include <kwindowsystem_export.h>
 
+#include <QChildEvent>
 #include <QObject>
 #include <QString>
-#include <QChildEvent>
 #include <QWidgetList> // for WId
 #include <QWindow>
 
@@ -48,12 +48,10 @@ class KStartupInfoData;
  *
  * @author Lubos Lunak <l.lunak@kde.org>
  */
-class KWINDOWSYSTEM_EXPORT KStartupInfo
-    : public QObject
+class KWINDOWSYSTEM_EXPORT KStartupInfo : public QObject
 {
     Q_OBJECT
 public:
-
     /**
      * Manual notification that the application has started.
      * If you do not map a (toplevel) window, then startup
@@ -144,9 +142,9 @@ public:
      *
      */
     enum {
-        CleanOnCantDetect       = 1 << 0,
-        DisableKWinModule       = 1 << 1,
-        AnnounceSilenceChanges  = 1 << 2,
+        CleanOnCantDetect = 1 << 0,
+        DisableKWinModule = 1 << 1,
+        AnnounceSilenceChanges = 1 << 2,
     };
 
     /**
@@ -187,7 +185,7 @@ public:
      * Sends given notification data about started application
      * with the given startup identification. If no notification for this identification
      * exists yet, it is created, otherwise it's updated. Note that the name field
-         * in data is required.
+     * in data is required.
      *
      * @param id the id of the application
      * @param data the application's data
@@ -201,15 +199,14 @@ public:
     /**
      * Like sendStartup , uses dpy instead of qt_x11display() for sending the info.
      * @param dpy the display of the application. Note that the name field
-         * in data is required.
+     * in data is required.
      * @param id the id of the application
      * @param data the application's data
      * @return true if successful, false otherwise
      * @deprecated since 5.18 use sendStartupXcb
      */
     KWINDOWSYSTEM_DEPRECATED_VERSION(5, 18, "Use KStartupInfo::sendStartupXcb(xcb_connection_t *, int, const KStartupInfoId &, const KStartupInfoData &)")
-    static bool sendStartupX(Display *dpy, const KStartupInfoId &id,
-                             const KStartupInfoData &data);
+    static bool sendStartupX(Display *dpy, const KStartupInfoId &id, const KStartupInfoData &data);
 #endif
 
     /**
@@ -222,8 +219,7 @@ public:
      * @return true if successful, false otherwise
      * @since 5.18
      */
-    static bool sendStartupXcb(xcb_connection_t *conn, int screen,
-                               const KStartupInfoId &id, const KStartupInfoData &data);
+    static bool sendStartupXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id, const KStartupInfoData &data);
 
     /**
      * Sends given notification data about started application
@@ -247,8 +243,7 @@ public:
      * @deprecated since 5.18 use sendChangeXcb
      */
     KWINDOWSYSTEM_DEPRECATED_VERSION(5, 18, "Use KStartupInfo::sendChangeXcb(xcb_connection_t *, int, const KStartupInfoId &, const KStartupInfoData &)")
-    static bool sendChangeX(Display *dpy, const KStartupInfoId &id,
-                            const KStartupInfoData &data);
+    static bool sendChangeX(Display *dpy, const KStartupInfoId &id, const KStartupInfoData &data);
 #endif
 
     /**
@@ -260,8 +255,7 @@ public:
      * @return true if successful, false otherwise
      * @since 5.18
      */
-    static bool sendChangeXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id,
-                              const KStartupInfoData &data);
+    static bool sendChangeXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id, const KStartupInfoData &data);
 
     /**
      * Ends startup notification with the given identification.
@@ -311,8 +305,7 @@ public:
      * @deprecated since 5.18 use sendFinishXcb
      */
     KWINDOWSYSTEM_DEPRECATED_VERSION(5, 18, "Use KStartupInfo::sendFinishXcb(xcb_connection_t *, int, const KStartupInfoId &, const KStartupInfoData &)")
-    static bool sendFinishX(Display *dpy, const KStartupInfoId &id,
-                            const KStartupInfoData &data);
+    static bool sendFinishX(Display *dpy, const KStartupInfoId &id, const KStartupInfoData &data);
 #endif
 
     /**
@@ -324,8 +317,7 @@ public:
      * @return true if successful, false otherwise
      * @since 5.18
      */
-    static bool sendFinishXcb(xcb_connection_t *conn, int screen,
-                              const KStartupInfoId &id, const KStartupInfoData &data);
+    static bool sendFinishXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id, const KStartupInfoData &data);
 
     /**
      * Returns the current startup notification identification for the current
@@ -399,7 +391,7 @@ public:
     class Data;
 
     /**
-          * @internal
+     * @internal
      */
     class Private;
 Q_SIGNALS:
@@ -466,14 +458,17 @@ public:
      * @return true if the notification identifications are different
      */
     bool operator!=(const KStartupInfoId &id) const;
-   /**
+    /**
      * Checks whether the identifier is valid.
      * @return true if this object doesn't represent a valid notification identification
      */
     bool isNull() const;
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
     KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KStartupInfoId::isNull()")
-    bool none() const { return isNull(); }
+    bool none() const
+    {
+        return isNull();
+    }
 #endif
 
     /**
@@ -510,6 +505,7 @@ public:
     ~KStartupInfoId();
     KStartupInfoId &operator=(const KStartupInfoId &data);
     bool operator<(const KStartupInfoId &id) const;
+
 private:
     explicit KStartupInfoId(const QString &txt);
     friend class KStartupInfo;
@@ -548,7 +544,7 @@ public:
     void setName(const QString &name);
     /**
      * Returns the name of the startup notification. If it's not available,
-         * it tries to use other information (binary name).
+     * it tries to use other information (binary name).
      * @return the name of the startup notification
      */
     const QString &findName() const;
@@ -560,13 +556,13 @@ public:
     const QString &name() const;
     /**
      * Sets the description for the notification (e.g.\ 'Launching Control Center').
-         * I.e. name() describes what is being started, while description() is
-         * the actual action performed by the starting.
+     * I.e. name() describes what is being started, while description() is
+     * the actual action performed by the starting.
      */
     void setDescription(const QString &descr);
     /**
      * Returns the description of the startup notification. If it's not available,
-         * it returns name().
+     * it returns name().
      * @return the description of the startup notification
      */
     const QString &findDescription() const;
@@ -636,7 +632,7 @@ public:
      * Returns all PIDs for the startup notification.
      * @return the list of all PIDs
      */
-    QList< pid_t > pids() const;
+    QList<pid_t> pids() const;
     /**
      * Checks whether the given @p pid is in the list of PIDs for starup
      * notification.
@@ -689,10 +685,10 @@ public:
     int xinerama() const;
 
     /**
-    * Sets the Xinerama screen for the startup notification ( i.e. the screeen on which
+     * Sets the Xinerama screen for the startup notification ( i.e. the screeen on which
      * the starting application should appear ).
      * @param xinerama the Xinerama screen for the startup notification
-           */
+     */
     void setXinerama(int xinerama);
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 69)
@@ -746,6 +742,7 @@ public:
     KStartupInfoData(const KStartupInfoData &data);
     ~KStartupInfoData();
     KStartupInfoData &operator=(const KStartupInfoData &data);
+
 private:
     explicit KStartupInfoData(const QString &txt);
     friend class KStartupInfo;
@@ -756,4 +753,3 @@ private:
 };
 
 #endif
-

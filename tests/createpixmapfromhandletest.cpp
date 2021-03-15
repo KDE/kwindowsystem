@@ -5,18 +5,16 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
-#include <kwindowsystem.h>
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QLabel>
+#include <kwindowsystem.h>
 
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
     QCommandLineParser parser;
-    parser.addPositionalArgument(QStringLiteral("WId"),
-                                 QStringLiteral("window id for the window to take the icon from"),
-                                 QStringLiteral("[WId]"));
+    parser.addPositionalArgument(QStringLiteral("WId"), QStringLiteral("window id for the window to take the icon from"), QStringLiteral("[WId]"));
     parser.addHelpOption();
     parser.process(app);
     QLabel label;

@@ -8,10 +8,10 @@
 
 #ifdef Q_OS_MAC // Only compile this module if we're compiling for Mac OS X
 
+#include <Carbon/Carbon.h>
 #include <QDebug>
 #include <QKeySequence>
 #include <QMultiMap>
-#include <Carbon/Carbon.h>
 
 namespace KKeyServer
 {
@@ -20,32 +20,30 @@ struct TransKey {
     int mac_code;
 };
 
-static TransKey qtKeyToChar[] = {
-    {Qt::Key_Escape,     kEscapeCharCode},
-    {Qt::Key_Tab,        kTabCharCode},
-    {Qt::Key_Backtab,    kTabCharCode},  // Backtab == tab with different modifiers
-    {Qt::Key_Backspace,  kBackspaceCharCode},
-    {Qt::Key_Return,     kReturnCharCode},
-    {Qt::Key_Enter,      kEnterCharCode},
-    // Insert
-    {Qt::Key_Delete,     kDeleteCharCode},
-    // Pause, Print, SysReq
-    {Qt::Key_Clear,      kClearCharCode},
-    {Qt::Key_Home,       kHomeCharCode},
-    {Qt::Key_End,        kEndCharCode},
-    {Qt::Key_Left,       kLeftArrowCharCode},
-    {Qt::Key_Up,         kUpArrowCharCode},
-    {Qt::Key_Right,      kRightArrowCharCode},
-    {Qt::Key_Down,       kDownArrowCharCode},
-    {Qt::Key_PageUp,     kPageUpCharCode},
-    {Qt::Key_PageDown,   kPageDownCharCode},
-    // Shift, Control, Meta, Alt, CapsLock, NumLock, ScrollLock
-    // Super_L, Super_R, Menu, Hyper_L, Hyper_R
-    {Qt::Key_Help,       kHelpCharCode},
-    // Direction_L, Direction_R
-    {Qt::Key_nobreakspace, kNonBreakingSpaceCharCode},
-    {0, 0}
-};
+static TransKey qtKeyToChar[] = {{Qt::Key_Escape, kEscapeCharCode},
+                                 {Qt::Key_Tab, kTabCharCode},
+                                 {Qt::Key_Backtab, kTabCharCode}, // Backtab == tab with different modifiers
+                                 {Qt::Key_Backspace, kBackspaceCharCode},
+                                 {Qt::Key_Return, kReturnCharCode},
+                                 {Qt::Key_Enter, kEnterCharCode},
+                                 // Insert
+                                 {Qt::Key_Delete, kDeleteCharCode},
+                                 // Pause, Print, SysReq
+                                 {Qt::Key_Clear, kClearCharCode},
+                                 {Qt::Key_Home, kHomeCharCode},
+                                 {Qt::Key_End, kEndCharCode},
+                                 {Qt::Key_Left, kLeftArrowCharCode},
+                                 {Qt::Key_Up, kUpArrowCharCode},
+                                 {Qt::Key_Right, kRightArrowCharCode},
+                                 {Qt::Key_Down, kDownArrowCharCode},
+                                 {Qt::Key_PageUp, kPageUpCharCode},
+                                 {Qt::Key_PageDown, kPageDownCharCode},
+                                 // Shift, Control, Meta, Alt, CapsLock, NumLock, ScrollLock
+                                 // Super_L, Super_R, Menu, Hyper_L, Hyper_R
+                                 {Qt::Key_Help, kHelpCharCode},
+                                 // Direction_L, Direction_R
+                                 {Qt::Key_nobreakspace, kNonBreakingSpaceCharCode},
+                                 {0, 0}};
 
 static QMultiMap<int, uint> scancodes;
 static long lastLayoutID = -1;
@@ -74,8 +72,7 @@ void updateScancodes()
         lastLayout = layout;
         scancodes.clear();
 
-        CFDataRef data = static_cast<CFDataRef>(TISGetInputSourceProperty(layout,
-                                                kTISPropertyUnicodeKeyLayoutData));
+        CFDataRef data = static_cast<CFDataRef>(TISGetInputSourceProperty(layout, kTISPropertyUnicodeKeyLayoutData));
         const UCKeyboardLayout *ucData = data ? reinterpret_cast<const UCKeyboardLayout *>(CFDataGetBytePtr(data)) : 0;
 
         if (!ucData) {
@@ -87,8 +84,7 @@ void updateScancodes()
             UInt32 tmpState = 0;
             UniChar str[4];
             UniCharCount actualLength = 0;
-            OSStatus err = UCKeyTranslate(ucData, i, kUCKeyActionDown, 0, LMGetKbdType(),
-                                          kUCKeyTranslateNoDeadKeysMask, &tmpState, 4, &actualLength, str);
+            OSStatus err = UCKeyTranslate(ucData, i, kUCKeyActionDown, 0, LMGetKbdType(), kUCKeyTranslateNoDeadKeysMask, &tmpState, 4, &actualLength, str);
             if (err != noErr) {
                 qWarning() << "Error translating unicode key" << err;
             } else {
@@ -107,7 +103,7 @@ void updateScancodes()
 #ifndef NDEBUG
         void *name;
         KLGetKeyboardLayoutProperty(layout, kKLName, const_cast<const void **>(&name));
-        qDebug() << "Layout changed to: " << CFStringGetCStringPtr((CFStringRef) name, 0);
+        qDebug() << "Layout changed to: " << CFStringGetCStringPtr((CFStringRef)name, 0);
 #endif
         lastLayout = layout;
         scancodes.clear();
@@ -127,21 +123,22 @@ void updateScancodes()
 #endif
 }
 
-#define SCANCODE(name, value) { Qt::Key_ ## name, value }
-static TransKey functionKeys[] = {
-    SCANCODE(F1, 122),
-    SCANCODE(F2, 120),
-    SCANCODE(F3, 99),
-    SCANCODE(F4, 118),
-    SCANCODE(F5, 96),
-    SCANCODE(F6, 97),
-    SCANCODE(F7, 98),
-    SCANCODE(F8, 100),
-    SCANCODE(F9, 101),
-    SCANCODE(F10, 109),
-    //TODO: figure out scancodes of other F* keys
-    { 0, 0 }
-};
+#define SCANCODE(name, value)                                                                                                                                  \
+    {                                                                                                                                                          \
+        Qt::Key_##name, value                                                                                                                                  \
+    }
+static TransKey functionKeys[] = {SCANCODE(F1, 122),
+                                  SCANCODE(F2, 120),
+                                  SCANCODE(F3, 99),
+                                  SCANCODE(F4, 118),
+                                  SCANCODE(F5, 96),
+                                  SCANCODE(F6, 97),
+                                  SCANCODE(F7, 98),
+                                  SCANCODE(F8, 100),
+                                  SCANCODE(F9, 101),
+                                  SCANCODE(F10, 109),
+                                  // TODO: figure out scancodes of other F* keys
+                                  {0, 0}};
 #undef SCANCODE
 
 bool keyQtToSymMac(int keyQt, int &sym)
@@ -234,4 +231,3 @@ bool keyQtToModMac(int keyQt, uint &mod)
 } // end of namespace KKeyServer
 
 #endif // Q_OS_MAC
-

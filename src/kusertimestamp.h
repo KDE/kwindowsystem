@@ -27,4 +27,3 @@ KWINDOWSYSTEM_EXPORT void updateUserTimestamp(unsigned long time = 0);
 }
 
 #endif
-

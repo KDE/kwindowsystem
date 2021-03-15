@@ -17,10 +17,10 @@
 class KXErrorHandlerPrivate
 {
 public:
-    KXErrorHandlerPrivate(Display *dpy) :
-        first_request(XNextRequest(dpy)),
-        display(dpy),
-        was_error(false)
+    KXErrorHandlerPrivate(Display *dpy)
+        : first_request(XNextRequest(dpy))
+        , display(dpy)
+        , was_error(false)
     {
     }
     unsigned long first_request;
@@ -34,19 +34,19 @@ int KXErrorHandler::pos = 0;
 int KXErrorHandler::size = 0;
 
 KXErrorHandler::KXErrorHandler(Display *dpy)
-    :   user_handler1(nullptr),
-        user_handler2(nullptr),
-        old_handler(XSetErrorHandler(handler_wrapper)),
-        d(new KXErrorHandlerPrivate(dpy))
+    : user_handler1(nullptr)
+    , user_handler2(nullptr)
+    , old_handler(XSetErrorHandler(handler_wrapper))
+    , d(new KXErrorHandlerPrivate(dpy))
 {
     addHandler();
 }
 
 KXErrorHandler::KXErrorHandler(int (*handler)(Display *, XErrorEvent *), Display *dpy)
-    :   user_handler1(nullptr),
-        user_handler2(handler),
-        old_handler(XSetErrorHandler(handler_wrapper)),
-        d(new KXErrorHandlerPrivate(dpy))
+    : user_handler1(nullptr)
+    , user_handler2(handler)
+    , old_handler(XSetErrorHandler(handler_wrapper))
+    , d(new KXErrorHandlerPrivate(dpy))
 {
     addHandler();
 }
@@ -54,7 +54,7 @@ KXErrorHandler::KXErrorHandler(int (*handler)(Display *, XErrorEvent *), Display
 KXErrorHandler::~KXErrorHandler()
 {
     XSetErrorHandler(old_handler);
-    Q_ASSERT_X(this == handlers[ pos - 1 ], "KXErrorHandler", "out of order");
+    Q_ASSERT_X(this == handlers[pos - 1], "KXErrorHandler", "out of order");
     --pos;
     delete d;
 }
@@ -63,9 +63,9 @@ void KXErrorHandler::addHandler()
 {
     if (size == pos) {
         size += 16;
-        handlers = static_cast< KXErrorHandler ** >(realloc(handlers, size * sizeof(KXErrorHandler *)));
+        handlers = static_cast<KXErrorHandler **>(realloc(handlers, size * sizeof(KXErrorHandler *)));
     }
-    handlers[ pos++ ] = this;
+    handlers[pos++] = this;
 }
 
 bool KXErrorHandler::error(bool sync) const
@@ -84,7 +84,7 @@ XErrorEvent KXErrorHandler::errorEvent() const
 int KXErrorHandler::handler_wrapper(Display *dpy, XErrorEvent *e)
 {
     --pos;
-    int ret = handlers[ pos ]->handle(dpy, e);
+    int ret = handlers[pos]->handle(dpy, e);
     ++pos;
     return ret;
 }
@@ -92,10 +92,10 @@ int KXErrorHandler::handler_wrapper(Display *dpy, XErrorEvent *e)
 int KXErrorHandler::handle(Display *dpy, XErrorEvent *e)
 {
     if (dpy == d->display
-            // e->serial >= d->first_request , compare like X timestamps to handle wrapping
-            && NET::timestampCompare(e->serial, d->first_request) >= 0) {
+        // e->serial >= d->first_request , compare like X timestamps to handle wrapping
+        && NET::timestampCompare(e->serial, d->first_request) >= 0) {
         // it's for us
-        //qDebug( "Handling: %p", static_cast< void* >( this ));
+        // qDebug( "Handling: %p", static_cast< void* >( this ));
         bool error = false;
         if (user_handler1 != nullptr) {
             if (user_handler1(e->request_code, e->error_code, e->resourceid)) {
@@ -115,7 +115,7 @@ int KXErrorHandler::handle(Display *dpy, XErrorEvent *e)
         }
         return 0;
     }
-    //qDebug( "Going deeper: %p", static_cast< void* >( this ));
+    // qDebug( "Going deeper: %p", static_cast< void* >( this ));
     return old_handler(dpy, e);
 }
 
@@ -123,7 +123,7 @@ QByteArray KXErrorHandler::errorMessage(const XErrorEvent &event, Display *dpy)
 {
     // "Error: <error> (<value>), Request: <request>(<value>), Resource: <value>"
     QByteArray ret;
-    char tmp[ 256 ];
+    char tmp[256];
 #if 0 // see below
     char num[ 256 ];
     if (event.request_code < 128)  // core request
@@ -131,18 +131,18 @@ QByteArray KXErrorHandler::errorMessage(const XErrorEvent &event, Display *dpy)
     {
         XGetErrorText(dpy, event.error_code, tmp, 255);
         if (char *paren = strchr(tmp, '(')) { // the explanation in parentheses just makes
-            *paren = '\0';    // it more verbose and is not really useful
+            *paren = '\0'; // it more verbose and is not really useful
         }
         // the various casts are to get overloads non-ambiguous :-/
-/*
-        ret = QByteArray("error: ") + (const char *)tmp + '[' + QByteArray::number(event.error_code) + ']';
-        sprintf(num, "%d", event.request_code);
-        XGetErrorDatabaseText(dpy, "XRequest", num, "<unknown>", tmp, 256);
-        ret += QByteArray(", request: ") + (const char *)tmp + '[' + QByteArray::number(event.request_code) + ']';
-        if (event.resourceid != 0) {
-            ret += QByteArray(", resource: 0x") + QByteArray::number((qlonglong)event.resourceid, 16);
-        }
-*/
+        /*
+                ret = QByteArray("error: ") + (const char *)tmp + '[' + QByteArray::number(event.error_code) + ']';
+                sprintf(num, "%d", event.request_code);
+                XGetErrorDatabaseText(dpy, "XRequest", num, "<unknown>", tmp, 256);
+                ret += QByteArray(", request: ") + (const char *)tmp + '[' + QByteArray::number(event.request_code) + ']';
+                if (event.resourceid != 0) {
+                    ret += QByteArray(", resource: 0x") + QByteArray::number((qlonglong)event.resourceid, 16);
+                }
+        */
     }
 #if 0
     else { // extensions
@@ -230,4 +230,3 @@ QByteArray KXErrorHandler::errorMessage(const XErrorEvent &event, Display *dpy)
 #endif
     return ret;
 }
-

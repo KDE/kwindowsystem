@@ -13,8 +13,8 @@
 
 #include "kwindowinfo_dummy_p.h"
 
-#include <QRect>
 #include <QGuiApplication>
+#include <QRect>
 
 // private
 KWindowInfoPrivate *KWindowInfoPrivate::create(WId window, NET::Properties properties, NET::Properties2 properties2)

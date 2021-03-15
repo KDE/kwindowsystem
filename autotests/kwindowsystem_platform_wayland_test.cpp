@@ -4,10 +4,10 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
-#include <QTest>
+#include <QFileSystemWatcher>
 #include <QProcess>
 #include <QSignalSpy>
-#include <QFileSystemWatcher>
+#include <QTest>
 
 class TestKWindowsystemPlatformWayland : public QObject
 {
@@ -27,8 +27,7 @@ void TestKWindowsystemPlatformWayland::initTestCase()
     // start Weston
     m_westonProcess.reset(new QProcess);
     m_westonProcess->setProgram(QStringLiteral("weston"));
-    m_westonProcess->setArguments(QStringList({QStringLiteral("--socket=kwindowsystem-platform-wayland-0"),
-                                               QStringLiteral("--backend=headless-backend.so")}));
+    m_westonProcess->setArguments(QStringList({QStringLiteral("--socket=kwindowsystem-platform-wayland-0"), QStringLiteral("--backend=headless-backend.so")}));
     m_westonProcess->start();
     if (!m_westonProcess->waitForStarted()) {
         m_westonProcess.reset();

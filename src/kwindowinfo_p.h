@@ -6,22 +6,22 @@
 
 #ifndef KWINDOWINFO_P_H
 #define KWINDOWINFO_P_H
-#include <kwindowsystem_export.h>
 #include "netwm_def.h"
+#include <kwindowsystem_export.h>
 
 #include <QByteArray>
 #include <QRect>
 #include <QScopedPointer>
+#include <QSharedData>
 #include <QString>
 #include <QStringList>
-#include <QSharedData>
 #include <QWidgetList> //For WId
 
 class KWindowInfoPrivateDesktopFileNameExtension;
 class KWindowInfoPrivatePidExtension;
 class KWindowInfoPrivateAppMenuExtension;
 
-class KWINDOWSYSTEM_EXPORT KWindowInfoPrivate  : public QSharedData
+class KWINDOWSYSTEM_EXPORT KWindowInfoPrivate : public QSharedData
 {
 public:
     virtual ~KWindowInfoPrivate();

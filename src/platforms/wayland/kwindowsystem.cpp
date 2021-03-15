@@ -195,9 +195,19 @@ void KWindowSystemPrivateWayland::setUserTime(WId win, long time)
     Q_UNUSED(time)
 }
 
-void KWindowSystemPrivateWayland::setExtendedStrut(WId win, int left_width, int left_start, int left_end,
-                                                 int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
-                                                 int bottom_width, int bottom_start, int bottom_end)
+void KWindowSystemPrivateWayland::setExtendedStrut(WId win,
+                                                   int left_width,
+                                                   int left_start,
+                                                   int left_end,
+                                                   int right_width,
+                                                   int right_start,
+                                                   int right_end,
+                                                   int top_width,
+                                                   int top_start,
+                                                   int top_end,
+                                                   int bottom_width,
+                                                   int bottom_start,
+                                                   int bottom_end)
 {
     Q_UNUSED(win)
     Q_UNUSED(left_width)
@@ -280,4 +290,3 @@ void KWindowSystemPrivateWayland::connectNotify(const QMetaMethod &signal)
 {
     Q_UNUSED(signal)
 }
-

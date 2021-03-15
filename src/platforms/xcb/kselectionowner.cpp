@@ -6,14 +6,14 @@
 
 #include "kselectionowner.h"
 
-#include <config-kwindowsystem.h>
 #include "kwindowsystem.h"
+#include <config-kwindowsystem.h>
 
+#include <QAbstractNativeEventFilter>
 #include <QBasicTimer>
 #include <QDebug>
 #include <QGuiApplication>
 #include <QTimerEvent>
-#include <QAbstractNativeEventFilter>
 
 #include <qx11info_x11.h>
 
@@ -43,24 +43,23 @@ static xcb_atom_t intern_atom(xcb_connection_t *c, const char *name)
     return atom;
 }
 
-class Q_DECL_HIDDEN KSelectionOwner::Private
-    : public QAbstractNativeEventFilter
+class Q_DECL_HIDDEN KSelectionOwner::Private : public QAbstractNativeEventFilter
 {
 public:
     enum State { Idle, WaitingForTimestamp, WaitingForPreviousOwner };
 
     Private(KSelectionOwner *owner_P, xcb_atom_t selection_P, xcb_connection_t *c, xcb_window_t root)
-        : state(Idle),
-          selection(selection_P),
-          connection(c),
-          root(root),
-          window(XCB_NONE),
-          prev_owner(XCB_NONE),
-          timestamp(XCB_CURRENT_TIME),
-          extra1(0),
-          extra2(0),
-          force_kill(false),
-          owner(owner_P)
+        : state(Idle)
+        , selection(selection_P)
+        , connection(c)
+        , root(root)
+        , window(XCB_NONE)
+        , prev_owner(XCB_NONE)
+        , timestamp(XCB_CURRENT_TIME)
+        , extra1(0)
+        , extra2(0)
+        , force_kill(false)
+        , owner(owner_P)
     {
         QCoreApplication::instance()->installNativeEventFilter(this);
     }
@@ -90,10 +89,10 @@ public:
     static Private *create(KSelectionOwner *owner, const char *selection_P, xcb_connection_t *c, xcb_window_t root);
 
 protected:
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override {
+    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override
+    {
         Q_UNUSED(result);
-        if (eventType != "xcb_generic_event_t")
-        {
+        if (eventType != "xcb_generic_event_t") {
             return false;
         }
         return owner->filterEvent(message);
@@ -103,7 +102,7 @@ private:
     KSelectionOwner *owner;
 };
 
-KSelectionOwner::Private* KSelectionOwner::Private::create(KSelectionOwner *owner, xcb_atom_t selection_P, int screen_P)
+KSelectionOwner::Private *KSelectionOwner::Private::create(KSelectionOwner *owner, xcb_atom_t selection_P, int screen_P)
 {
     if (KWindowSystem::isPlatformX11()) {
         return create(owner, selection_P, QX11Info::connection(), QX11Info::appRootWindow(screen_P));
@@ -132,14 +131,14 @@ KSelectionOwner::Private *KSelectionOwner::Private::create(KSelectionOwner *owne
 }
 
 KSelectionOwner::KSelectionOwner(xcb_atom_t selection_P, int screen_P, QObject *parent_P)
-    :   QObject(parent_P),
-        d(Private::create(this, selection_P, screen_P))
+    : QObject(parent_P)
+    , d(Private::create(this, selection_P, screen_P))
 {
 }
 
 KSelectionOwner::KSelectionOwner(const char *selection_P, int screen_P, QObject *parent_P)
-    :   QObject(parent_P),
-        d(Private::create(this, selection_P, screen_P))
+    : QObject(parent_P)
+    , d(Private::create(this, selection_P, screen_P))
 {
 }
 
@@ -181,7 +180,7 @@ void KSelectionOwner::Private::claimSucceeded()
     ev.data.data32[3] = extra1;
     ev.data.data32[4] = extra2;
 
-    xcb_send_event(connection, false, root, XCB_EVENT_MASK_STRUCTURE_NOTIFY, (const char *) &ev);
+    xcb_send_event(connection, false, root, XCB_EVENT_MASK_STRUCTURE_NOTIFY, (const char *)&ev);
 
     // qDebug() << "Claimed selection";
 
@@ -274,16 +273,26 @@ void KSelectionOwner::claim(bool force_P, bool force_kill_P)
         xcb_change_window_attributes(c, d->prev_owner, XCB_CW_EVENT_MASK, &mask);
     }
 
-    uint32_t values[] = { true, XCB_EVENT_MASK_PROPERTY_CHANGE | XCB_EVENT_MASK_STRUCTURE_NOTIFY };
+    uint32_t values[] = {true, XCB_EVENT_MASK_PROPERTY_CHANGE | XCB_EVENT_MASK_STRUCTURE_NOTIFY};
 
     d->window = xcb_generate_id(c);
-    xcb_create_window(c, XCB_COPY_FROM_PARENT, d->window, d->root, 0, 0, 1, 1, 0,
-                      XCB_WINDOW_CLASS_INPUT_ONLY, XCB_COPY_FROM_PARENT,
-                      XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK, values);
+    xcb_create_window(c,
+                      XCB_COPY_FROM_PARENT,
+                      d->window,
+                      d->root,
+                      0,
+                      0,
+                      1,
+                      1,
+                      0,
+                      XCB_WINDOW_CLASS_INPUT_ONLY,
+                      XCB_COPY_FROM_PARENT,
+                      XCB_CW_OVERRIDE_REDIRECT | XCB_CW_EVENT_MASK,
+                      values);
 
     // Trigger a property change event so we get a timestamp
     xcb_atom_t tmp = XCB_ATOM_ATOM;
-    xcb_change_property(c, XCB_PROP_MODE_REPLACE, d->window, XCB_ATOM_ATOM, XCB_ATOM_ATOM, 32, 1, (const void *) &tmp);
+    xcb_change_property(c, XCB_PROP_MODE_REPLACE, d->window, XCB_ATOM_ATOM, XCB_ATOM_ATOM, 32, 1, (const void *)&tmp);
 
     // Now we have to return to the event loop and wait for the property change event
     d->force_kill = force_kill_P;
@@ -354,7 +363,7 @@ bool KSelectionOwner::filterEvent(void *ev_P)
         }
 
         d->timestamp = XCB_CURRENT_TIME;
-//      qDebug() << "Lost selection";
+        //      qDebug() << "Lost selection";
 
         xcb_window_t window = d->window;
         Q_EMIT lostOwnership();
@@ -383,7 +392,7 @@ bool KSelectionOwner::filterEvent(void *ev_P)
         }
 
         d->timestamp = XCB_CURRENT_TIME;
-//      qDebug() << "Lost selection (destroyed)";
+        //      qDebug() << "Lost selection (destroyed)";
         Q_EMIT lostOwnership();
         return true;
     }
@@ -447,7 +456,7 @@ void KSelectionOwner::filter_selection_request(void *event)
     }
 
     if (ev->time != XCB_CURRENT_TIME && ev->time - d->timestamp > 1U << 31) {
-        return;    // too old or too new request
+        return; // too old or too new request
     }
 
     // qDebug() << "Got selection request";
@@ -459,8 +468,7 @@ void KSelectionOwner::filter_selection_request(void *event)
         if (ev->property != XCB_NONE) {
             const int MAX_ATOMS = 100;
 
-            xcb_get_property_cookie_t cookie = xcb_get_property(c, false, ev->requestor, ev->property,
-                                               XCB_GET_PROPERTY_TYPE_ANY, 0, MAX_ATOMS);
+            xcb_get_property_cookie_t cookie = xcb_get_property(c, false, ev->requestor, ev->property, XCB_GET_PROPERTY_TYPE_ANY, 0, MAX_ATOMS);
             xcb_get_property_reply_t *reply = xcb_get_property_reply(c, cookie, nullptr);
 
             if (reply && reply->format == 32 && reply->value_len % 2 == 0) {
@@ -480,8 +488,14 @@ void KSelectionOwner::filter_selection_request(void *event)
                 }
 
                 if (!all_handled) {
-                    xcb_change_property(c, ev->requestor, ev->property, XCB_ATOM_ATOM, 32, XCB_PROP_MODE_REPLACE,
-                                        reply->value_len, reinterpret_cast<const void *>(atoms));
+                    xcb_change_property(c,
+                                        ev->requestor,
+                                        ev->property,
+                                        XCB_ATOM_ATOM,
+                                        32,
+                                        XCB_PROP_MODE_REPLACE,
+                                        reply->value_len,
+                                        reinterpret_cast<const void *>(atoms));
                 }
 
                 handled = true;
@@ -506,7 +520,7 @@ void KSelectionOwner::filter_selection_request(void *event)
     xev.target = ev->target;
     xev.property = handled ? ev->property : XCB_NONE;
 
-    xcb_send_event(c, false, ev->requestor, 0, (const char *) &xev);
+    xcb_send_event(c, false, ev->requestor, 0, (const char *)&xev);
 }
 
 bool KSelectionOwner::handle_selection(xcb_atom_t target_P, xcb_atom_t property_P, xcb_window_t requestor_P)
@@ -516,8 +530,14 @@ bool KSelectionOwner::handle_selection(xcb_atom_t target_P, xcb_atom_t property_
     }
     if (target_P == Private::xa_timestamp) {
         // qDebug() << "Handling timestamp request";
-        xcb_change_property(d->connection, requestor_P, property_P, XCB_ATOM_INTEGER, 32,
-                            XCB_PROP_MODE_REPLACE, 1, reinterpret_cast<const void *>(&d->timestamp));
+        xcb_change_property(d->connection,
+                            requestor_P,
+                            property_P,
+                            XCB_ATOM_INTEGER,
+                            32,
+                            XCB_PROP_MODE_REPLACE,
+                            1,
+                            reinterpret_cast<const void *>(&d->timestamp));
     } else if (target_P == Private::xa_targets) {
         replyTargets(property_P, requestor_P);
     } else if (genericReply(target_P, property_P, requestor_P)) {
@@ -534,10 +554,16 @@ void KSelectionOwner::replyTargets(xcb_atom_t property_P, xcb_window_t requestor
     if (!d) {
         return;
     }
-    xcb_atom_t atoms[3] = { Private::xa_multiple, Private::xa_timestamp, Private::xa_targets };
+    xcb_atom_t atoms[3] = {Private::xa_multiple, Private::xa_timestamp, Private::xa_targets};
 
-    xcb_change_property(d->connection, requestor_P, property_P, XCB_ATOM_ATOM, 32, XCB_PROP_MODE_REPLACE,
-                        sizeof(atoms) / sizeof(atoms[0]), reinterpret_cast<const void *>(atoms));
+    xcb_change_property(d->connection,
+                        requestor_P,
+                        property_P,
+                        XCB_ATOM_ATOM,
+                        32,
+                        XCB_PROP_MODE_REPLACE,
+                        sizeof(atoms) / sizeof(atoms[0]),
+                        reinterpret_cast<const void *>(atoms));
 
     // qDebug() << "Handling targets request";
 }
@@ -561,12 +587,10 @@ void KSelectionOwner::getAtoms()
     struct {
         const char *name;
         xcb_atom_t *atom;
-    } atoms[] = {
-        { "MANAGER",   &Private::manager_atom },
-        { "MULTIPLE",  &Private::xa_multiple  },
-        { "TARGETS",   &Private::xa_targets   },
-        { "TIMESTAMP", &Private::xa_timestamp }
-    };
+    } atoms[] = {{"MANAGER", &Private::manager_atom},
+                 {"MULTIPLE", &Private::xa_multiple},
+                 {"TARGETS", &Private::xa_targets},
+                 {"TIMESTAMP", &Private::xa_timestamp}};
 
     const int count = sizeof(atoms) / sizeof(atoms[0]);
     xcb_intern_atom_cookie_t cookies[count];
@@ -584,7 +608,6 @@ void KSelectionOwner::getAtoms()
 }
 
 xcb_atom_t KSelectionOwner::Private::manager_atom = XCB_NONE;
-xcb_atom_t KSelectionOwner::Private::xa_multiple  = XCB_NONE;
-xcb_atom_t KSelectionOwner::Private::xa_targets   = XCB_NONE;
+xcb_atom_t KSelectionOwner::Private::xa_multiple = XCB_NONE;
+xcb_atom_t KSelectionOwner::Private::xa_targets = XCB_NONE;
 xcb_atom_t KSelectionOwner::Private::xa_timestamp = XCB_NONE;
-

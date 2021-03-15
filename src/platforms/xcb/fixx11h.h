@@ -38,7 +38,6 @@
 
 namespace X
 {
-
 // template --->
 // Affects: Should be without side effects.
 #ifdef Unsorted
@@ -244,14 +243,12 @@ const int NormalState = XNormalState;
 #ifdef index
 #ifndef FIXX11H_index
 #define FIXX11H_index
-inline
-const char *Xindex(const char *s, int c)
+inline const char *Xindex(const char *s, int c)
 {
     return index(s, c);
 }
 #undef index
-inline
-const char *index(const char *s, int c)
+inline const char *index(const char *s, int c)
 {
     return Xindex(s, c);
 }
@@ -264,14 +261,12 @@ const char *index(const char *s, int c)
 // Affects: Should be without side effects.
 #ifndef FIXX11H_rindex
 #define FIXX11H_rindex
-inline
-const char *Xrindex(const char *s, int c)
+inline const char *Xrindex(const char *s, int c)
 {
     return rindex(s, c);
 }
 #undef rindex
-inline
-const char *rindex(const char *s, int c)
+inline const char *rindex(const char *s, int c)
 {
     return Xrindex(s, c);
 }

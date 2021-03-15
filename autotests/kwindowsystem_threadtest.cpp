@@ -6,8 +6,8 @@
 
 #include "kwindowinfo.h"
 #include "kwindowsystem.h"
-#include "netwm.h"
 #include "nettesthelper.h"
+#include "netwm.h"
 
 #include <QRunnable>
 #include <QSignalSpy>

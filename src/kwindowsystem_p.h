@@ -6,10 +6,10 @@
 #ifndef KWINDOWSYSTEM_P_H
 #define KWINDOWSYSTEM_P_H
 
-#include <kwindowsystem_export.h>
 #include "netwm_def.h"
-#include <QWidgetList> //For WId
 #include <QStringList>
+#include <QWidgetList> //For WId
+#include <kwindowsystem_export.h>
 
 class NETWinInfo;
 
@@ -52,9 +52,19 @@ public:
     virtual bool showingDesktop() = 0;
     virtual void setShowingDesktop(bool showing) = 0;
     virtual void setUserTime(WId win, long time) = 0;
-    virtual void setExtendedStrut(WId win, int left_width, int left_start, int left_end,
-                                  int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
-                                  int bottom_width, int bottom_start, int bottom_end) = 0;
+    virtual void setExtendedStrut(WId win,
+                                  int left_width,
+                                  int left_start,
+                                  int left_end,
+                                  int right_width,
+                                  int right_start,
+                                  int right_end,
+                                  int top_width,
+                                  int top_start,
+                                  int top_end,
+                                  int bottom_width,
+                                  int bottom_start,
+                                  int bottom_end) = 0;
     virtual void setStrut(WId win, int left, int right, int top, int bottom) = 0;
     virtual bool allowedActionsSupported() = 0;
     virtual QString readNameProperty(WId window, unsigned long atom) = 0;

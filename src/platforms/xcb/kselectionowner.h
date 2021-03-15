@@ -7,8 +7,8 @@
 #ifndef KSELECTIONOWNER_H
 #define KSELECTIONOWNER_H
 
-#include <kwindowsystem_export.h>
 #include <QObject>
+#include <kwindowsystem_export.h>
 
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
@@ -26,8 +26,7 @@
  you inherit from this class ensure that you don't use xcb and/or XLib without verifying
  the platform.
 */
-class KWINDOWSYSTEM_EXPORT KSelectionOwner
-    : public QObject
+class KWINDOWSYSTEM_EXPORT KSelectionOwner : public QObject
 {
     Q_OBJECT
 public:
@@ -147,7 +146,7 @@ protected:
      * Called for every X event received on the window used for owning
      * the selection. If true is returned, the event is filtered out.
      */
-    //virtual bool handleMessage( XEvent* ev ); // removed for KF5, please shout if you need this
+    // virtual bool handleMessage( XEvent* ev ); // removed for KF5, please shout if you need this
     /**
      * Called when a SelectionRequest event is received. A reply should
      * be sent using the selection handling mechanism described in the ICCCM

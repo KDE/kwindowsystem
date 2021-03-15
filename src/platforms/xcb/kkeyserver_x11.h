@@ -10,9 +10,9 @@
 #ifndef _KKEYSERVER_X11_H
 #define _KKEYSERVER_X11_H
 
-#include <kwindowsystem_export.h>
 #include <X11/Xlib.h>
 #include <fixx11h.h>
+#include <kwindowsystem_export.h>
 #include <xcb/xcb.h>
 
 namespace KKeyServer

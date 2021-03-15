@@ -81,12 +81,12 @@ KWINDOWSYSTEM_EXPORT QList<QSize> windowSizes(const QList<WId> &ids);
 #endif
 
 /**
-* Activate the Present Windows effect for the given groups of windows.
-*
-* @param controller The window which is the controller of this effect. The property
-*                   will be set on this window. It will be removed by the effect
-* @param ids all the windows which should be presented.
-*/
+ * Activate the Present Windows effect for the given groups of windows.
+ *
+ * @param controller The window which is the controller of this effect. The property
+ *                   will be set on this window. It will be removed by the effect
+ * @param ids all the windows which should be presented.
+ */
 KWINDOWSYSTEM_EXPORT void presentWindows(WId controller, const QList<WId> &ids);
 
 /**
@@ -146,7 +146,8 @@ KWINDOWSYSTEM_EXPORT void enableBlurBehind(WId window, bool enable = true, const
  * @param brightness How to modify the area brightness: from 0 (make it black) to 2 (make it white), 1 leaves it unchanged
  * @param region The region within the window where the background will be modified, specified in logical pixels
  */
-KWINDOWSYSTEM_EXPORT void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());
+KWINDOWSYSTEM_EXPORT void
+enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 67)
 /**
@@ -163,4 +164,3 @@ KWINDOWSYSTEM_EXPORT void markAsDashboard(WId window);
 }
 
 #endif
-

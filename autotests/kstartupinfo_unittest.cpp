@@ -6,12 +6,12 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
-#include <kstartupinfo.h>
 #include "netwm.h"
 #include <QSignalSpy>
-#include <qtest_widgets.h>
-#include <QX11Info>
 #include <QWidget>
+#include <QX11Info>
+#include <kstartupinfo.h>
+#include <qtest_widgets.h>
 
 #include <xcb/xcb.h>
 
@@ -23,13 +23,12 @@ class KStartupInfo_UnitTest : public QObject
     Q_OBJECT
 public:
     KStartupInfo_UnitTest()
-        : m_listener(KStartupInfo::CleanOnCantDetect, this),
-          m_receivedCount(0)
+        : m_listener(KStartupInfo::CleanOnCantDetect, this)
+        , m_receivedCount(0)
     {
         qRegisterMetaType<KStartupInfoId>();
         qRegisterMetaType<KStartupInfoData>();
-        connect(&m_listener, SIGNAL(gotNewStartup(KStartupInfoId,KStartupInfoData)),
-                this, SLOT(slotNewStartup(KStartupInfoId,KStartupInfoData)));
+        connect(&m_listener, SIGNAL(gotNewStartup(KStartupInfoId, KStartupInfoData)), this, SLOT(slotNewStartup(KStartupInfoId, KStartupInfoData)));
     }
 
 protected Q_SLOTS:
@@ -81,7 +80,7 @@ void KStartupInfo_UnitTest::testStart()
     const QString bin = "dir with space/kstartupinfo_unittest";
     data.setBin(bin);
 
-    QSignalSpy removedSpy(&m_listener, SIGNAL(gotRemoveStartup(KStartupInfoId,KStartupInfoData)));
+    QSignalSpy removedSpy(&m_listener, SIGNAL(gotRemoveStartup(KStartupInfoId, KStartupInfoData)));
     QVERIFY(removedSpy.isValid());
 
     KStartupInfo::sendStartup(id, data);
@@ -97,7 +96,8 @@ void KStartupInfo_UnitTest::testStart()
     QCOMPARE(m_receivedData.applicationId(), appId);
     QCOMPARE(m_receivedData.icon(), iconPath);
     QCOMPARE(m_receivedData.bin(), bin);
-    //qDebug() << m_receivedData.bin() << m_receivedData.name() << m_receivedData.description() << m_receivedData.icon() << m_receivedData.pids() << m_receivedData.hostname() << m_receivedData.applicationId();
+    // qDebug() << m_receivedData.bin() << m_receivedData.name() << m_receivedData.description() << m_receivedData.icon() << m_receivedData.pids() <<
+    // m_receivedData.hostname() << m_receivedData.applicationId();
 
     int waitTime = 0;
     while (waitTime < 5000 && removedSpy.count() < 1) {
@@ -124,9 +124,9 @@ void KStartupInfo_UnitTest::dontCrashCleanup_data()
     QTest::addColumn<bool>("change");
     QTest::addColumn<int>("countRemoveStartup");
 
-    QTest::newRow("normal")   << false << false << 2;
-    QTest::newRow("silent")   << true  << false << 0;
-    QTest::newRow("uninited") << false << true  << 0;
+    QTest::newRow("normal") << false << false << 2;
+    QTest::newRow("silent") << true << false << 0;
+    QTest::newRow("uninited") << false << true << 0;
 }
 
 void KStartupInfo_UnitTest::dontCrashCleanup()
@@ -150,7 +150,7 @@ void KStartupInfo_UnitTest::dontCrashCleanup()
         data.setSilent(KStartupInfoData::Yes);
     }
 
-    QSignalSpy spy(&m_listener, SIGNAL(gotRemoveStartup(KStartupInfoId,KStartupInfoData)));
+    QSignalSpy spy(&m_listener, SIGNAL(gotRemoveStartup(KStartupInfoId, KStartupInfoData)));
     QFETCH(bool, change);
     if (change) {
         KStartupInfo::sendChange(id, data);
@@ -194,10 +194,19 @@ void KStartupInfo_UnitTest::checkCleanOnCantDetectTest()
     xcb_connection_t *c = QX11Info::connection();
     xcb_window_t window = xcb_generate_id(c);
     uint32_t values[] = {XCB_EVENT_MASK_PROPERTY_CHANGE};
-    xcb_create_window(c, XCB_COPY_FROM_PARENT, window,
+    xcb_create_window(c,
+                      XCB_COPY_FROM_PARENT,
+                      window,
                       QX11Info::appRootWindow(),
-                      0, 0, 100, 100, 0, XCB_COPY_FROM_PARENT,
-                      XCB_COPY_FROM_PARENT, XCB_CW_EVENT_MASK, values);
+                      0,
+                      0,
+                      100,
+                      100,
+                      0,
+                      XCB_COPY_FROM_PARENT,
+                      XCB_COPY_FROM_PARENT,
+                      XCB_CW_EVENT_MASK,
+                      values);
 
     KStartupInfo::sendStartup(id, data);
     KStartupInfo::sendStartup(id2, data);
@@ -254,12 +263,26 @@ void KStartupInfo_UnitTest::checkStartupTest()
     xcb_connection_t *c = QX11Info::connection();
     xcb_window_t window = xcb_generate_id(c);
     uint32_t values[] = {XCB_EVENT_MASK_PROPERTY_CHANGE};
-    xcb_create_window(c, XCB_COPY_FROM_PARENT, window,
+    xcb_create_window(c,
+                      XCB_COPY_FROM_PARENT,
+                      window,
                       QX11Info::appRootWindow(),
-                      0, 0, 100, 100, 0, XCB_COPY_FROM_PARENT,
-                      XCB_COPY_FROM_PARENT, XCB_CW_EVENT_MASK, values);
+                      0,
+                      0,
+                      100,
+                      100,
+                      0,
+                      XCB_COPY_FROM_PARENT,
+                      XCB_COPY_FROM_PARENT,
+                      XCB_CW_EVENT_MASK,
+                      values);
 
-    xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8,
+    xcb_change_property(c,
+                        XCB_PROP_MODE_REPLACE,
+                        window,
+                        XCB_ATOM_WM_CLASS,
+                        XCB_ATOM_STRING,
+                        8,
                         wmClass.length() * 2 + 1,
                         "kstartupinfotest\0kstartupinfotest");
     xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLIENT_MACHINE, XCB_ATOM_STRING, 8, 9, "localhost");

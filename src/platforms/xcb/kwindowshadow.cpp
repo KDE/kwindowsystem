@@ -175,8 +175,7 @@ bool KWindowShadowPrivateX11::create()
         data[i++] = 1;
     }
 
-    xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window->winId(), atom,
-                        XCB_ATOM_CARDINAL, 32, data.size(), data.constData());
+    xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window->winId(), atom, XCB_ATOM_CARDINAL, 32, data.size(), data.constData());
     xcb_flush(connection);
 
     return true;

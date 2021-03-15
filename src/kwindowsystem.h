@@ -12,11 +12,11 @@
 #ifndef KWINDOWSYSTEM_H
 #define KWINDOWSYSTEM_H
 
-#include <kwindowsystem_export.h>
 #include <QObject>
 #include <QWidgetList> //For WId
-#include <netwm_def.h>
 #include <kwindowinfo.h>
+#include <kwindowsystem_export.h>
+#include <netwm_def.h>
 
 class KWindowSystemPrivate;
 class NETWinInfo;
@@ -52,22 +52,22 @@ public:
     static KWindowSystem *self();
 
     /**
-      * Returns the list of all toplevel windows currently managed by the
-      * window manager in the order of creation. Please do not rely on
-      * indexes of this list: Whenever you enter Qt's event loop in your
-      * application, it may happen that entries are removed or added.
-      * Your module should perhaps work on a copy of this list and verify a
-      * window with hasWId() before any operations.
-      *
-      * Iteration over this list can be done easily with
-      * \code
-      *  QList<WId> windows = KWindowSystem::windows();
-      *  for (auto it = windows.cbegin(), end = windows.cend(); it != end; ++it) {
-      *     ... do something here,  (*it) is the current WId.
-      *  }
-      * \endcode
-      * @return the list of all toplevel windows
-      */
+     * Returns the list of all toplevel windows currently managed by the
+     * window manager in the order of creation. Please do not rely on
+     * indexes of this list: Whenever you enter Qt's event loop in your
+     * application, it may happen that entries are removed or added.
+     * Your module should perhaps work on a copy of this list and verify a
+     * window with hasWId() before any operations.
+     *
+     * Iteration over this list can be done easily with
+     * \code
+     *  QList<WId> windows = KWindowSystem::windows();
+     *  for (auto it = windows.cbegin(), end = windows.cend(); it != end; ++it) {
+     *     ... do something here,  (*it) is the current WId.
+     *  }
+     * \endcode
+     * @return the list of all toplevel windows
+     */
     static QList<WId> windows();
 
     /**
@@ -147,7 +147,7 @@ public:
      * @param win the id of the window to make active
      * @param time X server timestamp of the user activity that
      *    caused this request
-    */
+     */
     static void forceActiveWindow(WId win, long time = 0);
 
     /**
@@ -292,11 +292,12 @@ public:
      * @li ClassHint load icon after getting name from the classhint
      * @li XApp load the standard X icon (last fallback)
      */
-    enum IconSource { NETWM = 1, //!< read from property from the window manager specification
-                      WMHints = 2, //!< read from WMHints property
-                      ClassHint = 4, //!< load icon after getting name from the classhint
-                      XApp = 8 //!<load the standard X icon (last fallback)
-                    };
+    enum IconSource {
+        NETWM = 1, //!< read from property from the window manager specification
+        WMHints = 2, //!< read from WMHints property
+        ClassHint = 4, //!< load icon after getting name from the classhint
+        XApp = 8 //!< load the standard X icon (last fallback)
+    };
     /**
      * @overload
      *
@@ -344,7 +345,7 @@ public:
      * @param icon the new icon
      * @param miniIcon the new mini icon
      */
-    static void  setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon);
+    static void setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon);
     /**
      * Sets the type of window @p win to @p windowType.
      *
@@ -378,7 +379,7 @@ public:
      * @param win the id of the window
      * @param state the flags that will be cleared
      */
-    static void clearState(WId win, NET::States  state);
+    static void clearState(WId win, NET::States state);
 
     /**
      * Minimizes the window with id @p win.
@@ -443,7 +444,7 @@ public:
      *        current desktop
      * @return the size and position of the desktop
      **/
-    static QRect workArea(int desktop = - 1);
+    static QRect workArea(int desktop = -1);
 
     /**
      * Returns the workarea for the specified desktop, or the current
@@ -517,9 +518,19 @@ public:
      * @param bottom_start starting x coordinate of the strut at the bottom edge
      * @param bottom_end ending x coordinate of the strut at the bottom edge
      */
-    static void setExtendedStrut(WId win, int left_width, int left_start, int left_end,
-                                 int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
-                                 int bottom_width, int bottom_start, int bottom_end);
+    static void setExtendedStrut(WId win,
+                                 int left_width,
+                                 int left_start,
+                                 int left_end,
+                                 int right_width,
+                                 int right_start,
+                                 int right_end,
+                                 int top_width,
+                                 int top_start,
+                                 int top_end,
+                                 int bottom_width,
+                                 int bottom_start,
+                                 int bottom_end);
 
     /**
      * Convenience function for setExtendedStrut() that automatically makes struts
@@ -776,7 +787,9 @@ protected:
 private:
     friend class KWindowSystemStaticContainer;
 
-    KWindowSystem() {}
+    KWindowSystem()
+    {
+    }
     static KWindowSystemPrivate *d_func();
 };
 

@@ -6,11 +6,11 @@
 
 #include "kselectionwatcher.h"
 
-#include <config-kwindowsystem.h>
 #include "kwindowsystem.h"
+#include <config-kwindowsystem.h>
 
-#include <QGuiApplication>
 #include <QAbstractNativeEventFilter>
+#include <QGuiApplication>
 
 #include <qx11info_x11.h>
 
@@ -44,16 +44,15 @@ static xcb_atom_t intern_atom(xcb_connection_t *c, const char *name)
 // KSelectionWatcher
 //*******************************************
 
-class Q_DECL_HIDDEN KSelectionWatcher::Private
-    : public QAbstractNativeEventFilter
+class Q_DECL_HIDDEN KSelectionWatcher::Private : public QAbstractNativeEventFilter
 {
 public:
     Private(KSelectionWatcher *watcher_P, xcb_atom_t selection_P, xcb_connection_t *c, xcb_window_t root)
-        : connection(c),
-          root(root),
-          selection(selection_P),
-          selection_owner(XCB_NONE),
-          watcher(watcher_P)
+        : connection(c)
+        , root(root)
+        , selection(selection_P)
+        , selection_owner(XCB_NONE)
+        , watcher(watcher_P)
     {
         QCoreApplication::instance()->installNativeEventFilter(this);
     }
@@ -70,10 +69,10 @@ public:
     static Private *create(KSelectionWatcher *watcher, const char *selection_P, xcb_connection_t *c, xcb_window_t root);
 
 protected:
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override {
+    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override
+    {
         Q_UNUSED(result);
-        if (eventType != "xcb_generic_event_t")
-        {
+        if (eventType != "xcb_generic_event_t") {
             return false;
         }
         watcher->filterEvent(message);
@@ -111,15 +110,15 @@ KSelectionWatcher::Private *KSelectionWatcher::Private::create(KSelectionWatcher
 }
 
 KSelectionWatcher::KSelectionWatcher(xcb_atom_t selection_P, int screen_P, QObject *parent_P)
-    :   QObject(parent_P),
-        d(Private::create(this, selection_P, screen_P))
+    : QObject(parent_P)
+    , d(Private::create(this, selection_P, screen_P))
 {
     init();
 }
 
 KSelectionWatcher::KSelectionWatcher(const char *selection_P, int screen_P, QObject *parent_P)
-    :   QObject(parent_P),
-        d(Private::create(this, selection_P, screen_P))
+    : QObject(parent_P)
+    , d(Private::create(this, selection_P, screen_P))
 {
     init();
 }
@@ -221,7 +220,7 @@ void KSelectionWatcher::filterEvent(void *ev_P)
     if (response_type == XCB_CLIENT_MESSAGE) {
         xcb_client_message_event_t *cm_event = reinterpret_cast<xcb_client_message_event_t *>(event);
 
-        if (cm_event->type != Private::manager_atom || cm_event->data.data32[ 1 ] != d->selection) {
+        if (cm_event->type != Private::manager_atom || cm_event->data.data32[1] != d->selection) {
             return;
         }
         // owner() checks whether the owner changed and emits newOwner()
@@ -237,7 +236,7 @@ void KSelectionWatcher::filterEvent(void *ev_P)
         d->selection_owner = XCB_NONE; // in case the exactly same ID gets reused as the owner
 
         if (owner() == XCB_NONE) {
-            Q_EMIT lostOwner();    // it must be safe to delete 'this' in a slot
+            Q_EMIT lostOwner(); // it must be safe to delete 'this' in a slot
         }
         return;
     }

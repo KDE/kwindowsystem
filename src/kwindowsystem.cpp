@@ -22,8 +22,8 @@
 #include <QX11Info>
 #endif
 
-//QPoint and QSize all have handy / operators which are useful for scaling, positions and sizes for high DPI support
-//QRect does not, so we create one for internal purposes within this class
+// QPoint and QSize all have handy / operators which are useful for scaling, positions and sizes for high DPI support
+// QRect does not, so we create one for internal purposes within this class
 inline QRect operator/(const QRect &rectangle, qreal factor)
 {
     return QRect(rectangle.topLeft() / factor, rectangle.size() / factor);
@@ -32,17 +32,19 @@ inline QRect operator/(const QRect &rectangle, qreal factor)
 class KWindowSystemStaticContainer
 {
 public:
-    KWindowSystemStaticContainer() {
+    KWindowSystemStaticContainer()
+    {
         d.reset(KWindowSystemPluginWrapper::self().createWindowSystem());
 
         if (QCoreApplication::instance()) {
             kwm.moveToThread(QCoreApplication::instance()->thread());
         }
     }
-    KWindowSystemPrivate *xcbPlugin() {
+    KWindowSystemPrivate *xcbPlugin()
+    {
         if (xcbPrivate.isNull()) {
             QPluginLoader loader(QStringLiteral(XCB_PLUGIN_PATH));
-            QScopedPointer<KWindowSystemPluginInterface> xcbPlugin(qobject_cast< KWindowSystemPluginInterface* >(loader.instance()));
+            QScopedPointer<KWindowSystemPluginInterface> xcbPlugin(qobject_cast<KWindowSystemPluginInterface *>(loader.instance()));
             if (!xcbPlugin.isNull()) {
                 xcbPrivate.reset(xcbPlugin->createWindowSystem());
             }
@@ -256,9 +258,19 @@ void KWindowSystemPrivateDummy::setUserTime(WId win, long time)
     Q_UNUSED(time)
 }
 
-void KWindowSystemPrivateDummy::setExtendedStrut(WId win, int left_width, int left_start, int left_end,
-                                                 int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
-                                                 int bottom_width, int bottom_start, int bottom_end)
+void KWindowSystemPrivateDummy::setExtendedStrut(WId win,
+                                                 int left_width,
+                                                 int left_start,
+                                                 int left_end,
+                                                 int right_width,
+                                                 int right_start,
+                                                 int right_end,
+                                                 int top_width,
+                                                 int top_start,
+                                                 int top_end,
+                                                 int bottom_width,
+                                                 int bottom_start,
+                                                 int bottom_end)
 {
     Q_UNUSED(win)
     Q_UNUSED(left_width)
@@ -626,15 +638,35 @@ void KWindowSystem::setUserTime(WId win, long time)
     d->setUserTime(win, time);
 }
 
-void KWindowSystem::setExtendedStrut(WId win, int left_width, int left_start, int left_end,
-                                     int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
-                                     int bottom_width, int bottom_start, int bottom_end)
+void KWindowSystem::setExtendedStrut(WId win,
+                                     int left_width,
+                                     int left_start,
+                                     int left_end,
+                                     int right_width,
+                                     int right_start,
+                                     int right_end,
+                                     int top_width,
+                                     int top_start,
+                                     int top_end,
+                                     int bottom_width,
+                                     int bottom_start,
+                                     int bottom_end)
 {
     Q_D(KWindowSystem);
     const qreal dpr = qApp->devicePixelRatio();
-    d->setExtendedStrut(win, left_width * dpr, left_start * dpr, left_end * dpr,
-                        right_width * dpr, right_start * dpr, right_end * dpr, top_width * dpr, top_start * dpr, top_end * dpr,
-                        bottom_width * dpr, bottom_start * dpr, bottom_end * dpr);
+    d->setExtendedStrut(win,
+                        left_width * dpr,
+                        left_start * dpr,
+                        left_end * dpr,
+                        right_width * dpr,
+                        right_start * dpr,
+                        right_end * dpr,
+                        top_width * dpr,
+                        top_start * dpr,
+                        top_end * dpr,
+                        bottom_width * dpr,
+                        bottom_start * dpr,
+                        bottom_end * dpr);
 }
 
 void KWindowSystem::setStrut(WId win, int left, int right, int top, int bottom)

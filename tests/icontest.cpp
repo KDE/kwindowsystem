@@ -5,22 +5,20 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 #include "../src/platforms/xcb/netwm.h"
-#include <kwindowsystem.h>
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QHBoxLayout>
 #include <QIcon>
 #include <QLabel>
-#include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QX11Info>
+#include <kwindowsystem.h>
 
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
     QCommandLineParser parser;
-    parser.addPositionalArgument(QStringLiteral("WId"),
-                                 QStringLiteral("window id for the window to take the icon from"),
-                                 QStringLiteral("[WId]"));
+    parser.addPositionalArgument(QStringLiteral("WId"), QStringLiteral("window id for the window to take the icon from"), QStringLiteral("[WId]"));
     parser.addHelpOption();
     parser.process(app);
 
@@ -37,7 +35,7 @@ int main(int argc, char **argv)
         return 1;
     }
     NETWinInfo info(QX11Info::connection(), id, QX11Info::appRootWindow(), NET::WMIcon, NET::WM2WindowClass | NET::WM2IconPixmap);
-    auto addIcons = [&window, vbox, &id, &info] (const QString &name, int flag) {
+    auto addIcons = [&window, vbox, &id, &info](const QString &name, int flag) {
         QLabel *title = new QLabel(name, &window);
         vbox->addWidget(title);
         QIcon icons;
@@ -49,7 +47,7 @@ int main(int argc, char **argv)
                 const int height = iconSizes[index++];
                 NETIcon ni = info.icon(width, height);
                 if (ni.data) {
-                    QImage img((uchar *) ni.data, (int) ni.size.width, (int) ni.size.height, QImage::Format_ARGB32);
+                    QImage img((uchar *)ni.data, (int)ni.size.width, (int)ni.size.height, QImage::Format_ARGB32);
                     if (!img.isNull()) {
                         icons.addPixmap(QPixmap::fromImage(img));
                     }

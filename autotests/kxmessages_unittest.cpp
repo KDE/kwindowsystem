@@ -5,9 +5,9 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
-#include <kxmessages.h>
 #include <QSignalSpy>
 #include <QX11Info>
+#include <kxmessages.h>
 #include <qtest_widgets.h>
 
 class KXMessages_UnitTest : public QObject
@@ -46,14 +46,14 @@ void KXMessages_UnitTest::testStart_data()
     QTest::addColumn<KXMessages_UnitTest::BroadcastType>("broadcastType");
     QTest::addColumn<KXMessages_UnitTest::ReceiverType>("receiverType");
 
-    QTest::newRow("object")     << BroadcastMessageObject << ReceiverTypeDefault;
+    QTest::newRow("object") << BroadcastMessageObject << ReceiverTypeDefault;
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    QTest::newRow("display")    << BroadcastStaticDisplay << ReceiverTypeDefault;
+    QTest::newRow("display") << BroadcastStaticDisplay << ReceiverTypeDefault;
 #endif
     QTest::newRow("connection") << BroadcastStaticConnection << ReceiverTypeDefault;
-    QTest::newRow("object/xcb")     << BroadcastMessageObject << ReceiverTypeConnection;
+    QTest::newRow("object/xcb") << BroadcastMessageObject << ReceiverTypeConnection;
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    QTest::newRow("display/xcb")    << BroadcastStaticDisplay << ReceiverTypeConnection;
+    QTest::newRow("display/xcb") << BroadcastStaticDisplay << ReceiverTypeConnection;
 #endif
     QTest::newRow("connection/xcb") << BroadcastStaticConnection << ReceiverTypeConnection;
 }

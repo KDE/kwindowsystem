@@ -32,7 +32,8 @@ QImage KWindowShadowTile::image() const
 void KWindowShadowTile::setImage(const QImage &image)
 {
     if (d->isCreated) {
-        qCWarning(LOG_KWINDOWSYSTEM, "Cannot change the image on a tile that already has native "
+        qCWarning(LOG_KWINDOWSYSTEM,
+                  "Cannot change the image on a tile that already has native "
                   "platform resources allocated.");
         return;
     }
@@ -72,7 +73,8 @@ KWindowShadowTile::Ptr KWindowShadow::leftTile() const
 void KWindowShadow::setLeftTile(KWindowShadowTile::Ptr tile)
 {
     if (d->isCreated) {
-        qCWarning(LOG_KWINDOWSYSTEM, "Cannot attach a left tile to a shadow that already has "
+        qCWarning(LOG_KWINDOWSYSTEM,
+                  "Cannot attach a left tile to a shadow that already has "
                   "native platform resources allocated. To do so, destroy() the shadow and then "
                   "setLeftTile() and create()");
         return;
@@ -88,7 +90,8 @@ KWindowShadowTile::Ptr KWindowShadow::topLeftTile() const
 void KWindowShadow::setTopLeftTile(KWindowShadowTile::Ptr tile)
 {
     if (d->isCreated) {
-        qCWarning(LOG_KWINDOWSYSTEM, "Cannot attach a top-left tile to a shadow that already has "
+        qCWarning(LOG_KWINDOWSYSTEM,
+                  "Cannot attach a top-left tile to a shadow that already has "
                   "native platform resources allocated. To do so, destroy() the shadow and then "
                   "setTopLeftTile() and create()");
         return;
@@ -104,7 +107,8 @@ KWindowShadowTile::Ptr KWindowShadow::topTile() const
 void KWindowShadow::setTopTile(KWindowShadowTile::Ptr tile)
 {
     if (d->isCreated) {
-        qCWarning(LOG_KWINDOWSYSTEM, "Cannot attach a top tile to a shadow that already has "
+        qCWarning(LOG_KWINDOWSYSTEM,
+                  "Cannot attach a top tile to a shadow that already has "
                   "native platform resources allocated. To do so, destroy() the shadow and then "
                   "setTopTile() and create()");
         return;
@@ -120,7 +124,8 @@ KWindowShadowTile::Ptr KWindowShadow::topRightTile() const
 void KWindowShadow::setTopRightTile(KWindowShadowTile::Ptr tile)
 {
     if (d->isCreated) {
-        qCWarning(LOG_KWINDOWSYSTEM, "Cannot attach a top-right tile to a shadow that already "
+        qCWarning(LOG_KWINDOWSYSTEM,
+                  "Cannot attach a top-right tile to a shadow that already "
                   "has native platform resources allocated. To do so, destroy() the shadow and "
                   "then setTopRightTile() and create()");
         return;
@@ -136,7 +141,8 @@ KWindowShadowTile::Ptr KWindowShadow::rightTile() const
 void KWindowShadow::setRightTile(KWindowShadowTile::Ptr tile)
 {
     if (d->isCreated) {
-        qCWarning(LOG_KWINDOWSYSTEM, "Cannot attach a right tile to a shadow that already has "
+        qCWarning(LOG_KWINDOWSYSTEM,
+                  "Cannot attach a right tile to a shadow that already has "
                   "native platform resources allocated. To do so, destroy() the shadow and then "
                   "setRightTile() and create()");
         return;
@@ -152,7 +158,8 @@ KWindowShadowTile::Ptr KWindowShadow::bottomRightTile() const
 void KWindowShadow::setBottomRightTile(KWindowShadowTile::Ptr tile)
 {
     if (d->isCreated) {
-        qCWarning(LOG_KWINDOWSYSTEM, "Cannot attach a bottom-right tile to a shadow that already "
+        qCWarning(LOG_KWINDOWSYSTEM,
+                  "Cannot attach a bottom-right tile to a shadow that already "
                   "has native platform resources allocated. To do so, destroy() the shadow and "
                   "then setBottomRightTile() and create()");
         return;
@@ -168,7 +175,8 @@ KWindowShadowTile::Ptr KWindowShadow::bottomTile() const
 void KWindowShadow::setBottomTile(KWindowShadowTile::Ptr tile)
 {
     if (d->isCreated) {
-        qCWarning(LOG_KWINDOWSYSTEM, "Cannot attach a bottom tile to a shadow that already has "
+        qCWarning(LOG_KWINDOWSYSTEM,
+                  "Cannot attach a bottom tile to a shadow that already has "
                   "native platform resources allocated. To do so, destroy() the shadow and then "
                   "setBottomTile() and create()");
         return;
@@ -184,7 +192,8 @@ KWindowShadowTile::Ptr KWindowShadow::bottomLeftTile() const
 void KWindowShadow::setBottomLeftTile(KWindowShadowTile::Ptr tile)
 {
     if (d->isCreated) {
-        qCWarning(LOG_KWINDOWSYSTEM, "Cannot attach a bottom-left tile to a shadow that already "
+        qCWarning(LOG_KWINDOWSYSTEM,
+                  "Cannot attach a bottom-left tile to a shadow that already "
                   "has native platform resources allocated. To do so, destroy() the shadow and "
                   "then setBottomLeftTile() and create()");
         return;
@@ -200,7 +209,8 @@ QMargins KWindowShadow::padding() const
 void KWindowShadow::setPadding(const QMargins &padding)
 {
     if (d->isCreated) {
-        qCWarning(LOG_KWINDOWSYSTEM, "Cannot set the padding on a shadow that already has "
+        qCWarning(LOG_KWINDOWSYSTEM,
+                  "Cannot set the padding on a shadow that already has "
                   "native platform resources allocated. To do so, destroy() the shadow and "
                   "then setPadding() and create()");
         return;
@@ -216,7 +226,8 @@ QWindow *KWindowShadow::window() const
 void KWindowShadow::setWindow(QWindow *window)
 {
     if (d->isCreated) {
-        qCWarning(LOG_KWINDOWSYSTEM, "Cannot set the target window on a shadow that already has "
+        qCWarning(LOG_KWINDOWSYSTEM,
+                  "Cannot set the target window on a shadow that already has "
                   "native platform resources allocated. To do so, destroy() the shadow and then "
                   "setWindow() and create()");
         return;
@@ -235,7 +246,8 @@ bool KWindowShadow::create()
         return true;
     }
     if (!d->window) {
-        qCWarning(LOG_KWINDOWSYSTEM, "Cannot allocate the native platform resources for the shadow "
+        qCWarning(LOG_KWINDOWSYSTEM,
+                  "Cannot allocate the native platform resources for the shadow "
                   "because the target window is not specified.");
         return false;
     }
@@ -279,7 +291,7 @@ void KWindowShadowPrivate::destroy()
 
 bool KWindowShadowPrivate::prepareTiles()
 {
-    const std::array<KWindowShadowTile *, 8> tiles {
+    const std::array<KWindowShadowTile *, 8> tiles{
         leftTile.data(),
         topLeftTile.data(),
         topTile.data(),

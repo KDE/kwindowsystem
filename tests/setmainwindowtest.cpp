@@ -17,6 +17,7 @@ class Window : public QWidget
 {
 public:
     Window();
+
 private:
     void showWindow();
     QLabel *m_label;

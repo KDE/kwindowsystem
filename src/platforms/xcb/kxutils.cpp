@@ -6,8 +6,8 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
-#include "kxutils_p.h"
 #include "kwindowsystem_xcb_debug.h"
+#include "kxutils_p.h"
 #include <QBitmap>
 #include <QX11Info>
 
@@ -15,18 +15,17 @@
 
 namespace KXUtils
 {
-
-template <typename T> T fromNative(xcb_pixmap_t pixmap, xcb_connection_t *c)
+template<typename T>
+T fromNative(xcb_pixmap_t pixmap, xcb_connection_t *c)
 {
-    const xcb_get_geometry_cookie_t geoCookie = xcb_get_geometry_unchecked(c,  pixmap);
+    const xcb_get_geometry_cookie_t geoCookie = xcb_get_geometry_unchecked(c, pixmap);
     ScopedCPointer<xcb_get_geometry_reply_t> geo(xcb_get_geometry_reply(c, geoCookie, nullptr));
     if (geo.isNull()) {
         // getting geometry for the pixmap failed
         return T();
     }
 
-    const xcb_get_image_cookie_t imageCookie = xcb_get_image_unchecked(c, XCB_IMAGE_FORMAT_Z_PIXMAP, pixmap,
-            0, 0, geo->width, geo->height, ~0);
+    const xcb_get_image_cookie_t imageCookie = xcb_get_image_unchecked(c, XCB_IMAGE_FORMAT_Z_PIXMAP, pixmap, 0, 0, geo->width, geo->height, ~0);
     ScopedCPointer<xcb_get_image_reply_t> xImage(xcb_get_image_reply(c, imageCookie, nullptr));
     if (xImage.isNull()) {
         // request for image data failed
@@ -49,7 +48,7 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap, xcb_connection_t *c)
         for (uint i = 0; i < xImage.data()->length; ++i) {
             int r = (pixels[i] >> 22) & 0xff;
             int g = (pixels[i] >> 12) & 0xff;
-            int b = (pixels[i] >>  2) & 0xff;
+            int b = (pixels[i] >> 2) & 0xff;
 
             pixels[i] = qRgba(r, g, b, 0xff);
         }
@@ -62,8 +61,8 @@ template <typename T> T fromNative(xcb_pixmap_t pixmap, xcb_connection_t *c)
     default:
         return T(); // we don't know
     }
-    QImage image(xcb_get_image_data(xImage.data()), geo->width, geo->height,
-                 xcb_get_image_data_length(xImage.data()) / geo->height, format, free, xImage.data());
+    QImage
+        image(xcb_get_image_data(xImage.data()), geo->width, geo->height, xcb_get_image_data_length(xImage.data()) / geo->height, format, free, xImage.data());
     xImage.take();
     if (image.isNull()) {
         return T();
@@ -124,17 +123,17 @@ Time timestampDiff(Time time1, Time time2)   // returns time2 - time1
     return time2 - time1;
 }
 #else
-int timestampCompare(unsigned long time1_, unsigned long time2_)   // like strcmp()
+int timestampCompare(unsigned long time1_, unsigned long time2_) // like strcmp()
 {
     quint32 time1 = time1_;
     quint32 time2 = time2_;
     if (time1 == time2) {
         return 0;
     }
-    return quint32(time1 - time2) < 0x7fffffffU ? 1 : -1;   // time1 > time2 -> 1, handle wrapping
+    return quint32(time1 - time2) < 0x7fffffffU ? 1 : -1; // time1 > time2 -> 1, handle wrapping
 }
 
-int timestampDiff(unsigned long time1_, unsigned long time2_)   // returns time2 - time1
+int timestampDiff(unsigned long time1_, unsigned long time2_) // returns time2 - time1
 {
     // no need to handle wrapping?
     quint32 time1 = time1_;

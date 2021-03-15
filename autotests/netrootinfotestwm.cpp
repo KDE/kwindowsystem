@@ -5,16 +5,19 @@
 */
 
 #include "nettesthelper.h"
+#include <QProcess>
 #include <netwm.h>
 #include <qtest_widgets.h>
-#include <QProcess>
 // system
 #include <unistd.h>
 
 class Property : public QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>
 {
 public:
-    Property(xcb_get_property_reply_t *p = nullptr) : QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>(p) {}
+    Property(xcb_get_property_reply_t *p = nullptr)
+        : QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>(p)
+    {
+    }
 };
 
 Q_DECLARE_METATYPE(NET::Orientation)
@@ -56,7 +59,7 @@ private:
         return m_connection;
     }
     xcb_connection_t *m_connection;
-    QVector<xcb_connection_t*> m_connections;
+    QVector<xcb_connection_t *> m_connections;
     QScopedPointer<QProcess> m_xvfb;
     xcb_window_t m_supportWindow;
     xcb_window_t m_rootWindow;
@@ -83,7 +86,7 @@ void NetRootInfoTestWM::init()
     // use pipe to pass fd to Xvfb to get back the display id
     int pipeFds[2];
     QVERIFY(pipe(pipeFds) == 0);
-    m_xvfb->start(QStringLiteral("Xvfb"), QStringList{ QStringLiteral("-displayfd"), QString::number(pipeFds[1]) });
+    m_xvfb->start(QStringLiteral("Xvfb"), QStringList{QStringLiteral("-displayfd"), QString::number(pipeFds[1])});
     QVERIFY(m_xvfb->waitForStarted());
     QCOMPARE(m_xvfb->state(), QProcess::Running);
 
@@ -96,7 +99,7 @@ void NetRootInfoTestWM::init()
     readPipe.close();
 
     displayNumber.prepend(QByteArray(":"));
-    displayNumber.remove(displayNumber.size() -1, 1);
+    displayNumber.remove(displayNumber.size() - 1, 1);
 
     // create X connection
     int screen = 0;
@@ -105,20 +108,28 @@ void NetRootInfoTestWM::init()
     QVERIFY(!xcb_connection_has_error(m_connection));
     m_rootWindow = KXUtils::rootWindow(m_connection, screen);
     uint32_t values[] = {XCB_EVENT_MASK_PROPERTY_CHANGE};
-    xcb_change_window_attributes(m_connection, m_rootWindow,
-                                 XCB_CW_EVENT_MASK, values);
+    xcb_change_window_attributes(m_connection, m_rootWindow, XCB_CW_EVENT_MASK, values);
 
     // create support window
     values[0] = true;
     m_supportWindow = xcb_generate_id(m_connection);
-    xcb_create_window(m_connection, XCB_COPY_FROM_PARENT, m_supportWindow,
+    xcb_create_window(m_connection,
+                      XCB_COPY_FROM_PARENT,
+                      m_supportWindow,
                       m_rootWindow,
-                      0, 0, 1, 1, 0, XCB_COPY_FROM_PARENT,
-                      XCB_COPY_FROM_PARENT, XCB_CW_OVERRIDE_REDIRECT, values);
-    const uint32_t lowerValues[] = { XCB_STACK_MODE_BELOW };
+                      0,
+                      0,
+                      1,
+                      1,
+                      0,
+                      XCB_COPY_FROM_PARENT,
+                      XCB_COPY_FROM_PARENT,
+                      XCB_CW_OVERRIDE_REDIRECT,
+                      values);
+    const uint32_t lowerValues[] = {XCB_STACK_MODE_BELOW};
     // we need to do the lower window with a roundtrip, otherwise NETRootInfo is not functioning
-    QScopedPointer<xcb_generic_error_t, QScopedPointerPodDeleter> error(xcb_request_check(m_connection,
-            xcb_configure_window_checked(m_connection, m_supportWindow, XCB_CONFIG_WINDOW_STACK_MODE, lowerValues)));
+    QScopedPointer<xcb_generic_error_t, QScopedPointerPodDeleter> error(
+        xcb_request_check(m_connection, xcb_configure_window_checked(m_connection, m_supportWindow, XCB_CONFIG_WINDOW_STACK_MODE, lowerValues)));
     QVERIFY(error.isNull());
 }
 
@@ -176,8 +187,8 @@ void NetRootInfoTestWM::waitForPropertyChange(NETRootInfo *info, xcb_atom_t atom
 void NetRootInfoTestWM::testCtor()
 {
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.xcbConnection(), connection());
     QCOMPARE(rootInfo.rootWindow(), m_rootWindow);
     QCOMPARE(rootInfo.supportWindow(), m_supportWindow);
@@ -202,8 +213,8 @@ void NetRootInfoTestWM::testSupported()
     KXUtils::Atom wmName(connection(), QByteArrayLiteral("_NET_WM_NAME"));
     KXUtils::Atom utf8String(connection(), QByteArrayLiteral("UTF8_STRING"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     int count = 0;
     for (int i = 0; i < 33; ++i) {
         if (i == 12) {
@@ -237,24 +248,20 @@ void NetRootInfoTestWM::testSupported()
     // Add _GTK_FRAME_EXTENTS
     ++count;
 
-    QVERIFY(supported  != XCB_ATOM_NONE);
+    QVERIFY(supported != XCB_ATOM_NONE);
     QVERIFY(utf8String != XCB_ATOM_NONE);
-    QVERIFY(wmCheck    != XCB_ATOM_NONE);
-    QVERIFY(wmName     != XCB_ATOM_NONE);
+    QVERIFY(wmCheck != XCB_ATOM_NONE);
+    QVERIFY(wmName != XCB_ATOM_NONE);
 
     // we should have got some events
     waitForPropertyChange(&rootInfo, supported, NET::Supported);
     waitForPropertyChange(&rootInfo, wmCheck, NET::SupportingWMCheck);
 
     // get the cookies of the things to check
-    xcb_get_property_cookie_t supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-            supported, XCB_ATOM_ATOM, 0, 101);
-    xcb_get_property_cookie_t wmCheckRootCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-            wmCheck, XCB_ATOM_WINDOW, 0, 1);
-    xcb_get_property_cookie_t wmCheckSupportWinCookie = xcb_get_property_unchecked(connection(), false, m_supportWindow,
-            wmCheck, XCB_ATOM_WINDOW, 0, 1);
-    xcb_get_property_cookie_t  wmNameCookie = xcb_get_property_unchecked(connection(), false, m_supportWindow,
-            wmName, utf8String, 0, 16);
+    xcb_get_property_cookie_t supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), supported, XCB_ATOM_ATOM, 0, 101);
+    xcb_get_property_cookie_t wmCheckRootCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), wmCheck, XCB_ATOM_WINDOW, 0, 1);
+    xcb_get_property_cookie_t wmCheckSupportWinCookie = xcb_get_property_unchecked(connection(), false, m_supportWindow, wmCheck, XCB_ATOM_WINDOW, 0, 1);
+    xcb_get_property_cookie_t wmNameCookie = xcb_get_property_unchecked(connection(), false, m_supportWindow, wmName, utf8String, 0, 16);
 
     Property supportedReply(xcb_get_property_reply(connection(), supportedCookie, nullptr));
     QVERIFY(!supportedReply.isNull());
@@ -299,8 +306,7 @@ void NetRootInfoTestWM::testSupported()
     QVERIFY(rootInfo.isSupported(NET::DockMask));
 
     // lets get supported again
-    supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                      supported, XCB_ATOM_ATOM, 0, 90);
+    supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), supported, XCB_ATOM_ATOM, 0, 90);
     supportedReply.reset(xcb_get_property_reply(connection(), supportedCookie, nullptr));
     QVERIFY(!supportedReply.isNull());
     QCOMPARE(supportedReply->format, uint8_t(32));
@@ -315,8 +321,7 @@ void NetRootInfoTestWM::testSupported()
     // turn something off, just to get another event
     rootInfo.setSupported(NET::WM2BlockCompositing, false);
     // lets get supported again
-    supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                      supported, XCB_ATOM_ATOM, 0, 90);
+    supportedCookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), supported, XCB_ATOM_ATOM, 0, 90);
     supportedReply.reset(xcb_get_property_reply(connection(), supportedCookie, nullptr));
     QVERIFY(!supportedReply.isNull());
     QCOMPARE(supportedReply->format, uint8_t(32));
@@ -330,8 +335,8 @@ void NetRootInfoTestWM::testClientList()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_CLIENT_LIST"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.clientListCount(), 0);
     QVERIFY(!rootInfo.clientList());
 
@@ -339,8 +344,7 @@ void NetRootInfoTestWM::testClientList()
                               xcb_generate_id(connection()),
                               xcb_generate_id(connection()),
                               xcb_generate_id(connection()),
-                              xcb_generate_id(connection())
-                             };
+                              xcb_generate_id(connection())};
     rootInfo.setClientList(windows, 5);
     QCOMPARE(rootInfo.clientListCount(), 5);
     const xcb_window_t *otherWins = rootInfo.clientList();
@@ -350,8 +354,7 @@ void NetRootInfoTestWM::testClientList()
 
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                       atom, XCB_ATOM_WINDOW, 0, 5);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), atom, XCB_ATOM_WINDOW, 0, 5);
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
@@ -375,8 +378,8 @@ void NetRootInfoTestWM::testClientListStacking()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_CLIENT_LIST_STACKING"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.clientListStackingCount(), 0);
     QVERIFY(!rootInfo.clientListStacking());
 
@@ -384,8 +387,7 @@ void NetRootInfoTestWM::testClientListStacking()
                               xcb_generate_id(connection()),
                               xcb_generate_id(connection()),
                               xcb_generate_id(connection()),
-                              xcb_generate_id(connection())
-                             };
+                              xcb_generate_id(connection())};
     rootInfo.setClientListStacking(windows, 5);
     QCOMPARE(rootInfo.clientListStackingCount(), 5);
     const xcb_window_t *otherWins = rootInfo.clientListStacking();
@@ -395,8 +397,7 @@ void NetRootInfoTestWM::testClientListStacking()
 
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                       atom, XCB_ATOM_WINDOW, 0, 5);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), atom, XCB_ATOM_WINDOW, 0, 5);
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
@@ -419,8 +420,8 @@ void NetRootInfoTestWM::testVirtualRoots()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_VIRTUAL_ROOTS"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.virtualRootsCount(), 0);
     QVERIFY(!rootInfo.virtualRoots());
 
@@ -428,8 +429,7 @@ void NetRootInfoTestWM::testVirtualRoots()
                               xcb_generate_id(connection()),
                               xcb_generate_id(connection()),
                               xcb_generate_id(connection()),
-                              xcb_generate_id(connection())
-                             };
+                              xcb_generate_id(connection())};
     rootInfo.setVirtualRoots(windows, 5);
     QCOMPARE(rootInfo.virtualRootsCount(), 5);
     const xcb_window_t *otherWins = rootInfo.virtualRoots();
@@ -439,8 +439,7 @@ void NetRootInfoTestWM::testVirtualRoots()
 
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                       atom, XCB_ATOM_WINDOW, 0, 5);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), atom, XCB_ATOM_WINDOW, 0, 5);
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
@@ -464,16 +463,15 @@ void NetRootInfoTestWM::testNumberOfDesktops()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_NUMBER_OF_DESKTOPS"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.numberOfDesktops(), 1);
     rootInfo.setNumberOfDesktops(4);
     QCOMPARE(rootInfo.numberOfDesktops(), 4);
 
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                       atom, XCB_ATOM_CARDINAL, 0, 1);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), atom, XCB_ATOM_CARDINAL, 0, 1);
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
@@ -490,16 +488,15 @@ void NetRootInfoTestWM::testCurrentDesktop()
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_CURRENT_DESKTOP"));
     // TODO: verify that current desktop cannot be higher than number of desktops
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.currentDesktop(), 1);
     rootInfo.setCurrentDesktop(5);
     QCOMPARE(rootInfo.currentDesktop(), 5);
 
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                       atom, XCB_ATOM_CARDINAL, 0, 1);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), atom, XCB_ATOM_CARDINAL, 0, 1);
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
@@ -517,8 +514,8 @@ void NetRootInfoTestWM::testDesktopNames()
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_DESKTOP_NAMES"));
     KXUtils::Atom utf8String(connection(), QByteArrayLiteral("UTF8_STRING"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QVERIFY(!rootInfo.desktopName(0));
     QVERIFY(!rootInfo.desktopName(1));
     QVERIFY(!rootInfo.desktopName(2));
@@ -531,8 +528,7 @@ void NetRootInfoTestWM::testDesktopNames()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     QVERIFY(utf8String != XCB_ATOM_NONE);
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                       atom, utf8String, 0, 10000);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), atom, utf8String, 0, 10000);
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(8));
@@ -553,8 +549,8 @@ void NetRootInfoTestWM::testActiveWindow()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_ACTIVE_WINDOW"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QVERIFY(rootInfo.activeWindow() == XCB_WINDOW_NONE);
     // rootinfo doesn't verify whether our window is a window, so we just generate an ID
     xcb_window_t activeWindow = xcb_generate_id(connection());
@@ -563,8 +559,7 @@ void NetRootInfoTestWM::testActiveWindow()
 
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                       atom, XCB_ATOM_WINDOW, 0, 1);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), atom, XCB_ATOM_WINDOW, 0, 1);
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
@@ -580,8 +575,8 @@ void NetRootInfoTestWM::testDesktopGeometry()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_DESKTOP_GEOMETRY"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QCOMPARE(rootInfo.desktopGeometry().width, 0);
     QCOMPARE(rootInfo.desktopGeometry().height, 0);
 
@@ -594,8 +589,7 @@ void NetRootInfoTestWM::testDesktopGeometry()
 
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                       atom, XCB_ATOM_CARDINAL, 0, 2);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), atom, XCB_ATOM_CARDINAL, 0, 2);
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
@@ -620,18 +614,18 @@ void NetRootInfoTestWM::testDesktopLayout_data()
     QTest::newRow("h/1/0/tr") << NET::OrientationHorizontal << QSize(1, 0) << NET::DesktopLayoutCornerTopRight;
     QTest::newRow("h/0/1/bl") << NET::OrientationHorizontal << QSize(0, 1) << NET::DesktopLayoutCornerBottomLeft;
     QTest::newRow("h/1/2/br") << NET::OrientationHorizontal << QSize(1, 2) << NET::DesktopLayoutCornerBottomRight;
-    QTest::newRow("v/3/2/tl") << NET::OrientationVertical   << QSize(3, 2) << NET::DesktopLayoutCornerTopLeft;
-    QTest::newRow("v/5/4/tr") << NET::OrientationVertical   << QSize(5, 4) << NET::DesktopLayoutCornerTopRight;
-    QTest::newRow("v/2/1/bl") << NET::OrientationVertical   << QSize(2, 1) << NET::DesktopLayoutCornerBottomLeft;
-    QTest::newRow("v/3/2/br") << NET::OrientationVertical   << QSize(3, 2) << NET::DesktopLayoutCornerBottomRight;
+    QTest::newRow("v/3/2/tl") << NET::OrientationVertical << QSize(3, 2) << NET::DesktopLayoutCornerTopLeft;
+    QTest::newRow("v/5/4/tr") << NET::OrientationVertical << QSize(5, 4) << NET::DesktopLayoutCornerTopRight;
+    QTest::newRow("v/2/1/bl") << NET::OrientationVertical << QSize(2, 1) << NET::DesktopLayoutCornerBottomLeft;
+    QTest::newRow("v/3/2/br") << NET::OrientationVertical << QSize(3, 2) << NET::DesktopLayoutCornerBottomRight;
 }
 
 void NetRootInfoTestWM::testDesktopLayout()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_DESKTOP_LAYOUT"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QFETCH(NET::Orientation, orientation);
     QFETCH(QSize, columnsRows);
     QFETCH(NET::DesktopLayoutCorner, corner);
@@ -643,8 +637,7 @@ void NetRootInfoTestWM::testDesktopLayout()
 
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                       atom, XCB_ATOM_CARDINAL, 0, 4);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), atom, XCB_ATOM_CARDINAL, 0, 4);
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
@@ -669,8 +662,8 @@ void NetRootInfoTestWM::testDesktopViewports()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_DESKTOP_VIEWPORT"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     // we need to know the number of desktops, therefore setting it
     rootInfo.setNumberOfDesktops(4);
     NETPoint desktopOne;
@@ -697,8 +690,7 @@ void NetRootInfoTestWM::testDesktopViewports()
 
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                       atom, XCB_ATOM_CARDINAL, 0, 8);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), atom, XCB_ATOM_CARDINAL, 0, 8);
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
@@ -732,7 +724,7 @@ void NetRootInfoTestWM::testShowingDesktop_data()
     QTest::addColumn<bool>("set");
     QTest::addColumn<uint32_t>("setValue");
 
-    QTest::newRow("true")  << true  << uint32_t(1);
+    QTest::newRow("true") << true << uint32_t(1);
     QTest::newRow("false") << false << uint32_t(0);
 }
 
@@ -740,16 +732,15 @@ void NetRootInfoTestWM::testShowingDesktop()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_SHOWING_DESKTOP"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     QFETCH(bool, set);
     rootInfo.setShowingDesktop(set);
     QCOMPARE(rootInfo.showingDesktop(), set);
 
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                       atom, XCB_ATOM_CARDINAL, 0, 1);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), atom, XCB_ATOM_CARDINAL, 0, 1);
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
@@ -765,8 +756,8 @@ void NetRootInfoTestWM::testWorkArea()
 {
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_WORKAREA"));
     QVERIFY(connection());
-    NETRootInfo rootInfo(connection(), m_supportWindow, s_wmName,
-                         NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
+    NETRootInfo
+        rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     // we need to know the number of desktops, therefore setting it
     rootInfo.setNumberOfDesktops(4);
     NETRect desktopOne;
@@ -805,23 +796,22 @@ void NetRootInfoTestWM::testWorkArea()
 
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(),
-                                       atom, XCB_ATOM_CARDINAL, 0, 16);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, rootInfo.rootWindow(), atom, XCB_ATOM_CARDINAL, 0, 16);
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
     QCOMPARE(reply->value_len, uint32_t(16));
     uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()));
-    QCOMPARE(data[ 0], uint32_t(desktopOne.pos.x));
-    QCOMPARE(data[ 1], uint32_t(desktopOne.pos.y));
-    QCOMPARE(data[ 2], uint32_t(desktopOne.size.width));
-    QCOMPARE(data[ 3], uint32_t(desktopOne.size.height));
-    QCOMPARE(data[ 4], uint32_t(desktopTwo.pos.x));
-    QCOMPARE(data[ 5], uint32_t(desktopTwo.pos.y));
-    QCOMPARE(data[ 6], uint32_t(desktopTwo.size.width));
-    QCOMPARE(data[ 7], uint32_t(desktopTwo.size.height));
-    QCOMPARE(data[ 8], uint32_t(0));
-    QCOMPARE(data[ 9], uint32_t(0));
+    QCOMPARE(data[0], uint32_t(desktopOne.pos.x));
+    QCOMPARE(data[1], uint32_t(desktopOne.pos.y));
+    QCOMPARE(data[2], uint32_t(desktopOne.size.width));
+    QCOMPARE(data[3], uint32_t(desktopOne.size.height));
+    QCOMPARE(data[4], uint32_t(desktopTwo.pos.x));
+    QCOMPARE(data[5], uint32_t(desktopTwo.pos.y));
+    QCOMPARE(data[6], uint32_t(desktopTwo.size.width));
+    QCOMPARE(data[7], uint32_t(desktopTwo.size.height));
+    QCOMPARE(data[8], uint32_t(0));
+    QCOMPARE(data[9], uint32_t(0));
     QCOMPARE(data[10], uint32_t(0));
     QCOMPARE(data[11], uint32_t(0));
     QCOMPARE(data[12], uint32_t(0));

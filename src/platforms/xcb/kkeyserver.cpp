@@ -7,27 +7,26 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
-#include "kkeyserver_x11.h"
 #include "kkeyserver.h"
+#include "kkeyserver_x11.h"
 
 #include "platforms/xcb/kwindowsystem_xcb_debug.h"
 #include <QDebug>
 
 #include <QX11Info>
-# define XK_MISCELLANY
-# define XK_XKB_KEYS
-# include <X11/X.h>
-# include <X11/Xlib.h>
-# include <X11/Xutil.h>
-# include <X11/keysymdef.h>
+#define XK_MISCELLANY
+#define XK_XKB_KEYS
+#include <X11/X.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/keysymdef.h>
 #include <xcb/xcb_keysyms.h>
-# define X11_ONLY(arg) arg, //allows to omit an argument
+#define X11_ONLY(arg) arg, // allows to omit an argument
 
 // #define KKEYSERVER_DEBUG 1
 
 namespace KKeyServer
 {
-
 //---------------------------------------------------------------------
 // Data Structures
 //---------------------------------------------------------------------
@@ -461,11 +460,11 @@ inline void checkDisplay()
     if (!QX11Info::display()) {
         qCCritical(LOG_KKEYSERVER_X11) << "QX11Info::display() returns 0.  I'm probably going to crash now.";
         qCCritical(LOG_KKEYSERVER_X11) << "If this is a KApplication initialized without GUI stuff, change it to be "
-                    "initialized with GUI stuff.";
+                                          "initialized with GUI stuff.";
     }
 }
 #else // NDEBUG
-# define checkDisplay()
+#define checkDisplay()
 #endif
 
 //---------------------------------------------------------------------
@@ -510,27 +509,39 @@ bool initializeMods()
         // idea what the problem is, but searching all possibilities until something valid is
         // found fixes the problem.
         for (int j = 0; j < xmk->max_keypermod; ++j) {
-
             for (int k = 0; k < keysyms_per_keycode; ++k) {
-
                 keySymX = XKeycodeToKeysym(QX11Info::display(), xmk->modifiermap[xmk->max_keypermod * i + j], k);
 
                 switch (keySymX) {
                 case XK_Alt_L:
-                case XK_Alt_R:       g_alt_mask |= mask; break;
+                case XK_Alt_R:
+                    g_alt_mask |= mask;
+                    break;
 
                 case XK_Super_L:
-                case XK_Super_R:     g_super_mask |= mask; break;
+                case XK_Super_R:
+                    g_super_mask |= mask;
+                    break;
 
                 case XK_Hyper_L:
-                case XK_Hyper_R:     g_hyper_mask |= mask; break;
+                case XK_Hyper_R:
+                    g_hyper_mask |= mask;
+                    break;
 
                 case XK_Meta_L:
-                case XK_Meta_R:      g_meta_mask |= mask; break;
+                case XK_Meta_R:
+                    g_meta_mask |= mask;
+                    break;
 
-                case XK_Num_Lock:    g_modXNumLock |= mask; break;
-                case XK_Scroll_Lock: g_modXScrollLock |= mask; break;
-                case XK_Mode_switch: g_modXModeSwitch |= mask; break;
+                case XK_Num_Lock:
+                    g_modXNumLock |= mask;
+                    break;
+                case XK_Scroll_Lock:
+                    g_modXScrollLock |= mask;
+                    break;
+                case XK_Mode_switch:
+                    g_modXModeSwitch |= mask;
+                    break;
                 }
             }
         }
@@ -643,20 +654,23 @@ uint modXAlt()
 {
     if (!g_bInitializedMods) {
         initializeMods();
-    } return g_alt_mask;
+    }
+    return g_alt_mask;
 }
 uint modXMeta()
 {
     if (!g_bInitializedMods) {
         initializeMods();
-    } return g_meta_mask;
+    }
+    return g_meta_mask;
 }
 
 uint modXNumLock()
 {
     if (!g_bInitializedMods) {
         initializeMods();
-    } return g_modXNumLock;
+    }
+    return g_modXNumLock;
 }
 uint modXLock()
 {
@@ -666,13 +680,15 @@ uint modXScrollLock()
 {
     if (!g_bInitializedMods) {
         initializeMods();
-    } return g_modXScrollLock;
+    }
+    return g_modXScrollLock;
 }
 uint modXModeSwitch()
 {
     if (!g_bInitializedMods) {
         initializeMods();
-    } return g_modXModeSwitch;
+    }
+    return g_modXModeSwitch;
 }
 
 bool keyboardHasMetaKey()
@@ -771,8 +787,8 @@ bool keyQtToSymX(int keyQt, int *keySym)
     }
 
     *keySym = 0;
-    if (symQt != Qt::Key_Shift && symQt != Qt::Key_Control && symQt != Qt::Key_Alt &&
-            symQt != Qt::Key_Meta && symQt != Qt::Key_Direction_L && symQt != Qt::Key_Direction_R) {
+    if (symQt != Qt::Key_Shift && symQt != Qt::Key_Control && symQt != Qt::Key_Alt && symQt != Qt::Key_Meta && symQt != Qt::Key_Direction_L
+        && symQt != Qt::Key_Direction_R) {
         // qCDebug(LOG_KKEYSERVER_X11) << "Sym::initQt( " << QString::number(keyQt,16) << " ): failed to convert key.";
     }
     return false;
@@ -786,8 +802,7 @@ bool symXModXToKeyQt(uint32_t keySym, uint16_t modX, int *keyQt)
     if (keySym >= XK_KP_0 && keySym <= XK_KP_9) {
         // numeric keypad keys
         *keyQt = Qt::Key_0 + ((int)keySym - XK_KP_0);
-    }
-    else if (keySym < 0x1000) {
+    } else if (keySym < 0x1000) {
         if (keySym >= 'a' && keySym <= 'z') {
             *keyQt = QChar(keySym).toUpper().unicode();
         } else {
@@ -837,7 +852,6 @@ bool keyQtToModX(int modQt, uint *modX)
 
     *modX = 0;
     for (int i = 0; i < 4; i++) {
-
         if (modQt & g_rgX11ModInfo[i].modQt) {
             if (g_rgX11ModInfo[i].modX) {
                 *modX |= g_rgX11ModInfo[i].modX;
@@ -883,7 +897,7 @@ bool codeXToSym(uchar codeX, uint modX, uint *sym)
     event.keycode = codeX;
 
     XLookupString(&event, nullptr, 0, &keySym, nullptr);
-    *sym = (uint) keySym;
+    *sym = (uint)keySym;
     return true;
 }
 
@@ -901,7 +915,7 @@ bool xEventToQt(XEvent *e, int *keyQt)
 
     KeySym keySym;
     char buffer[16];
-    XLookupString((XKeyEvent *) e, buffer, 15, &keySym, nullptr);
+    XLookupString((XKeyEvent *)e, buffer, 15, &keySym, nullptr);
     uint keySymX = (uint)keySym;
 
     // If numlock is active and a keypad key is pressed, XOR the SHIFT state.
@@ -951,7 +965,7 @@ bool xcbKeyPressEventToQt(xcb_key_press_event_t *e, int *keyQt)
     const xcb_keysym_t keySym1 = xcb_key_press_lookup_keysym(symbols, e, 1);
     xcb_keysym_t keySymX;
 
-    if ((e->state & KKeyServer::modXNumLock()) && is_keypad_key(keySym1) ) {
+    if ((e->state & KKeyServer::modXNumLock()) && is_keypad_key(keySym1)) {
         if ((e->state & XCB_MOD_MASK_SHIFT))
             keySymX = keySym0;
         else

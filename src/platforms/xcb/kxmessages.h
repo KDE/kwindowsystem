@@ -7,9 +7,9 @@
 #ifndef KXMESSAGES_H
 #define KXMESSAGES_H
 
-#include <kwindowsystem_export.h>
-#include <QObject>
 #include <QMap>
+#include <QObject>
+#include <kwindowsystem_export.h>
 
 #include <config-kwindowsystem.h> // KWINDOWSYSTEM_HAVE_X11
 #if KWINDOWSYSTEM_HAVE_X11
@@ -61,7 +61,7 @@ public:
      * Broadcasts the given message with the given message type.
      * @param msg_type the type of the message
      * @param message the message itself
-         * @param screen X11 screen to use, -1 for the default
+     * @param screen X11 screen to use, -1 for the default
      */
     void broadcastMessage(const char *msg_type, const QString &message, int screen = -1);
 // Not 5.0, as KStartupInfo::sendStartupX uses this, and is only deprecated for 5.18
@@ -73,13 +73,15 @@ public:
      *             QX11Info::display()
      * @param msg_type the type of the message
      * @param message the message itself
-         * @param screen X11 screen to use, -1 for the default
+     * @param screen X11 screen to use, -1 for the default
      * @return false when an error occurred, true otherwise
      * @deprecated since 5.0 use xcb variant
      */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KXMessages::broadcastMessageX(xcb_connection_t *, const char *,                                   const QString &, int)")
-    static bool broadcastMessageX(Display *disp, const char *msg_type,
-                                  const QString &message, int screen = -1);
+    KWINDOWSYSTEM_DEPRECATED_VERSION(
+        5,
+        0,
+        "Use KXMessages::broadcastMessageX(xcb_connection_t *, const char *,                                   const QString &, int)")
+    static bool broadcastMessageX(Display *disp, const char *msg_type, const QString &message, int screen = -1);
 #endif
     /**
      * Broadcasts the given message with the given message type.
@@ -91,8 +93,7 @@ public:
      * @param screenNumber X11 screen to use
      * @return false when an error occurred, true otherwise
      */
-    static bool broadcastMessageX(xcb_connection_t *c, const char *msg_type,
-                                  const QString &message, int screenNumber);
+    static bool broadcastMessageX(xcb_connection_t *c, const char *msg_type, const QString &message, int screenNumber);
 
 #if 0 // currently unused
     /**
@@ -125,6 +126,7 @@ Q_SIGNALS:
      * @param message the message that has been received
      */
     void gotMessage(const QString &message);
+
 private:
     friend class KXMessagesPrivate;
     KXMessagesPrivate *const d;

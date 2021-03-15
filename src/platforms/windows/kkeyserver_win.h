@@ -7,18 +7,18 @@
 #ifndef _KKEYSERVER_WIN_H
 #define _KKEYSERVER_WIN_H
 
-#include <kwindowsystem_export.h>
 #include <QtGlobal>
+#include <kwindowsystem_export.h>
 
 namespace KKeyServer
 {
 /**
-* Extracts the modifiers from the given Qt key and
-* converts them in a mask of Windows modifiers.
-* @param keyQt the qt key code
-* @param mod if successful, the modifiers will be written here
-* @return true if successful, false otherwise
-*/
+ * Extracts the modifiers from the given Qt key and
+ * converts them in a mask of Windows modifiers.
+ * @param keyQt the qt key code
+ * @param mod if successful, the modifiers will be written here
+ * @return true if successful, false otherwise
+ */
 KWINDOWSYSTEM_EXPORT bool keyQtToModWin(int keyQt, uint *mod);
 
 KWINDOWSYSTEM_EXPORT bool modWinToKeyQt(uint mod, int *keyQt);

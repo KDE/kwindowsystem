@@ -5,8 +5,8 @@
 */
 #ifndef KWINDOWSYSTEMPLUGININTERFACE_P_H
 #define KWINDOWSYSTEMPLUGININTERFACE_P_H
-#include <kwindowsystem_export.h>
 #include "netwm_def.h"
+#include <kwindowsystem_export.h>
 
 #include <QObject>
 #include <QWidgetList> //For WId

@@ -7,8 +7,8 @@
 #ifndef KSELECTIONWATCHER_H
 #define KSELECTIONWATCHER_H
 
-#include <kwindowsystem_export.h>
 #include <QObject>
+#include <kwindowsystem_export.h>
 
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
@@ -25,8 +25,7 @@
  you inherit from this class ensure that you don't use xcb and/or XLib without verifying
  the platform.
 */
-class KWINDOWSYSTEM_EXPORT KSelectionWatcher
-    : public QObject
+class KWINDOWSYSTEM_EXPORT KSelectionWatcher : public QObject
 {
     Q_OBJECT
 public:
@@ -98,6 +97,7 @@ Q_SIGNALS:
      * It's safe to delete the instance in a slot connected to this signal.
      */
     void lostOwner();
+
 private:
     void init();
 

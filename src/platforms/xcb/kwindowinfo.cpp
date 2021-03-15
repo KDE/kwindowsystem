@@ -11,10 +11,10 @@
 #include "kwindowsystem.h"
 
 #include <QDebug>
-#include <netwm.h>
-#include <kxerrorhandler_p.h>
 #include <QX11Info>
 #include <X11/Xatom.h>
+#include <kxerrorhandler_p.h>
+#include <netwm.h>
 
 #include <xcb/res.h>
 
@@ -23,8 +23,8 @@ static bool haveXRes()
     static bool s_checked = false;
     static bool s_haveXRes = false;
     if (!s_checked) {
-        auto cookie  = xcb_res_query_version(QX11Info::connection(), XCB_RES_MAJOR_VERSION, XCB_RES_MINOR_VERSION);
-        QScopedPointer<xcb_res_query_version_reply_t, QScopedPointerPodDeleter >reply(xcb_res_query_version_reply(QX11Info::connection(), cookie, nullptr));
+        auto cookie = xcb_res_query_version(QX11Info::connection(), XCB_RES_MAJOR_VERSION, XCB_RES_MINOR_VERSION);
+        QScopedPointer<xcb_res_query_version_reply_t, QScopedPointerPodDeleter> reply(xcb_res_query_version_reply(QX11Info::connection(), cookie, nullptr));
         s_haveXRes = !reply.isNull();
         s_checked = true;
     }
@@ -44,31 +44,31 @@ KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, NET::Properties propertie
 
     KXErrorHandler handler;
     if (properties & NET::WMVisibleIconName) {
-        properties |= NET::WMIconName | NET::WMVisibleName;    // force, in case it will be used as a fallback
+        properties |= NET::WMIconName | NET::WMVisibleName; // force, in case it will be used as a fallback
     }
     if (properties & NET::WMVisibleName) {
-        properties |= NET::WMName;    // force, in case it will be used as a fallback
+        properties |= NET::WMName; // force, in case it will be used as a fallback
     }
     if (properties2 & NET::WM2ExtendedStrut) {
-        properties |= NET::WMStrut;    // will be used as fallback
+        properties |= NET::WMStrut; // will be used as fallback
     }
     if (properties & NET::WMWindowType) {
-        properties2 |= NET::WM2TransientFor;    // will be used when type is not set
+        properties2 |= NET::WM2TransientFor; // will be used when type is not set
     }
     if ((properties & NET::WMDesktop) && KWindowSystem::mapViewport()) {
-        properties |= NET::WMGeometry;    // for viewports, the desktop (workspace) is determined from the geometry
+        properties |= NET::WMGeometry; // for viewports, the desktop (workspace) is determined from the geometry
     }
     properties |= NET::XAWMState; // force to get error detection for valid()
     m_info.reset(new NETWinInfo(QX11Info::connection(), _win, QX11Info::appRootWindow(), properties, properties2));
     if (properties & NET::WMName) {
-        if (m_info->name() && m_info->name()[ 0 ] != '\0') {
+        if (m_info->name() && m_info->name()[0] != '\0') {
             m_name = QString::fromUtf8(m_info->name());
         } else {
             m_name = KWindowSystem::readNameProperty(_win, XA_WM_NAME);
         }
     }
     if (properties & NET::WMIconName) {
-        if (m_info->iconName() && m_info->iconName()[ 0 ] != '\0') {
+        if (m_info->iconName() && m_info->iconName()[0] != '\0') {
             m_iconic_name = QString::fromUtf8(m_info->iconName());
         } else {
             m_iconic_name = KWindowSystem::readNameProperty(_win, XA_WM_ICON_NAME);
@@ -80,7 +80,7 @@ KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, NET::Properties propertie
         m_geometry.setRect(geom.pos.x, geom.pos.y, geom.size.width, geom.size.height);
         m_frame_geometry.setRect(frame.pos.x, frame.pos.y, frame.size.width, frame.size.height);
     }
-    m_valid = !handler.error(false);   // no sync - NETWinInfo did roundtrips
+    m_valid = !handler.error(false); // no sync - NETWinInfo did roundtrips
 
     if (haveXRes()) {
         xcb_res_client_id_spec_t specs;
@@ -88,7 +88,8 @@ KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, NET::Properties propertie
         specs.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
         auto cookie = xcb_res_query_client_ids(QX11Info::connection(), 1, &specs);
 
-        QScopedPointer<xcb_res_query_client_ids_reply_t, QScopedPointerPodDeleter> reply( xcb_res_query_client_ids_reply(QX11Info::connection(), cookie, nullptr));
+        QScopedPointer<xcb_res_query_client_ids_reply_t, QScopedPointerPodDeleter> reply(
+            xcb_res_query_client_ids_reply(QX11Info::connection(), cookie, nullptr));
         if (reply && xcb_res_query_client_ids_ids_length(reply.data()) > 0) {
             uint32_t pid = *xcb_res_client_id_value_value((xcb_res_query_client_ids_ids_iterator(reply.data()).data));
             m_pid = pid;
@@ -141,7 +142,7 @@ NETExtendedStrut KWindowInfoPrivateX11::extendedStrut() const
     NETExtendedStrut ext = m_info->extendedStrut();
     NETStrut str = m_info->strut();
     if (ext.left_width == 0 && ext.right_width == 0 && ext.top_width == 0 && ext.bottom_width == 0
-            && (str.left != 0 || str.right != 0 || str.top != 0 || str.bottom != 0)) {
+        && (str.left != 0 || str.right != 0 || str.top != 0 || str.bottom != 0)) {
         // build extended from simple
         if (str.left != 0) {
             ext.left_width = str.left;
@@ -175,7 +176,7 @@ NET::WindowType KWindowInfoPrivateX11::windowType(NET::WindowTypes supported_typ
     }
 #endif
     if (!m_info->hasWindowType()) { // fallback, per spec recommendation
-        if (transientFor() != XCB_WINDOW_NONE) {  // dialog
+        if (transientFor() != XCB_WINDOW_NONE) { // dialog
             if (supported_types & NET::DialogMask) {
                 return NET::Dialog;
             }
@@ -205,8 +206,7 @@ QString KWindowInfoPrivateX11::visibleName() const
         qWarning() << "Pass NET::WMVisibleName to KWindowInfo";
     }
 #endif
-    return m_info->visibleName() && m_info->visibleName()[ 0 ] != '\0'
-           ? QString::fromUtf8(m_info->visibleName()) : name();
+    return m_info->visibleName() && m_info->visibleName()[0] != '\0' ? QString::fromUtf8(m_info->visibleName()) : name();
 }
 
 QString KWindowInfoPrivateX11::name() const
@@ -236,10 +236,10 @@ QString KWindowInfoPrivateX11::visibleIconName() const
         qWarning() << "Pass NET::WMVisibleIconName to KWindowInfo";
     }
 #endif
-    if (m_info->visibleIconName() && m_info->visibleIconName()[ 0 ] != '\0') {
+    if (m_info->visibleIconName() && m_info->visibleIconName()[0] != '\0') {
         return QString::fromUtf8(m_info->visibleIconName());
     }
-    if (m_info->iconName() && m_info->iconName()[ 0 ] != '\0') {
+    if (m_info->iconName() && m_info->iconName()[0] != '\0') {
         return QString::fromUtf8(m_info->iconName());
     }
     if (!m_iconic_name.isEmpty()) {
@@ -255,7 +255,7 @@ QString KWindowInfoPrivateX11::iconName() const
         qWarning() << "Pass NET::WMIconName to KWindowInfo";
     }
 #endif
-    if (m_info->iconName() && m_info->iconName()[ 0 ] != '\0') {
+    if (m_info->iconName() && m_info->iconName()[0] != '\0') {
         return QString::fromUtf8(m_info->iconName());
     }
     if (!m_iconic_name.isEmpty()) {
@@ -321,11 +321,9 @@ QStringList KWindowInfoPrivateX11::activities() const
     }
 #endif
 
-    const QStringList result = QString::fromLatin1(m_info->activities()).split(
-        QLatin1Char(','), Qt::SkipEmptyParts);
+    const QStringList result = QString::fromLatin1(m_info->activities()).split(QLatin1Char(','), Qt::SkipEmptyParts);
 
-    return result.contains(QStringLiteral(KDE_ALL_ACTIVITIES_UUID)) ?
-        QStringList() : result;
+    return result.contains(QStringLiteral(KDE_ALL_ACTIVITIES_UUID)) ? QStringList() : result;
 }
 
 QRect KWindowInfoPrivateX11::geometry() const
@@ -418,7 +416,7 @@ bool KWindowInfoPrivateX11::actionSupported(NET::Action action) const
     if (KWindowSystem::allowedActionsSupported()) {
         return m_info->allowedActions() & action;
     } else {
-        return true;    // no idea if it's supported or not -> pretend it is
+        return true; // no idea if it's supported or not -> pretend it is
     }
 }
 
@@ -429,8 +427,7 @@ bool KWindowInfoPrivateX11::isMinimized() const
         return false;
     }
     // NETWM 1.2 compliant WM - uses NET::Hidden for minimized windows
-    if ((state() & NET::Hidden) != 0
-            && (state() & NET::Shaded) == 0) {  // shaded may have NET::Hidden too
+    if ((state() & NET::Hidden) != 0 && (state() & NET::Shaded) == 0) { // shaded may have NET::Hidden too
         return true;
     }
     // older WMs use WithdrawnState for other virtual desktops

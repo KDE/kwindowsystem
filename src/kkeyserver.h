@@ -48,13 +48,13 @@ KWINDOWSYSTEM_EXPORT QString modToStringUser(uint mod);
 KWINDOWSYSTEM_EXPORT uint stringUserToMod(const QString &mod);
 
 /**
-* Test if the shift modifier should be recorded for a given key.
-*
-* For example, if shift+5 produces '%' Qt wants ctrl+shift+5 recorded as ctrl+% and
-* in that case this function would return false.
-*
-* @since 4.7.1
-*/
+ * Test if the shift modifier should be recorded for a given key.
+ *
+ * For example, if shift+5 produces '%' Qt wants ctrl+shift+5 recorded as ctrl+% and
+ * in that case this function would return false.
+ *
+ * @since 4.7.1
+ */
 KWINDOWSYSTEM_EXPORT bool isShiftAsModifierAllowed(int keyQt);
 
 } // namespace KKeyServer

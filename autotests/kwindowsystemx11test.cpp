@@ -4,18 +4,18 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
-#include "nettesthelper.h"
 #include "kwindowsystem.h"
+#include "nettesthelper.h"
 #include "netwm.h"
 
-#include <qtest_widgets.h>
 #include <QSignalSpy>
 #include <QWidget>
 #include <QX11Info>
+#include <qtest_widgets.h>
 Q_DECLARE_METATYPE(WId)
 Q_DECLARE_METATYPE(NET::Properties)
 Q_DECLARE_METATYPE(NET::Properties2)
-Q_DECLARE_METATYPE(const unsigned long*)
+Q_DECLARE_METATYPE(const unsigned long *)
 
 class KWindowSystemX11Test : public QObject
 {
@@ -256,7 +256,7 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     qRegisterMetaType<WId>("WId");
     qRegisterMetaType<NET::Properties>("NET::Properties");
     qRegisterMetaType<NET::Properties2>("NET::Properties2");
-    qRegisterMetaType<const unsigned long*>("const ulong*");
+    qRegisterMetaType<const unsigned long *>("const ulong*");
     QWidget widget;
     widget.setWindowTitle(QStringLiteral("foo"));
     widget.show();
@@ -265,11 +265,11 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     // wait till the window is mapped, etc.
     QTest::qWait(200);
 
-    QSignalSpy propertiesChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,NET::Properties,NET::Properties2)));
+    QSignalSpy propertiesChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId, NET::Properties, NET::Properties2)));
     QVERIFY(propertiesChangedSpy.isValid());
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    QSignalSpy propertyChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId,uint)));
+    QSignalSpy propertyChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId, uint)));
     QVERIFY(propertyChangedSpy.isValid());
 #endif
 
@@ -355,8 +355,7 @@ void KWindowSystemX11Test::testWindowTitleChanged()
 void KWindowSystemX11Test::testMinimizeWindow()
 {
     NETRootInfo rootInfo(QX11Info::connection(), NET::Supported | NET::SupportingWMCheck);
-    if (qstrcmp(rootInfo.wmName(), "Openbox") != 0 &&
-        qstrcmp(rootInfo.wmName(), "KWin") != 0) {
+    if (qstrcmp(rootInfo.wmName(), "Openbox") != 0 && qstrcmp(rootInfo.wmName(), "KWin") != 0) {
         QSKIP("Test minimize window might not be supported on the used window manager.");
     }
     QWidget widget;

@@ -3,13 +3,13 @@
 
     SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 */
-#include "pluginwrapper_p.h"
-#include "kwindowinfo_dummy_p.h"
-#include "kwindowsystemplugininterface_p.h"
 #include "kwindoweffects_dummy_p.h"
+#include "kwindowinfo_dummy_p.h"
 #include "kwindowshadow_dummy_p.h"
-#include "kwindowsystem_dummy_p.h"
 #include "kwindowsystem_debug.h"
+#include "kwindowsystem_dummy_p.h"
+#include "kwindowsystemplugininterface_p.h"
+#include "pluginwrapper_p.h"
 
 #include <QDebug>
 #include <QDir>
@@ -26,7 +26,7 @@ static QStringList pluginCandidates()
     QStringList ret;
     const auto paths = QCoreApplication::libraryPaths();
     for (const QString &path : paths) {
-        static const QStringList searchFolders {
+        static const QStringList searchFolders{
             QStringLiteral("/kf5/org.kde.kwindowsystem.platforms"),
             QStringLiteral("/kf5/kwindowsystem"),
         };
@@ -46,8 +46,7 @@ static QStringList pluginCandidates()
 
 static bool checkPlatform(const QJsonObject &metadata, const QString &platformName)
 {
-    const QJsonArray platforms = metadata.value(QStringLiteral("MetaData"))
-            .toObject().value(QStringLiteral("platforms")).toArray();
+    const QJsonArray platforms = metadata.value(QStringLiteral("MetaData")).toObject().value(QStringLiteral("platforms")).toArray();
     return std::any_of(platforms.begin(), platforms.end(), [&platformName](const QJsonValue &value) {
         return QString::compare(platformName, value.toString(), Qt::CaseInsensitive) == 0;
     });

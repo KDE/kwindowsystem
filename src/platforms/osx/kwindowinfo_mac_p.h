@@ -9,8 +9,8 @@
 
 #include "kwindowinfo.h"
 #include <Carbon/Carbon.h>
-#include <QString>
 #include <QList>
+#include <QString>
 
 // bah, why do header files invade my namespace and define such normal words as check...
 #ifdef check
@@ -48,6 +48,7 @@ struct Q_DECL_HIDDEN KWindowInfo::Private {
     AXUIElementRef m_axWin;
     QList<KWindowInfo::Private *> children;
     KWindowInfo::Private *parent;
+
 private:
     Private(const Private &);
     void operator=(const Private &);
@@ -56,4 +57,3 @@ private:
 };
 
 #endif
-

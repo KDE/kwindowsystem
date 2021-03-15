@@ -12,8 +12,8 @@
 #include <QGuiApplication>
 
 #if KWINDOWSYSTEM_HAVE_X11
-#include <netwm.h>
 #include <QX11Info>
+#include <netwm.h>
 #endif
 
 unsigned long KUserTimestamp::userTimestamp()
@@ -36,16 +36,13 @@ void KUserTimestamp::updateUserTimestamp(unsigned long time)
         time = QX11Info::getTimestamp();
     }
 
-    if (QX11Info::appUserTime() == 0
-            || NET::timestampCompare(time, QX11Info::appUserTime()) > 0) { // time > appUserTime
+    if (QX11Info::appUserTime() == 0 || NET::timestampCompare(time, QX11Info::appUserTime()) > 0) { // time > appUserTime
         QX11Info::setAppUserTime(time);
     }
-    if (QX11Info::appTime() == 0
-            || NET::timestampCompare(time, QX11Info::appTime()) > 0) { // time > appTime
+    if (QX11Info::appTime() == 0 || NET::timestampCompare(time, QX11Info::appTime()) > 0) { // time > appTime
         QX11Info::setAppTime(time);
     }
 #else
     Q_UNUSED(time)
 #endif
 }
-

@@ -4,13 +4,13 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
+#include <QSignalSpy>
+#include <QX11Info>
+#include <kmanagerselection.h>
 #include <kwindoweffects.h>
 #include <kwindowsystem.h>
-#include <kmanagerselection.h>
 #include <netwm.h>
-#include <QSignalSpy>
 #include <qtest_widgets.h>
-#include <QX11Info>
 #include <xcb/xcb.h>
 
 Q_DECLARE_METATYPE(KWindowEffects::SlideFromLocation)
@@ -92,9 +92,9 @@ void KWindowEffectsTest::testSlideWindow_data()
     QTest::addColumn<int>("offset");
     QTest::addColumn<KWindowEffects::SlideFromLocation>("location");
 
-    QTest::newRow("Left")   << 10 << KWindowEffects::LeftEdge;
-    QTest::newRow("Right")  << 20 << KWindowEffects::RightEdge;
-    QTest::newRow("Top")    <<  0 << KWindowEffects::TopEdge;
+    QTest::newRow("Left") << 10 << KWindowEffects::LeftEdge;
+    QTest::newRow("Right") << 20 << KWindowEffects::RightEdge;
+    QTest::newRow("Top") << 0 << KWindowEffects::TopEdge;
     QTest::newRow("Bottom") << -1 << KWindowEffects::BottomEdge;
 }
 
@@ -123,9 +123,9 @@ void KWindowEffectsTest::testSlideWindowWidget_data()
 {
     QTest::addColumn<KWindowEffects::SlideFromLocation>("location");
 
-    QTest::newRow("Left")   << KWindowEffects::LeftEdge;
-    QTest::newRow("Right")  << KWindowEffects::RightEdge;
-    QTest::newRow("Top")    << KWindowEffects::TopEdge;
+    QTest::newRow("Left") << KWindowEffects::LeftEdge;
+    QTest::newRow("Right") << KWindowEffects::RightEdge;
+    QTest::newRow("Top") << KWindowEffects::TopEdge;
     QTest::newRow("Bottom") << KWindowEffects::BottomEdge;
 }
 
@@ -211,8 +211,7 @@ void KWindowEffectsTest::testPresentWindows()
     KWindowEffects::presentWindows(m_window->winId(), desktop);
 
     xcb_connection_t *c = QX11Info::connection();
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
-                                       m_presentWindows, m_presentWindows, 0, 100);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(), m_presentWindows, m_presentWindows, 0, 100);
     QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->format, uint8_t(32));
@@ -227,8 +226,7 @@ void KWindowEffectsTest::testPresentWindowsEmptyGroup()
     KWindowEffects::presentWindows(m_window->winId(), QList<WId>());
 
     xcb_connection_t *c = QX11Info::connection();
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
-                                       m_presentWindowsGroup, m_presentWindowsGroup, 0, 100);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(), m_presentWindowsGroup, m_presentWindowsGroup, 0, 100);
     QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_NONE));
@@ -236,7 +234,7 @@ void KWindowEffectsTest::testPresentWindowsEmptyGroup()
 
 void KWindowEffectsTest::testPresentWindowsGroup_data()
 {
-    QTest::addColumn<QList<WId> >("windows");
+    QTest::addColumn<QList<WId>>("windows");
 
     QTest::newRow("one") << (QList<WId>() << m_window->winId());
     QTest::newRow("two") << (QList<WId>() << m_window->winId() << m_widget->effectiveWinId());
@@ -251,7 +249,7 @@ void KWindowEffectsTest::testPresentWindowsGroup()
 
 void KWindowEffectsTest::testHighlightWindows_data()
 {
-    QTest::addColumn<QList<WId> >("windows");
+    QTest::addColumn<QList<WId>>("windows");
 
     QTest::newRow("one") << (QList<WId>() << m_window->winId());
     QTest::newRow("two") << (QList<WId>() << m_window->winId() << m_widget->effectiveWinId());
@@ -282,11 +280,10 @@ void KWindowEffectsTest::testHighlightWindowsEmpty()
     performAtomIsRemoveTest(m_window->winId(), m_highlightWindows);
 }
 
-void KWindowEffectsTest::performWindowsOnPropertyTest(xcb_atom_t atom, const QList< WId > &windows)
+void KWindowEffectsTest::performWindowsOnPropertyTest(xcb_atom_t atom, const QList<WId> &windows)
 {
     xcb_connection_t *c = QX11Info::connection();
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
-                                       atom, atom, 0, 100);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(), atom, atom, 0, 100);
     QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, atom);
@@ -317,8 +314,7 @@ void KWindowEffectsTest::testBlur()
 
     KWindowEffects::enableBlurBehind(m_window->winId(), true, blur);
     xcb_connection_t *c = QX11Info::connection();
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
-                                       m_blur, XCB_ATOM_CARDINAL, 0, 100);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(), m_blur, XCB_ATOM_CARDINAL, 0, 100);
     QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_CARDINAL));
@@ -326,7 +322,7 @@ void KWindowEffectsTest::testBlur()
     QCOMPARE(reply->value_len, uint32_t(blur.rectCount() * 4));
     uint32_t *data = static_cast<uint32_t *>(xcb_get_property_value(reply.data()));
     int dataOffset = 0;
-    for (const QRect& rect : blur) {
+    for (const QRect &rect : blur) {
         QCOMPARE(data[dataOffset++], uint32_t(rect.x()));
         QCOMPARE(data[dataOffset++], uint32_t(rect.y()));
         QCOMPARE(data[dataOffset++], uint32_t(rect.width()));
@@ -340,10 +336,9 @@ void KWindowEffectsTest::testBlurDisable()
     performAtomIsRemoveTest(m_window->winId(), m_blur);
 
     KWindowEffects::enableBlurBehind(m_window->winId(), true);
-    //verify that it got added
+    // verify that it got added
     xcb_connection_t *c = QX11Info::connection();
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
-                                       m_blur, XCB_ATOM_CARDINAL, 0, 100);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(), m_blur, XCB_ATOM_CARDINAL, 0, 100);
     QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_CARDINAL));
@@ -359,8 +354,7 @@ void KWindowEffectsTest::testMarkAsDashboard()
     const QByteArray className = QByteArrayLiteral("dashboard");
     // should not yet be set
     xcb_connection_t *c = QX11Info::connection();
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
-                                       XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 0, 100);
+    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(), XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 0, 100);
     QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_STRING));
@@ -370,8 +364,7 @@ void KWindowEffectsTest::testMarkAsDashboard()
 
     // now mark as dashboard
     KWindowEffects::markAsDashboard(m_window->winId());
-    cookie = xcb_get_property_unchecked(c, false, m_window->winId(),
-                                        XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 0, 100);
+    cookie = xcb_get_property_unchecked(c, false, m_window->winId(), XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 0, 100);
     reply.reset(xcb_get_property_reply(c, cookie, nullptr));
     QVERIFY(!reply.isNull());
     QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_STRING));

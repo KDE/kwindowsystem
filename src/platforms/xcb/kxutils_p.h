@@ -8,8 +8,8 @@
 #ifndef KXUTILS_H
 #define KXUTILS_H
 
-#include <QScopedPointer>
 #include <QPixmap>
+#include <QScopedPointer>
 #include <config-kwindowsystem.h>
 
 #if KWINDOWSYSTEM_HAVE_X11
@@ -23,12 +23,14 @@ struct xcb_connection_t;
  */
 namespace KXUtils
 {
-
-template <typename T>
+template<typename T>
 class ScopedCPointer : public QScopedPointer<T, QScopedPointerPodDeleter>
 {
 public:
-    ScopedCPointer(T *p = nullptr) : QScopedPointer<T, QScopedPointerPodDeleter>(p) {}
+    ScopedCPointer(T *p = nullptr)
+        : QScopedPointer<T, QScopedPointerPodDeleter>(p)
+    {
+    }
 };
 
 /**

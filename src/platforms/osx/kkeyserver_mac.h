@@ -40,4 +40,3 @@ KWINDOWSYSTEM_EXPORT bool keyQtToModMac(int keyQt, uint &mod);
 }
 
 #endif // !_KKEY_SERVER_MAC_H
-

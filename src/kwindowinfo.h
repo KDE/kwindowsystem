@@ -12,10 +12,10 @@
 #ifndef KWINDOWINFO_H
 #define KWINDOWINFO_H
 
-#include <kwindowsystem_export.h>
-#include <QWidgetList> //For WId
 #include <QExplicitlySharedDataPointer>
 #include <QStringList>
+#include <QWidgetList> //For WId
+#include <kwindowsystem_export.h>
 
 #include <netwm_def.h>
 
@@ -599,9 +599,9 @@ public:
      * Assignment operator.
      */
     KWindowInfo &operator=(const KWindowInfo &);
+
 private:
     QExplicitlySharedDataPointer<KWindowInfoPrivate> d;
 };
 
 #endif // multiple inclusion guard
-

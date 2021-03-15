@@ -4,9 +4,9 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 #include <KWindowSystem>
-#include <kmanagerselection.h>
-#include <QTest>
 #include <QSignalSpy>
+#include <QTest>
+#include <kmanagerselection.h>
 
 class CompositingEnabledTest : public QObject
 {
@@ -27,13 +27,11 @@ void CompositingEnabledTest::testRecreatingNetEventFilter()
     QSignalSpy claimedSpy(&compositorSelection, &KSelectionOwner::claimedOwnership);
     QVERIFY(claimedSpy.isValid());
     compositorSelection.claim(true);
-    connect(&compositorSelection, &KSelectionOwner::claimedOwnership,
-        [] {
-            // let's connect to a signal which will cause a re-creation of NetEventFilter
-            QSignalSpy workAreaChangedSpy(KWindowSystem::self(), &KWindowSystem::workAreaChanged);
-            QVERIFY(workAreaChangedSpy.isValid());
-        }
-    );
+    connect(&compositorSelection, &KSelectionOwner::claimedOwnership, [] {
+        // let's connect to a signal which will cause a re-creation of NetEventFilter
+        QSignalSpy workAreaChangedSpy(KWindowSystem::self(), &KWindowSystem::workAreaChanged);
+        QVERIFY(workAreaChangedSpy.isValid());
+    });
 
     QVERIFY(claimedSpy.wait());
     QTRY_VERIFY(KWindowSystem::compositingActive());

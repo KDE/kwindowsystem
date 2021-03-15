@@ -5,8 +5,8 @@
     SPDX-License-Identifier: MIT
 */
 
-#ifndef   netwm_p_h
-#define   netwm_p_h
+#ifndef netwm_p_h
+#define netwm_p_h
 
 #include <QSharedData>
 #include <QSharedDataPointer>
@@ -18,7 +18,8 @@ class Atoms : public QSharedData
 public:
     explicit Atoms(xcb_connection_t *c);
 
-    xcb_atom_t atom(KwsAtom atom) const {
+    xcb_atom_t atom(KwsAtom atom) const
+    {
         return m_atoms[atom];
     }
 
@@ -37,7 +38,8 @@ private:
    @internal
 **/
 
-template <class Z> class NETRArray
+template<class Z>
+class NETRArray
 {
 public:
     /**
@@ -125,7 +127,8 @@ struct NETRootInfoPrivate {
     int ref;
 
     QSharedDataPointer<Atoms> atoms;
-    xcb_atom_t atom(KwsAtom atom) const {
+    xcb_atom_t atom(KwsAtom atom) const
+    {
         return atoms->atom(atom);
     }
 };
@@ -183,7 +186,8 @@ struct NETWinInfoPrivate {
     int ref;
 
     QSharedDataPointer<Atoms> atoms;
-    xcb_atom_t atom(KwsAtom atom) const {
+    xcb_atom_t atom(KwsAtom atom) const
+    {
         return atoms->atom(atom);
     }
 };

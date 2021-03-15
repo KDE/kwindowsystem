@@ -30,12 +30,7 @@ struct ModInfo {
 // Key names with this context are extracted elsewhere,
 // no need for I18N_NOOP2's here.
 #define KEYCTXT "keyboard-key-name"
-static ModInfo g_rgModInfo[4] = {
-    { Qt::SHIFT,   "Shift", nullptr },
-    { Qt::CTRL,    "Ctrl", nullptr },
-    { Qt::ALT,     "Alt", nullptr },
-    { Qt::META,    "Meta", nullptr }
-};
+static ModInfo g_rgModInfo[4] = {{Qt::SHIFT, "Shift", nullptr}, {Qt::CTRL, "Ctrl", nullptr}, {Qt::ALT, "Alt", nullptr}, {Qt::META, "Meta", nullptr}};
 
 //---------------------------------------------------------------------
 // Initialization
@@ -51,7 +46,6 @@ static void intializeKKeyLabels()
     g_rgModInfo[3].sLabel = new QString(QCoreApplication::translate("KKeyServer", (g_rgModInfo[3].psName), KEYCTXT));
     g_bMacLabels = (*g_rgModInfo[2].sLabel == QLatin1String("Command"));
     g_bInitializedKKeyLabels = true;
-
 }
 
 //---------------------------------------------------------------------
@@ -70,9 +64,7 @@ static QString modToString(uint mod, bool bUserSpace)
             if (!s.isEmpty()) {
                 s += QLatin1Char('+');
             }
-            s += (bUserSpace)
-                 ? *g_rgModInfo[i].sLabel
-                 : QLatin1String(g_rgModInfo[i].psName);
+            s += (bUserSpace) ? *g_rgModInfo[i].sLabel : QLatin1String(g_rgModInfo[i].psName);
         }
     }
     return s;

@@ -7,15 +7,15 @@
 
 #include "kwindoweffects_x11.h"
 
-#include <QVarLengthArray>
 #include <QGuiApplication>
+#include <QVarLengthArray>
 
 #include "kwindowsystem.h"
 #include <config-kwindowsystem.h>
 
-#include <xcb/xcb.h>
-#include <QX11Info>
 #include <QMatrix4x4>
+#include <QX11Info>
+#include <xcb/xcb.h>
 
 using namespace KWindowEffects;
 
@@ -154,7 +154,6 @@ void KWindowEffectsPrivateX11::presentWindows(WId controller, const QList<WId> &
     for (int i = 0; i < numWindows; ++i) {
         data[i] = ids.at(i);
         ++actualCount;
-
     }
 
     if (actualCount != numWindows) {
@@ -225,8 +224,7 @@ void KWindowEffectsPrivateX11::highlightWindows(WId controller, const QList<WId>
     if (data.isEmpty()) {
         return;
     }
-    xcb_change_property(c, XCB_PROP_MODE_REPLACE, controller, atom->atom, atom->atom,
-                        32, data.size(), data.constData());
+    xcb_change_property(c, XCB_PROP_MODE_REPLACE, controller, atom->atom, atom->atom, 32, data.size(), data.constData());
 }
 
 void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const QRegion &region)
@@ -245,14 +243,13 @@ void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const Q
     if (enable) {
         QVector<uint32_t> data;
         data.reserve(region.rectCount() * 4);
-        for (const QRect& r : region) {
+        for (const QRect &r : region) {
             // kwin on X uses device pixels, convert from logical
             auto dpr = qApp->devicePixelRatio();
             data << r.x() * dpr << r.y() * dpr << r.width() * dpr << r.height() * dpr;
         }
 
-        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, XCB_ATOM_CARDINAL,
-                            32, data.size(), data.constData());
+        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, XCB_ATOM_CARDINAL, 32, data.size(), data.constData());
     } else {
         xcb_delete_property(c, window, atom->atom);
     }
@@ -271,14 +268,14 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
     if (enable) {
         QVector<uint32_t> data;
         data.reserve(region.rectCount() * 4 + 16);
-        for (const QRect& r : region) {
+        for (const QRect &r : region) {
             auto dpr = qApp->devicePixelRatio();
             data << r.x() * dpr << r.y() * dpr << r.width() * dpr << r.height() * dpr;
         }
 
-        QMatrix4x4 satMatrix; //saturation
-        QMatrix4x4 intMatrix; //intensity
-        QMatrix4x4 contMatrix; //contrast
+        QMatrix4x4 satMatrix; // saturation
+        QMatrix4x4 intMatrix; // intensity
+        QMatrix4x4 contMatrix; // contrast
 
         // clang-format off
 
@@ -320,8 +317,7 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
             data << rawData[i];
         }
 
-        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, atom->atom,
-                            32, data.size(), data.constData());
+        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, atom->atom, 32, data.size(), data.constData());
     } else {
         xcb_delete_property(c, window, atom->atom);
     }
@@ -335,7 +331,6 @@ void KWindowEffectsPrivateX11::markAsDashboard(WId window)
     if (!c) {
         return;
     }
-    xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLASS,
-                        XCB_ATOM_STRING, 8, 19, DASHBOARD_WIN_CLASS);
+    xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, 19, DASHBOARD_WIN_CLASS);
 }
 #endif

@@ -21,7 +21,6 @@ KWindowEffectsPrivate::~KWindowEffectsPrivate()
 
 namespace KWindowEffects
 {
-
 bool isEffectAvailable(Effect effect)
 {
     return KWindowSystemPluginWrapper::self().effects()->isEffectAvailable(effect);
@@ -37,7 +36,7 @@ void enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal int
     KWindowSystemPluginWrapper::self().effects()->enableBackgroundContrast(window, enable, contrast, intensity, saturation, region);
 }
 
-void highlightWindows(WId controller, const QList< WId > &ids)
+void highlightWindows(WId controller, const QList<WId> &ids)
 {
     KWindowSystemPluginWrapper::self().effects()->highlightWindows(controller, ids);
 }
@@ -49,7 +48,7 @@ void markAsDashboard(WId window)
 }
 #endif
 
-void presentWindows(WId controller, const QList< WId > &ids)
+void presentWindows(WId controller, const QList<WId> &ids)
 {
     KWindowSystemPluginWrapper::self().effects()->presentWindows(controller, ids);
 }
@@ -72,7 +71,7 @@ void slideWindow(QWidget *widget, SlideFromLocation location)
 #endif
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 81)
-QList< QSize > windowSizes(const QList< WId > &ids)
+QList<QSize> windowSizes(const QList<WId> &ids)
 {
     return KWindowSystemPluginWrapper::self().effects()->windowSizes(ids);
 }

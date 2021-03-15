@@ -8,23 +8,28 @@
 
 #include "kwindowinfo.h"
 #include "kwindowsystem.h"
-#include <windows.h>
-#include <stdlib.h>
 #include <QCoreApplication>
+#include <stdlib.h>
+#include <windows.h>
 
 class Q_DECL_HIDDEN KWindowInfo::Private
 {
 public:
     Private()
-        : properties(0), properties2(0)
-    {}
+        : properties(0)
+        , properties2(0)
+    {
+    }
 
-    ~Private() { }
+    ~Private()
+    {
+    }
 
     HWND win_;
     int ref;
     unsigned long properties;
     unsigned long properties2;
+
 private:
     Private(const Private &);
     void operator=(const Private &);
@@ -32,18 +37,18 @@ private:
 
 #include <QRect>
 
-KWindowInfo::KWindowInfo(WId win, unsigned long properties, unsigned long properties2) : d(new Private)
+KWindowInfo::KWindowInfo(WId win, unsigned long properties, unsigned long properties2)
+    : d(new Private)
 {
     d->ref = 1;
     d->win_ = reinterpret_cast<HWND>(win);
-    d->properties  = properties;
+    d->properties = properties;
     d->properties2 = properties2;
 }
 
 KWindowInfo::KWindowInfo()
     : d(nullptr)
 {
-
 }
 
 KWindowInfo::~KWindowInfo()
@@ -146,7 +151,7 @@ NET::WindowType KWindowInfo::windowType(int supported_types) const
 {
     NET::WindowType wt(NET::Normal);
 
-    long windowStyle   = GetWindowLong(d->win_, GWL_STYLE);
+    long windowStyle = GetWindowLong(d->win_, GWL_STYLE);
     long windowStyleEx = GetWindowLong(d->win_, GWL_EXSTYLE);
 
     if (windowStyle & WS_POPUP && supported_types & NET::PopupMenuMask) {
@@ -222,7 +227,7 @@ QRect KWindowInfo::geometry() const
     RECT wndRect;
     memset(&wndRect, 0, sizeof(wndRect));
 
-    //fetch the geometry INCLUDING the frames
+    // fetch the geometry INCLUDING the frames
     if (GetWindowRect(d->win_, &wndRect)) {
         QRect result;
         result.setCoords(wndRect.left, wndRect.top, wndRect.right, wndRect.bottom);
@@ -237,7 +242,7 @@ QRect KWindowInfo::frameGeometry() const
     RECT wndRect;
     memset(&wndRect, 0, sizeof(wndRect));
 
-    //fetch only client area geometries ... i hope thats right
+    // fetch only client area geometries ... i hope thats right
     if (GetClientRect(d->win_, &wndRect)) {
         QRect result;
         result.setCoords(wndRect.left, wndRect.top, wndRect.right, wndRect.bottom);
@@ -270,9 +275,9 @@ WId KWindowInfo::groupLeader() const
 
 QByteArray KWindowInfo::windowClassClass() const
 {
-//    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2WindowClass ) == 0, 176 )
-//        << "Pass NET::WM2WindowClass to KWindowInfo";
-//    return d->info->windowClassClass();
+    //    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2WindowClass ) == 0, 176 )
+    //        << "Pass NET::WM2WindowClass to KWindowInfo";
+    //    return d->info->windowClassClass();
 
     // Implemented per http://tronche.com/gui/x/icccm/sec-4.html#WM_CLASS (but only 2nd and 3rd choices, -name ignored)
     char *resourcenamevar;
@@ -286,9 +291,9 @@ QByteArray KWindowInfo::windowClassClass() const
 
 QByteArray KWindowInfo::windowClassName() const
 {
-//    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2WindowClass ) == 0, 176 )
-//        << "Pass NET::WM2WindowClass to KWindowInfo";
-//    return d->info->windowClassName();
+    //    kWarning(( d->info->passedProperties()[ NETWinInfo::PROTOCOLS2 ] & NET::WM2WindowClass ) == 0, 176 )
+    //        << "Pass NET::WM2WindowClass to KWindowInfo";
+    //    return d->info->windowClassName();
 
     // Maybe should use RealGetWindowClass instead of GetClassName? See
     // http://blogs.msdn.com/b/oldnewthing/archive/2010/12/31/10110524.aspx

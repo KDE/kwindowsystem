@@ -5,15 +5,15 @@
     SPDX-License-Identifier: MIT
 */
 
-#ifndef   netwm_h
-#define   netwm_h
+#ifndef netwm_h
+#define netwm_h
 
-#include <kwindowsystem_export.h>
 #include <QSize>
 #include <config-kwindowsystem.h>
+#include <kwindowsystem_export.h>
 #if KWINDOWSYSTEM_HAVE_X11
-#include <xcb/xcb.h>
 #include <vector>
+#include <xcb/xcb.h>
 
 #include "netwm_def.h"
 
@@ -22,7 +22,8 @@
 // forward declaration
 struct NETRootInfoPrivate;
 struct NETWinInfoPrivate;
-template <class Z> class NETRArray;
+template<class Z>
+class NETRArray;
 
 /**
    Common API for root window properties/protocols.
@@ -43,9 +44,14 @@ public:
         Indexes for the properties array.
     **/
     // update also NETRootInfoPrivate::properties[] size when extending this
-    enum { PROTOCOLS, WINDOW_TYPES, STATES, PROTOCOLS2, ACTIONS,
-           PROPERTIES_SIZE,
-         };
+    enum {
+        PROTOCOLS,
+        WINDOW_TYPES,
+        STATES,
+        PROTOCOLS2,
+        ACTIONS,
+        PROPERTIES_SIZE,
+    };
 
     /**
        Window Managers should use this constructor to create a NETRootInfo object,
@@ -78,10 +84,16 @@ public:
 
        @param doActivate true to activate the window
     **/
-    NETRootInfo(xcb_connection_t *connection, xcb_window_t supportWindow, const char *wmName,
-                NET::Properties properties, NET::WindowTypes windowTypes, NET::States states,
-                NET::Properties2 properties2, NET::Actions actions,
-                int screen = -1, bool doActivate = true);
+    NETRootInfo(xcb_connection_t *connection,
+                xcb_window_t supportWindow,
+                const char *wmName,
+                NET::Properties properties,
+                NET::WindowTypes windowTypes,
+                NET::States states,
+                NET::Properties2 properties2,
+                NET::Actions actions,
+                int screen = -1,
+                bool doActivate = true);
 
     /**
        Clients should use this constructor to create a NETRootInfo object, which
@@ -103,9 +115,11 @@ public:
        @param doActivate true to call activate() to do an initial data read/update
        of the query information.
     **/
-    NETRootInfo(xcb_connection_t *connection, NET::Properties properties, NET::Properties2 properties2 = NET::Properties2(),
-                int screen = -1, bool doActivate = true);
-
+    NETRootInfo(xcb_connection_t *connection,
+                NET::Properties properties,
+                NET::Properties2 properties2 = NET::Properties2(),
+                int screen = -1,
+                bool doActivate = true);
 
     /**
        Creates a shared copy of the specified NETRootInfo object.
@@ -559,8 +573,7 @@ public:
           caused the request
        @param active_window active window of the requesting application, if any
     **/
-    void setActiveWindow(xcb_window_t window, NET::RequestSource src,
-                         xcb_timestamp_t timestamp, xcb_window_t active_window);
+    void setActiveWindow(xcb_window_t window, NET::RequestSource src, xcb_timestamp_t timestamp, xcb_window_t active_window);
 
     /**
        Sets the active (focused) window the specified window. This should
@@ -592,8 +605,7 @@ public:
        Sets the desktop layout. This is set by the pager. When setting, the pager must
        own the _NET_DESKTOP_LAYOUT_Sn manager selection. See _NET_DESKTOP_LAYOUT for details.
     **/
-    void setDesktopLayout(NET::Orientation orientation, int columns, int rows,
-                          NET::DesktopLayoutCorner corner);
+    void setDesktopLayout(NET::Orientation orientation, int columns, int rows, NET::DesktopLayoutCorner corner);
 
     /**
      * Sets the _NET_SHOWING_DESKTOP status (whether desktop is being shown).
@@ -634,8 +646,7 @@ public:
        @param direction One of NET::Direction (see base class documentation for
        a description of the different directions).
     **/
-    void moveResizeRequest(xcb_window_t window, int x_root, int y_root,
-                           Direction direction);
+    void moveResizeRequest(xcb_window_t window, int x_root, int y_root, Direction direction);
 
     /**
        Clients (such as pagers/taskbars) that wish to move/resize a window
@@ -810,8 +821,7 @@ protected:
        @param direction One of NET::Direction (see base class documentation for
        a description of the different directions).
     **/
-    virtual void moveResize(xcb_window_t window, int x_root, int y_root,
-                            unsigned long direction)
+    virtual void moveResize(xcb_window_t window, int x_root, int y_root, unsigned long direction)
     {
         Q_UNUSED(window);
         Q_UNUSED(x_root);
@@ -840,8 +850,7 @@ protected:
        @param timestamp the timestamp of the user action causing this request
        @param active_window active window of the requesting application, if any
     **/
-    virtual void changeActiveWindow(xcb_window_t window, NET::RequestSource src,
-                                    xcb_timestamp_t timestamp, xcb_window_t active_window)
+    virtual void changeActiveWindow(xcb_window_t window, NET::RequestSource src, xcb_timestamp_t timestamp, xcb_window_t active_window)
     {
         Q_UNUSED(window);
         Q_UNUSED(src);
@@ -882,8 +891,7 @@ protected:
        @param detail restack detail
        @param timestamp the timestamp of the request
     **/
-    virtual void restackWindow(xcb_window_t window, RequestSource source,
-                               xcb_window_t above, int detail, xcb_timestamp_t timestamp)
+    virtual void restackWindow(xcb_window_t window, RequestSource source, xcb_window_t above, int detail, xcb_timestamp_t timestamp)
     {
         Q_UNUSED(window);
         Q_UNUSED(source);
@@ -915,6 +923,7 @@ protected:
     binary compatibility. Unused in this class.
     */
     virtual void virtual_hook(int id, void *data);
+
 private:
     NETRootInfoPrivate *p; // krazy:exclude=dpointer (implicitly shared)
 };
@@ -939,9 +948,11 @@ public:
         Indexes for the properties array.
     **/
     // update also NETWinInfoPrivate::properties[] size when extending this
-    enum { PROTOCOLS, PROTOCOLS2,
-           PROPERTIES_SIZE,
-         };
+    enum {
+        PROTOCOLS,
+        PROTOCOLS2,
+        PROPERTIES_SIZE,
+    };
     /**
        Create a NETWinInfo object, which will be used to set/read/change
        information stored on an application window.
@@ -959,8 +970,11 @@ public:
        @param role Select the application role.  If this argument is omitted,
        the role will default to Client.
     **/
-    NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_window_t rootWindow,
-               NET::Properties properties, NET::Properties2 properties2,
+    NETWinInfo(xcb_connection_t *connection,
+               xcb_window_t window,
+               xcb_window_t rootWindow,
+               NET::Properties properties,
+               NET::Properties2 properties2,
                Role role = Client);
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
@@ -970,9 +984,7 @@ public:
         @deprecated since 5.0 use above ctor
     **/
     KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use NETWinInfo(xcb_connection_t *, xcb_window_t, xcb_window_t, NET::Properties, NET::Properties2, Role")
-    NETWinInfo(xcb_connection_t *connection, xcb_window_t window,
-               xcb_window_t rootWindow, NET::Properties properties,
-               Role role = Client);
+    NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_window_t rootWindow, NET::Properties properties, Role role = Client);
 #endif
 
     /**
@@ -1698,6 +1710,7 @@ protected:
     binary compatibility. Unused in this class.
     */
     virtual void virtual_hook(int id, void *data);
+
 private:
     NETWinInfoPrivate *p; // krazy:exclude=dpointer (implicitly shared)
 };

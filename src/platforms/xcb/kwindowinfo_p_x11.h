@@ -11,7 +11,10 @@
 
 class NETWinInfo;
 
-class KWindowInfoPrivateX11 : public KWindowInfoPrivate, public KWindowInfoPrivateDesktopFileNameExtension, public KWindowInfoPrivatePidExtension, public KWindowInfoPrivateAppMenuExtension
+class KWindowInfoPrivateX11 : public KWindowInfoPrivate,
+                              public KWindowInfoPrivateDesktopFileNameExtension,
+                              public KWindowInfoPrivatePidExtension,
+                              public KWindowInfoPrivateAppMenuExtension
 {
 public:
     KWindowInfoPrivateX11(WId window, NET::Properties properties, NET::Properties2 properties2);

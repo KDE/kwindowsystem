@@ -6,13 +6,13 @@
 */
 
 #include <QApplication>
-#include <QWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QWidget>
 
 #include <kwindoweffects.h>
 
-class BlurTestWindow: public QWidget
+class BlurTestWindow : public QWidget
 {
 public:
     BlurTestWindow();
@@ -26,9 +26,7 @@ private:
     QPushButton *m_btnEllipse;
     QWidget *m_area;
 
-    enum {
-        Nothing, FullWindow, Rect, Ellipse
-    } m_state;
+    enum { Nothing, FullWindow, Rect, Ellipse } m_state;
 
     void setWindowAlpha(int alpha);
 
@@ -45,18 +43,18 @@ BlurTestWindow::BlurTestWindow()
     setAttribute(Qt::WA_NoSystemBackground, false);
     setWindowAlpha(192);
 
-    m_btnNothing    = new QPushButton("Nothing");
+    m_btnNothing = new QPushButton("Nothing");
     m_btnFullWindow = new QPushButton("Full window");
-    m_btnRect       = new QPushButton("Rectangle");
-    m_btnEllipse    = new QPushButton("Ellipse");
+    m_btnRect = new QPushButton("Rectangle");
+    m_btnEllipse = new QPushButton("Ellipse");
 
     m_area = new QWidget;
     m_area->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    connect(m_btnNothing,    &QPushButton::clicked, this, &BlurTestWindow::disableBlur);
+    connect(m_btnNothing, &QPushButton::clicked, this, &BlurTestWindow::disableBlur);
     connect(m_btnFullWindow, &QPushButton::clicked, this, &BlurTestWindow::enableBlur);
-    connect(m_btnRect,       &QPushButton::clicked, this, &BlurTestWindow::enableBlurRect);
-    connect(m_btnEllipse,    &QPushButton::clicked, this, &BlurTestWindow::enableBlurEllipse);
+    connect(m_btnRect, &QPushButton::clicked, this, &BlurTestWindow::enableBlurRect);
+    connect(m_btnEllipse, &QPushButton::clicked, this, &BlurTestWindow::enableBlurEllipse);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(m_btnNothing);

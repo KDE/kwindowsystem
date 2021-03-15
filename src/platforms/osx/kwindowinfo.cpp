@@ -5,19 +5,25 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
-#include "kwindowinfo_mac_p.h"
 #include "kwindowinfo.h"
+#include "kwindowinfo_mac_p.h"
 #include "kwindowsystem.h"
 
-#include <QDebug>
 #include <KXErrorHandler>
-#include <netwm.h>
 #include <QBitmap>
+#include <QDebug>
 #include <QDesktopWidget>
 #include <QDialog>
+#include <netwm.h>
 
 KWindowInfo::Private::Private()
-    : ref(0), win(0), isLocal(false), loadedData(false), m_axWin(0), parent(), m_pid(-1)
+    : ref(0)
+    , win(0)
+    , isLocal(false)
+    , loadedData(false)
+    , m_axWin(0)
+    , parent()
+    , m_pid(-1)
 {
 }
 
@@ -50,7 +56,7 @@ void KWindowInfo::Private::updateData()
     FSRef ref;
 #endif
     pinfo.processInfoLength = sizeof pinfo;
-    pinfo.processName = (unsigned char *) processName;
+    pinfo.processName = (unsigned char *)processName;
 #ifdef Q_OS_MAC32
     pinfo.processAppSpec = &appSpec;
 #else
@@ -99,13 +105,14 @@ void KWindowInfo::Private::updateData()
     loadedData = true;
 }
 
-KWindowInfo::KWindowInfo(WId win, unsigned long, unsigned long) : d(new Private)
+KWindowInfo::KWindowInfo(WId win, unsigned long, unsigned long)
+    : d(new Private)
 {
     d->ref = 1;
     d->win = win;
     d->isLocal = true;
     if (!win) {
-        d->win = (WId) d;
+        d->win = (WId)d;
         d->isLocal = false;
     }
 }
@@ -184,7 +191,7 @@ bool KWindowInfo::isMinimized() const
 
 NET::MappingState KWindowInfo::mappingState() const
 {
-    return (NET::MappingState) 0;
+    return (NET::MappingState)0;
 }
 
 NETExtendedStrut KWindowInfo::extendedStrut() const
@@ -195,7 +202,7 @@ NETExtendedStrut KWindowInfo::extendedStrut() const
 
 NET::WindowType KWindowInfo::windowType(int supported_types) const
 {
-    return (NET::WindowType) 0;
+    return (NET::WindowType)0;
 }
 
 QString KWindowInfo::visibleNameWithState() const
