@@ -14,7 +14,9 @@ public:
     virtual ~KWindowEffectsPrivate();
     virtual bool isEffectAvailable(KWindowEffects::Effect effect) = 0;
     virtual void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) = 0;
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 81)
     virtual QList<QSize> windowSizes(const QList<WId> &ids) = 0;
+#endif
     virtual void presentWindows(WId controller, const QList<WId> &ids) = 0;
     virtual void presentWindows(WId controller, int desktop = NET::OnAllDesktops) = 0;
     virtual void highlightWindows(WId controller, const QList<WId> &ids) = 0;

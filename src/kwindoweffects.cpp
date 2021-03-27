@@ -71,9 +71,11 @@ void slideWindow(QWidget *widget, SlideFromLocation location)
 }
 #endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 81)
 QList< QSize > windowSizes(const QList< WId > &ids)
 {
     return KWindowSystemPluginWrapper::self().effects()->windowSizes(ids);
 }
+#endif
 
 }

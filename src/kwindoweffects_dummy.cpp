@@ -30,6 +30,7 @@ void KWindowEffectsPrivateDummy::slideWindow(WId id, KWindowEffects::SlideFromLo
     Q_UNUSED(offset)
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 81)
 QList<QSize> KWindowEffectsPrivateDummy::windowSizes(const QList<WId> &ids)
 {
     QList<QSize> windowSizes;
@@ -39,6 +40,7 @@ QList<QSize> KWindowEffectsPrivateDummy::windowSizes(const QList<WId> &ids)
     }
     return windowSizes;
 }
+#endif
 
 void KWindowEffectsPrivateDummy::presentWindows(WId controller, const QList<WId> &ids)
 {

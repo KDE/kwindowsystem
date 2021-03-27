@@ -124,6 +124,7 @@ void KWindowEffectsPrivateX11::slideWindow(WId id, SlideFromLocation location, i
     }
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 81)
 QList<QSize> KWindowEffectsPrivateX11::windowSizes(const QList<WId> &ids)
 {
     QList<QSize> windowSizes;
@@ -137,6 +138,7 @@ QList<QSize> KWindowEffectsPrivateX11::windowSizes(const QList<WId> &ids)
     }
     return windowSizes;
 }
+#endif
 
 void KWindowEffectsPrivateX11::presentWindows(WId controller, const QList<WId> &ids)
 {
