@@ -333,11 +333,7 @@ void KWindowSystemPrivate::windowStateChanged(WId wid)
     Q_EMIT KWindowSystem::self()->windowChanged(wid);
 #endif
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-    Q_EMIT KWindowSystem::self()->windowChanged(wid, NET::Properties{0}, NET::Properties2{0});
-#else
     Q_EMIT KWindowSystem::self()->windowChanged(wid, NET::Properties{}, NET::Properties2{});
-#endif
 }
 
 void KWindowSystemPrivate::reloadStackList()
