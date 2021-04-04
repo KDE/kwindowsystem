@@ -46,7 +46,7 @@ ecm_setup_version(PROJECT VARIABLE_PREFIX KWINDOWSYSTEM
                         SOVERSION 5)
 
 # Dependencies
-set(REQUIRED_QT_VERSION 5.14.0)
+set(REQUIRED_QT_VERSION 5.15.0)
 find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Gui Widgets)
 
 if (APPLE)
@@ -80,7 +80,7 @@ if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/po")
 endif()
 
 add_definitions(-DQT_NO_FOREACH)
-add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050e00)
+add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050f00)
 
 add_subdirectory(src)
 if (BUILD_TESTING)
