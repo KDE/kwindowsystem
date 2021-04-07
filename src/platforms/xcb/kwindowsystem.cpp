@@ -82,15 +82,31 @@ static inline int displayHeight()
     return displayGeometry().height();
 }
 
-static const NET::Properties windowsProperties = NET::ClientList | NET::ClientListStacking | NET::Supported | NET::NumberOfDesktops | NET::DesktopGeometry
-    | NET::DesktopViewport | NET::CurrentDesktop | NET::DesktopNames | NET::ActiveWindow | NET::WorkArea;
+// clang-format off
+static const NET::Properties windowsProperties = NET::ClientList | NET::ClientListStacking |
+                                                 NET::Supported |
+                                                 NET::NumberOfDesktops |
+                                                 NET::DesktopGeometry |
+                                                 NET::DesktopViewport |
+                                                 NET::CurrentDesktop |
+                                                 NET::DesktopNames |
+                                                 NET::ActiveWindow |
+                                                 NET::WorkArea;
 static const NET::Properties2 windowsProperties2 = NET::WM2ShowingDesktop;
 
 // ClientList and ClientListStacking is not per-window information, but a desktop information,
 // so track it even with only INFO_BASIC
-static const NET::Properties desktopProperties = NET::ClientList | NET::ClientListStacking | NET::Supported | NET::NumberOfDesktops | NET::DesktopGeometry
-    | NET::DesktopViewport | NET::CurrentDesktop | NET::DesktopNames | NET::ActiveWindow | NET::WorkArea;
+static const NET::Properties desktopProperties = NET::ClientList | NET::ClientListStacking |
+                                                 NET::Supported |
+                                                 NET::NumberOfDesktops |
+                                                 NET::DesktopGeometry |
+                                                 NET::DesktopViewport |
+                                                 NET::CurrentDesktop |
+                                                 NET::DesktopNames |
+                                                 NET::ActiveWindow |
+                                                 NET::WorkArea;
 static const NET::Properties2 desktopProperties2 = NET::WM2ShowingDesktop;
+// clang-format on
 
 MainThreadInstantiator::MainThreadInstantiator(KWindowSystemPrivateX11::FilterInfo _what)
     : QObject()
@@ -711,7 +727,8 @@ QPixmap KWindowSystemPrivateX11::iconFromNetWinInfo(int width, int height, bool 
 
         if (p != XCB_PIXMAP_NONE) {
             QPixmap pm = KXUtils::createPixmapFromHandle(info->xcbConnection(), p, p_mask);
-            if (scale && width > 0 && height > 0 && !pm.isNull() && (pm.width() != width || pm.height() != height)) {
+            if (scale && width > 0 && height > 0 && !pm.isNull() //
+                && (pm.width() != width || pm.height() != height)) {
                 result = QPixmap::fromImage(pm.toImage().scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
             } else {
                 result = pm;

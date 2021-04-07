@@ -30,7 +30,12 @@ struct ModInfo {
 // Key names with this context are extracted elsewhere,
 // no need for I18N_NOOP2's here.
 #define KEYCTXT "keyboard-key-name"
-static ModInfo g_rgModInfo[4] = {{Qt::SHIFT, "Shift", nullptr}, {Qt::CTRL, "Ctrl", nullptr}, {Qt::ALT, "Alt", nullptr}, {Qt::META, "Meta", nullptr}};
+static ModInfo g_rgModInfo[4] = {
+    {Qt::SHIFT, "Shift", nullptr},
+    {Qt::CTRL, "Ctrl", nullptr},
+    {Qt::ALT, "Alt", nullptr},
+    {Qt::META, "Meta", nullptr},
+};
 
 //---------------------------------------------------------------------
 // Initialization

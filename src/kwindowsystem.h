@@ -296,7 +296,7 @@ public:
         NETWM = 1, //!< read from property from the window manager specification
         WMHints = 2, //!< read from WMHints property
         ClassHint = 4, //!< load icon after getting name from the classhint
-        XApp = 8 //!< load the standard X icon (last fallback)
+        XApp = 8, //!< load the standard X icon (last fallback)
     };
     /**
      * @overload

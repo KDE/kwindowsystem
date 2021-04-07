@@ -174,12 +174,10 @@ public:
     Private(int flags_P, KStartupInfo *q)
         : q(q)
         , timeout(60)
-        ,
 #if KWINDOWSYSTEM_HAVE_X11
-        msgs(NET_STARTUP_MSG)
-        ,
+        , msgs(NET_STARTUP_MSG)
 #endif
-        cleanup(nullptr)
+        , cleanup(nullptr)
         , flags(flags_P)
     {
     }

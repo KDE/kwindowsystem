@@ -66,8 +66,8 @@ struct NETSize {
     /*
        Public data member.
     **/
-    int width, ///< Width.
-        height; ///< Height.
+    int width; ///< Width.
+    int height; ///< Height.
 };
 
 /**
