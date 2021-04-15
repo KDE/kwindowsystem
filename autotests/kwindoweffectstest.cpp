@@ -27,6 +27,7 @@ private Q_SLOTS:
     void testSlideWindowWidget_data();
     void testSlideWindowWidget();
     void testSlideWindowWidgetRemove();
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
     void testPresentWindows_data();
     void testPresentWindows();
     void testPresentWindowsEmptyGroup();
@@ -35,6 +36,7 @@ private Q_SLOTS:
     void testHighlightWindows_data();
     void testHighlightWindows();
     void testHighlightWindowsEmpty();
+#endif
     void testBlur_data();
     void testBlur();
     void testBlurDisable();
@@ -193,6 +195,7 @@ int32_t KWindowEffectsTest::locationToValue(KWindowEffects::SlideFromLocation lo
     }
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void KWindowEffectsTest::testPresentWindows_data()
 {
     QTest::addColumn<int>("desktop");
@@ -281,6 +284,7 @@ void KWindowEffectsTest::testHighlightWindowsEmpty()
     KWindowEffects::highlightWindows(m_window->winId(), QList<WId>());
     performAtomIsRemoveTest(m_window->winId(), m_highlightWindows);
 }
+#endif
 
 void KWindowEffectsTest::performWindowsOnPropertyTest(xcb_atom_t atom, const QList< WId > &windows)
 {
@@ -390,9 +394,11 @@ void KWindowEffectsTest::testEffectAvailable_data()
     QTest::addColumn<QByteArray>("propertyName");
 
     QTest::newRow("slide") << KWindowEffects::Slide << QByteArrayLiteral("_KDE_SLIDE");
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
     QTest::newRow("PresentWindows") << KWindowEffects::PresentWindows << QByteArrayLiteral("_KDE_PRESENT_WINDOWS_DESKTOP");
     QTest::newRow("PresentWindowsGroup") << KWindowEffects::PresentWindowsGroup << QByteArrayLiteral("_KDE_PRESENT_WINDOWS_GROUP");
     QTest::newRow("HighlightWindows") << KWindowEffects::HighlightWindows << QByteArrayLiteral("_KDE_WINDOW_HIGHLIGHT");
+#endif
     QTest::newRow("BlurBehind") << KWindowEffects::BlurBehind << QByteArrayLiteral("_KDE_NET_WM_BLUR_BEHIND_REGION");
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 67)
     QTest::newRow("Dashboard") << KWindowEffects::Dashboard << QByteArrayLiteral("_WM_EFFECT_KDE_DASHBOARD");
