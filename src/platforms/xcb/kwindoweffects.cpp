@@ -14,6 +14,7 @@
 #include <config-kwindowsystem.h>
 
 #include <QMatrix4x4>
+#include <QWindow>
 #include <QX11Info>
 #include <xcb/xcb.h>
 
@@ -85,47 +86,6 @@ bool KWindowEffectsPrivateX11::isEffectAvailable(Effect effect)
     return false;
 }
 
-void KWindowEffectsPrivateX11::slideWindow(WId id, SlideFromLocation location, int offset)
-{
-    xcb_connection_t *c = QX11Info::connection();
-    if (!c) {
-        return;
-    }
-
-    const QByteArray effectName = QByteArrayLiteral("_KDE_SLIDE");
-    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
-
-    const int size = 2;
-    int32_t data[size];
-    data[0] = offset;
-
-    switch (location) {
-    case LeftEdge:
-        data[1] = 0;
-        break;
-    case TopEdge:
-        data[1] = 1;
-        break;
-    case RightEdge:
-        data[1] = 2;
-        break;
-    case BottomEdge:
-        data[1] = 3;
-    default:
-        break;
-    }
-
-    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
-    if (!atom) {
-        return;
-    }
-    if (location == NoEdge) {
-        xcb_delete_property(c, id, atom->atom);
-    } else {
-        xcb_change_property(c, XCB_PROP_MODE_REPLACE, id, atom->atom, atom->atom, 32, size, data);
-    }
-}
-
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 81)
 QList<QSize> KWindowEffectsPrivateX11::windowSizes(const QList<WId> &ids)
 {
@@ -139,6 +99,13 @@ QList<QSize> KWindowEffectsPrivateX11::windowSizes(const QList<WId> &ids)
         }
     }
     return windowSizes;
+}
+#endif
+
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
+void KWindowEffectsPrivateX11::slideWindow(WId id, SlideFromLocation location, int offset)
+{
+    slideWindowInternal(id, location, offset);
 }
 #endif
 
@@ -235,7 +202,84 @@ void KWindowEffectsPrivateX11::highlightWindows(WId controller, const QList<WId>
 }
 #endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const QRegion &region)
+{
+    enableBlurBehindInternal(window, enable, region);
+}
+#endif
+
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
+void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+{
+    enableBackgroundContrastInternal(window, enable, contrast, intensity, saturation, region);
+}
+#endif
+
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
+void KWindowEffectsPrivateX11::markAsDashboard(WId window)
+{
+    static const char DASHBOARD_WIN_CLASS[] = "dashboard\0dashboard";
+    xcb_connection_t *c = QX11Info::connection();
+    if (!c) {
+        return;
+    }
+    xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, 19, DASHBOARD_WIN_CLASS);
+}
+#endif
+
+void KWindowEffectsPrivateX11::slideWindow(QWindow *window, SlideFromLocation location, int offset)
+{
+    slideWindowInternal(window->winId(), location, offset);
+}
+
+void KWindowEffectsPrivateX11::slideWindowInternal(WId window, SlideFromLocation location, int offset)
+{
+    xcb_connection_t *c = QX11Info::connection();
+    if (!c) {
+        return;
+    }
+
+    const QByteArray effectName = QByteArrayLiteral("_KDE_SLIDE");
+    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
+
+    const int size = 2;
+    int32_t data[size];
+    data[0] = offset;
+
+    switch (location) {
+    case LeftEdge:
+        data[1] = 0;
+        break;
+    case TopEdge:
+        data[1] = 1;
+        break;
+    case RightEdge:
+        data[1] = 2;
+        break;
+    case BottomEdge:
+        data[1] = 3;
+    default:
+        break;
+    }
+
+    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
+    if (!atom) {
+        return;
+    }
+    if (location == NoEdge) {
+        xcb_delete_property(c, window, atom->atom);
+    } else {
+        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, atom->atom, 32, size, data);
+    }
+}
+
+void KWindowEffectsPrivateX11::enableBlurBehind(QWindow *window, bool enable, const QRegion &region)
+{
+    enableBlurBehindInternal(window->winId(), enable, region);
+}
+
+void KWindowEffectsPrivateX11::enableBlurBehindInternal(WId window, bool enable, const QRegion &region)
 {
     xcb_connection_t *c = QX11Info::connection();
     if (!c) {
@@ -263,7 +307,17 @@ void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const Q
     }
 }
 
-void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+void KWindowEffectsPrivateX11::enableBackgroundContrast(QWindow *window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+{
+    enableBackgroundContrastInternal(window->winId(), enable, contrast, intensity, saturation, region);
+}
+
+void KWindowEffectsPrivateX11::enableBackgroundContrastInternal(WId window,
+                                                                bool enable,
+                                                                qreal contrast,
+                                                                qreal intensity,
+                                                                qreal saturation,
+                                                                const QRegion &region)
 {
     xcb_connection_t *c = QX11Info::connection();
     const QByteArray effectName = QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_CONTRAST_REGION");
@@ -330,15 +384,3 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
         xcb_delete_property(c, window, atom->atom);
     }
 }
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
-void KWindowEffectsPrivateX11::markAsDashboard(WId window)
-{
-    static const char DASHBOARD_WIN_CLASS[] = "dashboard\0dashboard";
-    xcb_connection_t *c = QX11Info::connection();
-    if (!c) {
-        return;
-    }
-    xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, 19, DASHBOARD_WIN_CLASS);
-}
-#endif

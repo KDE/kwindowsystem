@@ -26,15 +26,34 @@ bool isEffectAvailable(Effect effect)
     return KWindowSystemPluginWrapper::self().effects()->isEffectAvailable(effect);
 }
 
-void enableBlurBehind(WId window, bool enable, const QRegion &region)
+void enableBlurBehind(QWindow *window, bool enable, const QRegion &region)
 {
     KWindowSystemPluginWrapper::self().effects()->enableBlurBehind(window, enable, region);
 }
 
+void enableBackgroundContrast(QWindow *window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+{
+    KWindowSystemPluginWrapper::self().effects()->enableBackgroundContrast(window, enable, contrast, intensity, saturation, region);
+}
+
+void slideWindow(QWindow *window, SlideFromLocation location, int offset)
+{
+    KWindowSystemPluginWrapper::self().effects()->slideWindow(window, location, offset);
+}
+
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
+void enableBlurBehind(WId window, bool enable, const QRegion &region)
+{
+    KWindowSystemPluginWrapper::self().effects()->enableBlurBehind(window, enable, region);
+}
+#endif
+
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
 {
     KWindowSystemPluginWrapper::self().effects()->enableBackgroundContrast(window, enable, contrast, intensity, saturation, region);
 }
+#endif
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void highlightWindows(WId controller, const QList<WId> &ids)
@@ -64,10 +83,12 @@ void presentWindows(WId controller, int desktop)
 }
 #endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void slideWindow(WId id, SlideFromLocation location, int offset)
 {
     KWindowSystemPluginWrapper::self().effects()->slideWindow(id, location, offset);
 }
+#endif
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 62)
 void slideWindow(QWidget *widget, SlideFromLocation location)
