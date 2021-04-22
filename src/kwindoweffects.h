@@ -21,9 +21,11 @@ namespace KWindowEffects
 {
 enum Effect {
     Slide = 1,
-    PresentWindows = 3,
-    PresentWindowsGroup = 4,
-    HighlightWindows = 5,
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 82)
+    PresentWindows KWINDOWSYSTEM_ENUMERATOR_DEPRECATED_VERSION(5, 82, "Check whether org.kde.KWin.PresentWindows d-bus service is registered") = 3,
+    PresentWindowsGroup KWINDOWSYSTEM_ENUMERATOR_DEPRECATED_VERSION(5, 82, "Check whether org.kde.KWin.PresentWindows d-bus service is registered") = 4,
+    HighlightWindows KWINDOWSYSTEM_ENUMERATOR_DEPRECATED_VERSION(5, 82, "Check whether org.kde.KWin.HighlightWindow d-bus service is registered") = 5,
+#endif
     BlurBehind = 7,
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 67)
     Dashboard KWINDOWSYSTEM_ENUMERATOR_DEPRECATED_VERSION_BELATED(5, 82, 5, 67, "Support for dashboard windows in KWin was removed long time ago") = 8,
@@ -85,32 +87,47 @@ KWINDOWSYSTEM_DEPRECATED_VERSION(5, 81, "Fetch sizes through KWindowSystem inste
 KWINDOWSYSTEM_EXPORT QList<QSize> windowSizes(const QList<WId> &ids);
 #endif
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 82)
 /**
  * Activate the Present Windows effect for the given groups of windows.
  *
  * @param controller The window which is the controller of this effect. The property
  *                   will be set on this window. It will be removed by the effect
  * @param ids all the windows which should be presented.
+ *
+ * @deprecated Since 5.82, Use org.kde.KWin.PresentWindows d-bus api
  */
+KWINDOWSYSTEM_DEPRECATED_VERSION(5, 82, "Use org.kde.KWin.PresentWindows d-bus api")
 KWINDOWSYSTEM_EXPORT void presentWindows(WId controller, const QList<WId> &ids);
+#endif
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 82)
 /**
  * Activate the Present Windows effect for the windows of the given desktop.
  *
  * @param controller The window which is the controller of this effect. The property
  *                   will be set on this window. It will be removed by the effect
  * @param desktop The desktop whose windows should be presented. -1 for all desktops
+ *
+ * @deprecated Since 5.82, Use org.kde.KWin.PresentWindows d-bus api
  */
+KWINDOWSYSTEM_DEPRECATED_VERSION(5, 82, "Use org.kde.KWin.PresentWindows d-bus api")
 KWINDOWSYSTEM_EXPORT void presentWindows(WId controller, int desktop = NET::OnAllDesktops);
+#endif
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 82)
 /**
  * Highlight the selected windows, making all the others translucent
  *
  * @param controller The window which is the controller of this effect. The property
  *                   will be set on this window. It will be removed by the effect
  * @param ids all the windows which should be highlighted.
+ *
+ * @deprecated Since 5.82, Use org.kde.KWin.HighlightWindow d-bus api
  */
+KWINDOWSYSTEM_DEPRECATED_VERSION(5, 82, "Use org.kde.KWin.HighlightWindow d-bus api")
 KWINDOWSYSTEM_EXPORT void highlightWindows(WId controller, const QList<WId> &ids);
+#endif
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 82)
 /**

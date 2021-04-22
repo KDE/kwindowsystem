@@ -56,10 +56,12 @@ void slideWindow(QWindow *window, SlideFromLocation location, int offset)
     KWindowSystemPluginWrapper::self().effects()->slideWindow(window->winId(), location, offset);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void highlightWindows(WId controller, const QList<WId> &ids)
 {
     KWindowSystemPluginWrapper::self().effects()->highlightWindows(controller, ids);
 }
+#endif
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
 void markAsDashboard(WId window)
@@ -68,15 +70,19 @@ void markAsDashboard(WId window)
 }
 #endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void presentWindows(WId controller, const QList<WId> &ids)
 {
     KWindowSystemPluginWrapper::self().effects()->presentWindows(controller, ids);
 }
+#endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void presentWindows(WId controller, int desktop)
 {
     KWindowSystemPluginWrapper::self().effects()->presentWindows(controller, desktop);
 }
+#endif
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void slideWindow(WId id, SlideFromLocation location, int offset)

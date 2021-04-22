@@ -42,23 +42,29 @@ QList<QSize> KWindowEffectsPrivateDummy::windowSizes(const QList<WId> &ids)
 }
 #endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void KWindowEffectsPrivateDummy::presentWindows(WId controller, const QList<WId> &ids)
 {
     Q_UNUSED(controller)
     Q_UNUSED(ids)
 }
+#endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void KWindowEffectsPrivateDummy::presentWindows(WId controller, int desktop)
 {
     Q_UNUSED(controller)
     Q_UNUSED(desktop)
 }
+#endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void KWindowEffectsPrivateDummy::highlightWindows(WId controller, const QList<WId> &ids)
 {
     Q_UNUSED(controller)
     Q_UNUSED(ids)
 }
+#endif
 
 void KWindowEffectsPrivateDummy::enableBlurBehind(WId window, bool enable, const QRegion &region)
 {
