@@ -36,10 +36,12 @@ void enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal int
     KWindowSystemPluginWrapper::self().effects()->enableBackgroundContrast(window, enable, contrast, intensity, saturation, region);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void highlightWindows(WId controller, const QList<WId> &ids)
 {
     KWindowSystemPluginWrapper::self().effects()->highlightWindows(controller, ids);
 }
+#endif
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
 void markAsDashboard(WId window)
@@ -48,15 +50,19 @@ void markAsDashboard(WId window)
 }
 #endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void presentWindows(WId controller, const QList<WId> &ids)
 {
     KWindowSystemPluginWrapper::self().effects()->presentWindows(controller, ids);
 }
+#endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
 void presentWindows(WId controller, int desktop)
 {
     KWindowSystemPluginWrapper::self().effects()->presentWindows(controller, desktop);
 }
+#endif
 
 void slideWindow(WId id, SlideFromLocation location, int offset)
 {
