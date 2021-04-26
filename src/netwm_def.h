@@ -500,7 +500,7 @@ public:
         /**
            @deprecated Since 5.0. This is an obsolete name for KeepAbove.
         **/
-        StaysOnTop = KeepAbove, // NOT STANDARD
+        StaysOnTop KWINDOWSYSTEM_ENUMERATOR_DEPRECATED_VERSION_BELATED(5, 82, 5, 0, "Use KeepAbove") = KeepAbove, // NOT STANDARD
 #endif
         /**
            indicates that a window should not be included on a pager.

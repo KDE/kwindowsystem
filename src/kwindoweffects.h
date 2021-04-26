@@ -26,7 +26,7 @@ enum Effect {
     HighlightWindows = 5,
     BlurBehind = 7,
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 67)
-    Dashboard = 8,
+    Dashboard KWINDOWSYSTEM_ENUMERATOR_DEPRECATED_VERSION_BELATED(5, 82, 5, 67, "Support for dashboard windows in KWin was removed long time ago") = 8,
 #endif
     BackgroundContrast = 9,
 };
