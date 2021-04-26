@@ -174,7 +174,6 @@ public:
      *  with the app startup protocol
      * @param parent the parent of this QObject (can be @c nullptr for no parent)
      *
-     * @obsolete
      * @deprecated since 5.0
      */
     KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KStartupInfo(int, QObject *)")
