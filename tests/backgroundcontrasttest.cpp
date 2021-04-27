@@ -99,32 +99,34 @@ ContrastTestWindow::ContrastTestWindow()
     layout->addWidget(m_intSlider);
     layout->addWidget(m_satSlider);
     layout->addWidget(m_area);
+
+    winId(); // force creation of the associated window
 }
 
 void ContrastTestWindow::disableContrast()
 {
     m_state = Nothing;
-    KWindowEffects::enableBackgroundContrast(winId(), false);
+    KWindowEffects::enableBackgroundContrast(windowHandle(), false);
     repaint();
 }
 void ContrastTestWindow::enableContrast()
 {
     m_state = FullWindow;
-    KWindowEffects::enableBackgroundContrast(winId(), true, m_contrast, m_intensity, m_saturation);
+    KWindowEffects::enableBackgroundContrast(windowHandle(), true, m_contrast, m_intensity, m_saturation);
     repaint();
 }
 void ContrastTestWindow::enableContrastRect()
 {
     m_state = Rect;
     QRegion rgn(m_area->geometry());
-    KWindowEffects::enableBackgroundContrast(winId(), true, m_contrast, m_intensity, m_saturation, rgn);
+    KWindowEffects::enableBackgroundContrast(windowHandle(), true, m_contrast, m_intensity, m_saturation, rgn);
     repaint();
 }
 void ContrastTestWindow::enableContrastEllipse()
 {
     m_state = Ellipse;
     QRegion rgn(m_area->geometry(), QRegion::Ellipse);
-    KWindowEffects::enableBackgroundContrast(winId(), true, m_contrast, m_intensity, m_saturation, rgn);
+    KWindowEffects::enableBackgroundContrast(windowHandle(), true, m_contrast, m_intensity, m_saturation, rgn);
     repaint();
 }
 

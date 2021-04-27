@@ -24,9 +24,6 @@ private Q_SLOTS:
     void testSlideWindow_data();
     void testSlideWindow();
     void testSlideWindowRemove();
-    void testSlideWindowWidget_data();
-    void testSlideWindowWidget();
-    void testSlideWindowWidgetRemove();
     void testPresentWindows_data();
     void testPresentWindows();
     void testPresentWindowsEmptyGroup();
@@ -103,7 +100,7 @@ void KWindowEffectsTest::testSlideWindow()
     QFETCH(int, offset);
     QFETCH(KWindowEffects::SlideFromLocation, location);
 
-    KWindowEffects::slideWindow(m_window->winId(), location, offset);
+    KWindowEffects::slideWindow(m_window.data(), location, offset);
     performSlideWindowTest(m_window->winId(), offset, location);
 }
 
@@ -111,41 +108,11 @@ void KWindowEffectsTest::testSlideWindowRemove()
 {
     xcb_window_t window = m_window->winId();
     // first install the atom
-    KWindowEffects::slideWindow(window, KWindowEffects::TopEdge, 0);
+    KWindowEffects::slideWindow(m_window.data(), KWindowEffects::TopEdge, 0);
     performSlideWindowTest(window, 0, KWindowEffects::TopEdge);
 
     // now delete it
-    KWindowEffects::slideWindow(window, KWindowEffects::NoEdge, 0);
-    performSlideWindowRemoveTest(window);
-}
-
-void KWindowEffectsTest::testSlideWindowWidget_data()
-{
-    QTest::addColumn<KWindowEffects::SlideFromLocation>("location");
-
-    QTest::newRow("Left") << KWindowEffects::LeftEdge;
-    QTest::newRow("Right") << KWindowEffects::RightEdge;
-    QTest::newRow("Top") << KWindowEffects::TopEdge;
-    QTest::newRow("Bottom") << KWindowEffects::BottomEdge;
-}
-
-void KWindowEffectsTest::testSlideWindowWidget()
-{
-    QFETCH(KWindowEffects::SlideFromLocation, location);
-
-    KWindowEffects::slideWindow(m_widget->effectiveWinId(), location);
-    performSlideWindowTest(m_widget->effectiveWinId(), -1, location);
-}
-
-void KWindowEffectsTest::testSlideWindowWidgetRemove()
-{
-    xcb_window_t window = m_widget->effectiveWinId();
-    // first install the atom
-    KWindowEffects::slideWindow(m_widget->effectiveWinId(), KWindowEffects::TopEdge);
-    performSlideWindowTest(window, -1, KWindowEffects::TopEdge);
-
-    // now delete it
-    KWindowEffects::slideWindow(m_widget->effectiveWinId(), KWindowEffects::NoEdge);
+    KWindowEffects::slideWindow(m_window.data(), KWindowEffects::NoEdge, 0);
     performSlideWindowRemoveTest(window);
 }
 
@@ -312,7 +279,7 @@ void KWindowEffectsTest::testBlur()
 {
     QFETCH(QRegion, blur);
 
-    KWindowEffects::enableBlurBehind(m_window->winId(), true, blur);
+    KWindowEffects::enableBlurBehind(m_window.data(), true, blur);
     xcb_connection_t *c = QX11Info::connection();
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(), m_blur, XCB_ATOM_CARDINAL, 0, 100);
     QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter> reply(xcb_get_property_reply(c, cookie, nullptr));
@@ -332,10 +299,10 @@ void KWindowEffectsTest::testBlur()
 
 void KWindowEffectsTest::testBlurDisable()
 {
-    KWindowEffects::enableBlurBehind(m_window->winId(), false);
+    KWindowEffects::enableBlurBehind(m_window.data(), false);
     performAtomIsRemoveTest(m_window->winId(), m_blur);
 
-    KWindowEffects::enableBlurBehind(m_window->winId(), true);
+    KWindowEffects::enableBlurBehind(m_window.data(), true);
     // verify that it got added
     xcb_connection_t *c = QX11Info::connection();
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(), m_blur, XCB_ATOM_CARDINAL, 0, 100);
@@ -344,7 +311,7 @@ void KWindowEffectsTest::testBlurDisable()
     QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_CARDINAL));
 
     // and disable
-    KWindowEffects::enableBlurBehind(m_window->winId(), false);
+    KWindowEffects::enableBlurBehind(m_window.data(), false);
     performAtomIsRemoveTest(m_window->winId(), m_blur);
 }
 

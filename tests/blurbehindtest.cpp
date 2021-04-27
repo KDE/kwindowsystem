@@ -62,32 +62,34 @@ BlurTestWindow::BlurTestWindow()
     layout->addWidget(m_btnRect);
     layout->addWidget(m_btnEllipse);
     layout->addWidget(m_area);
+
+    winId(); // force creation of the associated window
 }
 
 void BlurTestWindow::disableBlur()
 {
     m_state = Nothing;
-    KWindowEffects::enableBlurBehind(winId(), false);
+    KWindowEffects::enableBlurBehind(windowHandle(), false);
     repaint();
 }
 void BlurTestWindow::enableBlur()
 {
     m_state = FullWindow;
-    KWindowEffects::enableBlurBehind(winId(), true);
+    KWindowEffects::enableBlurBehind(windowHandle(), true);
     repaint();
 }
 void BlurTestWindow::enableBlurRect()
 {
     m_state = Rect;
     QRegion rgn(m_area->geometry());
-    KWindowEffects::enableBlurBehind(winId(), true, rgn);
+    KWindowEffects::enableBlurBehind(windowHandle(), true, rgn);
     repaint();
 }
 void BlurTestWindow::enableBlurEllipse()
 {
     m_state = Ellipse;
     QRegion rgn(m_area->geometry(), QRegion::Ellipse);
-    KWindowEffects::enableBlurBehind(winId(), true, rgn);
+    KWindowEffects::enableBlurBehind(windowHandle(), true, rgn);
     repaint();
 }
 
