@@ -114,7 +114,7 @@ if(KWINDOWSYSTEM_HAVE_X11)
     target_include_directories(KF5WindowSystem PUBLIC ${XCB_XCB_INCLUDE_DIR} ${X11_X11_INCLUDE_PATH})
 endif()
 
-set_target_properties(KF5WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSION_STRING}
+set_target_properties(KF5WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSION}
                                                  SOVERSION ${KWINDOWSYSTEM_SOVERSION}
                                                  EXPORT_NAME WindowSystem
 )
