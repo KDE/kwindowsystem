@@ -48,7 +48,10 @@ ecm_setup_version(PROJECT VARIABLE_PREFIX KWINDOWSYSTEM
 
 # Dependencies
 set(REQUIRED_QT_VERSION 5.15.0)
-find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Gui Widgets)
+find_package(Qt5Gui ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
+if(NOT KWINDOWSYSTEM_NO_WIDGETS)
+    find_package(Qt5Widgets ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
+endif()
 
 if (APPLE)
     cmake_find_frameworks(Carbon)
