@@ -14,8 +14,6 @@ namespace KWayland
 {
 namespace Client
 {
-class PlasmaWindow;
-class PlasmaWindowManagement;
 class PlasmaShell;
 }
 }
@@ -76,8 +74,6 @@ public:
     void connectNotify(const QMetaMethod &signal) override;
 
 private:
-    KWayland::Client::PlasmaWindow *window(WId window) const;
-
     KWayland::Client::PlasmaShell *m_waylandPlasmaShell = nullptr;
 };
 

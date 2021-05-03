@@ -172,27 +172,6 @@ KWayland::Client::PlasmaWindowManagement *WaylandIntegration::plasmaWindowManage
         }
 
         m_wm = m_registry->createPlasmaWindowManagement(wmInterface.name, wmInterface.version, qApp);
-        connect(m_wm, &PlasmaWindowManagement::windowCreated, this,
-            [this] (PlasmaWindow *w) {
-                emit KWindowSystem::self()->windowAdded(w->internalId());
-                emit KWindowSystem::self()->stackingOrderChanged();
-                connect(w, &PlasmaWindow::unmapped, this,
-                    [w] {
-                        emit KWindowSystem::self()->windowRemoved(w->internalId());
-                        emit KWindowSystem::self()->stackingOrderChanged();
-                    }
-                );
-            }
-        );
-        connect(m_wm, &PlasmaWindowManagement::activeWindowChanged, this,
-            [this] {
-                if (PlasmaWindow *w = m_wm->activeWindow()) {
-                    emit KWindowSystem::self()->activeWindowChanged(w->internalId());
-                } else {
-                    emit KWindowSystem::self()->activeWindowChanged(0);
-                }
-            }
-        );
         connect(m_wm, &PlasmaWindowManagement::showingDesktopChanged, KWindowSystem::self(), &KWindowSystem::showingDesktopChanged);
         qCDebug(KWAYLAND_KWS) << "Plasma Window Management interface bound";
 

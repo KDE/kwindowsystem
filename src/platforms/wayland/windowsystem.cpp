@@ -27,54 +27,23 @@ WindowSystem::WindowSystem()
 {
 }
 
-KWayland::Client::PlasmaWindow *WindowSystem::window(WId wid) const
-{
-    if (!WaylandIntegration::self()->plasmaWindowManagement()) {
-        return nullptr;
-    }
-
-    const auto &windows = WaylandIntegration::self()->plasmaWindowManagement()->windows();
-    auto it = std::find_if(windows.begin(), windows.end(), [wid] (PlasmaWindow *w) { return w->internalId() == wid; } );
-    if (it != windows.end()) {
-        return *it;
-    }
-    return nullptr;
-}
-
 void WindowSystem::activateWindow(WId win, long int time)
 {
+    Q_UNUSED(win)
     Q_UNUSED(time)
-    if (PlasmaWindow *w = window(win)) {
-        w->requestActivate();
-    }
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support force activating windows";
 }
 
 void WindowSystem::forceActiveWindow(WId win, long int time)
 {
+    Q_UNUSED(win)
     Q_UNUSED(time)
-    if (PlasmaWindow *w = window(win)) {
-        w->requestActivate();
-    } else {
-        Surface *s = Surface::fromQtWinId(win);
-        if (!s) {
-            return;
-        }
-        auto plasmaShellSurface = PlasmaShellSurface::get(s);
-        if (!plasmaShellSurface) {
-            return;
-        }
-        if (plasmaShellSurface->role() == PlasmaShellSurface::Role::Panel) {
-            plasmaShellSurface->setPanelTakesFocus(true);
-        }
-    }
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support force activating windows";
 }
 
 WId WindowSystem::activeWindow()
 {
-    KWayland::Client::PlasmaWindowManagement *wm = WaylandIntegration::self()->plasmaWindowManagement();
-    if (wm && wm->activeWindow()) {
-        return wm->activeWindow()->internalId();
-    }
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support virtual desktops";
     return 0;
 }
 
@@ -150,33 +119,12 @@ bool WindowSystem::icccmCompliantMappingState()
 
 QPixmap WindowSystem::icon(WId win, int width, int height, bool scale, int flags)
 {
+    Q_UNUSED(win)
+    Q_UNUSED(width)
+    Q_UNUSED(height)
+    Q_UNUSED(scale)
     Q_UNUSED(flags)
-
-    // Since width can be any arbitrary size, but the icons cannot,
-    // take the nearest value for best results (ignoring 22 pixel
-    // icons as they don't exist for apps):
-    int iconWidth;
-    if (width < 24) {
-        iconWidth = 16;
-    } else if (width < 40) {
-        iconWidth = 32;
-    } else if (width < 56) {
-        iconWidth = 48;
-    } else if (width < 96) {
-        iconWidth = 64;
-    } else if (width < 192) {
-        iconWidth = 128;
-    } else {
-        iconWidth = 256;
-    }
-
-    if (PlasmaWindow *w = window(win)) {
-        QPixmap pixmap = w->icon().pixmap(iconWidth, iconWidth);
-        if (scale) {
-            return pixmap.scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        }
-        return pixmap;
-    }
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support getting window icons";
     return QPixmap();
 }
 
@@ -194,20 +142,14 @@ bool WindowSystem::mapViewport()
 
 void WindowSystem::minimizeWindow(WId win)
 {
-    if (PlasmaWindow *w = window(win)) {
-        if (!w->isMinimized()) {
-            w->requestToggleMinimized();
-        }
-    }
+    Q_UNUSED(win)
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support minimizing windows";
 }
 
 void WindowSystem::unminimizeWindow(WId win)
 {
-    if (PlasmaWindow *w = window(win)) {
-        if (w->isMinimized()) {
-            w->requestToggleMinimized();
-        }
-    }
+    Q_UNUSED(win)
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support unminimizing windows";
 }
 
 int WindowSystem::numberOfDesktops()
@@ -302,9 +244,9 @@ void WindowSystem::setOnAllDesktops(WId win, bool b)
 
 void WindowSystem::setOnDesktop(WId win, int desktop)
 {
-    if (PlasmaWindow *w = window(win)) {
-        w->requestVirtualDesktop(desktop - 1);
-    }
+    Q_UNUSED(win)
+    Q_UNUSED(desktop)
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support setting window on a specific desktop";
 }
 
 void WindowSystem::setShowingDesktop(bool showing)
@@ -495,16 +437,8 @@ bool WindowSystem::showingDesktop()
 
 QList< WId > WindowSystem::stackingOrder()
 {
-    if (!WaylandIntegration::self()->plasmaWindowManagement()) {
-        return QList<WId>();
-    }
-
-    const auto &windows = WaylandIntegration::self()->plasmaWindowManagement()->windows();
-    QList<WId> ret;
-    for (auto w : windows) {
-        ret << w->internalId();
-    }
-    return ret;
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support getting windows";
+    return QList<WId>();
 }
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
