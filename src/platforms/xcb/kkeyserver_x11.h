@@ -137,8 +137,9 @@ KWINDOWSYSTEM_EXPORT bool keyQtToModX(int keyQt, uint *mod);
  * @return true if successful, false otherwise
  * @deprecated since 5.38, use symXModXToKeyQt in order to support numeric keypad keys too
  */
+KWINDOWSYSTEM_EXPORT
 KWINDOWSYSTEM_DEPRECATED_VERSION(5, 38, "Use KKeyServer::symXModXToKeyQt(uint32_t, uint16_t, int *)")
-KWINDOWSYSTEM_EXPORT bool symXToKeyQt(uint sym, int *keyQt);
+bool symXToKeyQt(uint sym, int *keyQt);
 #endif
 
 /**

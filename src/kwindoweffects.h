@@ -58,8 +58,9 @@ KWINDOWSYSTEM_EXPORT bool isEffectAvailable(Effect effect);
  *
  * @deprecated Since 5.82, Use slideWindow(QWindow) overload
  */
+KWINDOWSYSTEM_EXPORT
 KWINDOWSYSTEM_DEPRECATED_VERSION(5, 82, "Use slideWindow(QWindow) overload")
-KWINDOWSYSTEM_EXPORT void slideWindow(WId id, SlideFromLocation location, int offset = -1);
+void slideWindow(WId id, SlideFromLocation location, int offset = -1);
 #endif
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 62)
@@ -72,8 +73,9 @@ KWINDOWSYSTEM_EXPORT void slideWindow(WId id, SlideFromLocation location, int of
  *               Desktop and Floating won't have effect.
  * @deprecated since 5.62, use slideWindow(widget->effectiveWinId(), location);
  */
+KWINDOWSYSTEM_EXPORT
 KWINDOWSYSTEM_DEPRECATED_VERSION(5, 62, "Use KWindowEffects::slideWindow(WId, SlideFromLocation, int)")
-KWINDOWSYSTEM_EXPORT void slideWindow(QWidget *widget, SlideFromLocation location);
+void slideWindow(QWidget *widget, SlideFromLocation location);
 #endif
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 81)
@@ -83,8 +85,9 @@ KWINDOWSYSTEM_EXPORT void slideWindow(QWidget *widget, SlideFromLocation locatio
  * @param ids all the windows we want the size
  * @deprecated since 5.81, fetch sizes through KWindowSystem instead
  */
+KWINDOWSYSTEM_EXPORT
 KWINDOWSYSTEM_DEPRECATED_VERSION(5, 81, "Fetch sizes through KWindowSystem instead")
-KWINDOWSYSTEM_EXPORT QList<QSize> windowSizes(const QList<WId> &ids);
+QList<QSize> windowSizes(const QList<WId> &ids);
 #endif
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 82)
@@ -97,8 +100,9 @@ KWINDOWSYSTEM_EXPORT QList<QSize> windowSizes(const QList<WId> &ids);
  *
  * @deprecated Since 5.82, Use org.kde.KWin.PresentWindows d-bus api
  */
+KWINDOWSYSTEM_EXPORT
 KWINDOWSYSTEM_DEPRECATED_VERSION(5, 82, "Use org.kde.KWin.PresentWindows d-bus api")
-KWINDOWSYSTEM_EXPORT void presentWindows(WId controller, const QList<WId> &ids);
+void presentWindows(WId controller, const QList<WId> &ids);
 #endif
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 82)
@@ -111,8 +115,9 @@ KWINDOWSYSTEM_EXPORT void presentWindows(WId controller, const QList<WId> &ids);
  *
  * @deprecated Since 5.82, Use org.kde.KWin.PresentWindows d-bus api
  */
+KWINDOWSYSTEM_EXPORT
 KWINDOWSYSTEM_DEPRECATED_VERSION(5, 82, "Use org.kde.KWin.PresentWindows d-bus api")
-KWINDOWSYSTEM_EXPORT void presentWindows(WId controller, int desktop = NET::OnAllDesktops);
+void presentWindows(WId controller, int desktop = NET::OnAllDesktops);
 #endif
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 82)
@@ -125,8 +130,9 @@ KWINDOWSYSTEM_EXPORT void presentWindows(WId controller, int desktop = NET::OnAl
  *
  * @deprecated Since 5.82, Use org.kde.KWin.HighlightWindow d-bus api
  */
+KWINDOWSYSTEM_EXPORT
 KWINDOWSYSTEM_DEPRECATED_VERSION(5, 82, "Use org.kde.KWin.HighlightWindow d-bus api")
-KWINDOWSYSTEM_EXPORT void highlightWindows(WId controller, const QList<WId> &ids);
+void highlightWindows(WId controller, const QList<WId> &ids);
 #endif
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 82)
@@ -149,8 +155,9 @@ KWINDOWSYSTEM_EXPORT void highlightWindows(WId controller, const QList<WId> &ids
  *
  * @deprecated Since 5.82, use enableBlurBehind(QWindow) overload.
  */
+KWINDOWSYSTEM_EXPORT
 KWINDOWSYSTEM_DEPRECATED_VERSION(5, 82, "Use enableBlurBehind(QWindow) overload")
-KWINDOWSYSTEM_EXPORT void enableBlurBehind(WId window, bool enable = true, const QRegion &region = QRegion());
+void enableBlurBehind(WId window, bool enable = true, const QRegion &region = QRegion());
 #endif
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 82)
@@ -176,9 +183,9 @@ KWINDOWSYSTEM_EXPORT void enableBlurBehind(WId window, bool enable = true, const
  *
  * @deprecated Since 5.82, use enableBackgroundContrast(QWindow) overload.
  */
+KWINDOWSYSTEM_EXPORT
 KWINDOWSYSTEM_DEPRECATED_VERSION(5, 82, "Use enableBackgroundContrast(QWindow) overload")
-KWINDOWSYSTEM_EXPORT void
-enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());
+void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());
 #endif
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 67)
@@ -190,8 +197,9 @@ enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1, qre
  * @param window The window for which to enable the blur effect
  * @deprecated since 5.67, support for dashboard windows was removed
  */
+KWINDOWSYSTEM_EXPORT
 KWINDOWSYSTEM_DEPRECATED_VERSION(5, 67, "Support for dashboard windows was removed")
-KWINDOWSYSTEM_EXPORT void markAsDashboard(WId window);
+void markAsDashboard(WId window);
 #endif
 
 /**
