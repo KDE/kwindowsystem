@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 
 set(KF_VERSION "5.83.0") # handled by release scripts
 project(KWindowSystem VERSION ${KF_VERSION})
@@ -81,7 +81,6 @@ endif()
 # Subdirectories
 ecm_install_po_files_as_qm(po)
 
-add_definitions(-DQT_NO_FOREACH)
 add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050f00)
 
 add_subdirectory(src)
