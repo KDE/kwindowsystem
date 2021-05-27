@@ -1,4 +1,6 @@
-set(xcb_plugin_SRCS
+add_library(KF5WindowSystemX11Plugin MODULE)
+
+target_sources(KF5WindowSystemX11Plugin PRIVATE
     kwindoweffects.cpp
     kwindowinfo.cpp
     kwindowshadow.cpp
@@ -7,14 +9,13 @@ set(xcb_plugin_SRCS
     kxutils.cpp
     plugin.cpp
 )
-ecm_qt_declare_logging_category(xcb_plugin_SRCS
+ecm_qt_declare_logging_category(KF5WindowSystemX11Plugin
     HEADER kwindowsystem_xcb_debug.h
     IDENTIFIER LOG_KKEYSERVER_X11
     CATEGORY_NAME kf.windowsystem.keyserver.x11
     DEFAULT_SEVERITY Warning
 )
 
-add_library(KF5WindowSystemX11Plugin MODULE ${xcb_plugin_SRCS})
 target_link_libraries(KF5WindowSystemX11Plugin
     KF5WindowSystem
     Qt5::X11Extras

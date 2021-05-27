@@ -1,10 +1,11 @@
-
-
 configure_file(config-kwindowsystem.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-kwindowsystem.h )
 
-ecm_create_qm_loader(kwindowsystem_QM_LOADER kwindowsystem5_qt)
+add_library(KF5WindowSystem)
+add_library(KF5::WindowSystem ALIAS KF5WindowSystem)
 
-set(kwindowsystem_SRCS
+ecm_create_qm_loader(KF5WindowSystem kwindowsystem5_qt)
+
+target_sources(KF5WindowSystem PRIVATE
     kkeyserver.cpp
     kstartupinfo.cpp
     kusertimestamp.cpp
@@ -16,9 +17,8 @@ set(kwindowsystem_SRCS
     platforms/wayland/kwindowsystem.cpp
     pluginwrapper.cpp
     kwindowsystemplugininterface.cpp
-    ${kwindowsystem_QM_LOADER}
     )
-ecm_qt_declare_logging_category(kwindowsystem_SRCS
+ecm_qt_declare_logging_category(KF5WindowSystem
     HEADER kwindowsystem_debug.h
     IDENTIFIER LOG_KWINDOWSYSTEM
     CATEGORY_NAME kf.windowsystem
@@ -27,7 +27,7 @@ ecm_qt_declare_logging_category(kwindowsystem_SRCS
     DESCRIPTION "KWindowSystem"
     EXPORT KWINDOWSYSTEM
 )
-ecm_qt_declare_logging_category(kwindowsystem_SRCS
+ecm_qt_declare_logging_category(KF5WindowSystem
     HEADER kwindowsystem_xcb_debug.h
     IDENTIFIER LOG_KKEYSERVER_X11
     CATEGORY_NAME kf.windowsystem.keyserver.x11
@@ -38,7 +38,7 @@ ecm_qt_declare_logging_category(kwindowsystem_SRCS
 )
 
 if (KWINDOWSYSTEM_HAVE_X11)
-  set(kwindowsystem_SRCS ${kwindowsystem_SRCS}
+  target_sources(KF5WindowSystem PRIVATE
     platforms/xcb/kselectionowner.cpp
     platforms/xcb/kselectionwatcher.cpp
     platforms/xcb/kxerrorhandler.cpp
@@ -46,47 +46,66 @@ if (KWINDOWSYSTEM_HAVE_X11)
   )
 endif()
 
-set(platformLinkLibraries)
-
 if (KWINDOWSYSTEM_HAVE_X11)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/platforms/xcb)
    if(NOT X11_Xrender_LIB)
       message(FATAL_ERROR "The XRender library could not be found. Please install the development package for it.")
    endif()
    if(NOT X11_Xfixes_LIB)
       message(FATAL_ERROR "The XFixes library could not be found. Please install the development package for it.")
    endif()
-   set(platformLinkLibraries Qt5::X11Extras ${X11_LIBRARIES} ${X11_Xfixes_LIB} ${X11_Xrender_LIB} ${XCB_XCB_LIBRARY} ${XCB_KEYSYMS_LIBRARY})
-   set(kwindowsystem_SRCS ${kwindowsystem_SRCS} platforms/xcb/kkeyserver.cpp
-                                                platforms/xcb/kxmessages.cpp
-                                                platforms/xcb/netwm.cpp )
-endif ()
-
-if (APPLE)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/platforms/osx)
-   set(kwindowsystem_SRCS ${kwindowsystem_SRCS} platforms/osx/kkeyserver.cpp
-#                                                 kwindowsystem_mac.cpp
-# FIXME: adjust kwindowinfo_mac to inherit from KWindowInfoPrivate
-#                                                 kwindowinfo_mac.cpp
-)
-  set(platformLinkLibraries "-framework CoreFoundation -framework Carbon")
-endif ()
-
-if (WIN32)
-   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows)
-   set(kwindowsystem_SRCS ${kwindowsystem_SRCS} platforms/windows/kkeyserver.cpp
-#                                                 kwindowsystem_win.cpp
-# FIXME: adjust kwindowinfo_win to inherit from KWindowInfoPrivate
-#                                                 kwindowinfo_win.cpp
-)
-   set(platformLinkLibraries
-      Qt5::WinExtras # QtWin::fromHICON(), QtWin::toHICON()
-      ws2_32 # gethostname()
+   target_include_directories(KF5WindowSystem
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/xcb
+   )
+   target_link_libraries(KF5WindowSystem
+        PRIVATE
+            Qt5::X11Extras
+            ${X11_LIBRARIES}
+            ${X11_Xfixes_LIB}
+            ${X11_Xrender_LIB}
+            ${XCB_XCB_LIBRARY}
+            ${XCB_KEYSYMS_LIBRARY}
+   )
+   target_sources(KF5WindowSystem PRIVATE
+        platforms/xcb/kkeyserver.cpp
+        platforms/xcb/kxmessages.cpp
+        platforms/xcb/netwm.cpp
    )
 endif ()
 
-add_library(KF5WindowSystem ${kwindowsystem_SRCS})
-add_library(KF5::WindowSystem ALIAS KF5WindowSystem)
+if (APPLE)
+   target_include_directories(KF5WindowSystem
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/osx)
+   target_sources(KF5WindowSystem PRIVATE
+        platforms/osx/kkeyserver.cpp
+#                                                 kwindowsystem_mac.cpp
+# FIXME: adjust kwindowinfo_mac to inherit from KWindowInfoPrivate
+#                                                 kwindowinfo_mac.cpp
+   )
+   target_link_libraries(KF5WindowSystem
+        PRIVATE
+            "-framework CoreFoundation -framework Carbon"
+   )
+endif ()
+
+if (WIN32)
+   target_include_directories(KF5WindowSystem
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows
+   )
+   target_sources(KF5WindowSystem PRIVATE
+        platforms/windows/kkeyserver.cpp
+#                                                 kwindowsystem_win.cpp
+# FIXME: adjust kwindowinfo_win to inherit from KWindowInfoPrivate
+#                                                 kwindowinfo_win.cpp
+   )
+   target_link_libraries(KF5WindowSystem
+        PRIVATE
+            Qt5::WinExtras # QtWin::fromHICON(), QtWin::toHICON()
+            ws2_32 # gethostname()
+   )
+endif ()
 
 ecm_generate_export_header(KF5WindowSystem
     BASE_NAME KWindowSystem
@@ -101,7 +120,6 @@ target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${KDE_
 
 target_link_libraries(KF5WindowSystem
     PUBLIC Qt5::Gui
-    PRIVATE ${platformLinkLibraries}
 )
 if(NOT KWINDOWSYSTEM_NO_WIDGETS)
     target_link_libraries(KF5WindowSystem PUBLIC Qt5::Widgets)

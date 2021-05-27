@@ -1,9 +1,10 @@
-set(wayland_plugin_SRCS
+add_library(KF5WindowSystemWaylandPlugin MODULE)
+
+target_sources(KF5WindowSystemWaylandPlugin PRIVATE
     kwindowsystem.cpp
     plugin.cpp
 )
 
-add_library(KF5WindowSystemWaylandPlugin MODULE ${wayland_plugin_SRCS})
 target_link_libraries(KF5WindowSystemWaylandPlugin
     KF5WindowSystem
 )
