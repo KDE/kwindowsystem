@@ -772,3 +772,24 @@ bool KWindowSystem::isPlatformWayland()
 {
     return platform() == Platform::Wayland;
 }
+
+void KWindowSystem::requestXdgActivationToken(QWindow *win, uint32_t serial, const QString &app_id)
+{
+    Q_D(KWindowSystem);
+    auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(d);
+    if (!dv2) {
+        Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
+        return;
+    }
+    dv2->requestToken(win, serial, app_id);
+}
+
+void KWindowSystem::setCurrentXdgActivationToken(const QString &token)
+{
+    Q_D(KWindowSystem);
+    auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(d);
+    if (!dv2) {
+        return;
+    }
+    dv2->setCurrentToken(token);
+}
