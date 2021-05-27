@@ -23,6 +23,10 @@
 #include <xcb/xcb_keysyms.h>
 # define X11_ONLY(arg) arg, //allows to omit an argument
 
+#include <QDBusMessage>
+#include <QDBusConnection>
+#include <QDBusPendingCall>
+
 // #define KKEYSERVER_DEBUG 1
 
 namespace KKeyServer
@@ -955,6 +959,15 @@ bool xcbKeyPressEventToQt(xcb_key_press_event_t *e, int *keyQt)
             keySymX = keySym1;
     } else {
         keySymX = keySym0;
+    }
+
+    if (keySymX == XK_ISO_Next_Group) {
+        QDBusMessage msg = QDBusMessage::createMethodCall(QStringLiteral("org.kde.plasmashell"),
+                                                          QStringLiteral("/org/kde/osdService"),
+                                                          QStringLiteral("org.kde.osdService"),
+                                                          QStringLiteral("kbdLayoutChanged"));
+        msg << QStringLiteral("layout switch");
+        QDBusConnection::sessionBus().asyncCall(msg);
     }
 
     bool ok = KKeyServer::symXModXToKeyQt(keySymX, keyModX, keyQt);

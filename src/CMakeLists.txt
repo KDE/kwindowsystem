@@ -56,7 +56,7 @@ if (KWINDOWSYSTEM_HAVE_X11)
    if(NOT X11_Xfixes_LIB)
       message(FATAL_ERROR "The XFixes library could not be found. Please install the development package for it.")
    endif()
-   set(platformLinkLibraries Qt5::X11Extras ${X11_LIBRARIES} ${X11_Xfixes_LIB} ${X11_Xrender_LIB} ${XCB_XCB_LIBRARY} ${XCB_KEYSYMS_LIBRARY})
+   set(platformLinkLibraries Qt5::X11Extras Qt::DBus ${X11_LIBRARIES} ${X11_Xfixes_LIB} ${X11_Xrender_LIB} ${XCB_XCB_LIBRARY} ${XCB_KEYSYMS_LIBRARY})
    set(kwindowsystem_SRCS ${kwindowsystem_SRCS} platforms/xcb/kkeyserver.cpp
                                                 platforms/xcb/kxmessages.cpp
                                                 platforms/xcb/netwm.cpp )
