@@ -18,7 +18,7 @@ class PlasmaShell;
 }
 }
 
-class WindowSystem : public QObject, public KWindowSystemPrivate
+class WindowSystem : public QObject, public KWindowSystemPrivateV2
 {
     Q_OBJECT
 public:
@@ -29,6 +29,9 @@ public:
     void activateWindow(WId win, long time) override;
     void forceActiveWindow(WId win, long time) override;
     void demandAttention(WId win, bool set) override;
+    void requestToken(QWindow *win, uint32_t serial, const QString &app_id) override;
+    quint32 lastInputSerial(QWindow *window) override;
+    void setCurrentToken(const QString & token) override;
     bool compositingActive() override;
     int currentDesktop() override;
     int numberOfDesktops() override;
@@ -70,11 +73,11 @@ public:
     int viewportWindowToDesktop(const QRect &r) override;
     QPoint desktopToViewport(int desktop, bool absolute) override;
     QPoint constrainViewportRelativePosition(const QPoint &pos) override;
-
     void connectNotify(const QMetaMethod &signal) override;
 
 private:
     KWayland::Client::PlasmaShell *m_waylandPlasmaShell = nullptr;
+    QString m_lastToken;
 };
 
 #endif

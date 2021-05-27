@@ -6,6 +6,7 @@
 #include "windowsystem.h"
 #include "waylandintegration.h"
 #include "logging.h"
+#include "waylandxdgactivationv1_p.h"
 
 #include <KWindowSystem/KWindowSystem>
 
@@ -13,32 +14,72 @@
 #include <KWayland/Client/plasmawindowmanagement.h>
 #include <KWayland/Client/registry.h>
 #include <KWayland/Client/plasmashell.h>
+#include <KWayland/Client/seat.h>
 #include <KWayland/Client/surface.h>
 
 #include <QPixmap>
 #include <QPoint>
 #include <QString>
+#include <QWindow>
+#include <private/qwaylanddisplay_p.h>
+#include <private/qwaylandwindow_p.h>
+#include <private/qwaylandinputdevice_p.h>
 
 using namespace KWayland::Client;
 
 WindowSystem::WindowSystem()
     : QObject()
-    , KWindowSystemPrivate()
+    , KWindowSystemPrivateV2()
+    , m_lastToken(qEnvironmentVariable("XDG_ACTIVATION_TOKEN"))
 {
 }
 
 void WindowSystem::activateWindow(WId win, long int time)
 {
-    Q_UNUSED(win)
-    Q_UNUSED(time)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support force activating windows";
+    Q_UNUSED(time);
+    Surface *s = Surface::fromQtWinId(win);
+    if (!s) {
+        return;
+    }
+    WaylandIntegration::self()->activation()->activate(m_lastToken, *s);
 }
 
 void WindowSystem::forceActiveWindow(WId win, long int time)
 {
-    Q_UNUSED(win)
-    Q_UNUSED(time)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support force activating windows";
+    activateWindow(win, time);
+}
+
+void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString &app_id)
+{
+    Surface *s = Surface::fromWindow(window);
+    auto waylandWindow = dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle());
+    if (!s || !waylandWindow) {
+        Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
+        return;
+    }
+    auto device = waylandWindow->display()->defaultInputDevice();
+    auto tokenReq = WaylandIntegration::self()->activation()->requestXdgActivationToken(device->wl_seat(), *s, serial, app_id);
+    connect(tokenReq, &WaylandXdgActivationTokenV1::failed, KWindowSystem::self(), [serial] () {
+        Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
+    });
+    connect(tokenReq, &WaylandXdgActivationTokenV1::done, KWindowSystem::self(), [serial] (const QString &token) {
+        Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, token);
+    });
+}
+
+void WindowSystem::setCurrentToken(const QString &token)
+{
+    m_lastToken = token;
+}
+
+quint32 WindowSystem::lastInputSerial(QWindow *window)
+{
+    auto waylandWindow = dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle());
+    if (!waylandWindow) {
+        // Should never get here
+        return 0;
+    }
+    return waylandWindow->display()->lastInputSerial();
 }
 
 WId WindowSystem::activeWindow()

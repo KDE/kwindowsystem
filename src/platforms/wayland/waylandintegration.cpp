@@ -25,6 +25,7 @@
 #include <KWindowSystem/KWindowSystem>
 
 #include <QGuiApplication>
+#include "waylandxdgactivationv1_p.h"
 
 class WaylandIntegrationSingleton
 {
@@ -52,6 +53,12 @@ void WaylandIntegration::setupKWaylandIntegration()
         return;
     }
     m_registry = new Registry(qApp);
+    connect(m_registry, &KWayland::Client::Registry::interfaceAnnounced, this, [this] (const QByteArray &interfaceName, quint32 name, quint32 version) {
+        if (interfaceName != xdg_activation_v1_interface.name)
+            return;
+
+        m_activationInterface = { name, version };
+    });
     m_registry->create(m_waylandConnection);
     m_waylandCompositor = Compositor::fromApplication(this);
 
@@ -63,7 +70,6 @@ WaylandIntegration *WaylandIntegration::self()
 {
     return &privateWaylandIntegrationSelf()->self;
 }
-
 
 KWayland::Client::ConnectionThread *WaylandIntegration::waylandConnection() const
 {
@@ -218,4 +224,12 @@ KWayland::Client::ShmPool *WaylandIntegration::waylandShmPool()
     }
 
     return m_waylandShmPool;
+}
+
+WaylandXdgActivationV1 *WaylandIntegration::activation()
+{
+    if (!m_activation && m_registry && m_activationInterface.name) {
+        m_activation = new WaylandXdgActivationV1(*m_registry, m_activationInterface.name, m_activationInterface.version);
+    }
+    return m_activation;
 }

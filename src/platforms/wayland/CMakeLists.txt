@@ -6,6 +6,12 @@ set(wayland_plugin_SRCS
     windowinfo.cpp
     windowshadow.cpp
     windowsystem.cpp
+    waylandxdgactivationv1.cpp
+)
+
+ecm_add_qtwayland_client_protocol(wayland_plugin_SRCS
+    PROTOCOL ${WaylandProtocols_DATADIR}/staging/xdg-activation/xdg-activation-v1.xml
+    BASENAME xdg-activation-v1
 )
 ecm_qt_declare_logging_category(wayland_plugin_SRCS HEADER logging.h IDENTIFIER KWAYLAND_KWS
     CATEGORY_NAME org.kde.kf5.kwindowsystem.kwayland DEFAULT_SEVERITY Warning
@@ -17,6 +23,8 @@ target_link_libraries(KF5WindowSystemKWaylandPlugin
     KF5::WindowSystem
     KF5::WaylandClient
     Qt::Widgets
+    Wayland::Client
+    Qt::WaylandClient Qt::WaylandClientPrivate Qt::XkbCommonSupportPrivate
 )
 
 install(

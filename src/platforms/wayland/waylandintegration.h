@@ -27,6 +27,7 @@ namespace KWayland
         class SlideManager;
     }
 }
+class WaylandXdgActivationV1;
 
 class WaylandIntegration : public QObject
 {
@@ -46,6 +47,7 @@ public:
     KWayland::Client::PlasmaWindowManagement *plasmaWindowManagement();
     KWayland::Client::PlasmaShell *waylandPlasmaShell();
     KWayland::Client::ShmPool *waylandShmPool();
+    WaylandXdgActivationV1 *activation();
 
 private:
     QPointer<KWayland::Client::ConnectionThread> m_waylandConnection;
@@ -58,6 +60,8 @@ private:
     QPointer<KWayland::Client::PlasmaWindowManagement> m_wm;
     QPointer<KWayland::Client::PlasmaShell> m_waylandPlasmaShell;
     QPointer<KWayland::Client::ShmPool> m_waylandShmPool;
+    QPointer<WaylandXdgActivationV1> m_activation;
+    struct { quint32 name = 0; quint32 version = 0; } m_activationInterface;
 };
 
 #endif
