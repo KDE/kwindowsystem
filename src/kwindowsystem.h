@@ -659,6 +659,7 @@ public:
      * @p serial of the event that triggered the request
      * @p app_id identifier of the application that we are launching
      *
+     * @see currentSerial
      * @since 5.83
      */
     static void requestXdgActivationToken(QWindow *win, uint32_t serial, const QString &app_id);
@@ -669,6 +670,15 @@ public:
      * @since 5.83
      */
     static void setCurrentXdgActivationToken(const QString &token);
+
+    /**
+     * Offers the seat's current serial
+     *
+     * This will mostly be useful on wayland sessions.
+     *
+     * @since 5.83
+     */
+    static quint32 lastInputSerial(QWindow *window);
 
 Q_SIGNALS:
 

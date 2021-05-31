@@ -84,6 +84,7 @@ class KWINDOWSYSTEM_EXPORT KWindowSystemPrivateV2 : public KWindowSystemPrivate
 public:
     virtual void requestToken(QWindow *win, uint32_t serial, const QString &app_id) = 0;
     virtual void setCurrentToken(const QString &token) = 0;
+    virtual quint32 lastInputSerial(QWindow *window) = 0;
 };
 
 #endif

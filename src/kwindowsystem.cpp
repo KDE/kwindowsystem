@@ -793,3 +793,13 @@ void KWindowSystem::setCurrentXdgActivationToken(const QString &token)
     }
     dv2->setCurrentToken(token);
 }
+
+quint32 KWindowSystem::lastInputSerial(QWindow *window)
+{
+    Q_D(KWindowSystem);
+    auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(d);
+    if (!dv2) {
+        return 0;
+    }
+    return dv2->lastInputSerial(window);
+}
