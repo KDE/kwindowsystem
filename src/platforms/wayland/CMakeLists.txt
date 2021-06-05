@@ -17,6 +17,7 @@ ecm_qt_declare_logging_category(wayland_plugin_SRCS HEADER logging.h IDENTIFIER 
     CATEGORY_NAME org.kde.kf5.kwindowsystem.kwayland DEFAULT_SEVERITY Warning
     DESCRIPTION "wayland integration (windowsystem)" EXPORT KWAYLAND)
 
+pkg_check_modules(XKBCommon REQUIRED IMPORTED_TARGET xkbcommon)
 
 add_library(KF5WindowSystemKWaylandPlugin MODULE ${wayland_plugin_SRCS})
 target_link_libraries(KF5WindowSystemKWaylandPlugin
@@ -24,7 +25,10 @@ target_link_libraries(KF5WindowSystemKWaylandPlugin
     KF5::WaylandClient
     Qt::Widgets
     Wayland::Client
-    Qt::WaylandClient Qt::WaylandClientPrivate Qt::XkbCommonSupportPrivate
+    Qt::WaylandClient
+    Qt::WaylandClientPrivate
+    Qt::XkbCommonSupportPrivate
+    PkgConfig::XKBCommon
 )
 
 install(
