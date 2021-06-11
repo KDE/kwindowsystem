@@ -52,14 +52,10 @@ void WindowSystem::forceActiveWindow(WId win, long int time)
 void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString &app_id)
 {
     Surface *s = Surface::fromWindow(window);
-    auto waylandWindow = dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle());
-    if (!s || !waylandWindow) {
-        Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
-        return;
-    }
-    auto device = waylandWindow->display()->defaultInputDevice();
-    auto tokenReq = WaylandIntegration::self()->activation()->requestXdgActivationToken(device->wl_seat(), *s, serial, app_id);
-    connect(tokenReq, &WaylandXdgActivationTokenV1::failed, KWindowSystem::self(), [serial] () {
+    auto waylandWindow = window ? dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle()) : nullptr;
+    auto seat = waylandWindow ? waylandWindow->display()->defaultInputDevice()->wl_seat() : nullptr;
+    auto tokenReq = WaylandIntegration::self()->activation()->requestXdgActivationToken(seat, s ? *s : nullptr, serial, app_id);
+    connect(tokenReq, &WaylandXdgActivationTokenV1::failed, KWindowSystem::self(), [serial, app_id] () {
         Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
     });
     connect(tokenReq, &WaylandXdgActivationTokenV1::done, KWindowSystem::self(), [serial] (const QString &token) {
@@ -74,7 +70,7 @@ void WindowSystem::setCurrentToken(const QString &token)
 
 quint32 WindowSystem::lastInputSerial(QWindow *window)
 {
-    auto waylandWindow = dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle());
+    auto waylandWindow = window ? dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle()) : nullptr;
     if (!waylandWindow) {
         // Should never get here
         return 0;
