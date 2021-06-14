@@ -51,10 +51,11 @@ void WindowSystem::forceActiveWindow(WId win, long int time)
 
 void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString &app_id)
 {
-    Surface *s = Surface::fromWindow(window);
+    Surface *surface = Surface::fromWindow(window);
+    wl_surface *wlSurface = surface ? *surface : nullptr;
     auto waylandWindow = window ? dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle()) : nullptr;
     auto seat = waylandWindow ? waylandWindow->display()->defaultInputDevice()->wl_seat() : nullptr;
-    auto tokenReq = WaylandIntegration::self()->activation()->requestXdgActivationToken(seat, s ? *s : nullptr, serial, app_id);
+    auto tokenReq = WaylandIntegration::self()->activation()->requestXdgActivationToken(seat, wlSurface, serial, app_id);
     connect(tokenReq, &WaylandXdgActivationTokenV1::failed, KWindowSystem::self(), [serial, app_id] () {
         Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
     });
