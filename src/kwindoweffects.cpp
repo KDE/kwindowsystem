@@ -6,7 +6,6 @@
 
 #include "kwindoweffects_p.h"
 #include "pluginwrapper_p.h"
-#include <QGuiApplication>
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 62)
 #include <QWidget>
 #endif

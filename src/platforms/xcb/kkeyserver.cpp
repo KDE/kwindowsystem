@@ -11,7 +11,6 @@
 #include "kkeyserver_x11.h"
 
 #include "platforms/xcb/kwindowsystem_xcb_debug.h"
-#include <QDebug>
 
 #include <QX11Info>
 #define XK_MISCELLANY

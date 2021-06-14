@@ -13,7 +13,6 @@
 
 #include "kwindowinfo_dummy_p.h"
 
-#include <QGuiApplication>
 #include <QRect>
 
 // private

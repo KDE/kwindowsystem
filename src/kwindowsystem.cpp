@@ -19,7 +19,6 @@
 #endif
 #include <QWindow>
 #if KWINDOWSYSTEM_HAVE_X11
-#include <QX11Info>
 #endif
 
 // QPoint and QSize all have handy / operators which are useful for scaling, positions and sizes for high DPI support

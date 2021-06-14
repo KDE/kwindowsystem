@@ -7,7 +7,6 @@
 #ifndef KXMESSAGES_H
 #define KXMESSAGES_H
 
-#include <QMap>
 #include <QObject>
 #include <kwindowsystem_export.h>
 

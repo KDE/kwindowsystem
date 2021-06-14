@@ -9,7 +9,6 @@
 
 #include "config-kwindowsystem.h"
 #include "kwindowsystem.h"
-#include <QGuiApplication>
 
 #if KWINDOWSYSTEM_HAVE_X11
 #include <QX11Info>

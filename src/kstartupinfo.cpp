@@ -39,7 +39,6 @@
 #include <process.h>
 #include <winsock2.h>
 #endif
-#include <QActionEvent>
 #include <QTimer>
 #include <stdlib.h>
 #if KWINDOWSYSTEM_HAVE_X11

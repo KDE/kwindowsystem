@@ -16,8 +16,6 @@
 #include <kxutils_p.h>
 // clang-format on
 
-#include <QBitmap>
-#include <QDebug>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QMetaMethod>

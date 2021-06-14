@@ -10,7 +10,7 @@
 #include <config-kwindowsystem.h>
 
 #include <QAbstractNativeEventFilter>
-#include <QGuiApplication>
+#include <QCoreApplication>
 
 #include <qx11info_x11.h>
 

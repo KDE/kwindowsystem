@@ -11,9 +11,7 @@
 #include "kwindowsystemplugininterface_p.h"
 #include "pluginwrapper_p.h"
 
-#include <QDebug>
 #include <QDir>
-#include <QGlobalStatic>
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QLibrary>
