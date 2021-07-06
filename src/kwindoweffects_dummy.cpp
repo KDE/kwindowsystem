@@ -89,3 +89,10 @@ void KWindowEffectsPrivateDummy::markAsDashboard(WId window)
     Q_UNUSED(window)
 }
 #endif
+
+void KWindowEffectsPrivateDummy::setBackgroundFrost(QWindow *window, std::optional<QColor> color, const QRegion &region)
+{
+    Q_UNUSED(window)
+    Q_UNUSED(color)
+    Q_UNUSED(region)
+}

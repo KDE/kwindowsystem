@@ -19,6 +19,14 @@ KWindowEffectsPrivate::~KWindowEffectsPrivate()
 {
 }
 
+KWindowEffectsPrivateV2::~KWindowEffectsPrivateV2()
+{
+}
+
+KWindowEffectsPrivateV2::KWindowEffectsPrivateV2() : KWindowEffectsPrivate()
+{
+}
+
 namespace KWindowEffects
 {
 bool isEffectAvailable(Effect effect)
@@ -48,6 +56,14 @@ void enableBlurBehind(QWindow *window, bool enable, const QRegion &region)
 void enableBackgroundContrast(QWindow *window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
 {
     KWindowSystemPluginWrapper::self().effects()->enableBackgroundContrast(window->winId(), enable, contrast, intensity, saturation, region);
+}
+
+void setBackgroundFrost(QWindow *window, std::optional<QColor> frostColor, const QRegion &region)
+{
+    auto effects = KWindowSystemPluginWrapper::self().effects();
+    if (auto effectsv2 = dynamic_cast<KWindowEffectsPrivateV2*>(effects)) {
+        effectsv2->setBackgroundFrost(window, frostColor, region);
+    }
 }
 
 void slideWindow(QWindow *window, SlideFromLocation location, int offset)

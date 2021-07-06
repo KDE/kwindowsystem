@@ -14,6 +14,7 @@
 #include <config-kwindowsystem.h>
 
 #include <QMatrix4x4>
+#include <QWindow>
 #include <QX11Info>
 #include <xcb/xcb.h>
 
@@ -263,6 +264,40 @@ void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const Q
     }
 }
 
+void KWindowEffectsPrivateX11::setBackgroundFrost(QWindow *window, std::optional<QColor> color, const QRegion &region)
+{
+    auto id = window->winId();
+
+    xcb_connection_t *c = QX11Info::connection();
+    const QByteArray effectName = QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_FROST_REGION");
+    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
+    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
+    if (!atom) {
+        return;
+    }
+
+    if (!color.has_value()) {
+        xcb_delete_property(c, id, atom->atom);
+        return;
+    }
+
+    enableBackgroundContrast(id, false);
+
+    QVector<uint32_t> data;
+    data.reserve(region.rectCount() * 4 + 16);
+    for (const QRect &r : region) {
+        auto dpr = qApp->devicePixelRatio();
+        data << r.x() * dpr << r.y() * dpr << r.width() * dpr << r.height() * dpr;
+    }
+
+    data << color->red();
+    data << color->green();
+    data << color->blue();
+    data << color->alpha();
+
+    xcb_change_property(c, XCB_PROP_MODE_REPLACE, id, atom->atom, atom->atom, 32, data.size(), data.constData());
+}
+
 void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
 {
     xcb_connection_t *c = QX11Info::connection();
@@ -274,6 +309,7 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
     }
 
     if (enable) {
+        setBackgroundFrost(QWindow::fromWinId(window), {});
         QVector<uint32_t> data;
         data.reserve(region.rectCount() * 4 + 16);
         for (const QRect &r : region) {
