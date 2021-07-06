@@ -8,9 +8,11 @@
 #define KWINDOWEFFECTS_H
 
 #include "kwindowsystem_export.h"
+#include <optional>
 
 #include <QWidgetList> // for WId, etc.
 
+#include <QColor>
 #include <QRegion>
 #include <netwm_def.h>
 
@@ -247,6 +249,8 @@ KWINDOWSYSTEM_EXPORT void enableBlurBehind(QWindow *window, bool enable = true, 
  */
 KWINDOWSYSTEM_EXPORT void
 enableBackgroundContrast(QWindow *window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());
+
+KWINDOWSYSTEM_EXPORT void setBackgroundFrost(QWindow *window, std::optional<QColor> frostColor, const QRegion &region = QRegion());
 
 /**
  * Mark a window as sliding from screen edge

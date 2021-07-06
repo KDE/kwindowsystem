@@ -8,7 +8,7 @@
 #define KWINDOWEFFECTS_X11_H
 #include "kwindoweffects_p.h"
 
-class KWindowEffectsPrivateX11 : public KWindowEffectsPrivate
+class KWindowEffectsPrivateX11 : public KWindowEffectsPrivateV2
 {
 public:
     KWindowEffectsPrivateX11();
@@ -30,6 +30,7 @@ public:
                                   qreal intensity = 1,
                                   qreal saturation = 1,
                                   const QRegion &region = QRegion()) override;
+    void setBackgroundFrost(QWindow *window, std::optional<QColor> color, const QRegion &region = QRegion()) override;
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
     void markAsDashboard(WId window) override;
 #endif

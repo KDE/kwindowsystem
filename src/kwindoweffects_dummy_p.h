@@ -8,7 +8,7 @@
 #define KWINDOWEFFECTS_DUMMY_P_H
 #include "kwindoweffects_p.h"
 
-class KWindowEffectsPrivateDummy : public KWindowEffectsPrivate
+class KWindowEffectsPrivateDummy : public KWindowEffectsPrivateV2
 {
 public:
     KWindowEffectsPrivateDummy();
@@ -30,6 +30,7 @@ public:
                                   qreal intensity = 1,
                                   qreal saturation = 1,
                                   const QRegion &region = QRegion()) override;
+    void setBackgroundFrost(QWindow *window, std::optional<QColor> color, const QRegion &region = QRegion()) override;
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
     void markAsDashboard(WId window) override;
 #endif
