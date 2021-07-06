@@ -26,7 +26,7 @@
 
 WindowEffects::WindowEffects()
     : QObject()
-    , KWindowEffectsPrivate()
+    ,  KWindowEffectsPrivateV2()
 {
 }
 
@@ -261,6 +261,29 @@ void WindowEffects::enableBackgroundContrast(QWindow *window, bool enable, qreal
 
         WaylandIntegration::self()->waylandConnection()->flush();
     }
+}
+
+void WindowEffects::setBackgroundFrost(QWindow *window, QColor color, const QRegion &region)
+{
+    if (!WaylandIntegration::self()->waylandContrastManager()) {
+        return;
+    }
+
+    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
+    if (!surface) {
+        return;
+    }
+    if (!color.isValid()) {
+        WaylandIntegration::self()->waylandContrastManager()->removeContrast(surface);
+        return;
+    }
+
+    auto backgroundContrast = WaylandIntegration::self()->waylandContrastManager()->createContrast(surface, surface);
+    backgroundContrast->setRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
+    backgroundContrast->setFrost(color);
+    backgroundContrast->commit();
+
+    WaylandIntegration::self()->waylandConnection()->flush();
 }
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)

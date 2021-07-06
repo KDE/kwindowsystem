@@ -22,7 +22,7 @@ class ConnectionThread;
 }
 }
 
-class WindowEffects : public QObject, public KWindowEffectsPrivate
+class WindowEffects : public QObject, public KWindowEffectsPrivateV2
 {
     Q_OBJECT
 public:
@@ -59,6 +59,7 @@ public:
                                   qreal intensity = 1,
                                   qreal saturation = 1,
                                   const QRegion &region = QRegion());
+    void setBackgroundFrost(QWindow *window, QColor color, const QRegion &region = QRegion()) override;
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
     void markAsDashboard(WId window) override;
 #endif
