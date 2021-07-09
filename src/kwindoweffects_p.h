@@ -39,8 +39,8 @@ protected:
 class KWINDOWSYSTEM_EXPORT KWindowEffectsPrivateV2 : public KWindowEffectsPrivate
 {
 public:
-    virtual ~KWindowEffectsPrivateV2();
-    virtual void setBackgroundFrost(QWindow *window, std::optional<QColor> color, const QRegion &region = QRegion()) = 0;
+    virtual void setBackgroundFrost(QWindow *window, QColor color, const QRegion &region = QRegion()) = 0;
+
 protected:
     KWindowEffectsPrivateV2();
 };

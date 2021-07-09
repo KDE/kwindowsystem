@@ -19,11 +19,8 @@ KWindowEffectsPrivate::~KWindowEffectsPrivate()
 {
 }
 
-KWindowEffectsPrivateV2::~KWindowEffectsPrivateV2()
-{
-}
-
-KWindowEffectsPrivateV2::KWindowEffectsPrivateV2() : KWindowEffectsPrivate()
+KWindowEffectsPrivateV2::KWindowEffectsPrivateV2()
+    : KWindowEffectsPrivate()
 {
 }
 
@@ -58,10 +55,10 @@ void enableBackgroundContrast(QWindow *window, bool enable, qreal contrast, qrea
     KWindowSystemPluginWrapper::self().effects()->enableBackgroundContrast(window->winId(), enable, contrast, intensity, saturation, region);
 }
 
-void setBackgroundFrost(QWindow *window, std::optional<QColor> frostColor, const QRegion &region)
+void setBackgroundFrost(QWindow *window, QColor frostColor, const QRegion &region)
 {
     auto effects = KWindowSystemPluginWrapper::self().effects();
-    if (auto effectsv2 = dynamic_cast<KWindowEffectsPrivateV2*>(effects)) {
+    if (auto effectsv2 = dynamic_cast<KWindowEffectsPrivateV2 *>(effects)) {
         effectsv2->setBackgroundFrost(window, frostColor, region);
     }
 }

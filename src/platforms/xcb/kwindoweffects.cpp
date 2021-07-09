@@ -264,7 +264,7 @@ void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const Q
     }
 }
 
-void KWindowEffectsPrivateX11::setBackgroundFrost(QWindow *window, std::optional<QColor> color, const QRegion &region)
+void KWindowEffectsPrivateX11::setBackgroundFrost(QWindow *window, QColor color, const QRegion &region)
 {
     auto id = window->winId();
 
@@ -276,7 +276,7 @@ void KWindowEffectsPrivateX11::setBackgroundFrost(QWindow *window, std::optional
         return;
     }
 
-    if (!color.has_value()) {
+    if (!color.isValid()) {
         xcb_delete_property(c, id, atom->atom);
         return;
     }
@@ -284,16 +284,16 @@ void KWindowEffectsPrivateX11::setBackgroundFrost(QWindow *window, std::optional
     enableBackgroundContrast(id, false);
 
     QVector<uint32_t> data;
-    data.reserve(region.rectCount() * 4 + 16);
+    data.reserve(region.rectCount() * 4 + 4);
     for (const QRect &r : region) {
         auto dpr = qApp->devicePixelRatio();
         data << r.x() * dpr << r.y() * dpr << r.width() * dpr << r.height() * dpr;
     }
 
-    data << color->red();
-    data << color->green();
-    data << color->blue();
-    data << color->alpha();
+    data << color.red();
+    data << color.green();
+    data << color.blue();
+    data << color.alpha();
 
     xcb_change_property(c, XCB_PROP_MODE_REPLACE, id, atom->atom, atom->atom, 32, data.size(), data.constData());
 }

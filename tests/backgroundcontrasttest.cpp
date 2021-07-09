@@ -9,6 +9,9 @@
 
 #include <QApplication>
 #include <QColorDialog>
+#include <QDebug>
+#include <QPaintEvent>
+#include <QPainter>
 #include <QPushButton>
 #include <QScopeGuard>
 #include <QSlider>
@@ -31,10 +34,13 @@ private:
     QPushButton *m_btnEllipse;
 
     QPushButton *m_frost;
-    std::optional<QColor> m_frostColor;
+    QColor m_frostColor;
 
     QPushButton *m_blur;
     bool m_doBlur;
+
+    QPushButton *m_bg;
+    QColor m_bgColour;
 
     QSlider *m_contSlider;
     QSlider *m_intSlider;
@@ -47,8 +53,6 @@ private:
 
     enum { Nothing, FullWindow, Rect, Ellipse } m_state;
 
-    void setWindowAlpha(int alpha);
-
     void disableContrast();
     void enableContrast();
     void enableContrastRect();
@@ -57,6 +61,18 @@ private:
     void updateIntensity(int contrast);
     void updateSaturation(int contrast);
     void update();
+
+    void paintEvent(QPaintEvent *event) override
+    {
+        Q_UNUSED(event)
+
+        QPainter p(this);
+        p.setPen(Qt::transparent);
+        p.setBrush(m_bgColour);
+        p.drawRect(this->rect());
+
+        QWidget::paintEvent(event);
+    }
 };
 
 ContrastTestWindow::ContrastTestWindow()
@@ -65,9 +81,9 @@ ContrastTestWindow::ContrastTestWindow()
     m_contrast = 1;
     m_intensity = 1;
     m_saturation = 1;
+    m_bgColour = Qt::transparent;
     setAttribute(Qt::WA_TranslucentBackground);
-    setAttribute(Qt::WA_NoSystemBackground, false);
-    setWindowAlpha(92);
+    setAttribute(Qt::WA_NoSystemBackground, true);
 
     m_btnNothing = new QPushButton("Nothing");
     m_btnFullWindow = new QPushButton("Full window");
@@ -77,12 +93,21 @@ ContrastTestWindow::ContrastTestWindow()
     m_frost->setCheckable(true);
     m_blur = new QPushButton("Enable Blur");
     m_blur->setCheckable(true);
+    m_bg = new QPushButton("Set Background Colour...");
+    connect(m_bg, &QPushButton::pressed, this, [this]() {
+        m_bgColour = QColorDialog::getColor(Qt::white, nullptr, "pick colour", QColorDialog::ShowAlphaChannel);
+
+        repaint();
+    });
 
     connect(m_frost, &QPushButton::toggled, this, [this](bool checked) {
         m_frost->setText(checked ? "Disable Frost" : "Enable Frost");
 
         if (!checked) {
-            m_frostColor = {};
+            m_frostColor = QColor();
+
+            update();
+
             return;
         }
 
@@ -135,6 +160,7 @@ ContrastTestWindow::ContrastTestWindow()
     layout->addWidget(m_area);
     layout->addWidget(m_frost);
     layout->addWidget(m_blur);
+    layout->addWidget(m_bg);
 
     winId(); // force creation of the associated window
 }
@@ -170,9 +196,10 @@ void ContrastTestWindow::update()
 
     KWindowEffects::enableBlurBehind(windowHandle(), m_doBlur, region);
 
-    if (!m_frostColor) {
+    if (!m_frostColor.isValid()) {
         KWindowEffects::enableBackgroundContrast(windowHandle(), true, m_contrast, m_intensity, m_saturation, region);
     } else {
+        qWarning() << "frost color";
         KWindowEffects::setBackgroundFrost(windowHandle(), m_frostColor, region);
     }
 
@@ -228,15 +255,6 @@ void ContrastTestWindow::updateSaturation(int contrast)
 void ContrastTestWindow::resizeEvent(QResizeEvent *)
 {
     update();
-}
-
-void ContrastTestWindow::setWindowAlpha(int alpha)
-{
-    QPalette pal = this->palette();
-    QColor windowColor = pal.color(QPalette::Window);
-    windowColor.setAlpha(alpha);
-    pal.setColor(QPalette::Window, windowColor);
-    this->setPalette(pal);
 }
 
 int main(int argc, char **argv)
