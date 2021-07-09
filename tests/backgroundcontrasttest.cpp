@@ -5,8 +5,12 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
+#include <optional>
+
 #include <QApplication>
+#include <QColorDialog>
 #include <QPushButton>
+#include <QScopeGuard>
 #include <QSlider>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -25,6 +29,9 @@ private:
     QPushButton *m_btnFullWindow;
     QPushButton *m_btnRect;
     QPushButton *m_btnEllipse;
+
+    QPushButton *m_frost;
+    std::optional<QColor> m_frostColor;
 
     QSlider *m_contSlider;
     QSlider *m_intSlider;
@@ -46,6 +53,7 @@ private:
     void updateContrast(int contrast);
     void updateIntensity(int contrast);
     void updateSaturation(int contrast);
+    void update();
 };
 
 ContrastTestWindow::ContrastTestWindow()
@@ -62,6 +70,20 @@ ContrastTestWindow::ContrastTestWindow()
     m_btnFullWindow = new QPushButton("Full window");
     m_btnRect = new QPushButton("Rectangle");
     m_btnEllipse = new QPushButton("Ellipse");
+    m_frost = new QPushButton("Enable Frost");
+
+    connect(m_frost, &QPushButton::toggled, this, [this](bool checked) {
+        m_frost->setText(checked ? "Disable Frost" : "Enable Frost");
+
+        if (!checked) {
+            m_frostColor = {};
+            return;
+        }
+
+        m_frostColor = QColorDialog::getColor();
+
+        update();
+    });
 
     m_contSlider = new QSlider();
     m_contSlider->setMaximum(200);
@@ -99,101 +121,97 @@ ContrastTestWindow::ContrastTestWindow()
     layout->addWidget(m_intSlider);
     layout->addWidget(m_satSlider);
     layout->addWidget(m_area);
+    layout->addWidget(m_frost);
 
     winId(); // force creation of the associated window
+}
+
+void ContrastTestWindow::update()
+{
+    const auto s = qScopeGuard([this]() {
+        repaint();
+    });
+
+    if (m_state == Nothing) {
+        KWindowEffects::enableBackgroundContrast(windowHandle(), false);
+    }
+
+    const auto region = ({
+        auto reg = QRegion();
+
+        switch (m_state) {
+        case Nothing:
+        case FullWindow:
+            break;
+        case Rect:
+            reg = m_area->geometry();
+            break;
+        case Ellipse:
+            reg = QRegion(m_area->geometry(), QRegion::Ellipse);
+            break;
+        }
+
+        reg;
+    });
+
+    if (!m_frostColor) {
+        KWindowEffects::enableBackgroundContrast(windowHandle(), true, m_contrast, m_intensity, m_saturation, region);
+    } else {
+        KWindowEffects::setBackgroundFrost(windowHandle(), m_frostColor, region);
+    }
+
+    repaint();
 }
 
 void ContrastTestWindow::disableContrast()
 {
     m_state = Nothing;
-    KWindowEffects::enableBackgroundContrast(windowHandle(), false);
-    repaint();
+
+    update();
 }
 void ContrastTestWindow::enableContrast()
 {
     m_state = FullWindow;
-    KWindowEffects::enableBackgroundContrast(windowHandle(), true, m_contrast, m_intensity, m_saturation);
-    repaint();
+
+    update();
 }
 void ContrastTestWindow::enableContrastRect()
 {
     m_state = Rect;
-    QRegion rgn(m_area->geometry());
-    KWindowEffects::enableBackgroundContrast(windowHandle(), true, m_contrast, m_intensity, m_saturation, rgn);
-    repaint();
+
+    update();
 }
 void ContrastTestWindow::enableContrastEllipse()
 {
     m_state = Ellipse;
-    QRegion rgn(m_area->geometry(), QRegion::Ellipse);
-    KWindowEffects::enableBackgroundContrast(windowHandle(), true, m_contrast, m_intensity, m_saturation, rgn);
-    repaint();
+
+    update();
 }
 
 void ContrastTestWindow::updateContrast(int contrast)
 {
     m_contrast = (qreal)contrast / 100;
 
-    switch (m_state) {
-    case FullWindow:
-        enableContrast();
-        break;
-    case Rect:
-        enableContrastRect();
-        break;
-    case Ellipse:
-        enableContrastEllipse();
-        break;
-    default:
-        break;
-    }
+    update();
 }
 
 void ContrastTestWindow::updateIntensity(int contrast)
 {
     m_intensity = (qreal)contrast / 100;
 
-    switch (m_state) {
-    case FullWindow:
-        enableContrast();
-        break;
-    case Rect:
-        enableContrastRect();
-        break;
-    case Ellipse:
-        enableContrastEllipse();
-        break;
-    default:
-        break;
-    }
+    update();
 }
 
 void ContrastTestWindow::updateSaturation(int contrast)
 {
     m_saturation = (qreal)contrast / 100;
 
-    switch (m_state) {
-    case FullWindow:
-        enableContrast();
-        break;
-    case Rect:
-        enableContrastRect();
-        break;
-    case Ellipse:
-        enableContrastEllipse();
-        break;
-    default:
-        break;
-    }
+    update();
 }
 
 void ContrastTestWindow::resizeEvent(QResizeEvent *)
 {
-    if (m_state == Rect) {
-        enableContrastRect();
-    } else if (m_state == Ellipse) {
-        enableContrastEllipse();
-    }
+    update();
 }
 
 void ContrastTestWindow::setWindowAlpha(int alpha)
