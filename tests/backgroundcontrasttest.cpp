@@ -33,6 +33,9 @@ private:
     QPushButton *m_frost;
     std::optional<QColor> m_frostColor;
 
+    QPushButton *m_blur;
+    bool m_doBlur;
+
     QSlider *m_contSlider;
     QSlider *m_intSlider;
     QSlider *m_satSlider;
@@ -71,6 +74,9 @@ ContrastTestWindow::ContrastTestWindow()
     m_btnRect = new QPushButton("Rectangle");
     m_btnEllipse = new QPushButton("Ellipse");
     m_frost = new QPushButton("Enable Frost");
+    m_frost->setCheckable(true);
+    m_blur = new QPushButton("Enable Blur");
+    m_blur->setCheckable(true);
 
     connect(m_frost, &QPushButton::toggled, this, [this](bool checked) {
         m_frost->setText(checked ? "Disable Frost" : "Enable Frost");
@@ -81,6 +87,12 @@ ContrastTestWindow::ContrastTestWindow()
         }
 
         m_frostColor = QColorDialog::getColor();
+
+        update();
+    });
+    connect(m_blur, &QPushButton::toggled, this, [this](bool checked) {
+        m_blur->setText(checked ? "Disable Blur" : "Enable Blur");
+        m_doBlur = checked;
 
         update();
     });
@@ -122,6 +134,7 @@ ContrastTestWindow::ContrastTestWindow()
     layout->addWidget(m_satSlider);
     layout->addWidget(m_area);
     layout->addWidget(m_frost);
+    layout->addWidget(m_blur);
 
     winId(); // force creation of the associated window
 }
@@ -134,6 +147,7 @@ void ContrastTestWindow::update()
 
     if (m_state == Nothing) {
         KWindowEffects::enableBackgroundContrast(windowHandle(), false);
+        KWindowEffects::enableBlurBehind(windowHandle(), false);
     }
 
     const auto region = ({
@@ -153,6 +167,8 @@ void ContrastTestWindow::update()
 
         reg;
     });
+
+    KWindowEffects::enableBlurBehind(windowHandle(), m_doBlur, region);
 
     if (!m_frostColor) {
         KWindowEffects::enableBackgroundContrast(windowHandle(), true, m_contrast, m_intensity, m_saturation, region);
