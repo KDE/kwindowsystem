@@ -86,7 +86,7 @@ ContrastTestWindow::ContrastTestWindow()
             return;
         }
 
-        m_frostColor = QColorDialog::getColor();
+        m_frostColor = QColorDialog::getColor(Qt::white, nullptr, "pick colour", QColorDialog::ShowAlphaChannel);
 
         update();
     });
