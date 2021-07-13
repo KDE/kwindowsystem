@@ -36,7 +36,7 @@ public:
     /**
      * Sets the image on the KWindowShadowTile.
      *
-     * Notice that once the native platform resouces have been allocated for the tile, you are
+     * Notice that once the native platform resources have been allocated for the tile, you are
      * not allowed to change the image. In order to do so, you need to create a new tile.
      */
     void setImage(const QImage &image);
@@ -203,7 +203,7 @@ public:
     /**
      * Allocates the platform resources associated with the KWindowShadow.
      *
-     * Once the native platform resouces have been allocated, you're not allowed to attach or
+     * Once the native platform resources have been allocated, you're not allowed to attach or
      * detach shadow tiles, change the padding or the target window. If you want to do so, you
      * must destroy() the shadow, change relevant attributes and call create() again.
      *

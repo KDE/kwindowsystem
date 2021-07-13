@@ -182,7 +182,7 @@ if(BUILD_QCH)
         VERSION ${KF_VERSION}
         ORG_DOMAIN org.kde
         SOURCE_DIRS
-            # using dir for now, to cover any platform dependant code
+            # using dir for now, to cover any platform dependent code
             # TODO: should only use public headers, to cover only public API
             ${CMAKE_CURRENT_SOURCE_DIR}
         MD_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md"

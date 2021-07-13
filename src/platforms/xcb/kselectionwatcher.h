@@ -92,7 +92,7 @@ Q_SIGNALS:
     void newOwner(xcb_window_t owner);
     /**
      * This signal is emitted when the selection is given up, i.e. there's no
-     * owner. Note that the selection may be immediatelly claimed again,
+     * owner. Note that the selection may be immediately claimed again,
      * so the newOwner() signal may be emitted right after this one.
      * It's safe to delete the instance in a slot connected to this signal.
      */

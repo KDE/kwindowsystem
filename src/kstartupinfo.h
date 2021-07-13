@@ -567,7 +567,7 @@ public:
     const QString &findDescription() const;
     /**
      * Returns the name of the startup notification, or empty if not available.
-     * @return the name of the startup notificaiton, or an empty string
+     * @return the name of the startup notification, or an empty string
      *         if not set.
      */
     const QString &description() const;
@@ -633,7 +633,7 @@ public:
      */
     QList<pid_t> pids() const;
     /**
-     * Checks whether the given @p pid is in the list of PIDs for starup
+     * Checks whether the given @p pid is in the list of PIDs for startup
      * notification.
      * @return true if the given @p pid is in the list of PIDs for the startup notification
      */

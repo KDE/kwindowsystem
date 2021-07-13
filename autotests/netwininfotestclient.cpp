@@ -948,7 +948,7 @@ void NetWinInfoTestClient::testActivities_data()
     const QByteArray testActivities = QByteArrayLiteral("foo,bar");
     const QByteArray allActivities = QByteArrayLiteral(KDE_ALL_ACTIVITIES_UUID);
 
-    QTest::newRow("activites") << testActivities << testActivities;
+    QTest::newRow("activities") << testActivities << testActivities;
     QTest::newRow("empty") << QByteArray() << allActivities;
     QTest::newRow("\\0") << QByteArrayLiteral("\0") << allActivities;
 }

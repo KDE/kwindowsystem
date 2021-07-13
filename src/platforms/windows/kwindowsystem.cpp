@@ -443,8 +443,8 @@ void KWindowSystem::forceActiveWindow(WId win, long time)
     }
 #endif
     // Puts the window in front and activates it.
-    // to bring a window to the front while the user is active in a different apllication we
-    // have to atach our self to the current active window
+    // to bring a window to the front while the user is active in a different application we
+    // have to attach our self to the current active window
     HWND hwndActiveWin = GetForegroundWindow();
     int idActive = GetWindowThreadProcessId(hwndActiveWin, nullptr);
     if (AttachThreadInput(GetCurrentThreadId(), idActive, TRUE)) {
@@ -589,8 +589,8 @@ void KWindowSystem::unminimizeWindow(WId win, bool animation)
 
 void KWindowSystem::raiseWindow(WId win)
 {
-    // to bring a window to the front while the user is active in a different apllication we
-    // have to atach our self to the current active window
+    // to bring a window to the front while the user is active in a different application we
+    // have to attach our self to the current active window
     HWND hwndActiveWin = GetForegroundWindow();
     int idActive = GetWindowThreadProcessId(hwndActiveWin, nullptr);
     if (AttachThreadInput(GetCurrentThreadId(), idActive, TRUE)) {

@@ -31,7 +31,7 @@ class NETWinInfo;
  * using a more high-level interface than the NETWinInfo/NETRootInfo
  * lowlevel classes.
  *
- * Because of limitiations of the way Qt is implemented on Mac OSX, the WId's
+ * Because of limitations of the way Qt is implemented on Mac OSX, the WId's
  * returned by methods in this class are not compatible with those expected
  * by other Qt methods. So while it should be fine to pass WId's retrieved by
  * for example calling the winId method on a QWidget to methods in this class

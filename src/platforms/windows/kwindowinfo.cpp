@@ -242,7 +242,7 @@ QRect KWindowInfo::frameGeometry() const
     RECT wndRect;
     memset(&wndRect, 0, sizeof(wndRect));
 
-    // fetch only client area geometries ... i hope thats right
+    // fetch only client area geometries ... i hope that's right
     if (GetClientRect(d->win_, &wndRect)) {
         QRect result;
         result.setCoords(wndRect.left, wndRect.top, wndRect.right, wndRect.bottom);

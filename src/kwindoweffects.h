@@ -191,7 +191,7 @@ void enableBackgroundContrast(WId window, bool enable = true, qreal contrast = 1
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 67)
 /**
  * Instructs the window manager to handle the given window as dashboard window as
- * Dashboard windows should be handled diffrently and may have special effects
+ * Dashboard windows should be handled differently and may have special effects
  * applied to them.
  *
  * @param window The window for which to enable the blur effect

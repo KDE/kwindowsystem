@@ -16,7 +16,7 @@
 /**
  This class implements claiming and owning manager selections, as described
  in the ICCCM, section 2.8. The selection atom is passed to the constructor,
- claim() attemps to claim ownership of the selection, release() gives up
+ claim() attempts to claim ownership of the selection, release() gives up
  the selection ownership. Signal lostOwnership() is emitted when the selection
  is claimed by another owner.
  @short ICCCM manager selection owner
@@ -130,7 +130,7 @@ Q_SIGNALS:
     void lostOwnership();
 
     /**
-     * This signal is emitted when claim() was succesful in claiming
+     * This signal is emitted when claim() was successful in claiming
      * ownership of the selection.
      */
     void claimedOwnership();
