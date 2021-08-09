@@ -60,11 +60,11 @@ if (KWINDOWSYSTEM_HAVE_X11)
    target_link_libraries(KF5WindowSystem
         PRIVATE
             Qt5::X11Extras
-            ${X11_LIBRARIES}
-            ${X11_Xfixes_LIB}
-            ${X11_Xrender_LIB}
-            ${XCB_XCB_LIBRARY}
-            ${XCB_KEYSYMS_LIBRARY}
+            X11::X11
+            X11::Xfixes
+            X11::Xrender
+            XCB::XCB
+            XCB::KEYSYMS
    )
    target_sources(KF5WindowSystem PRIVATE
         platforms/xcb/kkeyserver.cpp
