@@ -58,12 +58,14 @@ if (KWINDOWSYSTEM_HAVE_X11)
             ${CMAKE_CURRENT_SOURCE_DIR}/platforms/xcb
    )
    target_link_libraries(KF5WindowSystem
+        PUBLIC
+            # public because they are used in kkeyserver_x11.h
+            X11::X11
+            XCB::XCB
         PRIVATE
             Qt5::X11Extras
-            X11::X11
             X11::Xfixes
             X11::Xrender
-            XCB::XCB
             XCB::KEYSYMS
    )
    target_sources(KF5WindowSystem PRIVATE
@@ -123,13 +125,6 @@ target_link_libraries(KF5WindowSystem
 )
 if(NOT KWINDOWSYSTEM_NO_WIDGETS)
     target_link_libraries(KF5WindowSystem PUBLIC Qt5::Widgets)
-endif()
-
-if(KWINDOWSYSTEM_HAVE_X11)
-    # we install kkeyserver_x11.h which needs the X11 headers available
-    # if we don't add the include path here code that includes kkeyserver.h will fail
-    # to compile unless X11 is installed in /usr/include
-    target_include_directories(KF5WindowSystem PUBLIC ${XCB_XCB_INCLUDE_DIR} ${X11_X11_INCLUDE_PATH})
 endif()
 
 set_target_properties(KF5WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSION}
