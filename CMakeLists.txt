@@ -71,10 +71,6 @@ set(KWINDOWSYSTEM_HAVE_X11 ${X11_FOUND})
 if(X11_FOUND)
     find_package(XCB COMPONENTS REQUIRED XCB KEYSYMS RES)
     find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED X11Extras)
-    set_package_properties(X11_Xrender PROPERTIES DESCRIPTION "X Rendering Extension (libXrender)"
-                           URL "http://www.x.org" TYPE RECOMMENDED
-                           PURPOSE "Support for compositing, rendering operations, and alpha-blending")
-    set(KWINDOWSYSTEM_HAVE_XRENDER ${X11_Xrender_FOUND})
     set(KWINDOWSYSTEM_HAVE_XFIXES ${X11_Xfixes_FOUND})
 endif()
 
