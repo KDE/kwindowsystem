@@ -7,6 +7,11 @@ if(NOT @KWINDOWSYSTEM_NO_WIDGETS@)
     find_dependency(Qt5Widgets @REQUIRED_QT_VERSION@)
 endif()
 
+if(@X11_FOUND@)
+    find_dependency(X11)
+    find_dependency(XCB)
+endif()
+
 if(NOT @BUILD_SHARED_LIBS@)
     if(@WIN32@)
         find_dependency(Qt5WinExtras @REQUIRED_QT_VERSION@)
