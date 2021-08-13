@@ -280,10 +280,9 @@ void KStartupInfo::customEvent(QEvent *e_P)
 #if KWINDOWSYSTEM_HAVE_X11
     if (e_P->type() == DelayedWindowEvent::uniqueType()) {
         d->window_added(static_cast<DelayedWindowEvent *>(e_P)->w);
-    } else {
+    } else
 #endif
         QObject::customEvent(e_P);
-    }
 }
 
 void KStartupInfo::Private::window_added(WId w_P)
