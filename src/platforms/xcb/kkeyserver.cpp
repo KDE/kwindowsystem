@@ -493,7 +493,8 @@ bool initializeMods()
     checkDisplay();
     XModifierKeymap *xmk = XGetModifierMapping(QX11Info::display());
 
-    int min_keycode, max_keycode;
+    int min_keycode;
+    int max_keycode;
     int keysyms_per_keycode = 0;
 
     XDisplayKeycodes(QX11Info::display(), &min_keycode, &max_keycode);
@@ -723,9 +724,9 @@ uint getModsRequired(uint sym)
         // need to check index 0 before the others, so that a null-mod
         //  can take precedence over the others, in case the modified
         //  key produces the same symbol.
-        if (sym == XKeycodeToKeysym(QX11Info::display(), code, 0))
+        if (sym == XKeycodeToKeysym(QX11Info::display(), code, 0)) {
             ;
-        else if (sym == XKeycodeToKeysym(QX11Info::display(), code, 1)) {
+        } else if (sym == XKeycodeToKeysym(QX11Info::display(), code, 1)) {
             mod = Qt::SHIFT;
         } else if (sym == XKeycodeToKeysym(QX11Info::display(), code, 2)) {
             mod = MODE_SWITCH;
@@ -778,8 +779,9 @@ bool keyQtToSymX(int keyQt, int *keySym)
 
     for (const TransKey &tk : g_rgQtToSymX) {
         if (tk.keySymQt == symQt) {
-            if ((keyQt & Qt::KeypadModifier) && !is_keypad_key(tk.keySymX))
+            if ((keyQt & Qt::KeypadModifier) && !is_keypad_key(tk.keySymX)) {
                 continue;
+            }
             *keySym = tk.keySymX;
             return true;
         }
@@ -965,10 +967,11 @@ bool xcbKeyPressEventToQt(xcb_key_press_event_t *e, int *keyQt)
     xcb_keysym_t keySymX;
 
     if ((e->state & KKeyServer::modXNumLock()) && is_keypad_key(keySym1)) {
-        if ((e->state & XCB_MOD_MASK_SHIFT))
+        if ((e->state & XCB_MOD_MASK_SHIFT)) {
             keySymX = keySym0;
-        else
+        } else {
             keySymX = keySym1;
+        }
     } else {
         keySymX = keySym0;
     }

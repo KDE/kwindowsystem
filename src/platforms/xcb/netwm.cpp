@@ -684,20 +684,24 @@ void NETRootInfo::setDesktopName(int desktop, const char *desktopName)
     delete[] p->desktop_names[desktop - 1];
     p->desktop_names[desktop - 1] = nstrdup(desktopName);
 
-    unsigned int i, proplen, num = ((p->number_of_desktops > p->desktop_names.size()) ? p->number_of_desktops : p->desktop_names.size());
+    unsigned int i;
+    unsigned int proplen;
+    unsigned int num = ((p->number_of_desktops > p->desktop_names.size()) ? p->number_of_desktops : p->desktop_names.size());
     for (i = 0, proplen = 0; i < num; i++) {
         proplen += (p->desktop_names[i] != nullptr ? strlen(p->desktop_names[i]) + 1 : 1);
     }
 
-    char *prop = new char[proplen], *propp = prop;
+    char *prop = new char[proplen];
+    char *propp = prop;
 
-    for (i = 0; i < num; i++)
+    for (i = 0; i < num; i++) {
         if (p->desktop_names[i]) {
             strcpy(propp, p->desktop_names[i]);
             propp += strlen(p->desktop_names[i]) + 1;
         } else {
             *propp++ = '\0';
         }
+    }
 
 #ifdef NETWMDEBUG
     fprintf(stderr,
@@ -747,7 +751,9 @@ void NETRootInfo::setDesktopViewport(int desktop, const NETPoint &viewport)
     if (p->role == WindowManager) {
         p->viewport[desktop - 1] = viewport;
 
-        int d, i, l;
+        int d;
+        int i;
+        int l;
         l = p->number_of_desktops * 2;
         uint32_t *data = new uint32_t[l];
         for (d = 0, i = 0; d < p->number_of_desktops; d++) {
@@ -1462,7 +1468,8 @@ void NETRootInfo::setWorkArea(int desktop, const NETRect &workarea)
     p->workarea[desktop - 1] = workarea;
 
     uint32_t *wa = new uint32_t[p->number_of_desktops * 4];
-    int i, o;
+    int i;
+    int o;
     for (i = 0, o = 0; i < p->number_of_desktops; i++) {
         wa[o++] = p->workarea[i].pos.x;
         wa[o++] = p->workarea[i].pos.y;
@@ -1929,7 +1936,8 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
 
         if (p->clients) {
             if (p->role == Client) {
-                int new_index = 0, old_index = 0;
+                int new_index = 0;
+                int old_index = 0;
                 int old_count = p->clients_count;
                 int new_count = clients.count();
 
@@ -2113,8 +2121,9 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
 
         // We'll get the reply for this request at the bottom of this function,
         // after we've processing the other pending replies
-        if (p->supportwindow)
+        if (p->supportwindow) {
             wm_name_cookie = xcb_get_property(p->conn, false, p->supportwindow, p->atom(_NET_WM_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
+        }
     }
 
     if (dirty & VirtualRoots) {
@@ -2669,7 +2678,8 @@ void NETWinInfo::setIconInternal(NETRArray<NETIcon> &icons, int &icon_count, xcb
         proplen += 2 + (icons[i].size.width * icons[i].size.height);
     }
 
-    uint32_t *prop = new uint32_t[proplen], *pprop = prop;
+    uint32_t *prop = new uint32_t[proplen];
+    uint32_t *pprop = prop;
     for (int i = 0; i < icon_count; i++) {
         // copy size into property
         *pprop++ = icons[i].size.width;
@@ -3145,9 +3155,9 @@ void NETWinInfo::setName(const char *name)
     delete[] p->name;
     p->name = nstrdup(name);
 
-    if (p->name[0] != '\0')
+    if (p->name[0] != '\0') {
         xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_NAME), p->atom(UTF8_STRING), 8, strlen(p->name), (const void *)p->name);
-    else {
+    } else {
         xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_NAME));
     }
 }
@@ -3161,7 +3171,7 @@ void NETWinInfo::setVisibleName(const char *visibleName)
     delete[] p->visible_name;
     p->visible_name = nstrdup(visibleName);
 
-    if (p->visible_name[0] != '\0')
+    if (p->visible_name[0] != '\0') {
         xcb_change_property(p->conn,
                             XCB_PROP_MODE_REPLACE,
                             p->window,
@@ -3170,7 +3180,7 @@ void NETWinInfo::setVisibleName(const char *visibleName)
                             8,
                             strlen(p->visible_name),
                             (const void *)p->visible_name);
-    else {
+    } else {
         xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_VISIBLE_NAME));
     }
 }
@@ -3184,7 +3194,7 @@ void NETWinInfo::setIconName(const char *iconName)
     delete[] p->icon_name;
     p->icon_name = nstrdup(iconName);
 
-    if (p->icon_name[0] != '\0')
+    if (p->icon_name[0] != '\0') {
         xcb_change_property(p->conn,
                             XCB_PROP_MODE_REPLACE,
                             p->window,
@@ -3193,7 +3203,7 @@ void NETWinInfo::setIconName(const char *iconName)
                             8,
                             strlen(p->icon_name),
                             (const void *)p->icon_name);
-    else {
+    } else {
         xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_ICON_NAME));
     }
 }
@@ -3207,7 +3217,7 @@ void NETWinInfo::setVisibleIconName(const char *visibleIconName)
     delete[] p->visible_icon_name;
     p->visible_icon_name = nstrdup(visibleIconName);
 
-    if (p->visible_icon_name[0] != '\0')
+    if (p->visible_icon_name[0] != '\0') {
         xcb_change_property(p->conn,
                             XCB_PROP_MODE_REPLACE,
                             p->window,
@@ -3216,7 +3226,7 @@ void NETWinInfo::setVisibleIconName(const char *visibleIconName)
                             8,
                             strlen(p->visible_icon_name),
                             (const void *)p->visible_icon_name);
-    else {
+    } else {
         xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_VISIBLE_ICON_NAME));
     }
 }
@@ -3607,7 +3617,8 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
 #endif
 
             int i;
-            NET::States state = NET::States(), mask = NET::States();
+            NET::States state = NET::States();
+            NET::States mask = NET::States();
 
             for (i = 1; i < 3; i++) {
 #ifdef NETWMDEBUG
@@ -4345,8 +4356,9 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
 
         // _KDE_NET_WM_BLOCK_COMPOSITING
         uint32_t data = get_value_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL, 0, &success);
-        if (success)
+        if (success) {
             p->blockCompositing = bool(data);
+        }
 
         // _NET_WM_BYPASS_COMPOSITOR
         data = get_value_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL, 0, &success);

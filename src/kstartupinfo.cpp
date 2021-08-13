@@ -280,9 +280,10 @@ void KStartupInfo::customEvent(QEvent *e_P)
 #if KWINDOWSYSTEM_HAVE_X11
     if (e_P->type() == DelayedWindowEvent::uniqueType()) {
         d->window_added(static_cast<DelayedWindowEvent *>(e_P)->w);
-    } else
+    } else {
 #endif
         QObject::customEvent(e_P);
+    }
 }
 
 void KStartupInfo::Private::window_added(WId w_P)
@@ -1214,8 +1215,9 @@ QString KStartupInfoData::Private::to_text() const
     if (!icon.isEmpty()) {
         ret += QStringLiteral(" ICON=\"%1\"").arg(icon);
     }
-    if (desktop != 0)
+    if (desktop != 0) {
         ret += QStringLiteral(" DESKTOP=%1").arg(desktop == NET::OnAllDesktops ? NET::OnAllDesktops : desktop - 1); // spec counts from 0
+    }
     if (!wmclass.isEmpty()) {
         ret += QStringLiteral(" WMCLASS=\"%1\"").arg(QString(wmclass));
     }
@@ -1260,8 +1262,9 @@ KStartupInfoData::KStartupInfoData(const QString &txt_P)
             d->icon = get_str(*it);
         } else if ((*it).startsWith(QLatin1String("DESKTOP="))) {
             d->desktop = get_num(*it);
-            if (d->desktop != NET::OnAllDesktops)
+            if (d->desktop != NET::OnAllDesktops) {
                 ++d->desktop; // spec counts from 0
+            }
         } else if ((*it).startsWith(QLatin1String("WMCLASS="))) {
             d->wmclass = get_cstr(*it);
         } else if ((*it).startsWith(QLatin1String("HOSTNAME="))) { // added to version 1 (2014)

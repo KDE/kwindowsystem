@@ -317,11 +317,12 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
 
 bool NETEventFilter::removeStrutWindow(WId w)
 {
-    for (QList<StrutData>::Iterator it = strutWindows.begin(); it != strutWindows.end(); ++it)
+    for (QList<StrutData>::Iterator it = strutWindows.begin(); it != strutWindows.end(); ++it) {
         if ((*it).window == w) {
             strutWindows.erase(it);
             return true;
         }
+    }
     return false;
 }
 
@@ -609,8 +610,12 @@ void KWindowSystemPrivateX11::setOnDesktop(WId win, int desktop)
         init(INFO_BASIC);
         QPoint p = desktopToViewport(desktop, false);
         Window dummy;
-        int x, y;
-        unsigned int w, h, b, dp;
+        int x;
+        int y;
+        unsigned int w;
+        unsigned int h;
+        unsigned int b;
+        unsigned int dp;
         XGetGeometry(QX11Info::display(), win, &dummy, &x, &y, &w, &h, &b, &dp);
         // get global position
         XTranslateCoordinates(QX11Info::display(), win, QX11Info::appRootWindow(), 0, 0, &x, &y, &dummy);
@@ -931,10 +936,11 @@ QRect KWindowSystemPrivateX11::workArea(const QList<WId> &exclude, int desktop)
         // windows are cached here.
         NETStrut strut;
         auto it2 = s_d->strutWindows.begin();
-        for (; it2 != s_d->strutWindows.end(); ++it2)
+        for (; it2 != s_d->strutWindows.end(); ++it2) {
             if ((*it2).window == *it1) {
                 break;
             }
+        }
 
         if (it2 != s_d->strutWindows.end()) {
             if (!((*it2).desktop == desktop || (*it2).desktop == NETWinInfo::OnAllDesktops)) {

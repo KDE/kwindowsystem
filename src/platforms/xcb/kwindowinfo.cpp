@@ -75,7 +75,8 @@ KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, NET::Properties propertie
         }
     }
     if (properties & (NET::WMGeometry | NET::WMFrameExtents)) {
-        NETRect frame, geom;
+        NETRect frame;
+        NETRect geom;
         m_info->kdeGeometry(frame, geom);
         m_geometry.setRect(geom.pos.x, geom.pos.y, geom.size.width, geom.size.height);
         m_frame_geometry.setRect(frame.pos.x, frame.pos.y, frame.size.width, frame.size.height);
