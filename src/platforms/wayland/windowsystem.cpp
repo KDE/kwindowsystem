@@ -41,7 +41,11 @@ void WindowSystem::activateWindow(WId win, long int time)
     if (!s) {
         return;
     }
-    WaylandIntegration::self()->activation()->activate(m_lastToken, *s);
+    WaylandXdgActivationV1 *activation = WaylandIntegration::self()->activation();
+    if (!activation) {
+        return;
+    }
+    activation->activate(m_lastToken, *s);
 }
 
 void WindowSystem::forceActiveWindow(WId win, long int time)
@@ -53,9 +57,15 @@ void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString 
 {
     Surface *surface = Surface::fromWindow(window);
     wl_surface *wlSurface = surface ? static_cast<wl_surface*>(*surface) : nullptr;
+    WaylandXdgActivationV1 *activation = WaylandIntegration::self()->activation();
+    if (!activation) {
+        Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
+        return;
+    }
+
     auto waylandWindow = window ? dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle()) : nullptr;
     auto seat = waylandWindow ? waylandWindow->display()->defaultInputDevice()->wl_seat() : nullptr;
-    auto tokenReq = WaylandIntegration::self()->activation()->requestXdgActivationToken(seat, wlSurface, serial, app_id);
+    auto tokenReq = activation->requestXdgActivationToken(seat, wlSurface, serial, app_id);
     connect(tokenReq, &WaylandXdgActivationTokenV1::failed, KWindowSystem::self(), [serial, app_id] () {
         Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
     });
