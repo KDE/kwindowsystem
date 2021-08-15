@@ -47,7 +47,7 @@ ecm_setup_version(PROJECT VARIABLE_PREFIX KWINDOWSYSTEM
                         SOVERSION 5)
 
 # Dependencies
-set(REQUIRED_QT_VERSION 5.15.0)
+set(REQUIRED_QT_VERSION 5.15.2)
 find_package(Qt5Gui ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
 if(NOT KWINDOWSYSTEM_NO_WIDGETS)
     find_package(Qt5Widgets ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
@@ -77,7 +77,7 @@ endif()
 # Subdirectories
 ecm_install_po_files_as_qm(po)
 
-add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050f00)
+add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050f02)
 
 add_subdirectory(src)
 if (BUILD_TESTING)
