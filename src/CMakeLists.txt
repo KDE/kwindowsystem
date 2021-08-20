@@ -58,8 +58,8 @@ if (KWINDOWSYSTEM_HAVE_X11)
         PUBLIC
             # public because they are used in kkeyserver_x11.h
             X11::X11
-            XCB::XCB
         PRIVATE
+            XCB::XCB
             Qt5::X11Extras
             X11::Xfixes
             XCB::KEYSYMS
@@ -69,6 +69,11 @@ if (KWINDOWSYSTEM_HAVE_X11)
         platforms/xcb/kxmessages.cpp
         platforms/xcb/netwm.cpp
    )
+
+   # we install kkeyserver_x11.h which needs the X11 headers available
+   # if we don't add the include path here code that includes kkeyserver.h will fail
+   # to compile unless X11 is installed in /usr/include
+   target_include_directories(KF5WindowSystem PUBLIC ${XCB_XCB_INCLUDE_DIR})
 endif ()
 
 if (APPLE)
