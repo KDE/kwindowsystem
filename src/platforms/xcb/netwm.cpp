@@ -4518,6 +4518,9 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         if (list.count() == 2) {
             p->class_name = nstrdup(list.at(0).constData());
             p->class_class = nstrdup(list.at(1).constData());
+        } else if (list.count() == 1) { // Not fully compliant client. Provides a single string
+            p->class_name = nstrdup(list.at(0).constData());
+            p->class_class = nstrdup(list.at(0).constData());
         }
     }
 
