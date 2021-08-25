@@ -7,7 +7,7 @@ platforms:
       note: Only platform X11 is supported
     - name: FreeBSD
       note: Only platform X11 is supported
-    - name: MacOSX
+    - name: macOS
       note: Not all features supported
     - name: Windows
       note: Not all features supported
