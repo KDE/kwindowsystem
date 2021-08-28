@@ -46,7 +46,7 @@ static inline const QRect &displayGeometry()
         static QList<QMetaObject::Connection> connections;
         auto dirtify = [&] {
             isDirty = true;
-            for (const QMetaObject::Connection &con : qAsConst(connections)) {
+            for (const QMetaObject::Connection &con : std::as_const(connections)) {
                 QObject::disconnect(con);
             }
             connections.clear();
