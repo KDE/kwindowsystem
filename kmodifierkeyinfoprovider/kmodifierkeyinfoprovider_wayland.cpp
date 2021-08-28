@@ -5,8 +5,8 @@
 */
 
 #include "kmodifierkeyinfoprovider_wayland.h"
-#include <KWayland/Client/registry.h>
 #include <KWayland/Client/connection_thread.h>
+#include <KWayland/Client/registry.h>
 #include <QDebug>
 #include <QTimer>
 
@@ -49,13 +49,13 @@ bool KModifierKeyInfoProviderWayland::setKeyLocked(Qt::Key /*key*/, bool /*locke
 
 KModifierKeyInfoProvider::ModifierState toState(Keystate::State state)
 {
-    switch(state) {
-        case Keystate::State::Unlocked:
-            return KModifierKeyInfoProvider::Nothing;
-        case Keystate::State::Latched:
-            return KModifierKeyInfoProvider::Latched;
-        case Keystate::State::Locked:
-            return KModifierKeyInfoProvider::Locked;
+    switch (state) {
+    case Keystate::State::Unlocked:
+        return KModifierKeyInfoProvider::Nothing;
+    case Keystate::State::Latched:
+        return KModifierKeyInfoProvider::Latched;
+    case Keystate::State::Locked:
+        return KModifierKeyInfoProvider::Locked;
     }
     Q_UNREACHABLE();
     return KModifierKeyInfoProvider::Nothing;
@@ -63,13 +63,13 @@ KModifierKeyInfoProvider::ModifierState toState(Keystate::State state)
 
 Qt::Key toKey(Keystate::Key key)
 {
-    switch(key) {
-        case Keystate::Key::CapsLock:
-            return Qt::Key_CapsLock;
-        case Keystate::Key::NumLock:
-            return Qt::Key_NumLock;
-        case Keystate::Key::ScrollLock:
-            return Qt::Key_ScrollLock;
+    switch (key) {
+    case Keystate::Key::CapsLock:
+        return Qt::Key_CapsLock;
+    case Keystate::Key::NumLock:
+        return Qt::Key_NumLock;
+    case Keystate::Key::ScrollLock:
+        return Qt::Key_ScrollLock;
     }
     Q_UNREACHABLE();
     return {};

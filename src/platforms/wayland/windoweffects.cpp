@@ -9,29 +9,30 @@
 #include "waylandintegration.h"
 
 #include <QDebug>
-#include <QWidget>
-#include <QGuiApplication>
 #include <QExposeEvent>
+#include <QGuiApplication>
+#include <QWidget>
 
-#include <KWayland/Client/connection_thread.h>
-#include <KWayland/Client/plasmawindowmanagement.h>
-#include <KWayland/Client/registry.h>
-#include <KWayland/Client/plasmashell.h>
-#include <KWayland/Client/compositor.h>
-#include <KWayland/Client/surface.h>
 #include <KWayland/Client/blur.h>
+#include <KWayland/Client/compositor.h>
+#include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/contrast.h>
+#include <KWayland/Client/plasmashell.h>
+#include <KWayland/Client/plasmawindowmanagement.h>
 #include <KWayland/Client/region.h>
+#include <KWayland/Client/registry.h>
 #include <KWayland/Client/slide.h>
+#include <KWayland/Client/surface.h>
 
 WindowEffects::WindowEffects()
-    : QObject(),
-      KWindowEffectsPrivate()
+    : QObject()
+    , KWindowEffectsPrivate()
 {
 }
 
 WindowEffects::~WindowEffects()
-{}
+{
+}
 
 QWindow *WindowEffects::windowForId(WId wid)
 {
@@ -71,7 +72,7 @@ void WindowEffects::releaseWindow(QWindow *window)
 bool WindowEffects::eventFilter(QObject *watched, QEvent *event)
 {
     if (event->type() == QEvent::Expose) {
-        auto ee = static_cast<QExposeEvent*>(event);
+        auto ee = static_cast<QExposeEvent *>(event);
 
         if ((ee->region().isNull())) {
             return false;

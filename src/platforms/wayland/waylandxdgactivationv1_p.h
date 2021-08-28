@@ -7,14 +7,12 @@
 #ifndef WAYLANDXDGACTIVATIONV1_P_H
 #define WAYLANDXDGACTIVATIONV1_P_H
 
-#include <QObject>
 #include "qwayland-xdg-activation-v1.h"
+#include <QObject>
 
 class QWaylandSurface;
 
-class WaylandXdgActivationTokenV1
-    : public QObject,
-      public QtWayland::xdg_activation_token_v1
+class WaylandXdgActivationTokenV1 : public QObject, public QtWayland::xdg_activation_token_v1
 {
     Q_OBJECT
 public:
@@ -34,10 +32,7 @@ public:
     WaylandXdgActivationV1(struct ::wl_registry *registry, uint32_t id, uint32_t availableVersion);
     ~WaylandXdgActivationV1() override;
 
-    WaylandXdgActivationTokenV1 *requestXdgActivationToken(wl_seat* seat,
-                                                                    struct ::wl_surface *surface,
-                                                                    uint32_t serial, const QString &app_id);
+    WaylandXdgActivationTokenV1 *requestXdgActivationToken(wl_seat *seat, struct ::wl_surface *surface, uint32_t serial, const QString &app_id);
 };
 
 #endif
-

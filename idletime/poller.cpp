@@ -10,8 +10,8 @@
 #include <KWayland/Client/registry.h>
 #include <KWayland/Client/seat.h>
 
-#include <QGuiApplication>
 #include <QDebug>
+#include <QGuiApplication>
 #include <QLoggingCategory>
 #include <QMutex>
 #include <QMutexLocker>
@@ -41,11 +41,14 @@ bool Poller::initWayland()
     }
     // need to be able to cleanup prior to the Wayland connection being destroyed
     // otherwise we get a crash in libwayland
-    connect(reinterpret_cast<QObject*>(qApp->platformNativeInterface()), &QObject::destroyed, this, &Poller::unloadPoller);
+    connect(reinterpret_cast<QObject *>(qApp->platformNativeInterface()), &QObject::destroyed, this, &Poller::unloadPoller);
     m_registry = new Registry(this);
     m_registry->create(m_connectionThread);
-    connect(m_registry, &Registry::seatAnnounced, this,
-        [this] (quint32 name, quint32 version) {
+    connect(
+        m_registry,
+        &Registry::seatAnnounced,
+        this,
+        [this](quint32 name, quint32 version) {
             QMutexLocker locker(m_registryMutex.data());
             if (m_seat.name != 0) {
                 // already have a seat
@@ -53,10 +56,13 @@ bool Poller::initWayland()
             }
             m_seat.name = name;
             m_seat.version = version;
-        }, Qt::DirectConnection
-    );
-    connect(m_registry, &Registry::idleAnnounced, this,
-        [this] (quint32 name, quint32 version) {
+        },
+        Qt::DirectConnection);
+    connect(
+        m_registry,
+        &Registry::idleAnnounced,
+        this,
+        [this](quint32 name, quint32 version) {
             QMutexLocker locker(m_registryMutex.data());
             if (m_idle.name != 0) {
                 // already have a seat
@@ -64,16 +70,19 @@ bool Poller::initWayland()
             }
             m_idle.name = name;
             m_idle.version = version;
-        }, Qt::DirectConnection
-    );
-    connect(m_registry, &Registry::interfacesAnnounced, this,
+        },
+        Qt::DirectConnection);
+    connect(
+        m_registry,
+        &Registry::interfacesAnnounced,
+        this,
         [this] {
             m_registryMutex->lock();
             m_inited = true;
             m_registryMutex->unlock();
             m_registryAnnouncedCondition->wakeAll();
-        }, Qt::DirectConnection
-    );
+        },
+        Qt::DirectConnection);
 
     m_registry->setup();
     m_connectionThread->roundtrip();
@@ -134,11 +143,9 @@ void Poller::addTimeout(int nextTimeout)
     }
     auto timeout = m_idle.idle->getTimeout(nextTimeout, m_seat.seat, this);
     m_timeouts.insert(nextTimeout, timeout);
-    connect(timeout, &KWayland::Client::IdleTimeout::idle, this,
-        [this, nextTimeout] {
-            Q_EMIT timeoutReached(nextTimeout);
-        }
-    );
+    connect(timeout, &KWayland::Client::IdleTimeout::idle, this, [this, nextTimeout] {
+        Q_EMIT timeoutReached(nextTimeout);
+    });
     connect(timeout, &KWayland::Client::IdleTimeout::resumeFromIdle, this, &Poller::resumingFromIdle);
 }
 
@@ -152,7 +159,7 @@ void Poller::removeTimeout(int nextTimeout)
     m_timeouts.erase(it);
 }
 
-QList< int > Poller::timeouts() const
+QList<int> Poller::timeouts() const
 {
     return QList<int>();
 }
@@ -167,12 +174,10 @@ void Poller::catchIdleEvent()
         return;
     }
     m_catchResumeTimeout = m_idle.idle->getTimeout(0, m_seat.seat, this);
-    connect(m_catchResumeTimeout, &KWayland::Client::IdleTimeout::resumeFromIdle, this,
-        [this] {
-            stopCatchingIdleEvents();
-            Q_EMIT resumingFromIdle();
-        }
-    );
+    connect(m_catchResumeTimeout, &KWayland::Client::IdleTimeout::resumeFromIdle, this, [this] {
+        stopCatchingIdleEvents();
+        Q_EMIT resumingFromIdle();
+    });
 }
 
 void Poller::stopCatchingIdleEvents()

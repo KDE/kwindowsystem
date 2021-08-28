@@ -4,10 +4,10 @@
     SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 */
 #include "plugin.h"
-#include "windowshadow.h"
-#include "windowsystem.h"
 #include "windoweffects.h"
 #include "windowinfo.h"
+#include "windowshadow.h"
+#include "windowsystem.h"
 
 KWaylandPlugin::KWaylandPlugin(QObject *parent)
     : KWindowSystemPluginInterface(parent)

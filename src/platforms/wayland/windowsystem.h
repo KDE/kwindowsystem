@@ -31,7 +31,7 @@ public:
     void demandAttention(WId win, bool set) override;
     void requestToken(QWindow *win, uint32_t serial, const QString &app_id) override;
     quint32 lastInputSerial(QWindow *window) override;
-    void setCurrentToken(const QString & token) override;
+    void setCurrentToken(const QString &token) override;
     bool compositingActive() override;
     int currentDesktop() override;
     int numberOfDesktops() override;
@@ -60,9 +60,19 @@ public:
     bool showingDesktop() override;
     void setShowingDesktop(bool showing) override;
     void setUserTime(WId win, long time) override;
-    void setExtendedStrut(WId win, int left_width, int left_start, int left_end,
-                          int right_width, int right_start, int right_end, int top_width, int top_start, int top_end,
-                          int bottom_width, int bottom_start, int bottom_end) override;
+    void setExtendedStrut(WId win,
+                          int left_width,
+                          int left_start,
+                          int left_end,
+                          int right_width,
+                          int right_start,
+                          int right_end,
+                          int top_width,
+                          int top_start,
+                          int top_end,
+                          int bottom_width,
+                          int bottom_start,
+                          int bottom_end) override;
     void setStrut(WId win, int left, int right, int top, int bottom) override;
     bool allowedActionsSupported() override;
     QString readNameProperty(WId window, unsigned long atom) override;

@@ -13,20 +13,19 @@
 
 #include <config-kwindowsystem.h>
 
-#include <QRect>
 #include <QGuiApplication>
+#include <QRect>
 
 #include <KWayland/Client/plasmashell.h>
 #include <KWayland/Client/surface.h>
 
-
 WindowInfo::WindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2)
-    : KWindowInfoPrivate(window, properties, properties2),
-      m_valid(false),
-      m_properties(properties),
-      m_properties2(properties2),
-      m_surface(KWayland::Client::Surface::fromQtWinId(window)),
-      m_plasmaShellSurface(KWayland::Client::PlasmaShellSurface::get(m_surface))
+    : KWindowInfoPrivate(window, properties, properties2)
+    , m_valid(false)
+    , m_properties(properties)
+    , m_properties2(properties2)
+    , m_surface(KWayland::Client::Surface::fromQtWinId(window))
+    , m_plasmaShellSurface(KWayland::Client::PlasmaShellSurface::get(m_surface))
 {
     m_valid = m_surface != nullptr && m_surface->isValid();
 }

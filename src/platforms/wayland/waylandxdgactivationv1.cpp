@@ -6,8 +6,7 @@
 
 #include "waylandxdgactivationv1_p.h"
 
-WaylandXdgActivationV1::WaylandXdgActivationV1(wl_registry *registry, uint32_t id,
-                                                 uint32_t availableVersion)
+WaylandXdgActivationV1::WaylandXdgActivationV1(wl_registry *registry, uint32_t id, uint32_t availableVersion)
     : QtWayland::xdg_activation_v1(registry, id, qMin(availableVersion, 1u))
 {
 }
@@ -19,8 +18,7 @@ WaylandXdgActivationV1::~WaylandXdgActivationV1()
 }
 
 WaylandXdgActivationTokenV1 *
-WaylandXdgActivationV1::requestXdgActivationToken(wl_seat* seat,
-                                                   struct ::wl_surface *surface, uint32_t serial, const QString &app_id)
+WaylandXdgActivationV1::requestXdgActivationToken(wl_seat *seat, struct ::wl_surface *surface, uint32_t serial, const QString &app_id)
 {
     auto wl = get_activation_token();
     auto provider = new WaylandXdgActivationTokenV1;

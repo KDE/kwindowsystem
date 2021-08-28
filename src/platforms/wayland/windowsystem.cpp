@@ -4,16 +4,16 @@
     SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 */
 #include "windowsystem.h"
-#include "waylandintegration.h"
 #include "logging.h"
+#include "waylandintegration.h"
 #include "waylandxdgactivationv1_p.h"
 
 #include <KWindowSystem/KWindowSystem>
 
 #include <KWayland/Client/connection_thread.h>
+#include <KWayland/Client/plasmashell.h>
 #include <KWayland/Client/plasmawindowmanagement.h>
 #include <KWayland/Client/registry.h>
-#include <KWayland/Client/plasmashell.h>
 #include <KWayland/Client/seat.h>
 #include <KWayland/Client/surface.h>
 
@@ -22,8 +22,8 @@
 #include <QString>
 #include <QWindow>
 #include <private/qwaylanddisplay_p.h>
-#include <private/qwaylandwindow_p.h>
 #include <private/qwaylandinputdevice_p.h>
+#include <private/qwaylandwindow_p.h>
 
 using namespace KWayland::Client;
 
@@ -56,7 +56,7 @@ void WindowSystem::forceActiveWindow(WId win, long int time)
 void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString &app_id)
 {
     Surface *surface = Surface::fromWindow(window);
-    wl_surface *wlSurface = surface ? static_cast<wl_surface*>(*surface) : nullptr;
+    wl_surface *wlSurface = surface ? static_cast<wl_surface *>(*surface) : nullptr;
     WaylandXdgActivationV1 *activation = WaylandIntegration::self()->activation();
     if (!activation) {
         Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
@@ -66,10 +66,10 @@ void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString 
     auto waylandWindow = window ? dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle()) : nullptr;
     auto seat = waylandWindow ? waylandWindow->display()->defaultInputDevice()->wl_seat() : nullptr;
     auto tokenReq = activation->requestXdgActivationToken(seat, wlSurface, serial, app_id);
-    connect(tokenReq, &WaylandXdgActivationTokenV1::failed, KWindowSystem::self(), [serial, app_id] () {
+    connect(tokenReq, &WaylandXdgActivationTokenV1::failed, KWindowSystem::self(), [serial, app_id]() {
         Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
     });
-    connect(tokenReq, &WaylandXdgActivationTokenV1::done, KWindowSystem::self(), [serial] (const QString &token) {
+    connect(tokenReq, &WaylandXdgActivationTokenV1::done, KWindowSystem::self(), [serial](const QString &token) {
         Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, token);
     });
 }
@@ -240,7 +240,19 @@ void WindowSystem::setDesktopName(int desktop, const QString &name)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support virtual desktops";
 }
 
-void WindowSystem::setExtendedStrut(WId win, int left_width, int left_start, int left_end, int right_width, int right_start, int right_end, int top_width, int top_start, int top_end, int bottom_width, int bottom_start, int bottom_end)
+void WindowSystem::setExtendedStrut(WId win,
+                                    int left_width,
+                                    int left_start,
+                                    int left_end,
+                                    int right_width,
+                                    int right_start,
+                                    int right_end,
+                                    int top_width,
+                                    int top_start,
+                                    int top_end,
+                                    int bottom_width,
+                                    int bottom_start,
+                                    int bottom_end)
 {
     Q_UNUSED(win)
     Q_UNUSED(left_width)
@@ -483,7 +495,7 @@ bool WindowSystem::showingDesktop()
     return WaylandIntegration::self()->plasmaWindowManagement()->isShowingDesktop();
 }
 
-QList< WId > WindowSystem::stackingOrder()
+QList<WId> WindowSystem::stackingOrder()
 {
     qCDebug(KWAYLAND_KWS) << "This plugin does not support getting windows";
     return QList<WId>();
@@ -512,12 +524,12 @@ int WindowSystem::viewportWindowToDesktop(const QRect &r)
     return 0;
 }
 
-QList< WId > WindowSystem::windows()
+QList<WId> WindowSystem::windows()
 {
     return stackingOrder();
 }
 
-QRect WindowSystem::workArea(const QList< WId > &excludes, int desktop)
+QRect WindowSystem::workArea(const QList<WId> &excludes, int desktop)
 {
     Q_UNUSED(excludes)
     Q_UNUSED(desktop)

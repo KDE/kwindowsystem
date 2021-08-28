@@ -7,14 +7,14 @@
 #ifndef KMODIFIERKEYINFOPROVIDERWAYLAND_H
 #define KMODIFIERKEYINFOPROVIDERWAYLAND_H
 
-#include <kmodifierkeyinfoprovider_p.h>
 #include <KWayland/Client/keystate.h>
 #include <QPointer>
+#include <kmodifierkeyinfoprovider_p.h>
 
 class KModifierKeyInfoProviderWayland : public KModifierKeyInfoProvider
 {
-Q_OBJECT
-Q_PLUGIN_METADATA(IID "org.kde.kguiaddons.KModifierKeyInfoProvider.Wayland")
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.kde.kguiaddons.KModifierKeyInfoProvider.Wayland")
 public:
     KModifierKeyInfoProviderWayland();
     ~KModifierKeyInfoProviderWayland();

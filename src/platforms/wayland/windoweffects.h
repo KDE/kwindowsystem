@@ -13,13 +13,13 @@
 
 namespace KWayland
 {
-    namespace Client
-    {
-        class BlurManager;
-        class ContrastManager;
-        class Compositor;
-        class ConnectionThread;
-    }
+namespace Client
+{
+class BlurManager;
+class ContrastManager;
+class Compositor;
+class ConnectionThread;
+}
 }
 
 class WindowEffects : public QObject, public KWindowEffectsPrivate
@@ -47,8 +47,18 @@ public:
 #endif
     void enableBlurBehind(WId winId, bool enable = true, const QRegion &region = QRegion()) override;
     void enableBlurBehind(QWindow *window, bool enable, const QRegion &region);
-    void enableBackgroundContrast(WId winId, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion()) override;
-    void enableBackgroundContrast(QWindow *window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());
+    void enableBackgroundContrast(WId winId,
+                                  bool enable = true,
+                                  qreal contrast = 1,
+                                  qreal intensity = 1,
+                                  qreal saturation = 1,
+                                  const QRegion &region = QRegion()) override;
+    void enableBackgroundContrast(QWindow *window,
+                                  bool enable = true,
+                                  qreal contrast = 1,
+                                  qreal intensity = 1,
+                                  qreal saturation = 1,
+                                  const QRegion &region = QRegion());
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
     void markAsDashboard(WId window) override;
 #endif
@@ -62,7 +72,6 @@ private:
         QRegion region;
     };
     QHash<QWindow *, BackgroundContrastData> m_backgroundConstrastRegions;
-
 };
 
 #endif

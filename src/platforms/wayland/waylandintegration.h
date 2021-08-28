@@ -13,19 +13,19 @@
 
 namespace KWayland
 {
-    namespace Client
-    {
-        class BlurManager;
-        class ContrastManager;
-        class Compositor;
-        class ConnectionThread;
-        class PlasmaWindowManagement;
-        class PlasmaShell;
-        class Registry;
-        class ShadowManager;
-        class ShmPool;
-        class SlideManager;
-    }
+namespace Client
+{
+class BlurManager;
+class ContrastManager;
+class Compositor;
+class ConnectionThread;
+class PlasmaWindowManagement;
+class PlasmaShell;
+class Registry;
+class ShadowManager;
+class ShmPool;
+class SlideManager;
+}
 }
 class WaylandXdgActivationV1;
 
@@ -61,7 +61,10 @@ private:
     QPointer<KWayland::Client::PlasmaShell> m_waylandPlasmaShell;
     QPointer<KWayland::Client::ShmPool> m_waylandShmPool;
     QPointer<WaylandXdgActivationV1> m_activation;
-    struct { quint32 name = 0; quint32 version = 0; } m_activationInterface;
+    struct {
+        quint32 name = 0;
+        quint32 version = 0;
+    } m_activationInterface;
 };
 
 #endif

@@ -7,17 +7,16 @@
 #ifndef WINDOWINFO_H
 #define WINDOWINFO_H
 
-#include <kwindowinfo.h>
 #include <KWindowSystem/private/kwindowinfo_p.h>
-
+#include <kwindowinfo.h>
 
 namespace KWayland
 {
-    namespace Client
-    {
-        class Surface;
-        class PlasmaShellSurface;
-    }
+namespace Client
+{
+class Surface;
+class PlasmaShellSurface;
+}
 }
 
 class WindowInfo : public KWindowInfoPrivate

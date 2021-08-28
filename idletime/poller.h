@@ -66,7 +66,7 @@ private:
     KWayland::Client::ConnectionThread *m_connectionThread = nullptr;
     KWayland::Client::Registry *m_registry = nullptr;
     KWayland::Client::IdleTimeout *m_catchResumeTimeout = nullptr;
-    QHash<int, KWayland::Client::IdleTimeout*> m_timeouts;
+    QHash<int, KWayland::Client::IdleTimeout *> m_timeouts;
 };
 
 #endif /* XSYNCBASEDPOLLER_H */

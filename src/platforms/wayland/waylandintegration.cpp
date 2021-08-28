@@ -9,23 +9,23 @@
 #include "waylandintegration.h"
 #include "logging.h"
 
-#include <KWayland/Client/connection_thread.h>
-#include <KWayland/Client/registry.h>
-#include <KWayland/Client/compositor.h>
-#include <KWayland/Client/plasmawindowmanagement.h>
-#include <KWayland/Client/plasmashell.h>
-#include <KWayland/Client/surface.h>
 #include <KWayland/Client/blur.h>
+#include <KWayland/Client/compositor.h>
+#include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/contrast.h>
+#include <KWayland/Client/plasmashell.h>
+#include <KWayland/Client/plasmawindowmanagement.h>
 #include <KWayland/Client/region.h>
-#include <KWayland/Client/slide.h>
+#include <KWayland/Client/registry.h>
 #include <KWayland/Client/shadow.h>
 #include <KWayland/Client/shm_pool.h>
+#include <KWayland/Client/slide.h>
+#include <KWayland/Client/surface.h>
 
 #include <KWindowSystem/KWindowSystem>
 
-#include <QGuiApplication>
 #include "waylandxdgactivationv1_p.h"
+#include <QGuiApplication>
 
 class WaylandIntegrationSingleton
 {
@@ -42,7 +42,8 @@ WaylandIntegration::WaylandIntegration()
 }
 
 WaylandIntegration::~WaylandIntegration()
-{}
+{
+}
 
 void WaylandIntegration::setupKWaylandIntegration()
 {
@@ -53,11 +54,11 @@ void WaylandIntegration::setupKWaylandIntegration()
         return;
     }
     m_registry = new Registry(qApp);
-    connect(m_registry, &KWayland::Client::Registry::interfaceAnnounced, this, [this] (const QByteArray &interfaceName, quint32 name, quint32 version) {
+    connect(m_registry, &KWayland::Client::Registry::interfaceAnnounced, this, [this](const QByteArray &interfaceName, quint32 name, quint32 version) {
         if (interfaceName != xdg_activation_v1_interface.name)
             return;
 
-        m_activationInterface = { name, version };
+        m_activationInterface = {name, version};
     });
     m_registry->create(m_waylandConnection);
     m_waylandCompositor = Compositor::fromApplication(this);
@@ -87,11 +88,9 @@ KWayland::Client::BlurManager *WaylandIntegration::waylandBlurManager()
 
         m_waylandBlurManager = m_registry->createBlurManager(wmInterface.name, wmInterface.version, qApp);
 
-        connect(m_waylandBlurManager, &KWayland::Client::BlurManager::removed, this,
-            [this] () {
-                m_waylandBlurManager->deleteLater();
-            }
-        );
+        connect(m_waylandBlurManager, &KWayland::Client::BlurManager::removed, this, [this]() {
+            m_waylandBlurManager->deleteLater();
+        });
     }
 
     return m_waylandBlurManager;
@@ -108,11 +107,9 @@ KWayland::Client::ContrastManager *WaylandIntegration::waylandContrastManager()
 
         m_waylandContrastManager = m_registry->createContrastManager(wmInterface.name, wmInterface.version, qApp);
 
-        connect(m_waylandContrastManager, &KWayland::Client::ContrastManager::removed, this,
-            [this] () {
-                m_waylandContrastManager->deleteLater();
-            }
-        );
+        connect(m_waylandContrastManager, &KWayland::Client::ContrastManager::removed, this, [this]() {
+            m_waylandContrastManager->deleteLater();
+        });
     }
     return m_waylandContrastManager;
 }
@@ -128,11 +125,9 @@ KWayland::Client::SlideManager *WaylandIntegration::waylandSlideManager()
 
         m_waylandSlideManager = m_registry->createSlideManager(wmInterface.name, wmInterface.version, qApp);
 
-        connect(m_waylandSlideManager, &KWayland::Client::SlideManager::removed, this,
-            [this] () {
-                m_waylandSlideManager->deleteLater();
-            }
-        );
+        connect(m_waylandSlideManager, &KWayland::Client::SlideManager::removed, this, [this]() {
+            m_waylandSlideManager->deleteLater();
+        });
     }
 
     return m_waylandSlideManager;
@@ -150,11 +145,9 @@ KWayland::Client::ShadowManager *WaylandIntegration::waylandShadowManager()
 
         m_waylandShadowManager = m_registry->createShadowManager(wmInterface.name, wmInterface.version, qApp);
 
-        connect(m_waylandShadowManager, &KWayland::Client::ShadowManager::removed, this,
-            [this] () {
-                m_waylandShadowManager->deleteLater();
-            }
-        );
+        connect(m_waylandShadowManager, &KWayland::Client::ShadowManager::removed, this, [this]() {
+            m_waylandShadowManager->deleteLater();
+        });
     }
 
     return m_waylandShadowManager;
@@ -181,11 +174,9 @@ KWayland::Client::PlasmaWindowManagement *WaylandIntegration::plasmaWindowManage
         connect(m_wm, &PlasmaWindowManagement::showingDesktopChanged, KWindowSystem::self(), &KWindowSystem::showingDesktopChanged);
         qCDebug(KWAYLAND_KWS) << "Plasma Window Management interface bound";
 
-        connect(m_wm, &KWayland::Client::PlasmaWindowManagement::removed, this,
-            [this] () {
-                m_wm->deleteLater();
-            }
-        );
+        connect(m_wm, &KWayland::Client::PlasmaWindowManagement::removed, this, [this]() {
+            m_wm->deleteLater();
+        });
     }
 
     return m_wm;
@@ -216,11 +207,9 @@ KWayland::Client::ShmPool *WaylandIntegration::waylandShmPool()
 
         m_waylandShmPool = m_registry->createShmPool(wmInterface.name, wmInterface.version, qApp);
 
-        connect(m_waylandShmPool, &KWayland::Client::ShmPool::removed, this,
-            [this] () {
-                m_waylandShmPool->deleteLater();
-            }
-        );
+        connect(m_waylandShmPool, &KWayland::Client::ShmPool::removed, this, [this]() {
+            m_waylandShmPool->deleteLater();
+        });
     }
 
     return m_waylandShmPool;
