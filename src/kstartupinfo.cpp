@@ -170,8 +170,8 @@ public:
     QTimer *cleanup;
     int flags;
 
-    Private(int flags_P, KStartupInfo *q)
-        : q(q)
+    Private(int flags_P, KStartupInfo *qq)
+        : q(qq)
         , timeout(60)
 #if KWINDOWSYSTEM_HAVE_X11
         , msgs(NET_STARTUP_MSG)
