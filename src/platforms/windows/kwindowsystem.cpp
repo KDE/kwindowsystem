@@ -656,7 +656,7 @@ void KWindowSystem::connectNotify(const QMetaMethod &method)
         what = INFO_WINDOWS;
     } else if (method == QMetaMethod::fromSignal(&KWindowSystem::strutChanged)) {
         what = INFO_WINDOWS;
-    } else if (method == QMetaMethod::fromSignal(QOverload<WId, NET::Properties, NET::Properties2>::of(&KWindowSystem::windowChanged))) {
+    } else if (method == QMetaMethod::fromSignal(qOverload<WId, NET::Properties, NET::Properties2>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     }
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
