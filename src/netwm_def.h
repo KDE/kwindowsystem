@@ -40,6 +40,11 @@ struct NETPoint {
     {
     }
 
+    QPoint toPoint() const
+    {
+        return {x, y};
+    }
+
     /*
        Public data member.
     **/
@@ -76,6 +81,10 @@ struct NETSize {
     {
     }
 
+    QSize toSize() const
+    {
+        return {width, height};
+    }
     /*
        Public data member.
     **/
@@ -102,6 +111,11 @@ struct NETRect {
         : pos(rect.topLeft())
         , size(rect.size())
     {
+    }
+
+    QRect toRect() const
+    {
+        return QRect(pos.x, pos.y, size.width, size.height);
     }
 
     /**
