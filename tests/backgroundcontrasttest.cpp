@@ -176,23 +176,18 @@ void ContrastTestWindow::update()
         KWindowEffects::enableBlurBehind(windowHandle(), false);
     }
 
-    const auto region = ({
-        auto reg = QRegion();
-
-        switch (m_state) {
-        case Nothing:
-        case FullWindow:
-            break;
-        case Rect:
-            reg = m_area->geometry();
-            break;
-        case Ellipse:
-            reg = QRegion(m_area->geometry(), QRegion::Ellipse);
-            break;
-        }
-
-        reg;
-    });
+    auto region = QRegion();
+    switch (m_state) {
+    case Nothing:
+    case FullWindow:
+        break;
+    case Rect:
+        region = m_area->geometry();
+        break;
+    case Ellipse:
+        region = QRegion(m_area->geometry(), QRegion::Ellipse);
+        break;
+    }
 
     KWindowEffects::enableBlurBehind(windowHandle(), m_doBlur, region);
 
