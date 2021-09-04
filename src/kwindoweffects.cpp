@@ -24,6 +24,10 @@ KWindowEffectsPrivateV2::KWindowEffectsPrivateV2()
 {
 }
 
+KWindowEffectsPrivateV2::~KWindowEffectsPrivateV2()
+{
+}
+
 namespace KWindowEffects
 {
 bool isEffectAvailable(Effect effect)
