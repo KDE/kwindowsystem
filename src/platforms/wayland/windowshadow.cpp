@@ -14,13 +14,16 @@
 #include <QDebug>
 #include <QExposeEvent>
 
+WindowShadowTile::WindowShadowTile() {}
+WindowShadowTile::~WindowShadowTile() {}
+
 bool WindowShadowTile::create()
 {
-    KWayland::Client::ShmPool *shmPool = WaylandIntegration::self()->waylandShmPool();
-    if (!shmPool) {
+    m_shmPool.reset(WaylandIntegration::self()->createShmPool());
+    if (!m_shmPool) {
         return false;
     }
-    buffer = shmPool->createBuffer(image);
+    buffer = m_shmPool->createBuffer(image);
     return true;
 }
 

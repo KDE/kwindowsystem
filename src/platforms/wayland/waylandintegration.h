@@ -46,7 +46,7 @@ public:
     KWayland::Client::Compositor *waylandCompositor() const;
     KWayland::Client::PlasmaWindowManagement *plasmaWindowManagement();
     KWayland::Client::PlasmaShell *waylandPlasmaShell();
-    KWayland::Client::ShmPool *waylandShmPool();
+    KWayland::Client::ShmPool *createShmPool();
     WaylandXdgActivationV1 *activation();
 
 private:
@@ -59,7 +59,6 @@ private:
     QPointer<KWayland::Client::ShadowManager> m_waylandShadowManager;
     QPointer<KWayland::Client::PlasmaWindowManagement> m_wm;
     QPointer<KWayland::Client::PlasmaShell> m_waylandPlasmaShell;
-    QPointer<KWayland::Client::ShmPool> m_waylandShmPool;
     QPointer<WaylandXdgActivationV1> m_activation;
     struct {
         quint32 name = 0;

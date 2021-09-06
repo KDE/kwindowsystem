@@ -196,23 +196,19 @@ KWayland::Client::PlasmaShell *WaylandIntegration::waylandPlasmaShell()
     return m_waylandPlasmaShell;
 }
 
-KWayland::Client::ShmPool *WaylandIntegration::waylandShmPool()
+KWayland::Client::ShmPool *WaylandIntegration::createShmPool()
 {
-    if (!m_waylandShmPool && m_registry) {
+    if (m_registry) {
         const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Shm);
 
         if (wmInterface.name == 0) {
             return nullptr;
         }
 
-        m_waylandShmPool = m_registry->createShmPool(wmInterface.name, wmInterface.version, qApp);
-
-        connect(m_waylandShmPool, &KWayland::Client::ShmPool::removed, this, [this]() {
-            m_waylandShmPool->deleteLater();
-        });
+        return m_registry->createShmPool(wmInterface.name, wmInterface.version, qApp);
     }
 
-    return m_waylandShmPool;
+    return nullptr;
 }
 
 WaylandXdgActivationV1 *WaylandIntegration::activation()

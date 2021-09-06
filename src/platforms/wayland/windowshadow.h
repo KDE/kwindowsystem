@@ -14,12 +14,16 @@
 class WindowShadowTile final : public KWindowShadowTilePrivate
 {
 public:
+    WindowShadowTile();
+    ~WindowShadowTile();
+
     bool create() override;
     void destroy() override;
 
     static WindowShadowTile *get(const KWindowShadowTile *tile);
 
     KWayland::Client::Buffer::Ptr buffer;
+    QScopedPointer<KWayland::Client::ShmPool> m_shmPool;
 };
 
 class WindowShadow final : public QObject, public KWindowShadowPrivate
