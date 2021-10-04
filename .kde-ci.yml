@@ -1,5 +1,5 @@
 Dependencies:
-- 'on': ['Linux', 'FreeBSD']
+- 'on': ['@all']
   'require':
     'frameworks/extra-cmake-modules': '@same'
 
