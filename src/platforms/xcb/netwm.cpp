@@ -3684,7 +3684,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
         } else if (message->type == p->atom(_NET_WM_DESKTOP)) {
             dirty = WMDesktop;
 
-            if (message->data.data32[0] == OnAllDesktops) {
+            if (message->data.data32[0] == (unsigned)OnAllDesktops) {
                 changeDesktop(OnAllDesktops);
             } else {
                 changeDesktop(message->data.data32[0] + 1);
