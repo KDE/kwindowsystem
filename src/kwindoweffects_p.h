@@ -43,7 +43,7 @@ public:
 
 protected:
     KWindowEffectsPrivateV2();
-    virtual ~KWindowEffectsPrivateV2();
+    ~KWindowEffectsPrivateV2() override;
 };
 
 #endif

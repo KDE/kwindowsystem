@@ -82,7 +82,7 @@ class KWINDOWSYSTEM_EXPORT KWindowShadow : public QObject
 
 public:
     explicit KWindowShadow(QObject *parent = nullptr);
-    ~KWindowShadow();
+    ~KWindowShadow() override;
 
     /**
      * Returns the left tile attached to the KWindowShadow.
