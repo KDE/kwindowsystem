@@ -38,6 +38,7 @@ public:
 
     static WaylandIntegration *self();
 
+    KWayland::Client::Registry *registry() const;
     KWayland::Client::ConnectionThread *waylandConnection() const;
     KWayland::Client::BlurManager *waylandBlurManager();
     KWayland::Client::ContrastManager *waylandContrastManager();

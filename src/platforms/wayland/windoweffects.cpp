@@ -28,6 +28,43 @@ WindowEffects::WindowEffects()
     : QObject()
     ,  KWindowEffectsPrivateV2()
 {
+    auto registry = WaylandIntegration::self()->registry();
+
+    // The KWindowEffects API doesn't provide any signals to notify that the particular
+    // effect has become unavailable. So we re-install effects when the corresponding globals
+    // are added.
+    connect(registry, &KWayland::Client::Registry::blurAnnounced, this, [this]() {
+        for (auto it = m_blurRegions.constBegin(); it != m_blurRegions.constEnd(); ++it) {
+            installBlur(it.key(), true, *it);
+        }
+    });
+    connect(registry, &KWayland::Client::Registry::blurRemoved, this, [this]() {
+        for (auto it = m_blurRegions.constBegin(); it != m_blurRegions.constEnd(); ++it) {
+            installBlur(it.key(), false, *it);
+        }
+    });
+
+    connect(registry, &KWayland::Client::Registry::contrastAnnounced, this, [this]() {
+        for (auto it = m_backgroundConstrastRegions.constBegin(); it != m_backgroundConstrastRegions.constEnd(); ++it) {
+            installContrast(it.key(), true, it->contrast, it->intensity, it->saturation, it->region);
+        }
+    });
+    connect(registry, &KWayland::Client::Registry::contrastRemoved, this, [this]() {
+        for (auto it = m_backgroundConstrastRegions.constBegin(); it != m_backgroundConstrastRegions.constEnd(); ++it) {
+            installContrast(it.key(), false);
+        }
+    });
+
+    connect(registry, &KWayland::Client::Registry::slideAnnounced, this, [this]() {
+        for (auto it = m_slideMap.constBegin(); it != m_slideMap.constEnd(); ++it) {
+            installSlide(it.key(), it->location, it->offset);
+        }
+    });
+    connect(registry, &KWayland::Client::Registry::slideRemoved, this, [this]() {
+        for (auto it = m_slideMap.constBegin(); it != m_slideMap.constEnd(); ++it) {
+            installSlide(it.key(), KWindowEffects::SlideFromLocation::NoEdge, 0);
+        }
+    });
 }
 
 WindowEffects::~WindowEffects()
@@ -54,6 +91,7 @@ void WindowEffects::trackWindow(QWindow *window)
         auto conn = connect(window, &QObject::destroyed, this, [this, window]() {
             m_blurRegions.remove(window);
             m_backgroundConstrastRegions.remove(window);
+            m_slideMap.remove(window);
             m_windowWatchers.remove(window);
         });
         m_windowWatchers[window] = conn;
@@ -62,7 +100,7 @@ void WindowEffects::trackWindow(QWindow *window)
 
 void WindowEffects::releaseWindow(QWindow *window)
 {
-    if (!m_blurRegions.contains(window) && !m_backgroundConstrastRegions.contains(window)) {
+    if (!m_blurRegions.contains(window) && !m_backgroundConstrastRegions.contains(window) && !m_slideMap.contains(window)) {
         disconnect(m_windowWatchers[window]);
         window->removeEventFilter(this);
         m_windowWatchers.remove(window);
@@ -86,13 +124,13 @@ bool WindowEffects::eventFilter(QObject *watched, QEvent *event)
         {
             auto it = m_blurRegions.constFind(window);
             if (it != m_blurRegions.constEnd()) {
-                enableBlurBehind(window, true, *it);
+                installBlur(window, true, *it);
             }
         }
         {
             auto it = m_backgroundConstrastRegions.constFind(window);
             if (it != m_backgroundConstrastRegions.constEnd()) {
-                enableBackgroundContrast(window, true, it->contrast, it->intensity, it->saturation, it->region);
+                installContrast(window, true, it->contrast, it->intensity, it->saturation, it->region);
             }
         }
     }
@@ -115,10 +153,30 @@ bool WindowEffects::isEffectAvailable(KWindowEffects::Effect effect)
 
 void WindowEffects::slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset)
 {
+    auto window = windowForId(id);
+    if (!window) {
+        return;
+    }
+    if (location != KWindowEffects::SlideFromLocation::NoEdge) {
+        m_slideMap[window] = SlideData{
+            .location = location,
+            .offset = offset,
+        };
+        trackWindow(window);
+    } else {
+        m_slideMap.remove(window);
+        releaseWindow(window);
+    }
+
+    installSlide(window, location, offset);
+}
+
+void WindowEffects::installSlide(QWindow *window, KWindowEffects::SlideFromLocation location, int offset)
+{
     if (!WaylandIntegration::self()->waylandSlideManager()) {
         return;
     }
-    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromQtWinId(id);
+    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
     if (surface) {
         if (location != KWindowEffects::SlideFromLocation::NoEdge) {
             auto slide = WaylandIntegration::self()->waylandSlideManager()->createSlide(surface, surface);
@@ -198,10 +256,10 @@ void WindowEffects::enableBlurBehind(WId winId, bool enable, const QRegion &regi
         releaseWindow(window);
     }
 
-    enableBlurBehind(window, enable, region);
+    installBlur(window, enable, region);
 }
 
-void WindowEffects::enableBlurBehind(QWindow *window, bool enable, const QRegion &region)
+void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &region)
 {
     if (!WaylandIntegration::self()->waylandBlurManager()) {
         return;
@@ -238,10 +296,10 @@ void WindowEffects::enableBackgroundContrast(WId winId, bool enable, qreal contr
         releaseWindow(window);
     }
 
-    enableBackgroundContrast(window, enable, contrast, intensity, saturation, region);
+    installContrast(window, enable, contrast, intensity, saturation, region);
 }
 
-void WindowEffects::enableBackgroundContrast(QWindow *window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+void WindowEffects::installContrast(QWindow *window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
 {
     if (!WaylandIntegration::self()->waylandContrastManager()) {
         return;

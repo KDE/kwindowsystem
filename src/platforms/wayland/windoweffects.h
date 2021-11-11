@@ -46,24 +46,21 @@ public:
     void highlightWindows(WId controller, const QList<WId> &ids) override;
 #endif
     void enableBlurBehind(WId winId, bool enable = true, const QRegion &region = QRegion()) override;
-    void enableBlurBehind(QWindow *window, bool enable, const QRegion &region);
     void enableBackgroundContrast(WId winId,
                                   bool enable = true,
                                   qreal contrast = 1,
                                   qreal intensity = 1,
                                   qreal saturation = 1,
                                   const QRegion &region = QRegion()) override;
-    void enableBackgroundContrast(QWindow *window,
-                                  bool enable = true,
-                                  qreal contrast = 1,
-                                  qreal intensity = 1,
-                                  qreal saturation = 1,
-                                  const QRegion &region = QRegion());
     void setBackgroundFrost(QWindow *window, QColor color, const QRegion &region = QRegion()) override;
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
     void markAsDashboard(WId window) override;
 #endif
 private:
+    void installContrast(QWindow *window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());
+    void installBlur(QWindow *window, bool enable, const QRegion &region);
+    void installSlide(QWindow *window, KWindowEffects::SlideFromLocation location, int offset);
+
     QHash<QWindow *, QMetaObject::Connection> m_windowWatchers;
     QHash<QWindow *, QRegion> m_blurRegions;
     struct BackgroundContrastData {
@@ -73,6 +70,11 @@ private:
         QRegion region;
     };
     QHash<QWindow *, BackgroundContrastData> m_backgroundConstrastRegions;
+    struct SlideData {
+        KWindowEffects::SlideFromLocation location;
+        int offset;
+    };
+    QHash<QWindow *, SlideData> m_slideMap;
 };
 
 #endif
