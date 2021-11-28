@@ -298,6 +298,17 @@ void KWindowEffectsPrivateX11::setBackgroundFrost(QWindow *window, QColor color,
     xcb_change_property(c, XCB_PROP_MODE_REPLACE, id, atom->atom, atom->atom, 32, data.size(), data.constData());
 }
 
+static QWindow *getWindowFromWinId(WId winId)
+{
+    const QWindowList windows = qGuiApp->topLevelWindows();
+    for (auto window : windows) {
+        if (window->handle() && window->winId() == winId) {
+            return window;
+        }
+    }
+    return nullptr;
+}
+
 void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
 {
     xcb_connection_t *c = QX11Info::connection();
@@ -309,7 +320,9 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
     }
 
     if (enable) {
-        setBackgroundFrost(QWindow::fromWinId(window), {});
+        if (QWindow *windowObject = getWindowFromWinId(window)) {
+            setBackgroundFrost(windowObject, {});
+        }
         QVector<uint32_t> data;
         data.reserve(region.rectCount() * 4 + 16);
         for (const QRect &r : region) {
