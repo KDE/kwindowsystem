@@ -44,6 +44,8 @@ class NETWinInfo;
 class KWINDOWSYSTEM_EXPORT KWindowSystem : public QObject, public NET
 {
     Q_OBJECT
+    Q_PROPERTY(bool isPlatformWayland READ isPlatformWayland CONSTANT)
+    Q_PROPERTY(bool isPlatformX11 READ isPlatformX11 CONSTANT)
 
 public:
     /**
@@ -135,6 +137,34 @@ public:
      *    caused this request
      */
     static void activateWindow(WId win, long time = 0);
+
+    /**
+     * Requests that window @p win is activated.
+     *
+     * There are two ways how to activate a window, by calling
+     * activateWindow() and forceActiveWindow(). Generally,
+     * applications shouldn't make attempts to explicitly activate
+     * their windows, and instead let the user to activate them.
+     * In the special cases where this may be needed, applications
+     * should use activateWindow(). Window manager may consider whether
+     * this request wouldn't result in focus stealing, which
+     * would be obtrusive, and may refuse the request.
+     *
+     * The usage of forceActiveWindow() is meant only for pagers
+     * and similar tools, which represent direct user actions
+     * related to window manipulation.
+     * Except for rare cases, this request will be always honored,
+     * and normal applications are forbidden to use it.
+     *
+     * In case of problems, consult the KWin README in the kdebase
+     * package (kdebase/kwin/README), or ask on the kwin@kde.org
+     * mailing list.
+     *
+     * @param window the window to make active
+     * @param time X server timestamp of the user activity that
+     *    caused this request
+     */
+    Q_INVOKABLE static void activateWindow(QWindow *window, long time = 0);
 
     /**
      * Sets window @p win to be the active window. Note that this
@@ -662,14 +692,14 @@ public:
      * @see currentSerial
      * @since 5.83
      */
-    static void requestXdgActivationToken(QWindow *win, uint32_t serial, const QString &app_id);
+    Q_INVOKABLE static void requestXdgActivationToken(QWindow *win, uint32_t serial, const QString &app_id);
 
     /**
      * Sets the @p token that will be used when activateWindow is called next
      *
      * @since 5.83
      */
-    static void setCurrentXdgActivationToken(const QString &token);
+    Q_INVOKABLE static void setCurrentXdgActivationToken(const QString &token);
 
     /**
      * Offers the seat's current serial
@@ -678,7 +708,7 @@ public:
      *
      * @since 5.83
      */
-    static quint32 lastInputSerial(QWindow *window);
+    Q_INVOKABLE static quint32 lastInputSerial(QWindow *window);
 
 Q_SIGNALS:
 
