@@ -16,13 +16,20 @@ ecm_qt_declare_logging_category(KF5WindowSystemX11Plugin
     DEFAULT_SEVERITY Warning
 )
 
+if (TARGET Qt5::X11Extras)
+    set(_qt_x11_libs Qt5::X11Extras)
+elseif (TARGET Qt6::Gui)
+    set(_qt_x11_libs Qt6::GuiPrivate) # qtx11extras_p.h
+endif()
+
 target_link_libraries(KF5WindowSystemX11Plugin
-    KF5WindowSystem
-    Qt5::X11Extras
-    XCB::XCB
-    XCB::RES
-    ${X11_LIBRARIES}
-    ${X11_Xfixes_LIB}
+    PRIVATE
+        KF5WindowSystem
+        XCB::XCB
+        XCB::RES
+        ${X11_LIBRARIES}
+        ${X11_Xfixes_LIB}
+        ${_qt_x11_libs}
 )
 
 ecm_generate_headers(KWindowSystemX11_HEADERS
@@ -43,7 +50,7 @@ install(
         kmanagerselection.h
         fixx11h.h
     DESTINATION
-        ${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem
+        ${KDE_INSTALL_INCLUDEDIR_KF}/KWindowSystem
     COMPONENT
         Devel
 )

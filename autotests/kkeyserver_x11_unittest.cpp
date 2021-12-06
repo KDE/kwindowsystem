@@ -6,7 +6,12 @@
 
 #include "kkeyserver_x11.h"
 #include <QTest>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <private/qtx11extras_p.h>
+#else
 #include <QX11Info>
+#endif
+
 #include <X11/keysym.h>
 #include <xcb/xcb_keysyms.h>
 

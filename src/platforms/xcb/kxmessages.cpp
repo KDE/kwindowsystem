@@ -16,7 +16,12 @@
 #include <QWindow> // WId
 
 #include <X11/Xlib.h>
-#include <qx11info_x11.h>
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <private/qtx11extras_p.h>
+#else
+#include <QX11Info>
+#endif
 
 class XcbAtom
 {
@@ -120,9 +125,12 @@ public:
     xcb_connection_t *connection;
     xcb_window_t rootWindow;
 
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *) override
+#else
+    bool nativeEventFilter(const QByteArray &eventType, void *message, long *) override
+#endif
     {
-        Q_UNUSED(result);
         // A faster comparison than eventType != "xcb_generic_event_t"
         if (eventType[0] != 'x') {
             return false;

@@ -54,16 +54,25 @@ if (KWINDOWSYSTEM_HAVE_X11)
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}/platforms/xcb
    )
+
+    if (TARGET Qt5::X11Extras)
+        set(_qt_x11_libs Qt5::X11Extras)
+    elseif (TARGET Qt6::Gui)
+        set(_qt_x11_libs Qt6::GuiPrivate) # qtx11extras_p.h
+    endif()
+
+
    target_link_libraries(KF5WindowSystem
         PUBLIC
             # public because they are used in kkeyserver_x11.h
             X11::X11
         PRIVATE
             XCB::XCB
-            Qt5::X11Extras
             X11::Xfixes
             XCB::KEYSYMS
+            ${_qt_x11_libs}
    )
+
    target_sources(KF5WindowSystem PRIVATE
         platforms/xcb/kkeyserver.cpp
         platforms/xcb/kxmessages.cpp
@@ -119,13 +128,13 @@ ecm_generate_export_header(KF5WindowSystem
     EXCLUDE_DEPRECATED_BEFORE_AND_AT ${EXCLUDE_DEPRECATED_BEFORE_AND_AT}
 )
 
-target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem>")
+target_include_directories(KF5WindowSystem INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/KWindowSystem>")
 
 target_link_libraries(KF5WindowSystem
-    PUBLIC Qt5::Gui
+    PUBLIC Qt${QT_MAJOR_VERSION}::Gui
 )
 if(NOT KWINDOWSYSTEM_NO_WIDGETS)
-    target_link_libraries(KF5WindowSystem PUBLIC Qt5::Widgets)
+    target_link_libraries(KF5WindowSystem PUBLIC Qt${QT_MAJOR_VERSION}::Widgets)
 endif()
 
 set_target_properties(KF5WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSION}
@@ -154,7 +163,7 @@ install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/kwindowsystem_export.h
   ${KWindowSystem_HEADERS}
   netwm_def.h
-  DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem COMPONENT Devel
+  DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KWindowSystem COMPONENT Devel
 )
 
 install(
@@ -165,7 +174,7 @@ install(
         kwindowsystem_p.h
         kwindowsystemplugininterface_p.h
     DESTINATION
-        ${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem/private
+        ${KDE_INSTALL_INCLUDEDIR_KF}/KWindowSystem/private
     COMPONENT
         Devel
 )
@@ -209,5 +218,5 @@ ecm_qt_install_logging_categories(
 )
 
 include(ECMGeneratePriFile)
-ecm_generate_pri_file(BASE_NAME KWindowSystem LIB_NAME KF5WindowSystem DEPS "gui" FILENAME_VAR PRI_FILENAME INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR_KF5}/KWindowSystem)
+ecm_generate_pri_file(BASE_NAME KWindowSystem LIB_NAME KF5WindowSystem DEPS "gui" FILENAME_VAR PRI_FILENAME INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR_KF}/KWindowSystem)
 install(FILES ${PRI_FILENAME} DESTINATION ${ECM_MKSPECS_INSTALL_DIR})

@@ -12,7 +12,11 @@
 #include <QAbstractNativeEventFilter>
 #include <QCoreApplication>
 
-#include <qx11info_x11.h>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <private/qtx11extras_p.h>
+#else
+#include <QX11Info>
+#endif
 
 static xcb_window_t get_selection_owner(xcb_connection_t *c, xcb_atom_t selection)
 {
@@ -69,9 +73,12 @@ public:
     static Private *create(KSelectionWatcher *watcher, const char *selection_P, xcb_connection_t *c, xcb_window_t root);
 
 protected:
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *) override
+#else
+    bool nativeEventFilter(const QByteArray &eventType, void *message, long *) override
+#endif
     {
-        Q_UNUSED(result);
         if (eventType != "xcb_generic_event_t") {
             return false;
         }
