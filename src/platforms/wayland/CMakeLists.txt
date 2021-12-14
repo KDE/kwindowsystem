@@ -6,6 +6,13 @@ set(wayland_plugin_SRCS
     windowshadow.cpp
     windowsystem.cpp
     waylandxdgactivationv1.cpp
+    plugin.h
+    waylandintegration.h
+    windoweffects.h
+    windowinfo.h
+    windowshadow.h
+    windowsystem.h
+    waylandxdgactivationv1_p.h
 )
 
 ecm_add_qtwayland_client_protocol(wayland_plugin_SRCS
