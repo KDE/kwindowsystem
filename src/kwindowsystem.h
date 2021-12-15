@@ -163,6 +163,8 @@ public:
      * @param window the window to make active
      * @param time X server timestamp of the user activity that
      *    caused this request
+     *
+     * @since 5.89
      */
     Q_INVOKABLE static void activateWindow(QWindow *window, long time = 0);
 
