@@ -14,7 +14,8 @@ class NETWinInfo;
 class KWindowInfoPrivateX11 : public KWindowInfoPrivate,
                               public KWindowInfoPrivateDesktopFileNameExtension,
                               public KWindowInfoPrivatePidExtension,
-                              public KWindowInfoPrivateAppMenuExtension
+                              public KWindowInfoPrivateAppMenuExtension,
+                              public KWindowInfoPrivateGtkApplicationIdExtension
 {
 public:
     KWindowInfoPrivateX11(WId window, NET::Properties properties, NET::Properties2 properties2);
@@ -49,6 +50,7 @@ public:
     QByteArray desktopFileName() const override;
     QByteArray applicationMenuObjectPath() const override;
     QByteArray applicationMenuServiceName() const override;
+    QByteArray gtkApplicationId() const override;
 
     int pid() const override;
 

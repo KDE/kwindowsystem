@@ -153,6 +153,7 @@ ENUM_BEGIN(KwsAtom)
 
     // GTK extensions
     ENUM(_GTK_FRAME_EXTENTS),
+    ENUM(_GTK_APPLICATION_ID),
 
     // application protocols
     ENUM(WM_PROTOCOLS),

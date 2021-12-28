@@ -156,6 +156,7 @@ static void refdec_nwi(NETWinInfoPrivate *p)
         delete[] p->activities;
         delete[] p->client_machine;
         delete[] p->desktop_file;
+        delete[] p->gtk_application_id;
         delete[] p->appmenu_object_path;
         delete[] p->appmenu_service_name;
 
@@ -2521,6 +2522,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection,
     p->icon_sizes = nullptr;
     p->activities = (char *)nullptr;
     p->desktop_file = nullptr;
+    p->gtk_application_id = nullptr;
     p->appmenu_object_path = nullptr;
     p->appmenu_service_name = nullptr;
     p->blockCompositing = false;
@@ -2583,6 +2585,7 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_wi
     p->icon_sizes = nullptr;
     p->activities = (char *)nullptr;
     p->desktop_file = nullptr;
+    p->gtk_application_id = nullptr;
     p->appmenu_object_path = nullptr;
     p->appmenu_service_name = nullptr;
     p->blockCompositing = false;
@@ -3792,6 +3795,8 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             dirty2 |= WM2OpaqueRegion;
         } else if (pe->atom == p->atom(_KDE_NET_WM_DESKTOP_FILE)) {
             dirty2 = WM2DesktopFileName;
+        } else if (pe->atom == p->atom(_GTK_APPLICATION_ID)) {
+            dirty2 = WM2GTKApplicationId;
         } else if (pe->atom == p->atom(_NET_WM_FULLSCREEN_MONITORS)) {
             dirty2 = WM2FullscreenMonitors;
         } else if (pe->atom == p->atom(_GTK_FRAME_EXTENTS)) {
@@ -3986,6 +3991,10 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
 
     if (dirty2 & WM2DesktopFileName) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_DESKTOP_FILE), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
+    }
+
+    if (dirty2 & WM2GTKApplicationId) {
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_GTK_APPLICATION_ID), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2GTKFrameExtents) {
@@ -4591,6 +4600,16 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         }
     }
 
+    if (dirty2 & WM2GTKApplicationId) {
+        delete[] p->gtk_application_id;
+        p->gtk_application_id = nullptr;
+
+        const QByteArray id = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
+        if (id.length() > 0) {
+            p->gtk_application_id = nstrndup(id.constData(), id.length());
+        }
+    }
+
     if (dirty2 & WM2GTKFrameExtents) {
         p->gtk_frame_extents = NETStrut();
 
@@ -4928,6 +4947,11 @@ void NETWinInfo::setDesktopFileName(const char *name)
 const char *NETWinInfo::desktopFileName() const
 {
     return p->desktop_file;
+}
+
+const char *NETWinInfo::gtkApplicationId() const
+{
+    return p->gtk_application_id;
 }
 
 void NETRootInfo::virtual_hook(int, void *)

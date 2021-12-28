@@ -46,6 +46,7 @@ KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, NET::Properties propertie
     installDesktopFileNameExtension(this);
     installPidExtension(this);
     installAppMenuExtension(this);
+    installGtkApplicationIdExtension(this);
 
     KXErrorHandler handler;
     if (properties & NET::WMVisibleIconName) {
@@ -449,6 +450,16 @@ QByteArray KWindowInfoPrivateX11::desktopFileName() const
     }
 #endif
     return QByteArray(m_info->desktopFileName());
+}
+
+QByteArray KWindowInfoPrivateX11::gtkApplicationId() const
+{
+#if !defined(KDE_NO_WARNING_OUTPUT)
+    if (!(m_info->passedProperties2() & NET::WM2DesktopFileName)) {
+        qWarning() << "Pass NET::WM2DesktopFileName to KWindowInfo";
+    }
+#endif
+    return QByteArray(m_info->gtkApplicationId());
 }
 
 QByteArray KWindowInfoPrivateX11::applicationMenuObjectPath() const

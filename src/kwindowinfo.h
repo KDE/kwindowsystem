@@ -557,6 +557,25 @@ public:
     QByteArray desktopFileName() const;
 
     /**
+     * Returns the GTK application id of the window if present.
+     *
+     * This is comparable to desktopFileName.
+     *
+     * Requires NET::WM2GTKApplicationId passed as properties2 parameter to the constructor.
+     *
+     * @code
+     * QWidget *window = new QWidget(nullptr);
+     * window->show();
+     * KWindowInfo info(window->winId(), 0, NET::WM2GTKApplicationId);
+     * if (info.valid())
+     *     info.gtkApplicationId();
+     * @endcode
+     *
+     * @since 5.91
+     **/
+    QByteArray gtkApplicationId() const;
+
+    /**
      * Returns the process ID of the window's application if present.
      *
      * Requires NET::WMPid passed as properties parameter to the constructor.

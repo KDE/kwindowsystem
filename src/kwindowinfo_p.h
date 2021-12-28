@@ -18,6 +18,7 @@
 #include <QWidgetList> //For WId
 
 class KWindowInfoPrivateDesktopFileNameExtension;
+class KWindowInfoPrivateGtkApplicationIdExtension;
 class KWindowInfoPrivatePidExtension;
 class KWindowInfoPrivateAppMenuExtension;
 
@@ -55,6 +56,7 @@ public:
     virtual bool actionSupported(NET::Action action) const = 0;
 
     KWindowInfoPrivateDesktopFileNameExtension *desktopFileNameExtension() const;
+    KWindowInfoPrivateGtkApplicationIdExtension *gtkApplicationIdExtension() const;
     KWindowInfoPrivatePidExtension *pidExtension() const;
     KWindowInfoPrivateAppMenuExtension *appMenuExtension() const;
 
@@ -64,6 +66,7 @@ protected:
     KWindowInfoPrivate(WId window, NET::Properties properties, NET::Properties2 properties2);
 
     void installDesktopFileNameExtension(KWindowInfoPrivateDesktopFileNameExtension *extension);
+    void installGtkApplicationIdExtension(KWindowInfoPrivateGtkApplicationIdExtension *extension);
     void installPidExtension(KWindowInfoPrivatePidExtension *extension);
     void installAppMenuExtension(KWindowInfoPrivateAppMenuExtension *extension);
 
@@ -81,6 +84,17 @@ public:
 
 protected:
     explicit KWindowInfoPrivateDesktopFileNameExtension();
+};
+
+class KWINDOWSYSTEM_EXPORT KWindowInfoPrivateGtkApplicationIdExtension
+{
+public:
+    virtual ~KWindowInfoPrivateGtkApplicationIdExtension();
+
+    virtual QByteArray gtkApplicationId() const = 0;
+
+protected:
+    explicit KWindowInfoPrivateGtkApplicationIdExtension();
 };
 
 class KWINDOWSYSTEM_EXPORT KWindowInfoPrivatePidExtension

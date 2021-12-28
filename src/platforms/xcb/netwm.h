@@ -1627,6 +1627,12 @@ public:
     const char *desktopFileName() const;
 
     /**
+     * @returns The GTK application id of the window if present.
+     * @since 5.91
+     **/
+    const char *gtkApplicationId() const;
+
+    /**
      * Sets the @p name as the D-BUS service name for the application menu.
      * @since 5.69
      **/

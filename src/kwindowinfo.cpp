@@ -24,6 +24,9 @@ KWindowInfoPrivate *KWindowInfoPrivate::create(WId window, NET::Properties prope
 KWindowInfoPrivateDesktopFileNameExtension::KWindowInfoPrivateDesktopFileNameExtension() = default;
 KWindowInfoPrivateDesktopFileNameExtension::~KWindowInfoPrivateDesktopFileNameExtension() = default;
 
+KWindowInfoPrivateGtkApplicationIdExtension::KWindowInfoPrivateGtkApplicationIdExtension() = default;
+KWindowInfoPrivateGtkApplicationIdExtension::~KWindowInfoPrivateGtkApplicationIdExtension() = default;
+
 KWindowInfoPrivatePidExtension::KWindowInfoPrivatePidExtension() = default;
 KWindowInfoPrivatePidExtension::~KWindowInfoPrivatePidExtension() = default;
 
@@ -38,6 +41,7 @@ public:
     NET::Properties properties;
     NET::Properties2 properties2;
     KWindowInfoPrivateDesktopFileNameExtension *desktopFileNameExtension;
+    KWindowInfoPrivateGtkApplicationIdExtension *gtkApplicationIdExtension;
     KWindowInfoPrivatePidExtension *pidExtension;
     KWindowInfoPrivateAppMenuExtension *appMenuExtension;
 };
@@ -47,6 +51,7 @@ KWindowInfoPrivate::Private::Private(WId window, NET::Properties properties, NET
     , properties(properties)
     , properties2(properties2)
     , desktopFileNameExtension(nullptr)
+    , gtkApplicationIdExtension(nullptr)
     , pidExtension(nullptr)
     , appMenuExtension(nullptr)
 {
@@ -74,6 +79,16 @@ KWindowInfoPrivateDesktopFileNameExtension *KWindowInfoPrivate::desktopFileNameE
 void KWindowInfoPrivate::installDesktopFileNameExtension(KWindowInfoPrivateDesktopFileNameExtension *extension)
 {
     d->desktopFileNameExtension = extension;
+}
+
+KWindowInfoPrivateGtkApplicationIdExtension *KWindowInfoPrivate::gtkApplicationIdExtension() const
+{
+    return d->gtkApplicationIdExtension;
+}
+
+void KWindowInfoPrivate::installGtkApplicationIdExtension(KWindowInfoPrivateGtkApplicationIdExtension *extension)
+{
+    d->gtkApplicationIdExtension = extension;
 }
 
 KWindowInfoPrivatePidExtension *KWindowInfoPrivate::pidExtension() const
@@ -406,6 +421,14 @@ QByteArray KWindowInfo::desktopFileName() const
 {
     if (auto extension = d->desktopFileNameExtension()) {
         return extension->desktopFileName();
+    }
+    return QByteArray();
+}
+
+QByteArray KWindowInfo::gtkApplicationId() const
+{
+    if (auto extension = d->gtkApplicationIdExtension()) {
+        return extension->gtkApplicationId();
     }
     return QByteArray();
 }
