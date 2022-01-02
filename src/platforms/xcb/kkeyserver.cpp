@@ -496,6 +496,7 @@ bool initializeMods()
     }
 
     checkDisplay();
+    xcb_key_symbols_t *symbols = xcb_key_symbols_alloc(QX11Info::connection());
     XModifierKeymap *xmk = XGetModifierMapping(QX11Info::display());
 
     int min_keycode;
@@ -515,7 +516,7 @@ bool initializeMods()
         // found fixes the problem.
         for (int j = 0; j < xmk->max_keypermod; ++j) {
             for (int k = 0; k < keysyms_per_keycode; ++k) {
-                keySymX = XKeycodeToKeysym(QX11Info::display(), xmk->modifiermap[xmk->max_keypermod * i + j], k);
+                keySymX = xcb_key_symbols_get_keysym(symbols, xmk->modifiermap[xmk->max_keypermod * i + j], k);
 
                 switch (keySymX) {
                 case XK_Alt_L:
@@ -628,6 +629,7 @@ bool initializeMods()
     g_rgX11ModInfo[2].modX = g_alt_mask;
     g_rgX11ModInfo[3].modX = g_meta_mask;
 
+    xcb_key_symbols_free(symbols);
     XFreeModifiermap(xmk);
     g_bInitializedMods = true;
 
