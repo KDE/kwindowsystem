@@ -14,7 +14,6 @@ target_sources(KF5WindowSystem PRIVATE
     kwindowinfo.cpp
     kwindowshadow.cpp
     kwindowsystem.cpp
-    platforms/wayland/kwindowsystem.cpp
     pluginwrapper.cpp
     kwindowsystemplugininterface.cpp
     )

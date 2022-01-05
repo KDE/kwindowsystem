@@ -112,7 +112,7 @@ void KWindowSystemPrivateDummy::demandAttention(WId win, bool set)
 
 bool KWindowSystemPrivateDummy::compositingActive()
 {
-    return false;
+    return KWindowSystem::isPlatformWayland();
 }
 
 int KWindowSystemPrivateDummy::currentDesktop()
