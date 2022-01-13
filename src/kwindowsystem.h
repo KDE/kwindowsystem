@@ -706,9 +706,9 @@ public:
     /**
      * Requests an xdg_activation_v1 token for a specific window.
      *
-     * @p win window in behalf this request is made
-     * @p serial of the event that triggered the request
-     * @p app_id identifier of the application that we are launching
+     * @param win window in behalf this request is made
+     * @param serial of the event that triggered the request
+     * @param app_id identifier of the application that we are launching
      *
      * @see currentSerial
      * @since 5.83
