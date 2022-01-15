@@ -25,8 +25,8 @@ static QStringList pluginCandidates()
     const auto paths = QCoreApplication::libraryPaths();
     for (const QString &path : paths) {
         static const QStringList searchFolders{
-            QStringLiteral("/kf5/org.kde.kwindowsystem.platforms"),
-            QStringLiteral("/kf5/kwindowsystem"),
+            QStringLiteral("kf" QT_STRINGIFY(QT_VERSION_MAJOR)) + QStringLiteral("/org.kde.kwindowsystem.platforms"),
+            QStringLiteral("kf" QT_STRINGIFY(QT_VERSION_MAJOR)) + QStringLiteral("/kwindowsystem"),
         };
         for (const QString &searchFolder : searchFolders) {
             QDir pluginDir(path + searchFolder);
