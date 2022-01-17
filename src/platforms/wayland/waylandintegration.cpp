@@ -210,7 +210,7 @@ KWayland::Client::ShmPool *WaylandIntegration::createShmPool()
             return nullptr;
         }
 
-        return m_registry->createShmPool(wmInterface.name, wmInterface.version, qApp);
+        return m_registry->createShmPool(wmInterface.name, wmInterface.version);
     }
 
     return nullptr;
