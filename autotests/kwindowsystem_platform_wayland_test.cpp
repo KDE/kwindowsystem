@@ -7,6 +7,7 @@
 #include <QFileSystemWatcher>
 #include <QProcess>
 #include <QSignalSpy>
+#include <QStandardPaths>
 #include <QTest>
 
 class TestKWindowsystemPlatformWayland : public QObject
@@ -24,9 +25,12 @@ private:
 
 void TestKWindowsystemPlatformWayland::initTestCase()
 {
+    const QString westonExec = QStandardPaths::findExecutable(QStringLiteral("weston"));
+    QVERIFY(!westonExec.isEmpty());
+
     // start Weston
     m_westonProcess.reset(new QProcess);
-    m_westonProcess->setProgram(QStringLiteral("weston"));
+    m_westonProcess->setProgram(westonExec);
     m_westonProcess->setArguments(QStringList({QStringLiteral("--socket=kwindowsystem-platform-wayland-0"), QStringLiteral("--backend=headless-backend.so")}));
     m_westonProcess->start();
     if (!m_westonProcess->waitForStarted()) {

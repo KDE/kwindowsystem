@@ -5,9 +5,12 @@
 */
 
 #include "nettesthelper.h"
-#include <QProcess>
 #include <netwm.h>
+
+#include <QProcess>
+#include <QStandardPaths>
 #include <qtest_widgets.h>
+
 // system
 #include <unistd.h>
 
@@ -105,6 +108,10 @@ void NetWinInfoTestWM::init()
     m_connection = nullptr;
     m_rootWindow = XCB_WINDOW_NONE;
     m_testWindow = XCB_WINDOW_NONE;
+
+    const QString xfvbExec = QStandardPaths::findExecutable(QStringLiteral("Xvfb"));
+    QVERIFY(!xfvbExec.isEmpty());
+
     // start Xvfb
     m_xvfb.reset(new QProcess);
 

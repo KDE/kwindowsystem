@@ -5,9 +5,12 @@
 */
 
 #include "nettesthelper.h"
-#include <QProcess>
 #include <netwm.h>
+
+#include <QProcess>
+#include <QStandardPaths>
 #include <qtest_widgets.h>
+
 // system
 #include <unistd.h>
 
@@ -82,11 +85,14 @@ void NetRootInfoTestWM::init()
     m_connection = nullptr;
     m_supportWindow = XCB_WINDOW_NONE;
     // start Xvfb
+    const QString xfvbExec = QStandardPaths::findExecutable(QStringLiteral("Xvfb"));
+    QVERIFY(!xfvbExec.isEmpty());
+
     m_xvfb.reset(new QProcess);
     // use pipe to pass fd to Xvfb to get back the display id
     int pipeFds[2];
     QVERIFY(pipe(pipeFds) == 0);
-    m_xvfb->start(QStringLiteral("Xvfb"), QStringList{QStringLiteral("-displayfd"), QString::number(pipeFds[1])});
+    m_xvfb->start(xfvbExec, QStringList{QStringLiteral("-displayfd"), QString::number(pipeFds[1])});
     QVERIFY(m_xvfb->waitForStarted());
     QCOMPARE(m_xvfb->state(), QProcess::Running);
 
