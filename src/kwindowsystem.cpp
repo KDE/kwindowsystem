@@ -15,6 +15,7 @@
 #include <QMetaMethod>
 #include <QPixmap>
 #include <QPluginLoader>
+#include <QTimer>
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 62)
 #include <QWidget>
 #endif
@@ -816,7 +817,11 @@ void KWindowSystem::requestXdgActivationToken(QWindow *win, uint32_t serial, con
     Q_D(KWindowSystem);
     auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(d);
     if (!dv2) {
-        Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
+        // Ensure that xdgActivationTokenArrived is always emitted asynchronously
+        QTimer::singleShot(0, [serial] {
+            Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
+        });
+
         return;
     }
     dv2->requestToken(win, serial, app_id);
