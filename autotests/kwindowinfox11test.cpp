@@ -532,14 +532,14 @@ void KWindowInfoX11Test::testActivities()
     QVERIFY(info3.activities().size() == 1);
     QVERIFY(info3.activities()[0] == "test-activity");
 
-    // Window on a two activities
+    // Window on two specific activities
     KWindowSystem::self()->setOnActivities(window->winId(), QStringList{"test-activity", "test-activity2"});
 
     QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
     KWindowInfo info4(window->winId(), NET::Properties(), NET::WM2Activities);
 
-    QVERIFY(info4.activities().size() == 2);
+    QCOMPARE(info4.activities().size(), 2);
     QVERIFY(info4.activities()[0] == "test-activity");
     QVERIFY(info4.activities()[1] == "test-activity2");
 
