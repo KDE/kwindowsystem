@@ -6,7 +6,7 @@
 #ifndef POLLER_H
 #define POLLER_H
 
-#include <KIdleTime/private/abstractsystempoller.h>
+#include <private/abstractsystempoller.h>
 
 #include <QHash>
 

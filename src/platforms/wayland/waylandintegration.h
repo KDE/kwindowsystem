@@ -7,7 +7,7 @@
 */
 #ifndef WAYLANDINTEGRATION_H
 #define WAYLANDINTEGRATION_H
-#include <KWindowSystem/private/kwindoweffects_p.h>
+#include <private/kwindoweffects_p.h>
 
 #include <QPointer>
 

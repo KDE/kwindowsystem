@@ -22,7 +22,7 @@
 #include <KWayland/Client/slide.h>
 #include <KWayland/Client/surface.h>
 
-#include <KWindowSystem/KWindowSystem>
+#include <KWindowSystem>
 
 #include "waylandxdgactivationv1_p.h"
 #include <QGuiApplication>

@@ -8,7 +8,7 @@
 #include "waylandintegration.h"
 #include "waylandxdgactivationv1_p.h"
 
-#include <KWindowSystem/KWindowSystem>
+#include <KWindowSystem>
 
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/plasmashell.h>

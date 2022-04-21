@@ -9,7 +9,7 @@
 
 #include <KWayland/Client/buffer.h>
 #include <KWayland/Client/shadow.h>
-#include <KWindowSystem/private/kwindowshadow_p.h>
+#include <private/kwindowshadow_p.h>
 
 class WindowShadowTile final : public KWindowShadowTilePrivate
 {

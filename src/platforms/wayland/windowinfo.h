@@ -7,8 +7,8 @@
 #ifndef WINDOWINFO_H
 #define WINDOWINFO_H
 
-#include <KWindowSystem/private/kwindowinfo_p.h>
 #include <kwindowinfo.h>
+#include <private/kwindowinfo_p.h>
 
 namespace KWayland
 {

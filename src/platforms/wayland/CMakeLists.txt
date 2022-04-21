@@ -40,12 +40,12 @@ target_link_libraries(KF5WindowSystemKWaylandPlugin
     Qt::Widgets
     Wayland::Client
     Qt::WaylandClient
+    Qt::WaylandClientPrivate
     PkgConfig::XKBCommon
 )
 
 if (QT_MAJOR_VERSION EQUAL "5")
     target_link_libraries(KF5WindowSystemKWaylandPlugin
-        Qt::WaylandClientPrivate
         Qt::XkbCommonSupportPrivate
     )
 endif()
