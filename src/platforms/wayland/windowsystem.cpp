@@ -59,7 +59,10 @@ void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString 
     wl_surface *wlSurface = surface ? static_cast<wl_surface *>(*surface) : nullptr;
     WaylandXdgActivationV1 *activation = WaylandIntegration::self()->activation();
     if (!activation) {
-        Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
+        // Ensure that xdgActivationTokenArrived is always emitted asynchronously
+        QTimer::singleShot(0, [serial] {
+            Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
+        });
         return;
     }
 
