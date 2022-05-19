@@ -17,6 +17,7 @@
 #include <KWayland/Client/seat.h>
 #include <KWayland/Client/surface.h>
 
+#include <QGuiApplication>
 #include <QPixmap>
 #include <QPoint>
 #include <QString>
@@ -24,6 +25,7 @@
 #include <private/qwaylanddisplay_p.h>
 #include <private/qwaylandinputdevice_p.h>
 #include <private/qwaylandwindow_p.h>
+#include <qpa/qplatformnativeinterface.h>
 
 using namespace KWayland::Client;
 
@@ -55,8 +57,16 @@ void WindowSystem::forceActiveWindow(WId win, long int time)
 
 void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString &app_id)
 {
-    Surface *surface = Surface::fromWindow(window);
-    wl_surface *wlSurface = surface ? static_cast<wl_surface *>(*surface) : nullptr;
+    QPlatformNativeInterface *native = qGuiApp->platformNativeInterface();
+    if (!native) {
+        return;
+    }
+    window->create();
+    wl_surface *wlSurface = reinterpret_cast<wl_surface *>(native->nativeResourceForWindow(QByteArrayLiteral("surface"), window));
+    if (!wlSurface) {
+        return;
+    }
+
     WaylandXdgActivationV1 *activation = WaylandIntegration::self()->activation();
     if (!activation) {
         // Ensure that xdgActivationTokenArrived is always emitted asynchronously
