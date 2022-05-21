@@ -8,8 +8,8 @@
 
 #include "netwm_def.h"
 
-#include <QScopedPointer>
 #include <QWidgetList> //For WId
+#include <memory>
 
 class KWindowEffectsPrivate;
 class KWindowInfoPrivate;
@@ -32,8 +32,8 @@ public:
     KWindowShadowTilePrivate *createWindowShadowTile() const;
 
 private:
-    QScopedPointer<KWindowSystemPluginInterface> m_plugin;
-    QScopedPointer<KWindowEffectsPrivate> m_effects;
+    std::unique_ptr<KWindowSystemPluginInterface> m_plugin;
+    std::unique_ptr<KWindowEffectsPrivate> m_effects;
 };
 
 #endif

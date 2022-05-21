@@ -104,10 +104,10 @@ KWindowSystemPluginWrapper::KWindowSystemPluginWrapper()
     : m_plugin(loadPlugin())
     , m_effects()
 {
-    if (!m_plugin.isNull()) {
+    if (m_plugin) {
         m_effects.reset(m_plugin->createEffects());
     }
-    if (m_effects.isNull()) {
+    if (!m_effects) {
         m_effects.reset(new KWindowEffectsPrivateDummy());
     }
 }
@@ -118,13 +118,13 @@ KWindowSystemPluginWrapper::~KWindowSystemPluginWrapper()
 
 KWindowEffectsPrivate *KWindowSystemPluginWrapper::effects() const
 {
-    return m_effects.data();
+    return m_effects.get();
 }
 
 KWindowSystemPrivate *KWindowSystemPluginWrapper::createWindowSystem() const
 {
     KWindowSystemPrivate *p = nullptr;
-    if (!m_plugin.isNull()) {
+    if (m_plugin) {
         p = m_plugin->createWindowSystem();
     }
     if (!p) {
@@ -136,7 +136,7 @@ KWindowSystemPrivate *KWindowSystemPluginWrapper::createWindowSystem() const
 KWindowInfoPrivate *KWindowSystemPluginWrapper::createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2) const
 {
     KWindowInfoPrivate *p = nullptr;
-    if (!m_plugin.isNull()) {
+    if (m_plugin) {
         p = m_plugin->createWindowInfo(window, properties, properties2);
     }
     if (!p) {
@@ -148,7 +148,7 @@ KWindowInfoPrivate *KWindowSystemPluginWrapper::createWindowInfo(WId window, NET
 KWindowShadowPrivate *KWindowSystemPluginWrapper::createWindowShadow() const
 {
     KWindowShadowPrivate *p = nullptr;
-    if (!m_plugin.isNull()) {
+    if (m_plugin) {
         p = m_plugin->createWindowShadow();
     }
     if (!p) {
@@ -160,7 +160,7 @@ KWindowShadowPrivate *KWindowSystemPluginWrapper::createWindowShadow() const
 KWindowShadowTilePrivate *KWindowSystemPluginWrapper::createWindowShadowTile() const
 {
     KWindowShadowTilePrivate *p = nullptr;
-    if (!m_plugin.isNull()) {
+    if (m_plugin) {
         p = m_plugin->createWindowShadowTile();
     }
     if (!p) {

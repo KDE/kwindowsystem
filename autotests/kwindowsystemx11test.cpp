@@ -52,7 +52,7 @@ void KWindowSystemX11Test::testActiveWindowChanged()
     qRegisterMetaType<WId>("WId");
     QSignalSpy spy(KWindowSystem::self(), SIGNAL(activeWindowChanged(WId)));
 
-    QScopedPointer<QWidget> widget(new QWidget);
+    std::unique_ptr<QWidget> widget(new QWidget);
     widget->show();
 
     QVERIFY(spy.wait());
@@ -66,9 +66,9 @@ void KWindowSystemX11Test::testWindowAdded()
     qRegisterMetaType<WId>("WId");
     QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowAdded(WId)));
     QSignalSpy stackingOrderSpy(KWindowSystem::self(), SIGNAL(stackingOrderChanged()));
-    QScopedPointer<QWidget> widget(new QWidget);
+    std::unique_ptr<QWidget> widget(new QWidget);
     widget->show();
-    QVERIFY(QTest::qWaitForWindowExposed(widget.data()));
+    QVERIFY(QTest::qWaitForWindowExposed(widget.get()));
     QVERIFY(spy.count() > 0);
     bool hasWId = false;
     for (auto it = spy.constBegin(); it != spy.constEnd(); ++it) {
@@ -89,9 +89,9 @@ void KWindowSystemX11Test::testWindowAdded()
 void KWindowSystemX11Test::testWindowRemoved()
 {
     qRegisterMetaType<WId>("WId");
-    QScopedPointer<QWidget> widget(new QWidget);
+    std::unique_ptr<QWidget> widget(new QWidget);
     widget->show();
-    QVERIFY(QTest::qWaitForWindowExposed(widget.data()));
+    QVERIFY(QTest::qWaitForWindowExposed(widget.get()));
     QVERIFY(KWindowSystem::hasWId(widget->winId()));
 
     QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowRemoved(WId)));

@@ -20,6 +20,8 @@
 
 #include <xcb/xcb.h>
 
+#include "cptr_p.h"
+
 Q_DECLARE_METATYPE(KStartupInfoId)
 Q_DECLARE_METATYPE(KStartupInfoData)
 
@@ -117,7 +119,7 @@ static void doSync()
     auto *c = QX11Info::connection();
     const auto cookie = xcb_get_input_focus(c);
     xcb_generic_error_t *error = nullptr;
-    QScopedPointer<xcb_get_input_focus_reply_t, QScopedPointerPodDeleter> sync(xcb_get_input_focus_reply(c, cookie, &error));
+    UniqueCPointer<xcb_get_input_focus_reply_t> sync(xcb_get_input_focus_reply(c, cookie, &error));
     if (error) {
         free(error);
     }

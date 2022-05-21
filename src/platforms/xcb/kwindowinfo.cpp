@@ -23,14 +23,16 @@
 
 #include <xcb/res.h>
 
+#include "cptr_p.h"
+
 static bool haveXRes()
 {
     static bool s_checked = false;
     static bool s_haveXRes = false;
     if (!s_checked) {
         auto cookie = xcb_res_query_version(QX11Info::connection(), XCB_RES_MAJOR_VERSION, XCB_RES_MINOR_VERSION);
-        QScopedPointer<xcb_res_query_version_reply_t, QScopedPointerPodDeleter> reply(xcb_res_query_version_reply(QX11Info::connection(), cookie, nullptr));
-        s_haveXRes = !reply.isNull();
+        UniqueCPointer<xcb_res_query_version_reply_t> reply(xcb_res_query_version_reply(QX11Info::connection(), cookie, nullptr));
+        s_haveXRes = reply != nullptr;
         s_checked = true;
     }
     return s_haveXRes;
@@ -95,10 +97,9 @@ KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, NET::Properties propertie
         specs.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
         auto cookie = xcb_res_query_client_ids(QX11Info::connection(), 1, &specs);
 
-        QScopedPointer<xcb_res_query_client_ids_reply_t, QScopedPointerPodDeleter> reply(
-            xcb_res_query_client_ids_reply(QX11Info::connection(), cookie, nullptr));
-        if (reply && xcb_res_query_client_ids_ids_length(reply.data()) > 0) {
-            uint32_t pid = *xcb_res_client_id_value_value((xcb_res_query_client_ids_ids_iterator(reply.data()).data));
+        UniqueCPointer<xcb_res_query_client_ids_reply_t> reply(xcb_res_query_client_ids_reply(QX11Info::connection(), cookie, nullptr));
+        if (reply && xcb_res_query_client_ids_ids_length(reply.get()) > 0) {
+            uint32_t pid = *xcb_res_client_id_value_value((xcb_res_query_client_ids_ids_iterator(reply.get()).data));
             m_pid = pid;
         }
     }

@@ -23,6 +23,8 @@
 
 #include <xcb/xcb.h>
 
+#include "cptr_p.h"
+
 using namespace KWindowEffects;
 
 KWindowEffectsPrivateX11::KWindowEffectsPrivateX11()
@@ -77,12 +79,12 @@ bool KWindowEffectsPrivateX11::isEffectAvailable(Effect effect)
     xcb_list_properties_cookie_t propsCookie = xcb_list_properties_unchecked(c, QX11Info::appRootWindow());
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
 
-    QScopedPointer<xcb_list_properties_reply_t, QScopedPointerPodDeleter> props(xcb_list_properties_reply(c, propsCookie, nullptr));
-    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
+    UniqueCPointer<xcb_list_properties_reply_t> props(xcb_list_properties_reply(c, propsCookie, nullptr));
+    UniqueCPointer<xcb_intern_atom_reply_t> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
     if (!atom || !props) {
         return false;
     }
-    xcb_atom_t *atoms = xcb_list_properties_atoms(props.data());
+    xcb_atom_t *atoms = xcb_list_properties_atoms(props.get());
     for (int i = 0; i < props->atoms_len; ++i) {
         if (atoms[i] == atom->atom) {
             return true;
@@ -121,7 +123,7 @@ void KWindowEffectsPrivateX11::slideWindow(WId id, SlideFromLocation location, i
         break;
     }
 
-    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
+    UniqueCPointer<xcb_intern_atom_reply_t> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
     if (!atom) {
         return;
     }
@@ -175,7 +177,7 @@ void KWindowEffectsPrivateX11::presentWindows(WId controller, const QList<WId> &
 
     const QByteArray effectName = QByteArrayLiteral("_KDE_PRESENT_WINDOWS_GROUP");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
-    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
+    UniqueCPointer<xcb_intern_atom_reply_t> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
     if (!atom) {
         return;
     }
@@ -192,7 +194,7 @@ void KWindowEffectsPrivateX11::presentWindows(WId controller, int desktop)
     }
     const QByteArray effectName = QByteArrayLiteral("_KDE_PRESENT_WINDOWS_DESKTOP");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
-    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
+    UniqueCPointer<xcb_intern_atom_reply_t> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
     if (!atom) {
         return;
     }
@@ -211,7 +213,7 @@ void KWindowEffectsPrivateX11::highlightWindows(WId controller, const QList<WId>
     }
     const QByteArray effectName = QByteArrayLiteral("_KDE_WINDOW_HIGHLIGHT");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
-    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
+    UniqueCPointer<xcb_intern_atom_reply_t> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
     if (!atom) {
         return;
     }
@@ -249,7 +251,7 @@ void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const Q
     }
     const QByteArray effectName = QByteArrayLiteral("_KDE_NET_WM_BLUR_BEHIND_REGION");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
-    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
+    UniqueCPointer<xcb_intern_atom_reply_t> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
     if (!atom) {
         return;
     }
@@ -276,7 +278,7 @@ void KWindowEffectsPrivateX11::setBackgroundFrost(QWindow *window, QColor color,
     xcb_connection_t *c = QX11Info::connection();
     const QByteArray effectName = QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_FROST_REGION");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
-    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
+    UniqueCPointer<xcb_intern_atom_reply_t> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
     if (!atom) {
         return;
     }
@@ -319,7 +321,7 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
     xcb_connection_t *c = QX11Info::connection();
     const QByteArray effectName = QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_CONTRAST_REGION");
     xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
-    QScopedPointer<xcb_intern_atom_reply_t, QScopedPointerPodDeleter> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
+    UniqueCPointer<xcb_intern_atom_reply_t> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
     if (!atom) {
         return;
     }

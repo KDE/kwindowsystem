@@ -8,6 +8,7 @@
 */
 
 #include "kmanagerselectiontest.h"
+#include "cptr_p.h"
 
 #include <QSignalSpy>
 #include <kselectionowner.h>
@@ -28,7 +29,7 @@ void KManagerSelectionTest::xSync()
     xcb_connection_t *c = QX11Info::connection();
     const xcb_get_input_focus_cookie_t cookie = xcb_get_input_focus(c);
     xcb_generic_error_t *error = nullptr;
-    QScopedPointer<xcb_get_input_focus_reply_t, QScopedPointerPodDeleter> sync(xcb_get_input_focus_reply(c, cookie, &error));
+    UniqueCPointer<xcb_get_input_focus_reply_t> sync(xcb_get_input_focus_reply(c, cookie, &error));
     if (error) {
         free(error);
     }

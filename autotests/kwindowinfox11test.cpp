@@ -69,7 +69,7 @@ private:
     bool waitForWindow(QSignalSpy &spy, WId winId, NET::Properties property, NET::Properties2 properties2 = NET::Properties2()) const;
     bool verifyMinimized(WId window) const;
 
-    QScopedPointer<QWidget> window;
+    std::unique_ptr<QWidget> window;
 };
 
 void KWindowInfoX11Test::initTestCase()
@@ -123,7 +123,7 @@ void KWindowInfoX11Test::init()
 {
     // create the window and ensure it has been managed
     window.reset(new QWidget());
-    showWidget(window.data());
+    showWidget(window.get());
 }
 
 void KWindowInfoX11Test::showWidget(QWidget *window)
@@ -156,7 +156,7 @@ void KWindowInfoX11Test::showWidget(QWidget *window)
 void KWindowInfoX11Test::cleanup()
 {
     // we hide the window and wait till it is gone so that we have a clean state in next test
-    if (!window.isNull() && window->isVisible()) {
+    if (window && window->isVisible()) {
         WId id = window->winId();
         QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowRemoved(WId)));
         window->hide();
@@ -669,9 +669,9 @@ void KWindowInfoX11Test::testTransientFor()
     QCOMPARE(info.transientFor(), WId(0));
 
     // let's create a second window
-    QScopedPointer<QWidget> window2(new QWidget());
+    std::unique_ptr<QWidget> window2(new QWidget());
     window2->show();
-    QVERIFY(QTest::qWaitForWindowExposed(window2.data()));
+    QVERIFY(QTest::qWaitForWindowExposed(window2.get()));
 
     // update the transient for of window1 to window2
     const uint32_t id = window2->winId();

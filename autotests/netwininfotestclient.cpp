@@ -14,14 +14,7 @@
 // system
 #include <unistd.h>
 
-class Property : public QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>
-{
-public:
-    Property(xcb_get_property_reply_t *p = nullptr)
-        : QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>(p)
-    {
-    }
-};
+using Property = UniqueCPointer<xcb_get_property_reply_t>;
 
 // clang-format off
 #define INFO NETWinInfo info(m_connection, m_testWindow, m_rootWindow, NET::WMAllProperties, NET::WM2AllProperties, NET::Client);
@@ -35,7 +28,7 @@ public:
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, m_testWindow, \
                                        atom, type, 0, length); \
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr)); \
-    QVERIFY(!reply.isNull()); \
+    QVERIFY(reply); \
     QCOMPARE(reply->format, uint8_t(formatSize)); \
     QCOMPARE(reply->value_len, uint32_t(length));
 
@@ -43,7 +36,7 @@ public:
     xcb_get_property_cookie_t cookieDeleted = xcb_get_property_unchecked(connection(), false, m_testWindow, \
             atom, t, 0, 1); \
     Property replyDeleted(xcb_get_property_reply(connection(), cookieDeleted, nullptr)); \
-    QVERIFY(!replyDeleted.isNull()); \
+    QVERIFY(replyDeleted); \
     QVERIFY(replyDeleted->type == XCB_ATOM_NONE);
 
 class NetWinInfoTestClient : public QObject
@@ -103,7 +96,7 @@ private:
     }
     xcb_connection_t *m_connection;
     QVector<xcb_connection_t*> m_connections;
-    QScopedPointer<QProcess> m_xvfb;
+    std::unique_ptr<QProcess> m_xvfb;
     xcb_window_t m_rootWindow;
     xcb_window_t m_testWindow;
 };
@@ -185,14 +178,14 @@ void NetWinInfoTestClient::cleanup()
 void NetWinInfoTestClient::waitForPropertyChange(NETWinInfo *info, xcb_atom_t atom, NET::Property prop, NET::Property2 prop2)
 {
     while (true) {
-        KXUtils::ScopedCPointer<xcb_generic_event_t> event(xcb_wait_for_event(connection()));
-        if (event.isNull()) {
+        UniqueCPointer<xcb_generic_event_t> event(xcb_wait_for_event(connection()));
+        if (!event) {
             break;
         }
         if ((event->response_type & ~0x80) != XCB_PROPERTY_NOTIFY) {
             continue;
         }
-        xcb_property_notify_event_t *pe = reinterpret_cast<xcb_property_notify_event_t *>(event.data());
+        xcb_property_notify_event_t *pe = reinterpret_cast<xcb_property_notify_event_t *>(event.get());
         if (pe->window != m_testWindow) {
             continue;
         }
@@ -201,7 +194,7 @@ void NetWinInfoTestClient::waitForPropertyChange(NETWinInfo *info, xcb_atom_t at
         }
         NET::Properties dirty;
         NET::Properties2 dirty2;
-        info->event(event.data(), &dirty, &dirty2);
+        info->event(event.get(), &dirty, &dirty2);
         if (prop != 0) {
             QVERIFY(dirty & prop);
         }
@@ -231,7 +224,7 @@ void NetWinInfoTestClient::testBlockCompositing()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 1, 32)
-    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], uint32_t(1));
+    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.get()))[0], uint32_t(1));
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2BlockCompositing);
@@ -260,7 +253,7 @@ void NetWinInfoTestClient::testUserTime()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 1, 32)
-    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], uint32_t(500));
+    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.get()))[0], uint32_t(500));
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2UserTime);
@@ -282,7 +275,7 @@ void NetWinInfoTestClient::testStartupId()
     QVERIFY(atom != XCB_ATOM_NONE);
     QVERIFY(utf8String != XCB_ATOM_NONE);
     GETPROP(utf8String, 3, 8)
-    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.data())), "foo");
+    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.get())), "foo");
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2StartupId);
@@ -334,7 +327,7 @@ void NetWinInfoTestClient::testDesktopFileName()
     QVERIFY(atom != XCB_ATOM_NONE);
     QVERIFY(utf8String != XCB_ATOM_NONE);
     GETPROP(utf8String, 3, 8)
-    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.data())), "foo");
+    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.get())), "foo");
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2DesktopFileName);
@@ -364,7 +357,7 @@ void NetWinInfoTestClient::testHandledIcons()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 1, 32)
-    QTEST(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], "value");
+    QTEST(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.get()))[0], "value");
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::WMHandledIcons);
@@ -384,7 +377,7 @@ void NetWinInfoTestClient::testPid()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 1, 32)
-    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], uint32_t(m_xvfb->processId()));
+    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.get()))[0], uint32_t(m_xvfb->processId()));
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::WMPid);
@@ -404,7 +397,7 @@ void NetWinInfoTestClient::performNameTest(xcb_atom_t atom, const char *(NETWinI
     QVERIFY(atom != XCB_ATOM_NONE);
     QVERIFY(utf8String != XCB_ATOM_NONE);
     GETPROP(utf8String, 3, 8)
-    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.data())), "foo");
+    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.get())), "foo");
 
     // and wait for our event
     waitForPropertyChange(&info, atom, property);
@@ -469,7 +462,7 @@ void NetWinInfoTestClient::testStrut()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 4, 32)
-    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()));
+    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.get()));
     QCOMPARE(data[0], uint32_t(newExtents.left));
     QCOMPARE(data[1], uint32_t(newExtents.right));
     QCOMPARE(data[2], uint32_t(newExtents.top));
@@ -536,7 +529,7 @@ void NetWinInfoTestClient::testExtendedStrut()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 12, 32)
-    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()));
+    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.get()));
     QCOMPARE(data[ 0], uint32_t(newExtents.left_width));
     QCOMPARE(data[ 1], uint32_t(newExtents.right_width));
     QCOMPARE(data[ 2], uint32_t(newExtents.top_width));
@@ -594,7 +587,7 @@ void NetWinInfoTestClient::testIconGeometry()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 4, 32)
-    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()));
+    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.get()));
     QCOMPARE(data[0], uint32_t(newGeo.pos.x));
     QCOMPARE(data[1], uint32_t(newGeo.pos.y));
     QCOMPARE(data[2], uint32_t(newGeo.size.width));
@@ -661,7 +654,7 @@ void NetWinInfoTestClient::testWindowType()
     KXUtils::Atom type1(connection(), typeAtom);
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_ATOM, length, 32)
-    xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t *>(xcb_get_property_value(reply.data()));
+    xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t *>(xcb_get_property_value(reply.get()));
     QCOMPARE(atoms[0], xcb_atom_t(type1));
     if (reply->value_len > 1) {
         QFETCH(QByteArray, secondaryTypeAtom);

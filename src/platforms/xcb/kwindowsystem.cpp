@@ -10,6 +10,8 @@
 #include "kwindowsystem.h"
 #include "kwindowsystem_p_x11.h"
 
+#include "cptr_p.h"
+
 // clang-format off
 #include <kxerrorhandler_p.h>
 #include <fixx11h.h>
@@ -347,11 +349,10 @@ void NETEventFilter::addClient(xcb_window_t w)
 
     if ((what >= KWindowSystemPrivateX11::INFO_WINDOWS)) {
         xcb_connection_t *c = QX11Info::connection();
-        QScopedPointer<xcb_get_window_attributes_reply_t, QScopedPointerPodDeleter> attr(
-            xcb_get_window_attributes_reply(c, xcb_get_window_attributes_unchecked(c, w), nullptr));
+        UniqueCPointer<xcb_get_window_attributes_reply_t> attr(xcb_get_window_attributes_reply(c, xcb_get_window_attributes_unchecked(c, w), nullptr));
 
         uint32_t events = XCB_EVENT_MASK_PROPERTY_CHANGE | XCB_EVENT_MASK_STRUCTURE_NOTIFY;
-        if (!attr.isNull()) {
+        if (attr) {
             events = events | attr->your_event_mask;
         }
         xcb_change_window_attributes(c, w, XCB_CW_EVENT_MASK, &events);

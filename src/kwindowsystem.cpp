@@ -48,18 +48,18 @@ public:
     }
     KWindowSystemPrivate *xcbPlugin()
     {
-        if (xcbPrivate.isNull()) {
+        if (!xcbPrivate) {
             QPluginLoader loader(QStringLiteral(XCB_PLUGIN_PATH));
-            QScopedPointer<KWindowSystemPluginInterface> xcbPlugin(qobject_cast<KWindowSystemPluginInterface *>(loader.instance()));
-            if (!xcbPlugin.isNull()) {
+            std::unique_ptr<KWindowSystemPluginInterface> xcbPlugin(qobject_cast<KWindowSystemPluginInterface *>(loader.instance()));
+            if (xcbPlugin) {
                 xcbPrivate.reset(xcbPlugin->createWindowSystem());
             }
         }
-        return xcbPrivate.data();
+        return xcbPrivate.get();
     }
     KWindowSystem kwm;
-    QScopedPointer<KWindowSystemPrivate> d;
-    QScopedPointer<KWindowSystemPrivate> xcbPrivate;
+    std::unique_ptr<KWindowSystemPrivate> d;
+    std::unique_ptr<KWindowSystemPrivate> xcbPrivate;
 };
 
 Q_GLOBAL_STATIC(KWindowSystemStaticContainer, g_kwmInstanceContainer)
@@ -367,7 +367,7 @@ KWindowSystem *KWindowSystem::self()
 
 KWindowSystemPrivate *KWindowSystem::d_func()
 {
-    return g_kwmInstanceContainer()->d.data();
+    return g_kwmInstanceContainer()->d.get();
 }
 
 void KWindowSystem::connectNotify(const QMetaMethod &signal)

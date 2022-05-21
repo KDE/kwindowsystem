@@ -6,6 +6,7 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
+#include "cptr_p.h"
 #include "kwindowsystem_xcb_debug.h"
 #include "kxutils_p.h"
 #include <QBitmap>
@@ -24,15 +25,15 @@ template<typename T>
 T fromNative(xcb_pixmap_t pixmap, xcb_connection_t *c)
 {
     const xcb_get_geometry_cookie_t geoCookie = xcb_get_geometry_unchecked(c, pixmap);
-    ScopedCPointer<xcb_get_geometry_reply_t> geo(xcb_get_geometry_reply(c, geoCookie, nullptr));
-    if (geo.isNull()) {
+    UniqueCPointer<xcb_get_geometry_reply_t> geo(xcb_get_geometry_reply(c, geoCookie, nullptr));
+    if (!geo) {
         // getting geometry for the pixmap failed
         return T();
     }
 
     const xcb_get_image_cookie_t imageCookie = xcb_get_image_unchecked(c, XCB_IMAGE_FORMAT_Z_PIXMAP, pixmap, 0, 0, geo->width, geo->height, ~0);
-    ScopedCPointer<xcb_get_image_reply_t> xImage(xcb_get_image_reply(c, imageCookie, nullptr));
-    if (xImage.isNull()) {
+    UniqueCPointer<xcb_get_image_reply_t> xImage(xcb_get_image_reply(c, imageCookie, nullptr));
+    if (!xImage) {
         // request for image data failed
         return T();
     }
@@ -49,8 +50,8 @@ T fromNative(xcb_pixmap_t pixmap, xcb_connection_t *c)
         break;
     case 30: {
         // Qt doesn't have a matching image format. We need to convert manually
-        uint32_t *pixels = reinterpret_cast<uint32_t *>(xcb_get_image_data(xImage.data()));
-        for (uint i = 0; i < xImage.data()->length; ++i) {
+        uint32_t *pixels = reinterpret_cast<uint32_t *>(xcb_get_image_data(xImage.get()));
+        for (uint i = 0; i < xImage.get()->length; ++i) {
             int r = (pixels[i] >> 22) & 0xff;
             int g = (pixels[i] >> 12) & 0xff;
             int b = (pixels[i] >> 2) & 0xff;
@@ -66,9 +67,8 @@ T fromNative(xcb_pixmap_t pixmap, xcb_connection_t *c)
     default:
         return T(); // we don't know
     }
-    QImage
-        image(xcb_get_image_data(xImage.data()), geo->width, geo->height, xcb_get_image_data_length(xImage.data()) / geo->height, format, free, xImage.data());
-    xImage.take();
+    QImage image(xcb_get_image_data(xImage.get()), geo->width, geo->height, xcb_get_image_data_length(xImage.get()) / geo->height, format, free, xImage.get());
+    xImage.release();
     if (image.isNull()) {
         return T();
     }

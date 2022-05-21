@@ -7,20 +7,13 @@
 #define NETTESTHELPER_H
 
 #include <QByteArray>
-#include <QScopedPointer>
+#include <memory>
 #include <xcb/xcb.h>
+
+#include "cptr_p.h"
 
 namespace KXUtils
 {
-template<typename T>
-class ScopedCPointer : public QScopedPointer<T, QScopedPointerPodDeleter>
-{
-public:
-    ScopedCPointer(T *p = nullptr)
-        : QScopedPointer<T, QScopedPointerPodDeleter>(p)
-    {
-    }
-};
 
 /**
  * @brief Small helper class to fetch an intern atom through XCB.
@@ -116,8 +109,8 @@ private:
         if (m_retrieved || !m_cookie.sequence) {
             return;
         }
-        ScopedCPointer<xcb_intern_atom_reply_t> reply(xcb_intern_atom_reply(m_connection, m_cookie, nullptr));
-        if (!reply.isNull()) {
+        UniqueCPointer<xcb_intern_atom_reply_t> reply(xcb_intern_atom_reply(m_connection, m_cookie, nullptr));
+        if (reply) {
             m_atom = reply->atom;
         }
         m_retrieved = true;

@@ -6,6 +6,7 @@
 */
 
 #include "kxmessages.h"
+#include "cptr_p.h"
 #include "kxutils_p.h"
 
 #if KWINDOWSYSTEM_HAVE_X11
@@ -82,8 +83,8 @@ private:
         if (m_retrieved || !m_cookie.sequence || !m_connection) {
             return;
         }
-        KXUtils::ScopedCPointer<xcb_intern_atom_reply_t> reply(xcb_intern_atom_reply(m_connection, m_cookie, nullptr));
-        if (!reply.isNull()) {
+        UniqueCPointer<xcb_intern_atom_reply_t> reply(xcb_intern_atom_reply(m_connection, m_cookie, nullptr));
+        if (reply) {
             m_atom = reply->atom;
         }
         m_retrieved = true;
@@ -119,7 +120,7 @@ public:
     XcbAtom accept_atom1;
     XcbAtom accept_atom2;
     QMap<WId, QByteArray> incoming_messages;
-    QScopedPointer<QWindow> handle;
+    std::unique_ptr<QWindow> handle;
     KXMessages *q;
     bool valid;
     xcb_connection_t *connection;

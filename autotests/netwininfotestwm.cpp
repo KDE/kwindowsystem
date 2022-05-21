@@ -18,14 +18,7 @@ Q_DECLARE_METATYPE(NET::State)
 Q_DECLARE_METATYPE(NET::States)
 Q_DECLARE_METATYPE(NET::Actions)
 
-class Property : public QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>
-{
-public:
-    Property(xcb_get_property_reply_t *p = nullptr)
-        : QScopedPointer<xcb_get_property_reply_t, QScopedPointerPodDeleter>(p)
-    {
-    }
-};
+using Property = UniqueCPointer<xcb_get_property_reply_t>;
 
 // clang-format off
 #define INFO NETWinInfo info(m_connection, m_testWindow, m_rootWindow, NET::WMAllProperties, NET::WM2AllProperties, NET::WindowManager);
@@ -39,7 +32,7 @@ public:
     xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(connection(), false, m_testWindow, \
                                        atom, type, 0, length); \
     Property reply(xcb_get_property_reply(connection(), cookie, nullptr)); \
-    QVERIFY(!reply.isNull()); \
+    QVERIFY(reply); \
     QCOMPARE(reply->format, uint8_t(formatSize)); \
     QCOMPARE(reply->value_len, uint32_t(length));
 
@@ -47,7 +40,7 @@ public:
     xcb_get_property_cookie_t cookieDeleted = xcb_get_property_unchecked(connection(), false, m_testWindow, \
             atom, t, 0, 1); \
     Property replyDeleted(xcb_get_property_reply(connection(), cookieDeleted, nullptr)); \
-    QVERIFY(!replyDeleted.isNull()); \
+    QVERIFY(replyDeleted); \
     QVERIFY(replyDeleted->type == XCB_ATOM_NONE);
 
 class NetWinInfoTestWM : public QObject
@@ -84,7 +77,7 @@ private:
     }
     xcb_connection_t *m_connection;
     QVector<xcb_connection_t*> m_connections;
-    QScopedPointer<QProcess> m_xvfb;
+    std::unique_ptr<QProcess> m_xvfb;
     xcb_window_t m_rootWindow;
     xcb_window_t m_testWindow;
     QByteArray m_displayNumber;
@@ -169,14 +162,14 @@ void NetWinInfoTestWM::cleanup()
 void NetWinInfoTestWM::waitForPropertyChange(NETWinInfo *info, xcb_atom_t atom, NET::Property prop, NET::Property2 prop2)
 {
     while (true) {
-        KXUtils::ScopedCPointer<xcb_generic_event_t> event(xcb_wait_for_event(connection()));
-        if (event.isNull()) {
+        UniqueCPointer<xcb_generic_event_t> event(xcb_wait_for_event(connection()));
+        if (!event) {
             break;
         }
         if ((event->response_type & ~0x80) != XCB_PROPERTY_NOTIFY) {
             continue;
         }
-        xcb_property_notify_event_t *pe = reinterpret_cast<xcb_property_notify_event_t *>(event.data());
+        xcb_property_notify_event_t *pe = reinterpret_cast<xcb_property_notify_event_t *>(event.get());
         if (pe->window != m_testWindow) {
             continue;
         }
@@ -185,7 +178,7 @@ void NetWinInfoTestWM::waitForPropertyChange(NETWinInfo *info, xcb_atom_t atom, 
         }
         NET::Properties dirty;
         NET::Properties2 dirty2;
-        info->event(event.data(), &dirty, &dirty2);
+        info->event(event.get(), &dirty, &dirty2);
         if (prop != 0) {
             QVERIFY(dirty & prop);
         }
@@ -276,7 +269,7 @@ void NetWinInfoTestWM::testAllowedActions()
     QFETCH(QVector<QByteArray>, names);
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_ATOM, names.size(), 32)
-    xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t *>(xcb_get_property_value(reply.data()));
+    xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t *>(xcb_get_property_value(reply.get()));
     for (int i = 0; i < names.size(); ++i) {
         QVERIFY(hasAtomFlag(atoms, names.size(), names.at(i)));
     }
@@ -310,7 +303,7 @@ void NetWinInfoTestWM::testDesktop()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 1, 32)
-    QTEST(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], "propertyDesktop");
+    QTEST(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.get()))[0], "propertyDesktop");
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::WMDesktop);
@@ -351,7 +344,7 @@ void NetWinInfoTestWM::testStrut(xcb_atom_t atom, NETStrut(NETWinInfo:: *getter)
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 4, 32)
-    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()));
+    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.get()));
     QCOMPARE(data[0], uint32_t(newExtents.left));
     QCOMPARE(data[1], uint32_t(newExtents.right));
     QCOMPARE(data[2], uint32_t(newExtents.top));
@@ -411,7 +404,7 @@ void NetWinInfoTestWM::testOpacity()
     // compare with the X property
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_CARDINAL, 1, 32)
-    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.data()))[0], opacity);
+    QCOMPARE(reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.get()))[0], opacity);
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::Property(0), NET::WM2Opacity);
@@ -489,7 +482,7 @@ void NetWinInfoTestWM::testState()
     QFETCH(QVector<QByteArray>, names);
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_ATOM, names.size(), 32)
-    xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t *>(xcb_get_property_value(reply.data()));
+    xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t *>(xcb_get_property_value(reply.get()));
     for (int i = 0; i < names.size(); ++i) {
         QVERIFY(hasAtomFlag(atoms, names.size(), names.at(i)));
     }
@@ -514,7 +507,7 @@ void NetWinInfoTestWM::testVisibleIconName()
     QVERIFY(atom != XCB_ATOM_NONE);
     QVERIFY(utf8String != XCB_ATOM_NONE);
     GETPROP(utf8String, 3, 8)
-    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.data())), "foo");
+    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.get())), "foo");
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::WMVisibleIconName);
@@ -550,7 +543,7 @@ void NetWinInfoTestWM::testVisibleName()
     QVERIFY(atom != XCB_ATOM_NONE);
     QVERIFY(utf8String != XCB_ATOM_NONE);
     GETPROP(utf8String, 3, 8)
-    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.data())), "foo");
+    QCOMPARE(reinterpret_cast<const char *>(xcb_get_property_value(reply.get())), "foo");
 
     // and wait for our event
     waitForPropertyChange(&info, atom, NET::WMVisibleName);
@@ -601,12 +594,9 @@ void NetWinInfoTestWM::testFullscreenMonitors()
                      XCB_EVENT_MASK_FOCUS_CHANGE | // For NotifyDetailNone
                      XCB_EVENT_MASK_EXPOSURE
     };
-    QScopedPointer<xcb_generic_error_t, QScopedPointerPodDeleter> redirectCheck(xcb_request_check(connection(),
-                                                                        xcb_change_window_attributes_checked(connection(),
-                                                                                                                m_rootWindow,
-                                                                                                                XCB_CW_EVENT_MASK,
-                                                                                                                maskValues)));
-    QVERIFY(redirectCheck.isNull());
+    UniqueCPointer<xcb_generic_error_t> redirectCheck(xcb_request_check(connection(), xcb_change_window_attributes_checked(connection(),
+                                                      m_rootWindow, XCB_CW_EVENT_MASK, maskValues)));
+    QVERIFY(!redirectCheck);
 
     KXUtils::Atom atom(connection(), QByteArrayLiteral("_NET_WM_FULLSCREEN_MONITORS"));
 
@@ -627,8 +617,8 @@ void NetWinInfoTestWM::testFullscreenMonitors()
     MockWinInfo info(connection(), m_testWindow, m_rootWindow);
 
     while (true) {
-        KXUtils::ScopedCPointer<xcb_generic_event_t> event(xcb_wait_for_event(connection()));
-        if (event.isNull()) {
+        UniqueCPointer<xcb_generic_event_t> event(xcb_wait_for_event(connection()));
+        if (!event) {
             break;
         }
         if ((event->response_type & ~0x80) != XCB_CLIENT_MESSAGE) {
@@ -638,7 +628,7 @@ void NetWinInfoTestWM::testFullscreenMonitors()
         NET::Properties dirtyProtocols;
         NET::Properties2 dirtyProtocols2;
         QCOMPARE(info.fullscreenMonitors().isSet(), false);
-        info.event(event.data(), &dirtyProtocols, &dirtyProtocols2);
+        info.event(event.get(), &dirtyProtocols, &dirtyProtocols2);
         QCOMPARE(info.fullscreenMonitors().isSet(), true);
         break;
     }

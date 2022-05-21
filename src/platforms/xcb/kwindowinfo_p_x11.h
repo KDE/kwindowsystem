@@ -7,7 +7,7 @@
 #ifndef KWINDOWINFO_P_X11_H
 #define KWINDOWINFO_P_X11_H
 #include "kwindowinfo_p.h"
-#include <QScopedPointer>
+#include <memory>
 
 class NETWinInfo;
 
@@ -55,7 +55,7 @@ public:
     int pid() const override;
 
 private:
-    QScopedPointer<NETWinInfo> m_info;
+    std::unique_ptr<NETWinInfo> m_info;
     QString m_name;
     QString m_iconic_name;
     QRect m_geometry;

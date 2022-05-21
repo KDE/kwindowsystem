@@ -11,6 +11,7 @@
 #include "netwm.h"
 
 #include <QAbstractNativeEventFilter>
+#include <memory>
 
 class NETEventFilter;
 
@@ -87,9 +88,9 @@ private:
     void init(FilterInfo info);
     NETEventFilter *s_d_func()
     {
-        return d.data();
+        return d.get();
     }
-    QScopedPointer<NETEventFilter> d;
+    std::unique_ptr<NETEventFilter> d;
 };
 
 class MainThreadInstantiator : public QObject

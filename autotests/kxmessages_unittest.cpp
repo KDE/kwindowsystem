@@ -68,7 +68,7 @@ void KXMessages_UnitTest::testStart()
     QFETCH(KXMessages_UnitTest::BroadcastType, broadcastType);
     QFETCH(KXMessages_UnitTest::ReceiverType, receiverType);
     const QByteArray type = "kxmessage_unittest";
-    QScopedPointer<KXMessages> receiver;
+    std::unique_ptr<KXMessages> receiver;
     switch (receiverType) {
     case KXMessages_UnitTest::ReceiverTypeDefault:
         receiver.reset(new KXMessages(type));
@@ -85,7 +85,7 @@ void KXMessages_UnitTest::testStart()
     // despite the internal splitting.
     QString message;
     for (int i = 1; i < 50; ++i) {
-        QSignalSpy spy(receiver.data(), SIGNAL(gotMessage(QString)));
+        QSignalSpy spy(receiver.get(), SIGNAL(gotMessage(QString)));
         message += "a";
         switch (broadcastType) {
         case KXMessages_UnitTest::BroadcastMessageObject:
