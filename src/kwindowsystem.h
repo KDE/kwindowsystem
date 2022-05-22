@@ -710,7 +710,7 @@ public:
      * @param serial of the event that triggered the request
      * @param app_id identifier of the application that we are launching
      *
-     * @see currentSerial
+     * @see lastInputSerial
      * @since 5.83
      */
     Q_INVOKABLE static void requestXdgActivationToken(QWindow *win, uint32_t serial, const QString &app_id);
