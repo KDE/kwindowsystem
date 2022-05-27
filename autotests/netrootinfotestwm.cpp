@@ -222,7 +222,7 @@ void NetRootInfoTestWM::testSupported()
     NETRootInfo
         rootInfo(connection(), m_supportWindow, s_wmName, NET::WMAllProperties, NET::AllTypesMask, NET::States(~0u), NET::WM2AllProperties, NET::Actions(~0u));
     int count = 0;
-    for (int i = 0; i < 33; ++i) {
+    for (int i = 0; i < 34; ++i) {
         if (i == 12) {
             continue;
         }

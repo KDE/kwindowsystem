@@ -938,6 +938,9 @@ void NETRootInfo::setSupported()
         if (p->windowTypes & CriticalNotificationMask) {
             atoms[pnum++] = p->atom(_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION);
         }
+        if (p->windowTypes & AppletPopupMask) {
+            atoms[pnum++] = p->atom(_KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP);
+        }
     }
 
     if (p->properties & WMState) {
@@ -1279,6 +1282,8 @@ void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
         p->windowTypes |= OnScreenDisplayMask;
     } else if (atom == p->atom(_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION)) {
         p->windowTypes |= CriticalNotificationMask;
+    } else if (atom == p->atom(_KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP)) {
+        p->windowTypes |= AppletPopupMask;
     }
 
     else if (atom == p->atom(_NET_WM_STATE)) {
@@ -3142,6 +3147,12 @@ void NETWinInfo::setWindowType(WindowType type)
         data[1] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
         len = 2;
         break;
+    
+    case AppletPopup:
+        data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP);
+        data[1] = XCB_NONE;
+        len = 1;
+        break;
 
     default:
     case Normal:
@@ -4257,6 +4268,10 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
                 else if (type == p->atom(_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION)) {
                     p->types[pos++] = CriticalNotification;
                 }
+
+                else if (type == p->atom(_KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP)) {
+                    p->types[pos++] = AppletPopup;
+                }
             }
         }
     }
@@ -4696,6 +4711,7 @@ case type: \
         CHECK_TYPE_MASK(DNDIcon)
         CHECK_TYPE_MASK(OnScreenDisplay)
         CHECK_TYPE_MASK(CriticalNotification)
+        CHECK_TYPE_MASK(AppletPopup)
 #undef CHECK_TYPE_MASK
     default:
         break;

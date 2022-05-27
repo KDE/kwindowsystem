@@ -439,6 +439,10 @@ public:
             @since 5.58
         **/
         CriticalNotification = 17, // NON STANDARD
+        /**
+         * indicates that this window is an applet.
+         */
+        AppletPopup = 18, // NON STANDARD
     };
 
     /**
@@ -465,6 +469,7 @@ public:
         DNDIconMask = 1u << 15, ///< @see DNDIcon
         OnScreenDisplayMask = 1u << 16, ///< NON STANDARD @see OnScreenDisplay @since 5.6
         CriticalNotificationMask = 1u << 17, ///< NON STANDARD @see CriticalNotification @since 5.58
+        AppletPopupMask = 1u << 18, ///< NON STANDARD @see AppletPopup
         AllTypesMask = 0U - 1, ///< All window types.
     };
     /**
