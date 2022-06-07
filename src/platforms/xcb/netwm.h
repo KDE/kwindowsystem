@@ -664,6 +664,19 @@ public:
     void moveResizeWindowRequest(xcb_window_t window, int flags, int x, int y, int width, int height);
 
     /**
+       Clients that wish to show the window menu using WM2GTKShowWindowMenu
+       (_GTK_SHOW_WINDOW_MENU) should call this function.
+       This will send a request to the Window Manager. See _GTK_SHOW_WINDOW_MENU
+       description for details.
+
+       @param window The client window that would be resized/moved.
+       @param device_id GTK device id
+       @param x Requested X position for the menu relative to the root window
+       @param y Requested Y position for the menu relative to the root window
+    **/
+    void showWindowMenuRequest(xcb_window_t window, int device_id, int x_root, int y_root);
+
+    /**
        Sends the _NET_RESTACK_WINDOW request.
     **/
     void restackRequest(xcb_window_t window, RequestSource source, xcb_window_t above, int detail, xcb_timestamp_t timestamp);
@@ -910,6 +923,23 @@ protected:
     virtual void changeShowingDesktop(bool showing)
     {
         Q_UNUSED(showing);
+    }
+
+    /**
+       A Window Manager should subclass NETRootInfo and reimplement this function
+       when it wants to know when a Client made a request to show a window menu.
+
+       @param window The window that wants to move/resize
+       @param device_id GTK device id.
+       @param x_root X position of the cursor relative to the root window.
+       @param y_root Y position of the cursor relative to the root window.
+    **/
+    virtual void showWindowMenu(xcb_window_t window, int device_id, int x_root, int y_root)
+    {
+        Q_UNUSED(window);
+        Q_UNUSED(device_id);
+        Q_UNUSED(x_root);
+        Q_UNUSED(y_root);
     }
 
 private:

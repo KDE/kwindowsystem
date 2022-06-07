@@ -226,6 +226,10 @@ void NetRootInfoTestWM::testSupported()
         QVERIFY(rootInfo.isSupported(NET::Property2(1 << i)));
         count++;
     }
+
+    QVERIFY(rootInfo.isSupported(NET::WM2GTKShowWindowMenu));
+    count++;
+
     for (int i = 0; i < 17; ++i) {
         QVERIFY(rootInfo.isSupported(NET::WindowTypeMask(1 << i)));
         count++;

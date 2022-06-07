@@ -787,6 +787,7 @@ public:
         @li WM2DesktopFileName the base name of the desktop file name or the full path to the desktop file
         @li WM2GTKFrameExtents extents of the shadow drawn by the client
         @li WM2GTKApplicationId _GTK_APPLICATION_ID
+        @li WM2GTKShowWindowMenu _GTK_SHOW_WINDOW_MENU
 
         @see Properties2
     **/
@@ -823,6 +824,7 @@ public:
         WM2AppMenuServiceName = 1u << 28, // NOT STANDARD @since 5.69
         WM2AppMenuObjectPath = 1u << 29, // NOT STANDARD @since 5.69
         WM2GTKApplicationId = 1u << 30, // NOT STANDARD @since 5.91
+        WM2GTKShowWindowMenu = 1u << 31, // NOT STANDARD @since 5.96
         WM2AllProperties = ~0u,
     };
     /**

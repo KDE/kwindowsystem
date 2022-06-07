@@ -1111,6 +1111,10 @@ void NETRootInfo::setSupported()
         atoms[pnum++] = p->atom(_GTK_FRAME_EXTENTS);
     }
 
+    if (p->properties2 & WM2GTKShowWindowMenu) {
+        atoms[pnum++] = p->atom(_GTK_SHOW_WINDOW_MENU);
+    }
+
     xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_SUPPORTED), XCB_ATOM_ATOM, 32, pnum, (const void *)atoms);
 
     xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_SUPPORTING_WM_CHECK), XCB_ATOM_WINDOW, 32, 1, (const void *)&(p->supportwindow));
@@ -1428,6 +1432,10 @@ void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
         p->properties2 |= WM2GTKFrameExtents;
     }
 
+    else if (atom == p->atom(_GTK_SHOW_WINDOW_MENU)) {
+        p->properties2 |= WM2GTKShowWindowMenu;
+    }
+
     else if (atom == p->atom(_KDE_NET_WM_APPMENU_OBJECT_PATH)) {
         p->properties2 |= WM2AppMenuObjectPath;
     }
@@ -1583,6 +1591,16 @@ void NETRootInfo::moveResizeWindowRequest(xcb_window_t window, int flags, int x,
     const uint32_t data[5] = {uint32_t(flags), uint32_t(x), uint32_t(y), uint32_t(width), uint32_t(height)};
 
     send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_NET_MOVERESIZE_WINDOW), data);
+}
+
+void NETRootInfo::showWindowMenuRequest(xcb_window_t window, int device_id, int x_root, int y_root)
+{
+#ifdef NETWMDEBUG
+    fprintf(stderr, "NETRootInfo::showWindowMenuRequest: requesting menu for 0x%lx (%d, %d, %d)\n", window, device_id, x_root, y_root);
+#endif
+
+    const uint32_t data[5] = {uint32_t(device_id), uint32_t(x_root), uint32_t(y_root), 0, 0};
+    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_GTK_SHOW_WINDOW_MENU), data);
 }
 
 void NETRootInfo::restackRequest(xcb_window_t window, RequestSource src, xcb_window_t above, int detail, xcb_timestamp_t timestamp)
@@ -1795,6 +1813,17 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
             changeShowingDesktop(message->data.data32[0]);
+        } else if (message->type == p->atom(_GTK_SHOW_WINDOW_MENU)) {
+#ifdef NETWMDEBUG
+            fprintf(stderr,
+                    "NETRootInfo::event: showWindowMenu(%ld, %ld, %ld, %ld)\n",
+                    message->window,
+                    message->data.data32[0],
+                    message->data.data32[1],
+                    message->data.data32[2]);
+#endif
+
+            showWindowMenu(message->window, message->data.data32[0], message->data.data32[1], message->data.data32[2]);
         }
     }
 
@@ -3812,6 +3841,8 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             dirty2 = WM2FullscreenMonitors;
         } else if (pe->atom == p->atom(_GTK_FRAME_EXTENTS)) {
             dirty2 |= WM2GTKFrameExtents;
+        } else if (pe->atom == p->atom(_GTK_SHOW_WINDOW_MENU)) {
+            dirty2 |= WM2GTKShowWindowMenu;
         } else if (pe->atom == p->atom(_KDE_NET_WM_APPMENU_SERVICE_NAME)) {
             dirty2 |= WM2AppMenuServiceName;
         } else if (pe->atom == p->atom(_KDE_NET_WM_APPMENU_OBJECT_PATH)) {
