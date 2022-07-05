@@ -89,7 +89,9 @@ void WindowEffects::trackWindow(QWindow *window)
     if (!m_windowWatchers.contains(window)) {
         window->installEventFilter(this);
         auto conn = connect(window, &QObject::destroyed, this, [this, window]() {
+            releaseBlur(window);
             m_blurRegions.remove(window);
+            releaseContrast(window);
             m_backgroundConstrastRegions.remove(window);
             m_slideMap.remove(window);
             m_windowWatchers.remove(window);
@@ -104,6 +106,48 @@ void WindowEffects::releaseWindow(QWindow *window)
         disconnect(m_windowWatchers[window]);
         window->removeEventFilter(this);
         m_windowWatchers.remove(window);
+    }
+}
+
+KWayland::Client::Blur *WindowEffects::fetchBlur(QWindow *window)
+{
+    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
+    if (!surface) {
+        return nullptr;
+    }
+    auto blur = m_blurs.value(window);
+    if (!blur) {
+        blur = WaylandIntegration::self()->waylandBlurManager()->createBlur(surface, surface);
+        m_blurs[window] = blur;
+    }
+    return blur;
+}
+
+KWayland::Client::Contrast *WindowEffects::fetchContrast(QWindow *window)
+{
+    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
+    if (!surface) {
+        return nullptr;
+    }
+    auto contrast = m_contrasts.value(window);
+    if (!contrast) {
+        contrast = WaylandIntegration::self()->waylandContrastManager()->createContrast(surface, surface);
+        m_contrasts[window] = contrast;
+    }
+    return contrast;
+}
+
+void WindowEffects::releaseBlur(QWindow *window)
+{
+    if (auto blur = m_blurs.take(window)) {
+        blur->deleteLater();
+    }
+}
+
+void WindowEffects::releaseContrast(QWindow *window)
+{
+    if (auto blur = m_contrasts.take(window)) {
+        blur->deleteLater();
     }
 }
 
@@ -252,6 +296,7 @@ void WindowEffects::enableBlurBehind(WId winId, bool enable, const QRegion &regi
         trackWindow(window);
         m_blurRegions[window] = region;
     } else {
+        releaseBlur(window);
         m_blurRegions.remove(window);
         releaseWindow(window);
     }
@@ -268,10 +313,12 @@ void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &reg
 
     if (surface) {
         if (enable) {
-            auto blur = WaylandIntegration::self()->waylandBlurManager()->createBlur(surface, surface);
-            blur->setRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
+            auto blur = fetchBlur(window);
+            std::unique_ptr<KWayland::Client::Region> wlRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
+            blur->setRegion(wlRegion.get());
             blur->commit();
         } else {
+            releaseBlur(window);
             WaylandIntegration::self()->waylandBlurManager()->removeBlur(surface);
         }
 
@@ -292,6 +339,7 @@ void WindowEffects::enableBackgroundContrast(WId winId, bool enable, qreal contr
         m_backgroundConstrastRegions[window].saturation = saturation;
         m_backgroundConstrastRegions[window].region = region;
     } else {
+        releaseContrast(window);
         m_backgroundConstrastRegions.remove(window);
         releaseWindow(window);
     }
@@ -307,13 +355,15 @@ void WindowEffects::installContrast(QWindow *window, bool enable, qreal contrast
     KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
     if (surface) {
         if (enable) {
-            auto backgroundContrast = WaylandIntegration::self()->waylandContrastManager()->createContrast(surface, surface);
-            backgroundContrast->setRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
+            auto backgroundContrast = fetchContrast(window);
+            std::unique_ptr<KWayland::Client::Region> wlRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
+            backgroundContrast->setRegion(wlRegion.get());
             backgroundContrast->setContrast(contrast);
             backgroundContrast->setIntensity(intensity);
             backgroundContrast->setSaturation(saturation);
             backgroundContrast->commit();
         } else {
+            releaseContrast(window);
             WaylandIntegration::self()->waylandContrastManager()->removeContrast(surface);
         }
 
@@ -332,12 +382,14 @@ void WindowEffects::setBackgroundFrost(QWindow *window, QColor color, const QReg
         return;
     }
     if (!color.isValid()) {
+        releaseContrast(window);
         WaylandIntegration::self()->waylandContrastManager()->removeContrast(surface);
         return;
     }
 
-    auto backgroundContrast = WaylandIntegration::self()->waylandContrastManager()->createContrast(surface, surface);
-    backgroundContrast->setRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
+    auto backgroundContrast = fetchContrast(window);
+    std::unique_ptr<KWayland::Client::Region> wlRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
+    backgroundContrast->setRegion(wlRegion.get());
     backgroundContrast->setFrost(color);
     backgroundContrast->commit();
 
