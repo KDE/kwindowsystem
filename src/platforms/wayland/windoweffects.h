@@ -65,12 +65,10 @@ private:
     void installBlur(QWindow *window, bool enable, const QRegion &region);
     void installSlide(QWindow *window, KWindowEffects::SlideFromLocation location, int offset);
 
-    KWayland::Client::Blur *fetchBlur(QWindow *window);
-    KWayland::Client::Contrast *fetchContrast(QWindow *window);
-    void releaseBlur(QWindow *window);
-    void releaseContrast(QWindow *window);
+    void resetBlur(QWindow *window, KWayland::Client::Blur *blur = nullptr);
+    void resetContrast(QWindow *window, KWayland::Client::Contrast *contrast = nullptr);
 
-    QHash<QWindow *, QMetaObject::Connection> m_windowWatchers;
+    QHash<QWindow *, QList<QMetaObject::Connection>> m_windowWatchers;
     QHash<QWindow *, QRegion> m_blurRegions;
     struct BackgroundContrastData {
         qreal contrast = 1;
