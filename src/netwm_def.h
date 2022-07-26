@@ -328,7 +328,7 @@ struct NETFullscreenMonitors {
   are used to retrieve and modify the properties of windows. To keep
   the namespace relatively clean, all enums are defined here.
 
-  @see http://www.freedesktop.org/standards/wm-spec/
+  @see https://specifications.freedesktop.org/wm-spec/wm-spec-latest.html
  **/
 
 class KWINDOWSYSTEM_EXPORT NET
