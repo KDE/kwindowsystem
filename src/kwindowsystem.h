@@ -677,7 +677,7 @@ public:
          **/
         Wayland,
     };
-    Q_ENUM(Platform);
+    Q_ENUM(Platform)
     /**
      * Returns the Platform used by the QGuiApplication.
      * This method allows to check for the used windowing system in a cheap and reliable way.
