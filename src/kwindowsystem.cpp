@@ -451,10 +451,6 @@ void KWindowSystem::activateWindow(WId win, long time)
 
 void KWindowSystem::activateWindow(QWindow *win, long time)
 {
-    // If it's not yet exposed, there's nothing to activate
-    if (!win->isExposed())
-        return;
-
     activateWindow(win->winId(), time);
 }
 
