@@ -154,7 +154,7 @@ ecm_generate_headers(KWindowSystem_HEADERS
   REQUIRED_HEADERS KWindowSystem_HEADERS
 )
 
-install(TARGETS KF5WindowSystem EXPORT KF5WindowSystemTargets ${KF5_INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS KF5WindowSystem EXPORT KF5WindowSystemTargets ${KF_INSTALL_TARGETS_DEFAULT_ARGS})
 
 install(FILES
   # FIXME: It seems odd to install this.
