@@ -106,8 +106,21 @@ bool WindowShadow::create()
 
 void WindowShadow::internalDestroy()
 {
+    if (!shadow) {
+        return;
+    }
+
+    KWayland::Client::ShadowManager *shadowManager = WaylandIntegration::self()->waylandShadowManager();
+    if (shadowManager) {
+        KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
+        if (surface) {
+            shadowManager->removeShadow(surface);
+        }
+    }
+
     delete shadow;
     shadow = nullptr;
+
     if (window) {
         window->requestUpdate();
     }
