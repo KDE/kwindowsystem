@@ -58,7 +58,7 @@ if (APPLE)
     cmake_find_frameworks(CoreFoundation)
 endif()
 
-if(WIN32)
+if(WIN32 AND QT_MAJOR_VERSION EQUAL "5")
    find_package(Qt5WinExtras REQUIRED)
 endif()
 

@@ -13,10 +13,13 @@
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QIcon>
+#include <QImage>
 #include <QLibrary>
 #include <QMetaMethod>
 #include <QPixmap>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QtWin>
+#endif
 
 #include <windows.h>
 #include <windowsx.h>
@@ -266,7 +269,11 @@ void KWindowSystemPrivate::readWindowInfo(HWND hWnd, InternalWindowInfo *winfo)
         hSmallIcon = (HICON)SendMessage(hWnd, WM_QUERYDRAGICON, 0, 0);
     }
     if (hSmallIcon) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         smallIcon = QtWin::fromHICON(hSmallIcon);
+#else
+        smallIcon = QPixmap::fromImage(QImage::fromHICON(hSmallIcon));
+#endif
     }
 
     QPixmap bigIcon;
@@ -287,7 +294,11 @@ void KWindowSystemPrivate::readWindowInfo(HWND hWnd, InternalWindowInfo *winfo)
         hBigIcon = (HICON)SendMessage(hWnd, WM_QUERYDRAGICON, 0, 0);
     }
     if (hBigIcon) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         bigIcon = QtWin::fromHICON(hBigIcon);
+#else
+        bigIcon = QPixmap::fromImage(QImage::fromHICON(hBigIcon));
+#endif
     }
 
     winfo->bigIcon = bigIcon;
@@ -488,7 +499,11 @@ QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale)
         }
         HICON hIcon = (HICON)SendMessage(reinterpret_cast<HWND>(win), WM_GETICON, size, 0);
         if (hIcon != nullptr) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             pm = QtWin::fromHICON(hIcon);
+#else
+            pm = QPixmap::fromImage(QImage::fromHICON(hIcon));
+#endif
         }
     }
     if (scale) {
@@ -513,8 +528,13 @@ void KWindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIc
         s_d->winInfos[win].bigIcon = icon;
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     HICON hIconBig = QtWin::toHICON(icon);
     HICON hIconSmall = QtWin::toHICON(miniIcon);
+#else
+    HICON hIconBig = icon.toImage().toHICON();
+    HICON hIconSmall = miniIcon.toImage().toHICON();
+#endif
 
     HWND hwnd = reinterpret_cast<HWND>(win);
     hIconBig = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIconBig);
