@@ -9,6 +9,7 @@
 #define WAYLANDINTEGRATION_H
 #include <private/kwindoweffects_p.h>
 
+#include <QObject>
 #include <QPointer>
 
 namespace KWayland
