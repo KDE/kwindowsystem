@@ -3904,152 +3904,152 @@ void NETWinInfo::updateWMState()
     update(XAWMState);
 }
 
-void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
+void NETWinInfo::update(NET::Properties properties, NET::Properties2 properties2)
 {
     xcb_get_property_cookie_t cookies[255];
     int c = 0;
 
-    if (dirty & XAWMState) {
+    if (properties & XAWMState) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(WM_STATE), p->atom(WM_STATE), 0, 1);
     }
 
-    if (dirty & WMState) {
+    if (properties & WMState) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_STATE), XCB_ATOM_ATOM, 0, 2048);
     }
 
-    if (dirty & WMDesktop) {
+    if (properties & WMDesktop) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_DESKTOP), XCB_ATOM_CARDINAL, 0, 1);
     }
 
-    if (dirty & WMName) {
+    if (properties & WMName) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
-    if (dirty & WMVisibleName) {
+    if (properties & WMVisibleName) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_VISIBLE_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
-    if (dirty & WMIconName) {
+    if (properties & WMIconName) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_ICON_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
-    if (dirty & WMVisibleIconName) {
+    if (properties & WMVisibleIconName) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_VISIBLE_ICON_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
-    if (dirty & WMWindowType) {
+    if (properties & WMWindowType) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_WINDOW_TYPE), XCB_ATOM_ATOM, 0, 2048);
     }
 
-    if (dirty & WMStrut) {
+    if (properties & WMStrut) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_STRUT), XCB_ATOM_CARDINAL, 0, 4);
     }
 
-    if (dirty2 & WM2ExtendedStrut) {
+    if (properties2 & WM2ExtendedStrut) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_STRUT_PARTIAL), XCB_ATOM_CARDINAL, 0, 12);
     }
 
-    if (dirty2 & WM2FullscreenMonitors) {
+    if (properties2 & WM2FullscreenMonitors) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_FULLSCREEN_MONITORS), XCB_ATOM_CARDINAL, 0, 4);
     }
 
-    if (dirty & WMIconGeometry) {
+    if (properties & WMIconGeometry) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_ICON_GEOMETRY), XCB_ATOM_CARDINAL, 0, 4);
     }
 
-    if (dirty & WMIcon) {
+    if (properties & WMIcon) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_ICON), XCB_ATOM_CARDINAL, 0, 0xffffffff);
     }
 
-    if (dirty & WMFrameExtents) {
+    if (properties & WMFrameExtents) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 0, 4);
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_FRAME_STRUT), XCB_ATOM_CARDINAL, 0, 4);
     }
 
-    if (dirty2 & WM2FrameOverlap) {
+    if (properties2 & WM2FrameOverlap) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_FRAME_OVERLAP), XCB_ATOM_CARDINAL, 0, 4);
     }
 
-    if (dirty2 & WM2Activities) {
+    if (properties2 & WM2Activities) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_ACTIVITIES), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
-    if (dirty2 & WM2BlockCompositing) {
+    if (properties2 & WM2BlockCompositing) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_BLOCK_COMPOSITING), XCB_ATOM_CARDINAL, 0, 1);
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_BYPASS_COMPOSITOR), XCB_ATOM_CARDINAL, 0, 1);
     }
 
-    if (dirty & WMPid) {
+    if (properties & WMPid) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_PID), XCB_ATOM_CARDINAL, 0, 1);
     }
 
-    if (dirty2 & WM2StartupId) {
+    if (properties2 & WM2StartupId) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_STARTUP_ID), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
-    if (dirty2 & WM2Opacity) {
+    if (properties2 & WM2Opacity) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_WINDOW_OPACITY), XCB_ATOM_CARDINAL, 0, 1);
     }
 
-    if (dirty2 & WM2AllowedActions) {
+    if (properties2 & WM2AllowedActions) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_ALLOWED_ACTIONS), XCB_ATOM_ATOM, 0, 2048);
     }
 
-    if (dirty2 & WM2UserTime) {
+    if (properties2 & WM2UserTime) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_USER_TIME), XCB_ATOM_CARDINAL, 0, 1);
     }
 
-    if (dirty2 & WM2TransientFor) {
+    if (properties2 & WM2TransientFor) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, XCB_ATOM_WM_TRANSIENT_FOR, XCB_ATOM_WINDOW, 0, 1);
     }
 
-    if (dirty2 & (WM2GroupLeader | WM2Urgency | WM2Input | WM2InitialMappingState | WM2IconPixmap)) {
+    if (properties2 & (WM2GroupLeader | WM2Urgency | WM2Input | WM2InitialMappingState | WM2IconPixmap)) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, XCB_ATOM_WM_HINTS, XCB_ATOM_WM_HINTS, 0, 9);
     }
 
-    if (dirty2 & WM2WindowClass) {
+    if (properties2 & WM2WindowClass) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
-    if (dirty2 & WM2WindowRole) {
+    if (properties2 & WM2WindowRole) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(WM_WINDOW_ROLE), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
-    if (dirty2 & WM2ClientMachine) {
+    if (properties2 & WM2ClientMachine) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, XCB_ATOM_WM_CLIENT_MACHINE, XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
-    if (dirty2 & WM2Protocols) {
+    if (properties2 & WM2Protocols) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(WM_PROTOCOLS), XCB_ATOM_ATOM, 0, 2048);
     }
 
-    if (dirty2 & WM2OpaqueRegion) {
+    if (properties2 & WM2OpaqueRegion) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_OPAQUE_REGION), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
     }
 
-    if (dirty2 & WM2DesktopFileName) {
+    if (properties2 & WM2DesktopFileName) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_DESKTOP_FILE), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
-    if (dirty2 & WM2GTKApplicationId) {
+    if (properties2 & WM2GTKApplicationId) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_GTK_APPLICATION_ID), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
-    if (dirty2 & WM2GTKFrameExtents) {
+    if (properties2 & WM2GTKFrameExtents) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_GTK_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 0, 4);
     }
 
-    if (dirty2 & WM2AppMenuObjectPath) {
+    if (properties2 & WM2AppMenuObjectPath) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_APPMENU_OBJECT_PATH), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
-    if (dirty2 & WM2AppMenuServiceName) {
+    if (properties2 & WM2AppMenuServiceName) {
         cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_APPMENU_SERVICE_NAME), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
     c = 0;
 
-    if (dirty & XAWMState) {
+    if (properties & XAWMState) {
         p->mapping_state = Withdrawn;
 
         bool success;
@@ -4075,7 +4075,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty & WMState) {
+    if (properties & WMState) {
         p->state = NET::States();
         const QVector<xcb_atom_t> states = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
 
@@ -4150,7 +4150,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty & WMDesktop) {
+    if (properties & WMDesktop) {
         p->desktop = 0;
 
         bool success;
@@ -4165,7 +4165,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty & WMName) {
+    if (properties & WMName) {
         delete[] p->name;
         p->name = nullptr;
 
@@ -4175,7 +4175,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty & WMVisibleName) {
+    if (properties & WMVisibleName) {
         delete[] p->visible_name;
         p->visible_name = nullptr;
 
@@ -4185,7 +4185,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty & WMIconName) {
+    if (properties & WMIconName) {
         delete[] p->icon_name;
         p->icon_name = nullptr;
 
@@ -4195,7 +4195,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty & WMVisibleIconName) {
+    if (properties & WMVisibleIconName) {
         delete[] p->visible_icon_name;
         p->visible_icon_name = nullptr;
 
@@ -4205,7 +4205,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty & WMWindowType) {
+    if (properties & WMWindowType) {
         p->types.reset();
         p->types[0] = Unknown;
         p->has_net_support = false;
@@ -4303,7 +4303,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty & WMStrut) {
+    if (properties & WMStrut) {
         p->strut = NETStrut();
 
         QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
@@ -4315,7 +4315,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2ExtendedStrut) {
+    if (properties2 & WM2ExtendedStrut) {
         p->extended_strut = NETExtendedStrut();
 
         QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
@@ -4335,7 +4335,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2FullscreenMonitors) {
+    if (properties2 & WM2FullscreenMonitors) {
         p->fullscreen_monitors = NETFullscreenMonitors();
 
         QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
@@ -4347,7 +4347,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty & WMIconGeometry) {
+    if (properties & WMIconGeometry) {
         p->icon_geom = NETRect();
 
         QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
@@ -4359,13 +4359,13 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty & WMIcon) {
+    if (properties & WMIcon) {
         readIcon(p->conn, cookies[c++], p->icons, p->icon_count);
         delete[] p->icon_sizes;
         p->icon_sizes = nullptr;
     }
 
-    if (dirty & WMFrameExtents) {
+    if (properties & WMFrameExtents) {
         p->frame_strut = NETStrut();
 
         QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
@@ -4384,7 +4384,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2FrameOverlap) {
+    if (properties2 & WM2FrameOverlap) {
         p->frame_overlap = NETStrut();
 
         QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
@@ -4396,7 +4396,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2Activities) {
+    if (properties2 & WM2Activities) {
         delete[] p->activities;
         p->activities = nullptr;
 
@@ -4406,7 +4406,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2BlockCompositing) {
+    if (properties2 & WM2BlockCompositing) {
         bool success;
         p->blockCompositing = false;
 
@@ -4432,11 +4432,11 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty & WMPid) {
+    if (properties & WMPid) {
         p->pid = get_value_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL, 0);
     }
 
-    if (dirty2 & WM2StartupId) {
+    if (properties2 & WM2StartupId) {
         delete[] p->startup_id;
         p->startup_id = nullptr;
 
@@ -4446,11 +4446,11 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2Opacity) {
+    if (properties2 & WM2Opacity) {
         p->opacity = get_value_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL, 0xffffffff);
     }
 
-    if (dirty2 & WM2AllowedActions) {
+    if (properties2 & WM2AllowedActions) {
         p->allowed_actions = NET::Actions();
 
         const QVector<xcb_atom_t> actions = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
@@ -4507,7 +4507,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2UserTime) {
+    if (properties2 & WM2UserTime) {
         p->user_time = -1U;
 
         bool success;
@@ -4518,11 +4518,11 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2TransientFor) {
+    if (properties2 & WM2TransientFor) {
         p->transient_for = get_value_reply<xcb_window_t>(p->conn, cookies[c++], XCB_ATOM_WINDOW, 0);
     }
 
-    if (dirty2 & (WM2GroupLeader | WM2Urgency | WM2Input | WM2InitialMappingState | WM2IconPixmap)) {
+    if (properties2 & (WM2GroupLeader | WM2Urgency | WM2Input | WM2InitialMappingState | WM2IconPixmap)) {
         xcb_get_property_reply_t *reply = xcb_get_property_reply(p->conn, cookies[c++], nullptr);
 
         if (reply && reply->format == 32 && reply->value_len == 9 && reply->type == XCB_ATOM_WM_HINTS) {
@@ -4564,7 +4564,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2WindowClass) {
+    if (properties2 & WM2WindowClass) {
         delete[] p->class_name;
         delete[] p->class_class;
         p->class_name = nullptr;
@@ -4580,7 +4580,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2WindowRole) {
+    if (properties2 & WM2WindowRole) {
         delete[] p->window_role;
         p->window_role = nullptr;
 
@@ -4590,7 +4590,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2ClientMachine) {
+    if (properties2 & WM2ClientMachine) {
         delete[] p->client_machine;
         p->client_machine = nullptr;
 
@@ -4600,7 +4600,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2Protocols) {
+    if (properties2 & WM2Protocols) {
         const QVector<xcb_atom_t> protocols = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
         p->protocols = NET::NoProtocol;
         for (auto it = protocols.begin(); it != protocols.end(); ++it) {
@@ -4618,7 +4618,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2OpaqueRegion) {
+    if (properties2 & WM2OpaqueRegion) {
         const QVector<qint32> values = get_array_reply<qint32>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
         p->opaqueRegion.clear();
         p->opaqueRegion.reserve(values.count() / 4);
@@ -4632,7 +4632,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2DesktopFileName) {
+    if (properties2 & WM2DesktopFileName) {
         delete[] p->desktop_file;
         p->desktop_file = nullptr;
 
@@ -4642,7 +4642,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2GTKApplicationId) {
+    if (properties2 & WM2GTKApplicationId) {
         delete[] p->gtk_application_id;
         p->gtk_application_id = nullptr;
 
@@ -4652,7 +4652,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2GTKFrameExtents) {
+    if (properties2 & WM2GTKFrameExtents) {
         p->gtk_frame_extents = NETStrut();
 
         QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
@@ -4664,7 +4664,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2AppMenuObjectPath) {
+    if (properties2 & WM2AppMenuObjectPath) {
         delete[] p->appmenu_object_path;
         p->appmenu_object_path = nullptr;
 
@@ -4674,7 +4674,7 @@ void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
         }
     }
 
-    if (dirty2 & WM2AppMenuServiceName) {
+    if (properties2 & WM2AppMenuServiceName) {
         delete[] p->appmenu_service_name;
         p->appmenu_service_name = nullptr;
 

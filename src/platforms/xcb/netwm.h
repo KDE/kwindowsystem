@@ -1736,7 +1736,7 @@ protected:
     }
 
 private:
-    void update(NET::Properties dirty, NET::Properties2 dirty2 = NET::Properties2());
+    void update(NET::Properties properties, NET::Properties2 properties2 = NET::Properties2());
     void updateWMState();
     void setIconInternal(NETRArray<NETIcon> &icons, int &icon_count, xcb_atom_t property, NETIcon icon, bool replace);
     NETIcon iconInternal(NETRArray<NETIcon> &icons, int icon_count, int width, int height) const;
