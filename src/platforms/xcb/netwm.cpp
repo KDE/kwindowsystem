@@ -2838,11 +2838,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
     // setState() needs to know the current state, so read it even if not requested
     if ((p->properties & WMState) == 0) {
-        p->properties |= WMState;
-
         update(WMState);
-
-        p->properties &= ~WMState;
     }
 
     if (p->role == Client && p->mapping_state != Withdrawn) {
@@ -3176,7 +3172,7 @@ void NETWinInfo::setWindowType(WindowType type)
         data[1] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
         len = 2;
         break;
-    
+
     case AppletPopup:
         data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP);
         data[1] = XCB_NONE;
@@ -3865,15 +3861,23 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
         p->win_geom.size.height = configure->height;
     }
 
+    Properties dirtyProperties = dirty & p->properties;
+    Properties2 dirtyProperties2 = dirty2 & p->properties2;
+
+    // We *always* want to update WM_STATE if set in dirty_props
+    if (dirty & XAWMState) {
+        dirtyProperties |= XAWMState;
+    }
+
     if (do_update) {
-        update(dirty, dirty2);
+        update(dirtyProperties, dirtyProperties2);
     }
 
     if (properties) {
-        *properties = dirty;
+        *properties = dirtyProperties;
     }
     if (properties2) {
-        *properties2 = dirty2;
+        *properties2 = dirtyProperties2;
     }
 }
 
@@ -3900,16 +3904,8 @@ void NETWinInfo::updateWMState()
     update(XAWMState);
 }
 
-void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyProperties2)
+void NETWinInfo::update(NET::Properties dirty, NET::Properties2 dirty2)
 {
-    Properties dirty = dirtyProperties & p->properties;
-    Properties2 dirty2 = dirtyProperties2 & p->properties2;
-
-    // We *always* want to update WM_STATE if set in dirty_props
-    if (dirtyProperties & XAWMState) {
-        dirty |= XAWMState;
-    }
-
     xcb_get_property_cookie_t cookies[255];
     int c = 0;
 
