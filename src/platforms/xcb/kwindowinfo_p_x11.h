@@ -55,6 +55,8 @@ public:
     int pid() const override;
 
 private:
+    bool icccmCompliantMappingState() const;
+
     std::unique_ptr<NETWinInfo> m_info;
     QString m_name;
     QString m_iconic_name;

@@ -428,6 +428,16 @@ bool KWindowInfoPrivateX11::actionSupported(NET::Action action) const
     }
 }
 
+bool KWindowInfoPrivateX11::icccmCompliantMappingState() const
+{
+    static enum { noidea, yes, no } wm_is_1_2_compliant = noidea;
+    if (wm_is_1_2_compliant == noidea) {
+        NETRootInfo info(QX11Info::connection(), NET::Supported, NET::Properties2(), QX11Info::appScreen());
+        wm_is_1_2_compliant = info.isSupported(NET::Hidden) ? yes : no;
+    }
+    return wm_is_1_2_compliant == yes;
+}
+
 // see NETWM spec section 7.6
 bool KWindowInfoPrivateX11::isMinimized() const
 {
@@ -440,7 +450,7 @@ bool KWindowInfoPrivateX11::isMinimized() const
     }
     // older WMs use WithdrawnState for other virtual desktops
     // and IconicState only for minimized
-    return KWindowSystem::icccmCompliantMappingState() ? false : true;
+    return icccmCompliantMappingState() ? false : true;
 }
 
 QByteArray KWindowInfoPrivateX11::desktopFileName() const

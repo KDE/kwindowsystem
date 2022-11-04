@@ -467,12 +467,17 @@ public:
     static void lowerWindow(WId win);
 #endif
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 101)
     /**
      * @internal
      * Returns true if the WM uses IconicState also for windows
      * on inactive virtual desktops.
+     *
+     * @deprecated since 5.101, internal.
      */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "Internal")
     static bool icccmCompliantMappingState();
+#endif
 
     /**
      * Returns the workarea for the specified desktop, or the current

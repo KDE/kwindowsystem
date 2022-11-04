@@ -689,11 +689,13 @@ void KWindowSystem::setStrut(WId win, int left, int right, int top, int bottom)
     d->setStrut(win, left * dpr, right * dpr, top * dpr, bottom * dpr);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 bool KWindowSystem::icccmCompliantMappingState()
 {
     Q_D(KWindowSystem);
     return d->icccmCompliantMappingState();
 }
+#endif
 
 bool KWindowSystem::allowedActionsSupported()
 {
