@@ -43,7 +43,9 @@ private Q_SLOTS:
 
     void testState_data();
     void testState();
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
     void testDemandsAttention();
+#endif
     void testMinimized();
     void testMappingState();
     void testWindowType_data();
@@ -242,6 +244,7 @@ struct kde_wm_hints {
     xcb_window_t window_group;
 };
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowInfoX11Test::testDemandsAttention()
 {
     QSignalSpy activeWindowSpy(KX11Extras::self(), &KX11Extras::activeWindowChanged);
@@ -340,6 +343,7 @@ void KWindowInfoX11Test::testDemandsAttention()
     // prevent openbox crash (see https://bugzilla.icculus.org/show_bug.cgi?id=6315 )
     QTest::qWait(600);
 }
+#endif
 
 void KWindowInfoX11Test::testMinimized()
 {

@@ -465,6 +465,7 @@ void KWindowSystem::forceActiveWindow(WId win, long time)
     }
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystem::demandAttention(WId win, bool set)
 {
 // One can not flash a windows in wince
@@ -479,6 +480,7 @@ void KWindowSystem::demandAttention(WId win, bool set)
     FlashWindowEx(&fi);
 #endif
 }
+#endif
 
 QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale)
 {

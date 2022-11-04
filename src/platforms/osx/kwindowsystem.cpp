@@ -377,11 +377,13 @@ void KWindowSystem::forceActiveWindow(WId win, long time)
     activateWindow(win, time);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystem::demandAttention(WId win, bool set)
 {
     // TODO
     qDebug() << "KWindowSystem::demandAttention( WId win, bool set ) isn't yet implemented!";
 }
+#endif
 
 bool KWindowSystem::compositingActive()
 {

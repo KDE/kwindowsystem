@@ -17,7 +17,9 @@ public:
     WId activeWindow() override;
     void activateWindow(WId win, long time) override;
     void forceActiveWindow(WId win, long time) override;
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
     void demandAttention(WId win, bool set) override;
+#endif
     bool compositingActive() override;
     int currentDesktop() override;
     int numberOfDesktops() override;

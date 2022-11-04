@@ -22,7 +22,9 @@ public:
     virtual WId activeWindow() = 0;
     virtual void activateWindow(WId win, long time = 0) = 0;
     virtual void forceActiveWindow(WId win, long time = 0) = 0;
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
     virtual void demandAttention(WId win, bool set) = 0;
+#endif
     virtual bool compositingActive() = 0;
     virtual int currentDesktop() = 0;
     virtual int numberOfDesktops() = 0;

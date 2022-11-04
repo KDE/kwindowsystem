@@ -751,11 +751,13 @@ void KWindowSystemPrivateX11::forceActiveWindow(WId win, long time)
     info.setActiveWindow(win, NET::FromTool, time, 0);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystemPrivateX11::demandAttention(WId win, bool set)
 {
     NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMState, NET::Properties2());
     info.setState(set ? NET::DemandsAttention : NET::States(), NET::DemandsAttention);
 }
+#endif
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 WId KWindowSystemPrivateX11::transientFor(WId win)

@@ -206,6 +206,7 @@ public:
     static void forceActiveWindow(WId win, long time = 0);
 #endif
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 101)
     /**
      * When application finishes some operation and wants to notify
      * the user about it, it can call demandAttention(). Instead
@@ -214,8 +215,11 @@ public:
      * See also explanation in description of activateWindow().
      *
      * Note that it's usually better to use KNotifyClient.
+     * @deprecated since 5.101, use QWindow::alert() instead().
      */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "Use QWindow::alert()")
     static void demandAttention(WId win, bool set = true);
+#endif
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 101)
     /**

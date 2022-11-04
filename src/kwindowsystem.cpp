@@ -105,11 +105,13 @@ void KWindowSystemPrivateDummy::forceActiveWindow(WId win, long time)
     Q_UNUSED(time)
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystemPrivateDummy::demandAttention(WId win, bool set)
 {
     Q_UNUSED(win)
     Q_UNUSED(set)
 }
+#endif
 
 bool KWindowSystemPrivateDummy::compositingActive()
 {
@@ -487,11 +489,13 @@ void KWindowSystem::forceActiveWindow(WId win, long time)
 }
 #endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystem::demandAttention(WId win, bool set)
 {
     Q_D(KWindowSystem);
     d->demandAttention(win, set);
 }
+#endif
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
 WId KWindowSystem::transientFor(WId win)
