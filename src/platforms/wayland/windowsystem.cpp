@@ -107,7 +107,7 @@ quint32 WindowSystem::lastInputSerial(QWindow *window)
 
 WId WindowSystem::activeWindow()
 {
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support virtual desktops";
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support querying the active window";
     return 0;
 }
 
