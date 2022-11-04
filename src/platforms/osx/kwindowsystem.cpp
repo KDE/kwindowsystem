@@ -470,11 +470,13 @@ QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int flag
     //    qDebug() << "QPixmap KWindowSystem::icon( WId win, int width, int height, bool scale, int flags ) isn't yet implemented!";
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon)
 {
     // TODO
     qDebug() << "KWindowSystem::setIcons( WId win, const QPixmap& icon, const QPixmap& miniIcon ) isn't yet implemented!";
 }
+#endif
 
 void KWindowSystem::setType(WId winid, NET::WindowType windowType)
 {

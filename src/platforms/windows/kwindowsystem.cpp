@@ -517,6 +517,7 @@ QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int)
     return icon(win, width, height, scale);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon)
 {
     KWindowSystem::init(INFO_WINDOWS);
@@ -540,6 +541,7 @@ void KWindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIc
     hIconBig = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIconBig);
     hIconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIconSmall);
 }
+#endif
 
 void KWindowSystem::setState(WId win, NET::States state)
 {

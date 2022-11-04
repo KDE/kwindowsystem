@@ -173,12 +173,14 @@ QPixmap KWindowSystemPrivateDummy::icon(WId win, int width, int height, bool sca
     return QPixmap();
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystemPrivateDummy::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon)
 {
     Q_UNUSED(win)
     Q_UNUSED(icon)
     Q_UNUSED(miniIcon)
 }
+#endif
 
 void KWindowSystemPrivateDummy::setType(WId win, NET::WindowType windowType)
 {
@@ -568,11 +570,13 @@ QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int flag
 }
 #endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon)
 {
     Q_D(KWindowSystem);
     d->setIcons(win, icon, miniIcon);
 }
+#endif
 
 void KWindowSystem::setType(WId win, NET::WindowType windowType)
 {

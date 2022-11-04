@@ -439,13 +439,18 @@ public:
     static QPixmap icon(WId win, int width, int height, bool scale, int flags, NETWinInfo *info);
 #endif
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 101)
     /**
      * Sets an @p icon and a  @p miniIcon on window @p win
      * @param win the id of the window
      * @param icon the new icon
      * @param miniIcon the new mini icon
+     * @deprecated since 5.101, use QWindow::setIcon() or QGuiApplication::setWindowIcon()
      */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "Use QWindow::setIcon() or QGuiApplication::setWindowIcon()")
     static void setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon);
+#endif
+
     /**
      * Sets the type of window @p win to @p windowType.
      *

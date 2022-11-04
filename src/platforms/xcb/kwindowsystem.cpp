@@ -860,6 +860,7 @@ QPixmap KWindowSystemPrivateX11::iconFromNetWinInfo(int width, int height, bool 
     return result;
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystemPrivateX11::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon)
 {
     if (icon.isNull()) {
@@ -884,6 +885,7 @@ void KWindowSystemPrivateX11::setIcons(WId win, const QPixmap &icon, const QPixm
     ni.data = (unsigned char *)img.bits();
     info.setIcon(ni, false);
 }
+#endif
 
 void KWindowSystemPrivateX11::setType(WId win, NET::WindowType windowType)
 {
