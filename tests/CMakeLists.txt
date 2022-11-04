@@ -14,14 +14,16 @@ macro(kwindowsystem_executable_tests)
 endmacro()
 
 kwindowsystem_executable_tests(
-  setmainwindowtest
-  createpixmapfromhandletest
   blurbehindtest
   backgroundcontrasttest
 )
 
 if(KWINDOWSYSTEM_HAVE_X11)
-    kwindowsystem_executable_tests(icontest)
+    kwindowsystem_executable_tests(
+      icontest
+      createpixmapfromhandletest
+      setmainwindowtest
+    )
     if (TARGET Qt5::X11Extras)
         target_link_libraries(icontest Qt5::X11Extras)
     elseif (TARGET Qt6::Gui)

@@ -13,6 +13,8 @@
 #include <QLabel>
 #include <QPushButton>
 
+#include "kx11extras.h"
+
 class Window : public QWidget
 {
 public:
@@ -43,12 +45,12 @@ void Window::showWindow()
     // Wait for user to select another window
     m_label->setText("Click on another window to show a dialog on it");
     WId us = winId();
-    while (KWindowSystem::activeWindow() == us) {
+    while (KX11Extras::activeWindow() == us) {
         QApplication::processEvents();
     }
 
     // Get the id of the selected window
-    WId id = KWindowSystem::activeWindow();
+    WId id = KX11Extras::activeWindow();
     m_label->setText(QString("Showing dialog on window with id: %1.").arg(id));
 
     // Create test dialog

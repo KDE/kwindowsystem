@@ -8,6 +8,8 @@
 #include <QTest>
 #include <kmanagerselection.h>
 
+#include "kx11extras.h"
+
 class CompositingEnabledTest : public QObject
 {
     Q_OBJECT
@@ -18,10 +20,10 @@ private Q_SLOTS:
 void CompositingEnabledTest::testRecreatingNetEventFilter()
 {
     // this test simulates the condition that the compositor gets enabled while the NetEventFilter gets recreated
-    QVERIFY(!KWindowSystem::compositingActive());
+    QVERIFY(!KX11Extras::compositingActive());
 
     // fake the compositor
-    QSignalSpy compositingChangedSpy(KWindowSystem::self(), &KWindowSystem::compositingChanged);
+    QSignalSpy compositingChangedSpy(KX11Extras::self(), &KX11Extras::compositingChanged);
     QVERIFY(compositingChangedSpy.isValid());
     KSelectionOwner compositorSelection("_NET_WM_CM_S0");
     QSignalSpy claimedSpy(&compositorSelection, &KSelectionOwner::claimedOwnership);
@@ -29,12 +31,12 @@ void CompositingEnabledTest::testRecreatingNetEventFilter()
     compositorSelection.claim(true);
     connect(&compositorSelection, &KSelectionOwner::claimedOwnership, [] {
         // let's connect to a signal which will cause a re-creation of NetEventFilter
-        QSignalSpy workAreaChangedSpy(KWindowSystem::self(), &KWindowSystem::workAreaChanged);
+        QSignalSpy workAreaChangedSpy(KX11Extras::self(), &KX11Extras::workAreaChanged);
         QVERIFY(workAreaChangedSpy.isValid());
     });
 
     QVERIFY(claimedSpy.wait());
-    QTRY_VERIFY(KWindowSystem::compositingActive());
+    QTRY_VERIFY(KX11Extras::compositingActive());
     QCOMPARE(compositingChangedSpy.count(), 1);
 }
 

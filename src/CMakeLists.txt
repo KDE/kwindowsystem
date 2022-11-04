@@ -42,6 +42,7 @@ if (KWINDOWSYSTEM_HAVE_X11)
     platforms/xcb/kselectionwatcher.cpp
     platforms/xcb/kxerrorhandler.cpp
     platforms/xcb/kxutils.cpp
+    kx11extras.cpp
   )
 endif()
 
@@ -152,6 +153,15 @@ ecm_generate_headers(KWindowSystem_HEADERS
 
   REQUIRED_HEADERS KWindowSystem_HEADERS
 )
+
+if (KWINDOWSYSTEM_HAVE_X11)
+    ecm_generate_headers(KWindowSystem_HEADERS
+    HEADER_NAMES
+    KX11Extras
+
+    REQUIRED_HEADERS KWindowSystem_HEADERS
+    )
+endif()
 
 install(TARGETS KF5WindowSystem EXPORT KF5WindowSystemTargets ${KF_INSTALL_TARGETS_DEFAULT_ARGS})
 

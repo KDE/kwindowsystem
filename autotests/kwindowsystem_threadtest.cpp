@@ -6,6 +6,7 @@
 
 #include "kwindowinfo.h"
 #include "kwindowsystem.h"
+#include "kx11extras.h"
 #include "nettesthelper.h"
 #include "netwm.h"
 
@@ -43,7 +44,7 @@ public:
     void run() override
     {
         // simulate some activity in another thread gathering window information
-        const QList<WId> windows = KWindowSystem::stackingOrder();
+        const QList<WId> windows = KX11Extras::stackingOrder();
         for (auto wid : windows) {
             KWindowInfo info(wid, NET::WMVisibleName);
             if (info.valid()) {
@@ -67,7 +68,7 @@ void KWindowSystemThreadTest::initTestCase()
 void KWindowSystemThreadTest::testWindowAdded()
 {
     qRegisterMetaType<WId>("WId");
-    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::windowAdded);
+    QSignalSpy spy(KX11Extras::self(), &KX11Extras::windowAdded);
     m_widget = new QWidget;
     m_widget->show();
     QVERIFY(QTest::qWaitForWindowExposed(m_widget));
@@ -84,7 +85,7 @@ void KWindowSystemThreadTest::testWindowAdded()
         }
     }
     QVERIFY(hasWId);
-    QVERIFY(KWindowSystem::hasWId(m_widget->winId()));
+    QVERIFY(KX11Extras::hasWId(m_widget->winId()));
 }
 
 void KWindowSystemThreadTest::testAccessFromThread()

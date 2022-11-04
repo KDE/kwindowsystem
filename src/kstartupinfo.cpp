@@ -59,6 +59,7 @@
 #include <X11/Xlib.h>
 #include <fixx11h.h>
 #include <kwindowsystem.h>
+#include <kx11extras.h>
 #include <kxmessages.h>
 #endif
 
@@ -778,12 +779,12 @@ void KStartupInfo::setNewStartupId(QWindow *window, const QByteArray &startup_id
             }
         }
         if (activate) {
-            KWindowSystem::setOnDesktop(window->winId(), KWindowSystem::currentDesktop());
+            KX11Extras::setOnDesktop(window->winId(), KX11Extras::currentDesktop());
             // This is not very nice, but there's no way how to get any
             // usable timestamp without ASN, so force activating the window.
             // And even with ASN, it's not possible to get the timestamp here,
             // so if the WM doesn't have support for ASN, it can't be used either.
-            KWindowSystem::forceActiveWindow(window->winId());
+            KX11Extras::forceActiveWindow(window->winId());
         }
     }
 #else

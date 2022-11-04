@@ -14,6 +14,7 @@
 #include <kmanagerselection.h>
 #include <kwindoweffects.h>
 #include <kwindowsystem.h>
+#include <kx11extras.h>
 #include <netwm.h>
 #include <qtest_widgets.h>
 #include <xcb/xcb.h>
@@ -401,11 +402,11 @@ void KWindowEffectsTest::testEffectAvailable()
     QFETCH(KWindowEffects::Effect, effect);
     // without a compositing manager it's not available
     // try-verify as there still might be the selection claimed from previous data run
-    QTRY_VERIFY(!KWindowSystem::compositingActive());
+    QTRY_VERIFY(!KX11Extras::compositingActive());
     QVERIFY(!KWindowEffects::isEffectAvailable(effect));
 
     // fake the compositor
-    QSignalSpy compositingChangedSpy(KWindowSystem::self(), &KWindowSystem::compositingChanged);
+    QSignalSpy compositingChangedSpy(KX11Extras::self(), &KX11Extras::compositingChanged);
     QVERIFY(compositingChangedSpy.isValid());
     KSelectionOwner compositorSelection("_NET_WM_CM_S0");
     QSignalSpy claimedSpy(&compositorSelection, &KSelectionOwner::claimedOwnership);
@@ -414,7 +415,7 @@ void KWindowEffectsTest::testEffectAvailable()
     QVERIFY(claimedSpy.wait());
     QCOMPARE(compositingChangedSpy.count(), 1);
     QCOMPARE(compositingChangedSpy.first().first().toBool(), true);
-    QVERIFY(KWindowSystem::compositingActive());
+    QVERIFY(KX11Extras::compositingActive());
 
     // but not yet available
     QVERIFY(!KWindowEffects::isEffectAvailable(effect));
@@ -443,7 +444,7 @@ void KWindowEffectsTest::testEffectAvailable()
     QVERIFY(compositingChangedSpy.wait());
     QCOMPARE(compositingChangedSpy.count(), 2);
     QCOMPARE(compositingChangedSpy.last().first().toBool(), false);
-    QVERIFY(!KWindowSystem::compositingActive());
+    QVERIFY(!KX11Extras::compositingActive());
 }
 
 QTEST_MAIN(KWindowEffectsTest)

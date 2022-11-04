@@ -8,7 +8,7 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QLabel>
-#include <kwindowsystem.h>
+#include <kx11extras.h>
 
 int main(int argc, char **argv)
 {
@@ -21,6 +21,6 @@ int main(int argc, char **argv)
     label.setMinimumSize(250, 250);
     label.show();
     QString wId = parser.positionalArguments().first();
-    label.setPixmap(KWindowSystem::icon(wId.toULongLong(nullptr, 0), 250, 250, false, KWindowSystem::WMHints));
+    label.setPixmap(KX11Extras::icon(wId.toULongLong(nullptr, 0), 250, 250, false, KX11Extras::WMHints));
     return app.exec();
 }

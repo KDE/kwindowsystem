@@ -15,6 +15,10 @@
 
 #include <QRect>
 
+#if KWINDOWSYSTEM_HAVE_X11
+#include "kx11extras.h"
+#endif
+
 // private
 KWindowInfoPrivate *KWindowInfoPrivate::create(WId window, NET::Properties properties, NET::Properties2 properties2)
 {
@@ -349,7 +353,11 @@ QString KWindowInfo::iconName() const
 
 bool KWindowInfo::isOnCurrentDesktop() const
 {
-    return isOnDesktop(KWindowSystem::currentDesktop());
+#if KWINDOWSYSTEM_HAVE_X11
+    return isOnDesktop(KX11Extras::currentDesktop());
+#else
+    return true;
+#endif
 }
 
 bool KWindowInfo::isOnDesktop(int desktop) const

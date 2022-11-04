@@ -9,6 +9,7 @@
 
 #include "kwindowinfo_p_x11.h"
 #include "kwindowsystem.h"
+#include "kx11extras.h"
 
 #include <QDebug>
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -63,7 +64,7 @@ KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, NET::Properties propertie
     if (properties & NET::WMWindowType) {
         properties2 |= NET::WM2TransientFor; // will be used when type is not set
     }
-    if ((properties & NET::WMDesktop) && KWindowSystem::mapViewport()) {
+    if ((properties & NET::WMDesktop) && KX11Extras::mapViewport()) {
         properties |= NET::WMGeometry; // for viewports, the desktop (workspace) is determined from the geometry
     }
     properties |= NET::XAWMState; // force to get error detection for valid()
@@ -72,14 +73,14 @@ KWindowInfoPrivateX11::KWindowInfoPrivateX11(WId _win, NET::Properties propertie
         if (m_info->name() && m_info->name()[0] != '\0') {
             m_name = QString::fromUtf8(m_info->name());
         } else {
-            m_name = KWindowSystem::readNameProperty(_win, XA_WM_NAME);
+            m_name = KX11Extras::readNameProperty(_win, XA_WM_NAME);
         }
     }
     if (properties & NET::WMIconName) {
         if (m_info->iconName() && m_info->iconName()[0] != '\0') {
             m_iconic_name = QString::fromUtf8(m_info->iconName());
         } else {
-            m_iconic_name = KWindowSystem::readNameProperty(_win, XA_WM_ICON_NAME);
+            m_iconic_name = KX11Extras::readNameProperty(_win, XA_WM_ICON_NAME);
         }
     }
     if (properties & (NET::WMGeometry | NET::WMFrameExtents)) {
@@ -279,7 +280,7 @@ bool KWindowInfoPrivateX11::isOnDesktop(int _desktop) const
         qWarning() << "Pass NET::WMDesktop to KWindowInfo";
     }
 #endif
-    if (KWindowSystem::mapViewport()) {
+    if (KX11Extras::mapViewport()) {
         if (onAllDesktops()) {
             return true;
         }
@@ -295,7 +296,7 @@ bool KWindowInfoPrivateX11::onAllDesktops() const
         qWarning() << "Pass NET::WMDesktop to KWindowInfo";
     }
 #endif
-    if (KWindowSystem::mapViewport()) {
+    if (KX11Extras::mapViewport()) {
         if (m_info->passedProperties() & NET::WMState) {
             return m_info->state() & NET::Sticky;
         }
@@ -312,7 +313,7 @@ int KWindowInfoPrivateX11::desktop() const
         qWarning() << "Pass NET::WMDesktop to KWindowInfo";
     }
 #endif
-    if (KWindowSystem::mapViewport()) {
+    if (KX11Extras::mapViewport()) {
         if (onAllDesktops()) {
             return NET::OnAllDesktops;
         }

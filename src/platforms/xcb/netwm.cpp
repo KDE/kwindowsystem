@@ -25,6 +25,7 @@
 #endif
 
 #include <kwindowsystem.h>
+#include <kx11extras.h>
 #include <kxutils_p.h>
 
 #include <assert.h>
@@ -669,8 +670,8 @@ void NETRootInfo::setCurrentDesktop(int desktop, bool ignore_viewport)
         uint32_t d = p->current_desktop - 1;
         xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_CURRENT_DESKTOP), XCB_ATOM_CARDINAL, 32, 1, (const void *)&d);
     } else {
-        if (!ignore_viewport && KWindowSystem::mapViewport()) {
-            KWindowSystem::setCurrentDesktop(desktop);
+        if (!ignore_viewport && KX11Extras::mapViewport()) {
+            KX11Extras::setCurrentDesktop(desktop);
             return;
         }
 
@@ -2489,16 +2490,16 @@ NET::DesktopLayoutCorner NETRootInfo::desktopLayoutCorner() const
 
 int NETRootInfo::numberOfDesktops(bool ignore_viewport) const
 {
-    if (!ignore_viewport && KWindowSystem::mapViewport()) {
-        return KWindowSystem::numberOfDesktops();
+    if (!ignore_viewport && KX11Extras::mapViewport()) {
+        return KX11Extras::numberOfDesktops();
     }
     return p->number_of_desktops == 0 ? 1 : p->number_of_desktops;
 }
 
 int NETRootInfo::currentDesktop(bool ignore_viewport) const
 {
-    if (!ignore_viewport && KWindowSystem::mapViewport()) {
-        return KWindowSystem::currentDesktop();
+    if (!ignore_viewport && KX11Extras::mapViewport()) {
+        return KX11Extras::currentDesktop();
     }
     return p->current_desktop == 0 ? 1 : p->current_desktop;
 }
@@ -3292,8 +3293,8 @@ void NETWinInfo::setDesktop(int desktop, bool ignore_viewport)
             return; // We can't do that while being managed
         }
 
-        if (!ignore_viewport && KWindowSystem::mapViewport()) {
-            KWindowSystem::setOnDesktop(p->window, desktop);
+        if (!ignore_viewport && KX11Extras::mapViewport()) {
+            KX11Extras::setOnDesktop(p->window, desktop);
             return;
         }
 
@@ -4788,7 +4789,7 @@ const char *NETWinInfo::visibleIconName() const
 
 int NETWinInfo::desktop(bool ignore_viewport) const
 {
-    if (!ignore_viewport && KWindowSystem::mapViewport()) {
+    if (!ignore_viewport && KX11Extras::mapViewport()) {
         const KWindowInfo info(p->window, NET::WMDesktop);
         return info.desktop();
     }

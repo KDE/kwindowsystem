@@ -11,6 +11,7 @@
 #include <QVarLengthArray>
 
 #include "kwindowsystem.h"
+#include "kx11extras.h"
 #include <config-kwindowsystem.h>
 
 #include <QMatrix4x4>
@@ -38,7 +39,7 @@ KWindowEffectsPrivateX11::~KWindowEffectsPrivateX11()
 
 bool KWindowEffectsPrivateX11::isEffectAvailable(Effect effect)
 {
-    if (!KWindowSystem::self()->compositingActive()) {
+    if (!KX11Extras::self()->compositingActive()) {
         return false;
     }
     QByteArray effectName;

@@ -6,6 +6,7 @@
 
 #include "kwindowinfo.h"
 #include "kwindowsystem.h"
+#include "kx11extras.h"
 #include "nettesthelper.h"
 #include "netwm.h"
 
@@ -129,7 +130,7 @@ void KWindowInfoX11Test::init()
 void KWindowInfoX11Test::showWidget(QWidget *window)
 {
     qRegisterMetaType<WId>("WId");
-    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::windowAdded);
+    QSignalSpy spy(KX11Extras::self(), &KX11Extras::windowAdded);
     window->show();
     bool foundOurWindow = false;
     for (int i = 0; i < 50; ++i) {
@@ -158,7 +159,7 @@ void KWindowInfoX11Test::cleanup()
     // we hide the window and wait till it is gone so that we have a clean state in next test
     if (window && window->isVisible()) {
         WId id = window->winId();
-        QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::windowRemoved);
+        QSignalSpy spy(KX11Extras::self(), &KX11Extras::windowRemoved);
         window->hide();
         bool foundOurWindow = false;
         for (int i = 0; i < 50; ++i) {
@@ -215,7 +216,7 @@ void KWindowInfoX11Test::testState()
         QVERIFY(!info.hasState(NET::States(1 << i)));
     }
 
-    QSignalSpy spy(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId, NET::Properties, NET::Properties2)>(&KWindowSystem::windowChanged));
+    QSignalSpy spy(KX11Extras::self(), &KX11Extras::windowChanged);
     QVERIFY(spy.isValid());
     // now we have a clean window and can do fun stuff
     KWindowSystem::setState(window->winId(), state);
@@ -243,11 +244,11 @@ struct kde_wm_hints {
 
 void KWindowInfoX11Test::testDemandsAttention()
 {
-    QSignalSpy activeWindowSpy(KWindowSystem::self(), &KWindowSystem::activeWindowChanged);
+    QSignalSpy activeWindowSpy(KX11Extras::self(), &KX11Extras::activeWindowChanged);
     QVERIFY(activeWindowSpy.isValid());
-    if (KWindowSystem::activeWindow() != window->winId()) {
+    if (KX11Extras::activeWindow() != window->winId()) {
         // we force activate as KWin's focus stealing prevention might kick in
-        KWindowSystem::forceActiveWindow(window->winId());
+        KX11Extras::forceActiveWindow(window->winId());
         QVERIFY(activeWindowSpy.wait());
         QCOMPARE(activeWindowSpy.first().first().toULongLong(), window->winId());
         activeWindowSpy.clear();
@@ -256,7 +257,7 @@ void KWindowInfoX11Test::testDemandsAttention()
     // need a second window for proper interaction
     QWidget win2;
     showWidget(&win2);
-    KWindowSystem::forceActiveWindow(win2.winId());
+    KX11Extras::forceActiveWindow(win2.winId());
     if (activeWindowSpy.isEmpty()) {
         QVERIFY(activeWindowSpy.wait());
     }
@@ -265,7 +266,7 @@ void KWindowInfoX11Test::testDemandsAttention()
     QVERIFY(info.valid());
     QVERIFY(!info.hasState(NET::DemandsAttention));
 
-    QSignalSpy spy(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId, NET::Properties, NET::Properties2)>(&KWindowSystem::windowChanged));
+    QSignalSpy spy(KX11Extras::self(), &KX11Extras::windowChanged);
     QVERIFY(spy.isValid());
     // now we have a clean window and can do fun stuff
     KWindowSystem::demandAttention(window->winId());
@@ -279,7 +280,7 @@ void KWindowInfoX11Test::testDemandsAttention()
 
     // now activate win1, that should remove demands attention
     spy.clear();
-    KWindowSystem::forceActiveWindow(window->winId());
+    KX11Extras::forceActiveWindow(window->winId());
     QTest::qWait(200);
     QVERIFY(waitForWindow(spy, window->winId(), NET::WMState));
 
@@ -450,15 +451,15 @@ void KWindowInfoX11Test::testWindowType()
 
 void KWindowInfoX11Test::testDesktop()
 {
-    if (KWindowSystem::numberOfDesktops() < 2) {
+    if (KX11Extras::numberOfDesktops() < 2) {
         QSKIP("We need at least two virtual desktops to perform proper virtual desktop testing");
     }
     KWindowInfo info(window->winId(), NET::WMDesktop);
     QVERIFY(info.isOnCurrentDesktop());
     QVERIFY(!info.onAllDesktops());
-    QCOMPARE(info.desktop(), KWindowSystem::currentDesktop());
-    for (int i = 1; i < KWindowSystem::numberOfDesktops(); i++) {
-        if (i == KWindowSystem::currentDesktop()) {
+    QCOMPARE(info.desktop(), KX11Extras::currentDesktop());
+    for (int i = 1; i < KX11Extras::numberOfDesktops(); i++) {
+        if (i == KX11Extras::currentDesktop()) {
             QVERIFY(info.isOnDesktop(i));
         } else {
             QVERIFY(!info.isOnDesktop(i));
@@ -466,22 +467,22 @@ void KWindowInfoX11Test::testDesktop()
     }
 
     // set on all desktop
-    QSignalSpy spy(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId, NET::Properties, NET::Properties2)>(&KWindowSystem::windowChanged));
+    QSignalSpy spy(KX11Extras::self(), &KX11Extras::windowChanged);
     QVERIFY(spy.isValid());
-    KWindowSystem::setOnAllDesktops(window->winId(), true);
+    KX11Extras::setOnAllDesktops(window->winId(), true);
     QVERIFY(waitForWindow(spy, window->winId(), NET::WMDesktop));
 
     KWindowInfo info2(window->winId(), NET::WMDesktop);
     QVERIFY(info2.isOnCurrentDesktop());
     QVERIFY(info2.onAllDesktops());
     QCOMPARE(info2.desktop(), int(NET::OnAllDesktops));
-    for (int i = 1; i < KWindowSystem::numberOfDesktops(); i++) {
+    for (int i = 1; i < KX11Extras::numberOfDesktops(); i++) {
         QVERIFY(info2.isOnDesktop(i));
     }
 
-    const int desktop = (KWindowSystem::currentDesktop() % KWindowSystem::numberOfDesktops()) + 1;
+    const int desktop = (KX11Extras::currentDesktop() % KX11Extras::numberOfDesktops()) + 1;
     spy.clear();
-    KWindowSystem::setOnDesktop(window->winId(), desktop);
+    KX11Extras::setOnDesktop(window->winId(), desktop);
     QX11Info::getTimestamp();
     QVERIFY(waitForWindow(spy, window->winId(), NET::WMDesktop));
 
@@ -489,7 +490,7 @@ void KWindowInfoX11Test::testDesktop()
     QVERIFY(!info3.isOnCurrentDesktop());
     QVERIFY(!info3.onAllDesktops());
     QCOMPARE(info3.desktop(), desktop);
-    for (int i = 1; i < KWindowSystem::numberOfDesktops(); i++) {
+    for (int i = 1; i < KX11Extras::numberOfDesktops(); i++) {
         if (i == desktop) {
             QVERIFY(info3.isOnDesktop(i));
         } else {
@@ -502,7 +503,7 @@ void KWindowInfoX11Test::testActivities()
 {
     NETRootInfo rootInfo(QX11Info::connection(), NET::Supported | NET::SupportingWMCheck);
 
-    QSignalSpy spyReal(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId, NET::Properties, NET::Properties2)>(&KWindowSystem::windowChanged));
+    QSignalSpy spyReal(KX11Extras::self(), &KX11Extras::windowChanged);
     QVERIFY(spyReal.isValid());
 
     KWindowInfo info(window->winId(), NET::Properties(), NET::WM2Activities);
@@ -516,7 +517,7 @@ void KWindowInfoX11Test::testActivities()
     QVERIFY(startingActivities.size() <= 1);
 
     // Window on all activities
-    KWindowSystem::self()->setOnActivities(window->winId(), QStringList());
+    KX11Extras::self()->setOnActivities(window->winId(), QStringList());
 
     QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
@@ -525,7 +526,7 @@ void KWindowInfoX11Test::testActivities()
     QVERIFY(info2.activities().size() == 0);
 
     // Window on a specific activity
-    KWindowSystem::self()->setOnActivities(window->winId(), QStringList() << "test-activity");
+    KX11Extras::self()->setOnActivities(window->winId(), QStringList() << "test-activity");
 
     QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
@@ -535,7 +536,7 @@ void KWindowInfoX11Test::testActivities()
     QVERIFY(info3.activities()[0] == "test-activity");
 
     // Window on two specific activities
-    KWindowSystem::self()->setOnActivities(window->winId(), QStringList{"test-activity", "test-activity2"});
+    KX11Extras::self()->setOnActivities(window->winId(), QStringList{"test-activity", "test-activity2"});
 
     QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
@@ -546,7 +547,7 @@ void KWindowInfoX11Test::testActivities()
     QVERIFY(info4.activities()[1] == "test-activity2");
 
     // Window on the starting activity
-    KWindowSystem::self()->setOnActivities(window->winId(), startingActivities);
+    KX11Extras::self()->setOnActivities(window->winId(), startingActivities);
 
     QVERIFY(waitForWindow(spyReal, window->winId(), NET::Properties(), NET::WM2Activities));
 
@@ -721,7 +722,7 @@ void KWindowInfoX11Test::testExtendedStrut()
     QCOMPARE(strut.top_start, 0);
     QCOMPARE(strut.top_width, 0);
 
-    KWindowSystem::setExtendedStrut(window->winId(), 10, 20, 30, 40, 5, 15, 25, 35, 2, 12, 22, 32);
+    KX11Extras::setExtendedStrut(window->winId(), 10, 20, 30, 40, 5, 15, 25, 35, 2, 12, 22, 32);
 
     // it's just an xprop, so one roundtrip is good enough
     QX11Info::getTimestamp();
@@ -748,7 +749,7 @@ void KWindowInfoX11Test::testGeometry()
     QCOMPARE(info.geometry().size(), window->geometry().size());
     QCOMPARE(info.frameGeometry().size(), window->frameGeometry().size());
 
-    QSignalSpy spy(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId, NET::Properties, NET::Properties2)>(&KWindowSystem::windowChanged));
+    QSignalSpy spy(KX11Extras::self(), &KX11Extras::windowChanged);
     QVERIFY(spy.isValid());
 
     // this is tricky, KWin is smart and doesn't allow all geometries we pass in
@@ -770,7 +771,7 @@ void KWindowInfoX11Test::testDesktopFileName()
     QVERIFY(info.valid());
     QCOMPARE(info.desktopFileName(), QByteArray());
 
-    QSignalSpy spy(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId, NET::Properties, NET::Properties2)>(&KWindowSystem::windowChanged));
+    QSignalSpy spy(KX11Extras::self(), &KX11Extras::windowChanged);
     QVERIFY(spy.isValid());
 
     // create a NETWinInfo to set the desktop file name

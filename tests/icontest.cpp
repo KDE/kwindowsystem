@@ -18,6 +18,7 @@
 #endif
 
 #include <kwindowsystem.h>
+#include <kx11extras.h>
 
 int main(int argc, char **argv)
 {
@@ -44,7 +45,7 @@ int main(int argc, char **argv)
         QLabel *title = new QLabel(name, &window);
         vbox->addWidget(title);
         QIcon icons;
-        if (flag & KWindowSystem::NETWM) {
+        if (flag & KX11Extras::NETWM) {
             const int *iconSizes = info.iconSizes();
             int index = 0;
             while (iconSizes[index] != 0 && iconSizes[index + 1] != 0) {
@@ -60,14 +61,14 @@ int main(int argc, char **argv)
             }
         }
 
-        if (flag & KWindowSystem::WMHints) {
-            icons.addPixmap(KWindowSystem::icon(id, 0, 0, false, KWindowSystem::WMHints, &info));
+        if (flag & KX11Extras::WMHints) {
+            icons.addPixmap(KX11Extras::icon(id, 0, 0, false, KX11Extras::WMHints, &info));
         }
 
-        if (flag & KWindowSystem::ClassHint) {
+        if (flag & KX11Extras::ClassHint) {
             icons = QIcon::fromTheme(QString::fromUtf8(info.windowClassClass()).toLower());
         }
-        if (flag & KWindowSystem::XApp) {
+        if (flag & KX11Extras::XApp) {
             icons = QIcon::fromTheme(QLatin1String("xorg"));
         }
         if (icons.isNull()) {
@@ -87,10 +88,10 @@ int main(int argc, char **argv)
         }
         vbox->addLayout(layout);
     };
-    addIcons(QStringLiteral("NetWM"), KWindowSystem::NETWM);
-    addIcons(QStringLiteral("WMHints"), KWindowSystem::WMHints);
-    addIcons(QStringLiteral("ClassHint"), KWindowSystem::ClassHint);
-    addIcons(QStringLiteral("XApp"), KWindowSystem::XApp);
+    addIcons(QStringLiteral("NetWM"), KX11Extras::NETWM);
+    addIcons(QStringLiteral("WMHints"), KX11Extras::WMHints);
+    addIcons(QStringLiteral("ClassHint"), KX11Extras::ClassHint);
+    addIcons(QStringLiteral("XApp"), KX11Extras::XApp);
 
     window.show();
 
