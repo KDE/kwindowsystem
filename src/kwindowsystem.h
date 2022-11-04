@@ -631,13 +631,17 @@ public:
      * Returns topleft corner of the viewport area for the given mapped virtual desktop.
      */
     static QPoint desktopToViewport(int desktop, bool absolute);
+
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 101)
     /**
      * @internal
      * @since 4.0.1
      * Checks the relative difference used to move a window will still be inside
      * valid desktop area.
      */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "No known users")
     static QPoint constrainViewportRelativePosition(const QPoint &pos);
+#endif
 
     /**
      * Updates the platform-specific startup id, if any.

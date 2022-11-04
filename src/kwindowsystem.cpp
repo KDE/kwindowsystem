@@ -741,11 +741,13 @@ QPoint KWindowSystem::desktopToViewport(int desktop, bool absolute)
     return d->desktopToViewport(desktop, absolute);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 QPoint KWindowSystem::constrainViewportRelativePosition(const QPoint &pos)
 {
     Q_D(KWindowSystem);
     return d->constrainViewportRelativePosition(pos / qApp->devicePixelRatio());
 }
+#endif
 
 static inline KWindowSystem::Platform initPlatform()
 {
