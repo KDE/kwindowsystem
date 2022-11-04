@@ -454,13 +454,18 @@ public:
      */
     static void raiseWindow(WId win);
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 101)
     /**
      * Lowers the given window. This call is only for pagers and similar
      * tools that represent direct user actions. Applications should not
      * use it, they should keep using QWidget::lower() or XLowerWindow()
      * if necessary.
+     *
+     * @deprecated since 5.101, no known users.
      */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "No known users.")
     static void lowerWindow(WId win);
+#endif
 
     /**
      * @internal

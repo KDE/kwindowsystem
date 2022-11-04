@@ -595,11 +595,13 @@ void KWindowSystem::raiseWindow(WId win)
     d->raiseWindow(win);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystem::lowerWindow(WId win)
 {
     Q_D(KWindowSystem);
     d->lowerWindow(win);
 }
+#endif
 
 bool KWindowSystem::compositingActive()
 {
