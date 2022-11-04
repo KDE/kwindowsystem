@@ -530,6 +530,7 @@ public:
      */
     static void setShowingDesktop(bool showing);
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 101)
     /**
      * Sets user timestamp @p time on window @p win. The timestamp
      * is expressed as XServer time. If a window
@@ -537,8 +538,13 @@ public:
      * user action, it won't be activated after being shown.
      * The most common case is the special value 0 which means
      * not to activate the window after being shown.
+     *
+     * @deprecated since 5.101, use QX11Info::setAppUserTime().
      */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "Use QX11Info::setAppUserTime()")
     static void setUserTime(WId win, long time);
+#endif
+
     /**
      * Sets the strut of window @p win to @p left_width
      * ranging from @p left_start to @p left_end on the left edge,

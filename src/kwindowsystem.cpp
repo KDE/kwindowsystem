@@ -645,11 +645,13 @@ void KWindowSystem::setShowingDesktop(bool showing)
     return d->setShowingDesktop(showing);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystem::setUserTime(WId win, long time)
 {
     Q_D(KWindowSystem);
     d->setUserTime(win, time);
 }
+#endif
 
 void KWindowSystem::setExtendedStrut(WId win,
                                      int left_width,
