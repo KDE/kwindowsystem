@@ -715,11 +715,13 @@ void KWindowSystem::allowExternalProcessWindowActivation(int pid)
     d->allowExternalProcessWindowActivation(pid);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystem::setBlockingCompositing(WId window, bool active)
 {
     Q_D(KWindowSystem);
     d->setBlockingCompositing(window, active);
 }
+#endif
 
 bool KWindowSystem::mapViewport()
 {

@@ -615,11 +615,15 @@ public:
      */
     static void allowExternalProcessWindowActivation(int pid = -1);
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 101)
     /**
      * Sets whether the client wishes to block compositing (for better performance)
      * @since 4.7
+     * @deprecated since 5.101, no known users.
      */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "No known users")
     static void setBlockingCompositing(WId window, bool active);
+#endif
 
     /**
      * @internal
