@@ -35,7 +35,7 @@ public:
     {
         qRegisterMetaType<KStartupInfoId>();
         qRegisterMetaType<KStartupInfoData>();
-        connect(&m_listener, SIGNAL(gotNewStartup(KStartupInfoId, KStartupInfoData)), this, SLOT(slotNewStartup(KStartupInfoId, KStartupInfoData)));
+        connect(&m_listener, &KStartupInfo::gotNewStartup, this, &KStartupInfo_UnitTest::slotNewStartup);
     }
 
 protected Q_SLOTS:
@@ -87,13 +87,13 @@ void KStartupInfo_UnitTest::testStart()
     const QString bin = "dir with space/kstartupinfo_unittest";
     data.setBin(bin);
 
-    QSignalSpy removedSpy(&m_listener, SIGNAL(gotRemoveStartup(KStartupInfoId, KStartupInfoData)));
+    QSignalSpy removedSpy(&m_listener, &KStartupInfo::gotRemoveStartup);
     QVERIFY(removedSpy.isValid());
 
     KStartupInfo::sendStartup(id, data);
     KStartupInfo::sendFinish(id, data);
 
-    QSignalSpy spy(this, SIGNAL(ready()));
+    QSignalSpy spy(this, &KStartupInfo_UnitTest::ready);
     spy.wait(5000);
 
     QCOMPARE(m_receivedCount, 1);
@@ -157,7 +157,7 @@ void KStartupInfo_UnitTest::dontCrashCleanup()
         data.setSilent(KStartupInfoData::Yes);
     }
 
-    QSignalSpy spy(&m_listener, SIGNAL(gotRemoveStartup(KStartupInfoId, KStartupInfoData)));
+    QSignalSpy spy(&m_listener, &KStartupInfo::gotRemoveStartup);
     QFETCH(bool, change);
     if (change) {
         KStartupInfo::sendChange(id, data);

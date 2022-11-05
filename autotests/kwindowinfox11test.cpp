@@ -129,7 +129,7 @@ void KWindowInfoX11Test::init()
 void KWindowInfoX11Test::showWidget(QWidget *window)
 {
     qRegisterMetaType<WId>("WId");
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowAdded(WId)));
+    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::windowAdded);
     window->show();
     bool foundOurWindow = false;
     for (int i = 0; i < 50; ++i) {
@@ -158,7 +158,7 @@ void KWindowInfoX11Test::cleanup()
     // we hide the window and wait till it is gone so that we have a clean state in next test
     if (window && window->isVisible()) {
         WId id = window->winId();
-        QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowRemoved(WId)));
+        QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::windowRemoved);
         window->hide();
         bool foundOurWindow = false;
         for (int i = 0; i < 50; ++i) {
@@ -243,7 +243,7 @@ struct kde_wm_hints {
 
 void KWindowInfoX11Test::testDemandsAttention()
 {
-    QSignalSpy activeWindowSpy(KWindowSystem::self(), SIGNAL(activeWindowChanged(WId)));
+    QSignalSpy activeWindowSpy(KWindowSystem::self(), &KWindowSystem::activeWindowChanged);
     QVERIFY(activeWindowSpy.isValid());
     if (KWindowSystem::activeWindow() != window->winId()) {
         // we force activate as KWin's focus stealing prevention might kick in

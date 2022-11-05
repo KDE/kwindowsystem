@@ -85,7 +85,7 @@ void KXMessages_UnitTest::testStart()
     // despite the internal splitting.
     QString message;
     for (int i = 1; i < 50; ++i) {
-        QSignalSpy spy(receiver.get(), SIGNAL(gotMessage(QString)));
+        QSignalSpy spy(receiver.get(), &KXMessages::gotMessage);
         message += "a";
         switch (broadcastType) {
         case KXMessages_UnitTest::BroadcastMessageObject:

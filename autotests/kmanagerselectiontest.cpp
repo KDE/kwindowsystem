@@ -37,7 +37,7 @@ void KManagerSelectionTest::xSync()
 
 void KManagerSelectionTest::claim(KSelectionOwner *owner, bool force, bool forceKill)
 {
-    QSignalSpy claimSpy(owner, SIGNAL(claimedOwnership()));
+    QSignalSpy claimSpy(owner, &KSelectionOwner::claimedOwnership);
     owner->claim(force, forceKill);
     xSync();
     QVERIFY(claimSpy.wait());
@@ -54,7 +54,7 @@ void KManagerSelectionTest::testAcquireRelease()
     SigCheckWatcher sw(watcher);
     SigCheckOwner so(owner);
     claim(&owner);
-    QSignalSpy newOwnerSpy(&watcher, SIGNAL(newOwner(xcb_window_t)));
+    QSignalSpy newOwnerSpy(&watcher, &KSelectionWatcher::newOwner);
     QVERIFY(newOwnerSpy.wait());
     QVERIFY(sw.newowner == true);
     QVERIFY(sw.lostowner == false);
@@ -70,7 +70,7 @@ void KManagerSelectionTest::testInitiallyOwned()
     KSelectionWatcher watcher(SNAME);
     SigCheckWatcher sw(watcher);
     owner.release();
-    QSignalSpy lostOwnerSpy(&watcher, SIGNAL(lostOwner()));
+    QSignalSpy lostOwnerSpy(&watcher, &KSelectionWatcher::lostOwner);
     QVERIFY(lostOwnerSpy.wait(2000));
     QVERIFY(sw.newowner == false);
     QVERIFY(sw.lostowner == true);
@@ -84,14 +84,14 @@ void KManagerSelectionTest::testLostOwnership()
     KSelectionOwner owner2(SNAME);
     claim(&owner1);
 
-    QSignalSpy claimSpy(&owner2, SIGNAL(failedToClaimOwnership()));
+    QSignalSpy claimSpy(&owner2, &KSelectionOwner::failedToClaimOwnership);
     owner2.claim(false);
     claimSpy.wait();
     QCOMPARE(claimSpy.count(), 1);
     claim(&owner2, true, false);
 
     QEXPECT_FAIL("", "selectionClear event is not sent to the same X client", Abort);
-    QSignalSpy lostOwnershipSpy(&owner1, SIGNAL(lostOwnership()));
+    QSignalSpy lostOwnershipSpy(&owner1, &KSelectionOwner::lostOwnership);
     QVERIFY(lostOwnershipSpy.wait());
     QVERIFY(owner1.ownerWindow() == XCB_WINDOW_NONE);
     QVERIFY(owner2.ownerWindow() != XCB_WINDOW_NONE);
@@ -104,7 +104,7 @@ void KManagerSelectionTest::testWatching()
     KSelectionOwner owner1(SNAME);
     KSelectionOwner owner2(SNAME);
     SigCheckWatcher sw(watcher);
-    QSignalSpy newOwnerSpy(&watcher, SIGNAL(newOwner(xcb_window_t)));
+    QSignalSpy newOwnerSpy(&watcher, &KSelectionWatcher::newOwner);
     QVERIFY(newOwnerSpy.isValid());
     claim(&owner1);
     if (newOwnerSpy.isEmpty()) {
@@ -125,7 +125,7 @@ void KManagerSelectionTest::testWatching()
     QVERIFY(sw.newowner == true);
     QVERIFY(sw.lostowner == false);
     sw.newowner = sw.lostowner = false;
-    QSignalSpy lostOwnerSpy(&watcher, SIGNAL(lostOwner()));
+    QSignalSpy lostOwnerSpy(&watcher, &KSelectionWatcher::lostOwner);
     owner2.release();
     xSync();
     QVERIFY(lostOwnerSpy.wait());
@@ -141,7 +141,7 @@ void KManagerSelectionTest::testWatching()
 SigCheckOwner::SigCheckOwner(const KSelectionOwner &owner)
     : lostownership(false)
 {
-    connect(&owner, SIGNAL(lostOwnership()), this, SLOT(lostOwnership()));
+    connect(&owner, &KSelectionOwner::lostOwnership, this, &SigCheckOwner::lostOwnership);
 }
 
 void SigCheckOwner::lostOwnership()
@@ -153,8 +153,8 @@ SigCheckWatcher::SigCheckWatcher(const KSelectionWatcher &watcher)
     : newowner(false)
     , lostowner(false)
 {
-    connect(&watcher, SIGNAL(newOwner(xcb_window_t)), this, SLOT(newOwner()));
-    connect(&watcher, SIGNAL(lostOwner()), this, SLOT(lostOwner()));
+    connect(&watcher, &KSelectionWatcher::newOwner, this, &SigCheckWatcher::newOwner);
+    connect(&watcher, &KSelectionWatcher::lostOwner, this, &SigCheckWatcher::lostOwner);
 }
 
 void SigCheckWatcher::newOwner()

@@ -67,7 +67,7 @@ void KWindowSystemThreadTest::initTestCase()
 void KWindowSystemThreadTest::testWindowAdded()
 {
     qRegisterMetaType<WId>("WId");
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowAdded(WId)));
+    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::windowAdded);
     m_widget = new QWidget;
     m_widget->show();
     QVERIFY(QTest::qWaitForWindowExposed(m_widget));

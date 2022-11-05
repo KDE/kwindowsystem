@@ -50,7 +50,7 @@ void KWindowSystemX11Test::initTestCase()
 void KWindowSystemX11Test::testActiveWindowChanged()
 {
     qRegisterMetaType<WId>("WId");
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(activeWindowChanged(WId)));
+    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::activeWindowChanged);
 
     std::unique_ptr<QWidget> widget(new QWidget);
     widget->show();
@@ -64,8 +64,8 @@ void KWindowSystemX11Test::testActiveWindowChanged()
 void KWindowSystemX11Test::testWindowAdded()
 {
     qRegisterMetaType<WId>("WId");
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowAdded(WId)));
-    QSignalSpy stackingOrderSpy(KWindowSystem::self(), SIGNAL(stackingOrderChanged()));
+    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::windowAdded);
+    QSignalSpy stackingOrderSpy(KWindowSystem::self(), &KWindowSystem::stackingOrderChanged);
     std::unique_ptr<QWidget> widget(new QWidget);
     widget->show();
     QVERIFY(QTest::qWaitForWindowExposed(widget.get()));
@@ -94,7 +94,7 @@ void KWindowSystemX11Test::testWindowRemoved()
     QVERIFY(QTest::qWaitForWindowExposed(widget.get()));
     QVERIFY(KWindowSystem::hasWId(widget->winId()));
 
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(windowRemoved(WId)));
+    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::windowRemoved);
     widget->hide();
     spy.wait(1000);
     QCOMPARE(spy.first().at(0).toULongLong(), widget->winId());
@@ -109,7 +109,7 @@ void KWindowSystemX11Test::testDesktopChanged()
     }
     const int current = KWindowSystem::currentDesktop();
 
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(currentDesktopChanged(int)));
+    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::currentDesktopChanged);
     int newDesktop = current + 1;
     if (newDesktop > KWindowSystem::numberOfDesktops()) {
         newDesktop = 1;
@@ -136,7 +136,7 @@ void KWindowSystemX11Test::testNumberOfDesktopsChanged()
 {
     // This test requires a running NETWM-compliant window manager
     const int oldNumber = KWindowSystem::numberOfDesktops();
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(numberOfDesktopsChanged(int)));
+    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::numberOfDesktopsChanged);
 
     // KWin has arbitrary max number of 20 desktops, so don't fail the test if we use +1
     const int newNumber = oldNumber < 20 ? oldNumber + 1 : oldNumber - 1;
@@ -165,7 +165,7 @@ void KWindowSystemX11Test::testDesktopNamesChanged()
 {
     // This test requires a running NETWM-compliant window manager
     const QString origName = KWindowSystem::desktopName(KWindowSystem::currentDesktop());
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(desktopNamesChanged()));
+    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::desktopNamesChanged);
 
     const QString testName = QStringLiteral("testFooBar");
 
@@ -189,7 +189,7 @@ void KWindowSystemX11Test::testShowingDesktopChanged()
     QX11Info::setAppTime(QX11Info::getTimestamp());
     const bool showingDesktop = KWindowSystem::showingDesktop();
 
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(showingDesktopChanged(bool)));
+    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::showingDesktopChanged);
 
     NETRootInfo info(QX11Info::connection(), NET::Properties(), NET::WM2ShowingDesktop);
     info.setShowingDesktop(!showingDesktop);
@@ -215,7 +215,7 @@ void KWindowSystemX11Test::testShowingDesktopChanged()
 
 void KWindowSystemX11Test::testSetShowingDesktop()
 {
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(showingDesktopChanged(bool)));
+    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::showingDesktopChanged);
     const bool showingDesktop = KWindowSystem::showingDesktop();
 
     // setting the same state shouldn't change it
@@ -243,8 +243,8 @@ void KWindowSystemX11Test::testSetShowingDesktop()
 void KWindowSystemX11Test::testWorkAreaChanged()
 {
     // if there are multiple screens this test can fail as workarea is not multi screen aware
-    QSignalSpy spy(KWindowSystem::self(), SIGNAL(workAreaChanged()));
-    QSignalSpy strutSpy(KWindowSystem::self(), SIGNAL(strutChanged()));
+    QSignalSpy spy(KWindowSystem::self(), &KWindowSystem::workAreaChanged);
+    QSignalSpy strutSpy(KWindowSystem::self(), &KWindowSystem::strutChanged);
 
     QWidget widget;
     widget.setGeometry(0, 0, 100, 10);
@@ -270,16 +270,16 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     // wait till the window is mapped, etc.
     QTest::qWait(200);
 
-    QSignalSpy propertiesChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId, NET::Properties, NET::Properties2)));
+    QSignalSpy propertiesChangedSpy(KWindowSystem::self(), qOverload<WId, NET::Properties, NET::Properties2>(&KWindowSystem::windowChanged));
     QVERIFY(propertiesChangedSpy.isValid());
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    QSignalSpy propertyChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId, uint)));
+    QSignalSpy propertyChangedSpy(KWindowSystem::self(), qOverload<WId, uint>(&KWindowSystem::windowChanged));
     QVERIFY(propertyChangedSpy.isValid());
 #endif
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
-    QSignalSpy windowChangedSpy(KWindowSystem::self(), SIGNAL(windowChanged(WId)));
+    QSignalSpy windowChangedSpy(KWindowSystem::self(), qOverload<WId>(&KWindowSystem::windowChanged));
     QVERIFY(windowChangedSpy.isValid());
 #endif
 
