@@ -24,6 +24,7 @@
 #include <xcb/xcb.h>
 
 #include "cptr_p.h"
+#include <cmath>
 
 using namespace KWindowEffects;
 
@@ -262,7 +263,7 @@ void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const Q
         for (const QRect &r : region) {
             // kwin on X uses device pixels, convert from logical
             auto dpr = qApp->devicePixelRatio();
-            data << r.x() * dpr << r.y() * dpr << r.width() * dpr << r.height() * dpr;
+            data << std::floor(r.x() * dpr) << std::floor(r.y() * dpr) << std::ceil(r.width() * dpr) << std::ceil(r.height() * dpr);
         }
 
         xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, XCB_ATOM_CARDINAL, 32, data.size(), data.constData());
@@ -294,7 +295,7 @@ void KWindowEffectsPrivateX11::setBackgroundFrost(QWindow *window, QColor color,
     data.reserve(region.rectCount() * 4 + 4);
     for (const QRect &r : region) {
         auto dpr = qApp->devicePixelRatio();
-        data << r.x() * dpr << r.y() * dpr << r.width() * dpr << r.height() * dpr;
+        data << std::floor(r.x() * dpr) << std::floor(r.y() * dpr) << std::ceil(r.width() * dpr) << std::ceil(r.height() * dpr);
     }
 
     data << color.red();
@@ -334,7 +335,7 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
         data.reserve(region.rectCount() * 4 + 16);
         for (const QRect &r : region) {
             auto dpr = qApp->devicePixelRatio();
-            data << r.x() * dpr << r.y() * dpr << r.width() * dpr << r.height() * dpr;
+            data << std::floor(r.x() * dpr) << std::floor(r.y() * dpr) << std::ceil(r.width() * dpr) << std::ceil(r.height() * dpr);
         }
 
         QMatrix4x4 satMatrix; // saturation
