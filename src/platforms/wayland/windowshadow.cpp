@@ -97,9 +97,11 @@ bool WindowShadow::internalCreate()
 
 bool WindowShadow::create()
 {
-    if (!internalCreate()) {
+    KWayland::Client::ShadowManager *shadowManager = WaylandIntegration::self()->waylandShadowManager();
+    if (!shadowManager) {
         return false;
     }
+    internalCreate();
     window->installEventFilter(this);
     return true;
 }
