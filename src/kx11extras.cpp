@@ -11,7 +11,7 @@
 #include "kwindowsystem.h"
 #include "kwindowsystem_p.h"
 
-#include <QApplication>
+#include <QGuiApplication>
 #include <QRect>
 
 // QPoint and QSize all have handy / operators which are useful for scaling, positions and sizes for high DPI support
@@ -104,8 +104,8 @@ QPixmap KX11Extras::icon(WId win, int width, int height, bool scale, int flags)
 
 QPixmap KX11Extras::icon(WId win, int width, int height, bool scale, int flags, NETWinInfo *info)
 {
-    width *= qApp->devicePixelRatio();
-    height *= qApp->devicePixelRatio();
+    width *= qGuiApp->devicePixelRatio();
+    height *= qGuiApp->devicePixelRatio();
     if (info) {
         return KWindowSystem::d_func()->iconFromNetWinInfo(width, height, scale, flags, info);
     }
