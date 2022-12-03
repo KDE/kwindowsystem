@@ -20,8 +20,8 @@ msgstr ""
 "X-Text-Markup: qtrich\n"
 "X-Qt-Contexts: true\n"
 
-#: platforms/osx/kwindowsystem.cpp:571 platforms/windows/kwindowsystem.cpp:646
-#: platforms/xcb/kwindowsystem.cpp:1003
+#: platforms/osx/kwindowsystem.cpp:575 platforms/windows/kwindowsystem.cpp:650
+#: platforms/xcb/kwindowsystem.cpp:1072
 #, fuzzy, qt-format
 msgctxt "KWindowSystem|"
 msgid "Desktop %1"
