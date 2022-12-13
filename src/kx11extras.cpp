@@ -11,8 +11,17 @@
 #include "kwindowsystem.h"
 #include "kwindowsystem_p.h"
 
+#include "kxutils_p.h"
+#include "netwm.h"
+
 #include <QGuiApplication>
 #include <QRect>
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <private/qtx11extras_p.h>
+#else
+#include <QX11Info>
+#endif
 
 // QPoint and QSize all have handy / operators which are useful for scaling, positions and sizes for high DPI support
 // QRect does not, so we create one for internal purposes within this class
@@ -102,15 +111,101 @@ QPixmap KX11Extras::icon(WId win, int width, int height, bool scale, int flags)
     return KWindowSystem::d_func()->icon(win, width, height, scale, flags);
 }
 
+QPixmap iconFromNetWinInfo(int width, int height, bool scale, int flags, NETWinInfo *info)
+{
+    QPixmap result;
+    if (!info) {
+        return result;
+    }
+    if (flags & KX11Extras::NETWM) {
+        NETIcon ni = info->icon(width, height);
+        if (ni.data && ni.size.width > 0 && ni.size.height > 0) {
+            QImage img((uchar *)ni.data, (int)ni.size.width, (int)ni.size.height, QImage::Format_ARGB32);
+            if (scale && width > 0 && height > 0 && img.size() != QSize(width, height) && !img.isNull()) {
+                img = img.scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            }
+            if (!img.isNull()) {
+                result = QPixmap::fromImage(img);
+            }
+            return result;
+        }
+    }
+
+    if (flags & KX11Extras::WMHints) {
+        xcb_pixmap_t p = info->icccmIconPixmap();
+        xcb_pixmap_t p_mask = info->icccmIconPixmapMask();
+
+        if (p != XCB_PIXMAP_NONE) {
+            QPixmap pm = KXUtils::createPixmapFromHandle(info->xcbConnection(), p, p_mask);
+            if (scale && width > 0 && height > 0 && !pm.isNull() //
+                && (pm.width() != width || pm.height() != height)) {
+                result = QPixmap::fromImage(pm.toImage().scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+            } else {
+                result = pm;
+            }
+        }
+    }
+
+    // Since width can be any arbitrary size, but the icons cannot,
+    // take the nearest value for best results (ignoring 22 pixel
+    // icons as they don't exist for apps):
+    int iconWidth;
+    if (width < 24) {
+        iconWidth = 16;
+    } else if (width < 40) {
+        iconWidth = 32;
+    } else if (width < 56) {
+        iconWidth = 48;
+    } else if (width < 96) {
+        iconWidth = 64;
+    } else if (width < 192) {
+        iconWidth = 128;
+    } else {
+        iconWidth = 256;
+    }
+
+    if (flags & KX11Extras::ClassHint) {
+        // Try to load the icon from the classhint if the app didn't specify
+        // its own:
+        if (result.isNull()) {
+            const QIcon icon = QIcon::fromTheme(QString::fromUtf8(info->windowClassClass()).toLower());
+            const QPixmap pm = icon.isNull() ? QPixmap() : icon.pixmap(iconWidth, iconWidth);
+            if (scale && !pm.isNull()) {
+                result = QPixmap::fromImage(pm.toImage().scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+            } else {
+                result = pm;
+            }
+        }
+    }
+
+    if (flags & KX11Extras::XApp) {
+        // If the icon is still a null pixmap, load the icon for X applications
+        // as a last resort:
+        if (result.isNull()) {
+            const QIcon icon = QIcon::fromTheme(QStringLiteral("xorg"));
+            const QPixmap pm = icon.isNull() ? QPixmap() : icon.pixmap(iconWidth, iconWidth);
+            if (scale && !pm.isNull()) {
+                result = QPixmap::fromImage(pm.toImage().scaled(width, height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+            } else {
+                result = pm;
+            }
+        }
+    }
+    return result;
+}
+
 QPixmap KX11Extras::icon(WId win, int width, int height, bool scale, int flags, NETWinInfo *info)
 {
     width *= qGuiApp->devicePixelRatio();
     height *= qGuiApp->devicePixelRatio();
+
     if (info) {
-        return KWindowSystem::d_func()->iconFromNetWinInfo(width, height, scale, flags, info);
+        return iconFromNetWinInfo(width, height, scale, flags, info);
     }
 
-    return KWindowSystem::d_func()->icon(win, width, height, scale, flags);
+    NETWinInfo newInfo(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMIcon, NET::WM2WindowClass | NET::WM2IconPixmap);
+
+    return iconFromNetWinInfo(width, height, scale, flags, &newInfo);
 }
 
 void KX11Extras::minimizeWindow(WId win)
