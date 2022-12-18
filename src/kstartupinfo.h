@@ -108,6 +108,7 @@ public:
     static void setNewStartupId(QWidget *window, const QByteArray &startup_id);
 #endif
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 102)
     /**
      * If your application shows temporarily some window during its startup,
      * for example a dialog, and only after closing it shows the main window,
@@ -115,8 +116,12 @@ public:
      * To temporarily suspend and resume the notification, use this function.
      * Note that this is cumulative, i.e. after suspending twice, you have to
      * resume twice.
+     *
+     * @deprecated since 5.102, no known users.
      */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 102, "No known users")
     static void silenceStartup(bool silence);
+#endif
 
     /**
      * Creates and returns new startup id. The id includes properly setup

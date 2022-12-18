@@ -704,6 +704,7 @@ void KStartupInfo::appStarted(const QByteArray &startup_id)
 #endif
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 102)
 void KStartupInfo::silenceStartup(bool silence)
 {
     KStartupInfoId id;
