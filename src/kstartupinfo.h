@@ -67,12 +67,19 @@ public:
      */
     static void appStarted(const QByteArray &startup_id);
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 102)
     /**
-     * Returns the app startup notification identifier for this running
-     * application.
+     * Returns the startup ID set by setStartupId().
      * @return the startup notification identifier
+     *
+     * @warning This does not give access to the startup ID the app was launched with.
+     * Use QX11Info::nextStartupId() to get that.
+     *
+     * @deprecated since 5.102, use QX11Info::nextStartupId().
      */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 102, "Use QX11Info::nextStartupId()")
     static QByteArray startupId();
+#endif
 
     /**
      * Sets a new value for the application startup notification window property for newly

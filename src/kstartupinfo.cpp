@@ -686,7 +686,7 @@ bool KStartupInfo::sendFinishXcb(xcb_connection_t *conn, int screen, const KStar
 
 void KStartupInfo::appStarted()
 {
-    appStarted(startupId());
+    appStarted(s_startup_id);
     setStartupId("0"); // reset the id, no longer valid (must use clearStartupId() to avoid infinite loop)
 }
 
@@ -716,7 +716,9 @@ void KStartupInfo::silenceStartup(bool silence)
     data.setSilent(silence ? KStartupInfoData::Yes : KStartupInfoData::No);
     sendChange(id, data);
 }
+#endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 102)
 QByteArray KStartupInfo::startupId()
 {
     if (s_startup_id.isEmpty()) {
@@ -727,10 +729,11 @@ QByteArray KStartupInfo::startupId()
 
     return s_startup_id;
 }
+#endif
 
 void KStartupInfo::setStartupId(const QByteArray &startup_id)
 {
-    if (startup_id == startupId()) {
+    if (startup_id == s_startup_id) {
         return;
     }
     if (startup_id.isEmpty()) {

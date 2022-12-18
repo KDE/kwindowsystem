@@ -328,12 +328,14 @@ void KStartupInfo_UnitTest::createNewStartupIdForTimestampTest()
 
 void KStartupInfo_UnitTest::setNewStartupIdTest()
 {
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 102)
     {
         QWindow window;
         const QByteArray str = "somefancyidwhichisrandom_kstartupinfo_unittest_2";
         KStartupInfo::setNewStartupId(&window, str);
         QCOMPARE(KStartupInfo::startupId(), str);
     }
+#endif
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 62)
     {
