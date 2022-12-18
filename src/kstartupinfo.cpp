@@ -686,7 +686,15 @@ bool KStartupInfo::sendFinishXcb(xcb_connection_t *conn, int screen, const KStar
 
 void KStartupInfo::appStarted()
 {
-    appStarted(s_startup_id);
+    QByteArray startupId = s_startup_id;
+
+#if KWINDOWSYSTEM_HAVE_X11
+    if (startupId.isEmpty()) {
+        startupId = QX11Info::nextStartupId();
+    }
+#endif
+
+    appStarted(startupId);
     setStartupId("0"); // reset the id, no longer valid (must use clearStartupId() to avoid infinite loop)
 }
 
