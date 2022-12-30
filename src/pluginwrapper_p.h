@@ -22,7 +22,7 @@ class KWindowSystemPluginWrapper
 {
 public:
     KWindowSystemPluginWrapper();
-    virtual ~KWindowSystemPluginWrapper();
+    ~KWindowSystemPluginWrapper();
     static const KWindowSystemPluginWrapper &self();
 
     KWindowEffectsPrivate *effects() const;
