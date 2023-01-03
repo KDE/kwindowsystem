@@ -1134,6 +1134,7 @@ bool KStartupInfoId::setupStartupEnv() const
     return !qputenv(NET_STARTUP_ENV, id()) == 0;
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 102)
 KStartupInfoId KStartupInfo::currentStartupIdEnv()
 {
     const QByteArray startup_env = qgetenv(NET_STARTUP_ENV);
@@ -1145,6 +1146,7 @@ KStartupInfoId KStartupInfo::currentStartupIdEnv()
     }
     return id;
 }
+#endif
 
 void KStartupInfo::resetStartupEnv()
 {

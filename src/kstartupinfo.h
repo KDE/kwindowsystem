@@ -330,13 +330,19 @@ public:
      */
     static bool sendFinishXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id, const KStartupInfoData &data);
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 102)
     /**
      * Returns the current startup notification identification for the current
      * startup notification environment variable. Note that QApplication constructor
      * unsets the variable and you have to use QX11Info::nextStartupId() .
      * @return the current startup notification identification
+     *
+     * @deprecated since 5.102, use QX11Info::nextStartupId().
      */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 102, "Use QX11Info::nextStartupId()")
     static KStartupInfoId currentStartupIdEnv();
+#endif
+
     /**
      * Unsets the startup notification environment variable.
      */
