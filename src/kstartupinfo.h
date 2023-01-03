@@ -332,8 +332,8 @@ public:
 
     /**
      * Returns the current startup notification identification for the current
-     * startup notification environment variable. Note that KApplication constructor
-     * unsets the variable and you have to use KApplication::startupId .
+     * startup notification environment variable. Note that QApplication constructor
+     * unsets the variable and you have to use QX11Info::nextStartupId() .
      * @return the current startup notification identification
      */
     static KStartupInfoId currentStartupIdEnv();
