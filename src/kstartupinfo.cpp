@@ -164,6 +164,7 @@ public:
     void startups_cleanup_internal(bool age_P);
     void clean_all_noncompliant();
     static QString check_required_startup_fields(const QString &msg, const KStartupInfoData &data, int screen);
+    static void setWindowStartupIdInternal(WId w_P, const QByteArray &id_P);
 
     KStartupInfo *q;
     unsigned int timeout;
@@ -786,7 +787,7 @@ void KStartupInfo::setNewStartupId(QWindow *window, const QByteArray &startup_id
         if (!startup_id.isEmpty() && startup_id != "0") {
             NETRootInfo i(QX11Info::connection(), NET::Supported);
             if (i.isSupported(NET::WM2StartupId)) {
-                KStartupInfo::setWindowStartupId(window->winId(), startup_id);
+                KStartupInfo::Private::setWindowStartupIdInternal(window->winId(), startup_id);
                 activate = false; // WM will take care of it
             }
         }
@@ -967,7 +968,14 @@ QByteArray KStartupInfo::windowStartupId(WId w_P)
 #endif
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 104)
 void KStartupInfo::setWindowStartupId(WId w_P, const QByteArray &id_P)
+{
+    KStartupInfo::Private::setWindowStartupIdInternal(w_P, id_P);
+}
+#endif
+
+void KStartupInfo::Private::setWindowStartupIdInternal(WId w_P, const QByteArray &id_P)
 {
 #if KWINDOWSYSTEM_HAVE_X11
     if (!QX11Info::isPlatformX11()) {
@@ -1134,7 +1142,7 @@ bool KStartupInfoId::setupStartupEnv() const
     return !qputenv(NET_STARTUP_ENV, id()) == 0;
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 102)
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 104)
 KStartupInfoId KStartupInfo::currentStartupIdEnv()
 {
     const QByteArray startup_env = qgetenv(NET_STARTUP_ENV);
