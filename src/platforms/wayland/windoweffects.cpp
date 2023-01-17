@@ -13,7 +13,6 @@
 #include <QGuiApplication>
 #include <QWidget>
 
-#include <KWayland/Client/blur.h>
 #include <KWayland/Client/compositor.h>
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/contrast.h>
@@ -25,23 +24,52 @@
 #include <KWayland/Client/surface.h>
 #include <private/qwaylandwindow_p.h>
 
+#include <QWaylandClientExtensionTemplate>
+#include <qwaylandclientextension.h>
+
+#include "qwayland-blur.h"
+
+#include "surfacehelper.h"
+
+class BlurManager : public QWaylandClientExtensionTemplate<BlurManager>, public QtWayland::org_kde_kwin_blur_manager
+{
+public:
+    BlurManager()
+        : QWaylandClientExtensionTemplate<BlurManager>(1)
+    {
+    }
+};
+
+class Blur : public QObject, public QtWayland::org_kde_kwin_blur
+{
+public:
+    Blur(struct ::org_kde_kwin_blur *object, QObject *parent)
+        : QObject(parent)
+        , QtWayland::org_kde_kwin_blur(object)
+    {
+    }
+
+    ~Blur() override
+    {
+        release();
+    }
+};
+
 WindowEffects::WindowEffects()
     : QObject()
-    ,  KWindowEffectsPrivateV2()
+    , KWindowEffectsPrivateV2()
 {
     auto registry = WaylandIntegration::self()->registry();
+
+    m_blurManager = new BlurManager();
 
     // The KWindowEffects API doesn't provide any signals to notify that the particular
     // effect has become unavailable. So we re-install effects when the corresponding globals
     // are added.
-    connect(registry, &KWayland::Client::Registry::blurAnnounced, this, [this]() {
+
+    connect(m_blurManager, &BlurManager::activeChanged, this, [this] {
         for (auto it = m_blurRegions.constBegin(); it != m_blurRegions.constEnd(); ++it) {
-            installBlur(it.key(), true, *it);
-        }
-    });
-    connect(registry, &KWayland::Client::Registry::blurRemoved, this, [this]() {
-        for (auto it = m_blurRegions.constBegin(); it != m_blurRegions.constEnd(); ++it) {
-            installBlur(it.key(), false, *it);
+            installBlur(it.key(), m_blurManager->isActive(), *it);
         }
     });
 
@@ -70,6 +98,7 @@ WindowEffects::WindowEffects()
 
 WindowEffects::~WindowEffects()
 {
+    delete m_blurManager;
 }
 
 QWindow *WindowEffects::windowForId(WId wid)
@@ -132,7 +161,7 @@ void replaceValue(MapType &map, typename MapType::key_type key, typename MapType
     }
 }
 
-void WindowEffects::resetBlur(QWindow *window, KWayland::Client::Blur *blur)
+void WindowEffects::resetBlur(QWindow *window, Blur *blur)
 {
     replaceValue(m_blurs, window, blur);
 }
@@ -178,7 +207,7 @@ bool WindowEffects::isEffectAvailable(KWindowEffects::Effect effect)
     case KWindowEffects::BackgroundContrast:
         return WaylandIntegration::self()->waylandContrastManager() != nullptr;
     case KWindowEffects::BlurBehind:
-        return WaylandIntegration::self()->waylandBlurManager() != nullptr;
+        return m_blurManager->isActive();
     case KWindowEffects::Slide:
         return WaylandIntegration::self()->waylandSlideManager() != nullptr;
     default:
@@ -298,21 +327,22 @@ void WindowEffects::enableBlurBehind(WId winId, bool enable, const QRegion &regi
 
 void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &region)
 {
-    if (!WaylandIntegration::self()->waylandBlurManager()) {
+    if (!m_blurManager->isActive()) {
         return;
     }
-    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
+
+    wl_surface *surface = surfaceForWindow(window);
 
     if (surface) {
         if (enable) {
-            auto blur = WaylandIntegration::self()->waylandBlurManager()->createBlur(surface, surface);
+            auto blur = new Blur(m_blurManager->create(surface), window);
             std::unique_ptr<KWayland::Client::Region> wlRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
-            blur->setRegion(wlRegion.get());
+            blur->set_region(*(wlRegion.get()));
             blur->commit();
             resetBlur(window, blur);
         } else {
             resetBlur(window);
-            WaylandIntegration::self()->waylandBlurManager()->removeBlur(surface);
+            m_blurManager->unset(surface);
         }
 
         WaylandIntegration::self()->waylandConnection()->flush();

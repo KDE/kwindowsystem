@@ -9,7 +9,6 @@
 #include "waylandintegration.h"
 #include "logging.h"
 
-#include <KWayland/Client/blur.h>
 #include <KWayland/Client/compositor.h>
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/contrast.h>
@@ -80,25 +79,6 @@ KWayland::Client::Registry *WaylandIntegration::registry() const
 KWayland::Client::ConnectionThread *WaylandIntegration::waylandConnection() const
 {
     return m_waylandConnection;
-}
-
-KWayland::Client::BlurManager *WaylandIntegration::waylandBlurManager()
-{
-    if (!m_waylandBlurManager && m_registry) {
-        const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Blur);
-
-        if (wmInterface.name == 0) {
-            return nullptr;
-        }
-
-        m_waylandBlurManager = m_registry->createBlurManager(wmInterface.name, wmInterface.version, qApp);
-
-        connect(m_waylandBlurManager, &KWayland::Client::BlurManager::removed, this, [this]() {
-            m_waylandBlurManager->deleteLater();
-        });
-    }
-
-    return m_waylandBlurManager;
 }
 
 KWayland::Client::ContrastManager *WaylandIntegration::waylandContrastManager()
