@@ -19,7 +19,6 @@
 #include <KWayland/Client/plasmawindowmanagement.h>
 #include <KWayland/Client/region.h>
 #include <KWayland/Client/registry.h>
-#include <KWayland/Client/slide.h>
 #include <KWayland/Client/surface.h>
 #include <private/qwaylandwindow_p.h>
 
@@ -28,6 +27,7 @@
 
 #include "qwayland-blur.h"
 #include "qwayland-contrast.h"
+#include "qwayland-slide.h"
 
 #include "surfacehelper.h"
 
@@ -79,14 +79,37 @@ public:
     }
 };
 
+class SlideManager : public QWaylandClientExtensionTemplate<SlideManager>, public QtWayland::org_kde_kwin_slide_manager
+{
+public:
+    SlideManager()
+        : QWaylandClientExtensionTemplate<SlideManager>(1)
+    {
+    }
+};
+
+class Slide : public QObject, public QtWayland::org_kde_kwin_slide
+{
+public:
+    Slide(struct ::org_kde_kwin_slide *object, QObject *parent)
+        : QObject(parent)
+        , QtWayland::org_kde_kwin_slide(object)
+    {
+    }
+
+    ~Slide() override
+    {
+        release();
+    }
+};
+
 WindowEffects::WindowEffects()
     : QObject()
     , KWindowEffectsPrivateV2()
 {
-    auto registry = WaylandIntegration::self()->registry();
-
     m_blurManager = new BlurManager();
     m_contrastManager = new ContrastManager();
+    m_slideManager = new SlideManager();
 
     // The KWindowEffects API doesn't provide any signals to notify that the particular
     // effect has become unavailable. So we re-install effects when the corresponding globals
@@ -108,14 +131,13 @@ WindowEffects::WindowEffects()
         }
     });
 
-    connect(registry, &KWayland::Client::Registry::slideAnnounced, this, [this]() {
+    connect(m_slideManager, &SlideManager::activeChanged, this, [this] {
         for (auto it = m_slideMap.constBegin(); it != m_slideMap.constEnd(); ++it) {
-            installSlide(it.key(), it->location, it->offset);
-        }
-    });
-    connect(registry, &KWayland::Client::Registry::slideRemoved, this, [this]() {
-        for (auto it = m_slideMap.constBegin(); it != m_slideMap.constEnd(); ++it) {
-            installSlide(it.key(), KWindowEffects::SlideFromLocation::NoEdge, 0);
+            if (m_slideManager->isActive()) {
+                installSlide(it.key(), it->location, it->offset);
+            } else {
+                installSlide(it.key(), KWindowEffects::SlideFromLocation::NoEdge, 0);
+            }
         }
     });
 }
@@ -124,6 +146,7 @@ WindowEffects::~WindowEffects()
 {
     delete m_blurManager;
     delete m_contrastManager;
+    delete m_slideManager;
 }
 
 QWindow *WindowEffects::windowForId(WId wid)
@@ -234,7 +257,7 @@ bool WindowEffects::isEffectAvailable(KWindowEffects::Effect effect)
     case KWindowEffects::BlurBehind:
         return m_blurManager->isActive();
     case KWindowEffects::Slide:
-        return WaylandIntegration::self()->waylandSlideManager() != nullptr;
+        return m_slideManager->isActive();
     default:
         return false;
     }
@@ -262,36 +285,36 @@ void WindowEffects::slideWindow(WId id, KWindowEffects::SlideFromLocation locati
 
 void WindowEffects::installSlide(QWindow *window, KWindowEffects::SlideFromLocation location, int offset)
 {
-    if (!WaylandIntegration::self()->waylandSlideManager()) {
+    if (!m_slideManager->isActive()) {
         return;
     }
-    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
+    wl_surface *surface = surfaceForWindow(window);
     if (surface) {
         if (location != KWindowEffects::SlideFromLocation::NoEdge) {
-            auto slide = WaylandIntegration::self()->waylandSlideManager()->createSlide(surface, surface);
+            auto slide = new Slide(m_slideManager->create(surface), window);
 
-            KWayland::Client::Slide::Location convertedLoc;
+            Slide::location convertedLoc;
             switch (location) {
             case KWindowEffects::SlideFromLocation::TopEdge:
-                convertedLoc = KWayland::Client::Slide::Location::Top;
+                convertedLoc = Slide::location::location_top;
                 break;
             case KWindowEffects::SlideFromLocation::LeftEdge:
-                convertedLoc = KWayland::Client::Slide::Location::Left;
+                convertedLoc = Slide::location::location_left;
                 break;
             case KWindowEffects::SlideFromLocation::RightEdge:
-                convertedLoc = KWayland::Client::Slide::Location::Right;
+                convertedLoc = Slide::location::location_right;
                 break;
             case KWindowEffects::SlideFromLocation::BottomEdge:
             default:
-                convertedLoc = KWayland::Client::Slide::Location::Bottom;
+                convertedLoc = Slide::location::location_bottom;
                 break;
             }
 
-            slide->setLocation(convertedLoc);
-            slide->setOffset(offset);
+            slide->set_location(convertedLoc);
+            slide->set_offset(offset);
             slide->commit();
         } else {
-            WaylandIntegration::self()->waylandSlideManager()->removeSlide(surface);
+            m_slideManager->unset(surface);
         }
 
         WaylandIntegration::self()->waylandConnection()->flush();

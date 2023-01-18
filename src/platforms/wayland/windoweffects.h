@@ -26,6 +26,7 @@ class BlurManager;
 class Blur;
 class ContrastManager;
 class Contrast;
+class SlideManager;
 
 class WindowEffects : public QObject, public KWindowEffectsPrivateV2
 {
@@ -86,6 +87,7 @@ private:
     QHash<QWindow *, SlideData> m_slideMap;
     BlurManager *m_blurManager;
     ContrastManager *m_contrastManager;
+    SlideManager *m_slideManager;
 };
 
 #endif

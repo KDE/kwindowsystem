@@ -23,7 +23,6 @@ class PlasmaShell;
 class Registry;
 class ShadowManager;
 class ShmPool;
-class SlideManager;
 }
 }
 class WaylandXdgActivationV1;
@@ -39,7 +38,6 @@ public:
 
     KWayland::Client::Registry *registry() const;
     KWayland::Client::ConnectionThread *waylandConnection() const;
-    KWayland::Client::SlideManager *waylandSlideManager();
     KWayland::Client::ShadowManager *waylandShadowManager();
     KWayland::Client::Compositor *waylandCompositor() const;
     KWayland::Client::PlasmaWindowManagement *plasmaWindowManagement();
@@ -51,7 +49,6 @@ private:
     QPointer<KWayland::Client::ConnectionThread> m_waylandConnection;
     QPointer<KWayland::Client::Compositor> m_waylandCompositor;
     QPointer<KWayland::Client::Registry> m_registry;
-    QPointer<KWayland::Client::SlideManager> m_waylandSlideManager;
     QPointer<KWayland::Client::ShadowManager> m_waylandShadowManager;
     QPointer<KWayland::Client::PlasmaWindowManagement> m_wm;
     QPointer<KWayland::Client::PlasmaShell> m_waylandPlasmaShell;

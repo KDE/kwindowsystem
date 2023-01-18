@@ -17,7 +17,6 @@
 #include <KWayland/Client/registry.h>
 #include <KWayland/Client/shadow.h>
 #include <KWayland/Client/shm_pool.h>
-#include <KWayland/Client/slide.h>
 #include <KWayland/Client/surface.h>
 
 #include <KWindowSystem>
@@ -78,25 +77,6 @@ KWayland::Client::Registry *WaylandIntegration::registry() const
 KWayland::Client::ConnectionThread *WaylandIntegration::waylandConnection() const
 {
     return m_waylandConnection;
-}
-
-KWayland::Client::SlideManager *WaylandIntegration::waylandSlideManager()
-{
-    if (!m_waylandSlideManager && m_registry) {
-        const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Slide);
-
-        if (wmInterface.name == 0) {
-            return nullptr;
-        }
-
-        m_waylandSlideManager = m_registry->createSlideManager(wmInterface.name, wmInterface.version, qApp);
-
-        connect(m_waylandSlideManager, &KWayland::Client::SlideManager::removed, this, [this]() {
-            m_waylandSlideManager->deleteLater();
-        });
-    }
-
-    return m_waylandSlideManager;
 }
 
 KWayland::Client::ShadowManager *WaylandIntegration::waylandShadowManager()
