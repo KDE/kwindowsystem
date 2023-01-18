@@ -16,7 +16,6 @@ namespace KWayland
 {
 namespace Client
 {
-class ContrastManager;
 class Compositor;
 class ConnectionThread;
 class PlasmaWindowManagement;
@@ -40,7 +39,6 @@ public:
 
     KWayland::Client::Registry *registry() const;
     KWayland::Client::ConnectionThread *waylandConnection() const;
-    KWayland::Client::ContrastManager *waylandContrastManager();
     KWayland::Client::SlideManager *waylandSlideManager();
     KWayland::Client::ShadowManager *waylandShadowManager();
     KWayland::Client::Compositor *waylandCompositor() const;
@@ -53,7 +51,6 @@ private:
     QPointer<KWayland::Client::ConnectionThread> m_waylandConnection;
     QPointer<KWayland::Client::Compositor> m_waylandCompositor;
     QPointer<KWayland::Client::Registry> m_registry;
-    QPointer<KWayland::Client::ContrastManager> m_waylandContrastManager;
     QPointer<KWayland::Client::SlideManager> m_waylandSlideManager;
     QPointer<KWayland::Client::ShadowManager> m_waylandShadowManager;
     QPointer<KWayland::Client::PlasmaWindowManagement> m_wm;

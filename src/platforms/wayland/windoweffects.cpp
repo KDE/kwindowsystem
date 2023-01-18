@@ -15,7 +15,6 @@
 
 #include <KWayland/Client/compositor.h>
 #include <KWayland/Client/connection_thread.h>
-#include <KWayland/Client/contrast.h>
 #include <KWayland/Client/plasmashell.h>
 #include <KWayland/Client/plasmawindowmanagement.h>
 #include <KWayland/Client/region.h>
@@ -28,6 +27,7 @@
 #include <qwaylandclientextension.h>
 
 #include "qwayland-blur.h"
+#include "qwayland-contrast.h"
 
 #include "surfacehelper.h"
 
@@ -55,6 +55,30 @@ public:
     }
 };
 
+class ContrastManager : public QWaylandClientExtensionTemplate<ContrastManager>, public QtWayland::org_kde_kwin_contrast_manager
+{
+public:
+    ContrastManager()
+        : QWaylandClientExtensionTemplate<ContrastManager>(2)
+    {
+    }
+};
+
+class Contrast : public QObject, public QtWayland::org_kde_kwin_contrast
+{
+public:
+    Contrast(struct ::org_kde_kwin_contrast *object, QObject *parent)
+        : QObject(parent)
+        , QtWayland::org_kde_kwin_contrast(object)
+    {
+    }
+
+    ~Contrast() override
+    {
+        release();
+    }
+};
+
 WindowEffects::WindowEffects()
     : QObject()
     , KWindowEffectsPrivateV2()
@@ -62,6 +86,7 @@ WindowEffects::WindowEffects()
     auto registry = WaylandIntegration::self()->registry();
 
     m_blurManager = new BlurManager();
+    m_contrastManager = new ContrastManager();
 
     // The KWindowEffects API doesn't provide any signals to notify that the particular
     // effect has become unavailable. So we re-install effects when the corresponding globals
@@ -73,14 +98,13 @@ WindowEffects::WindowEffects()
         }
     });
 
-    connect(registry, &KWayland::Client::Registry::contrastAnnounced, this, [this]() {
+    connect(m_contrastManager, &ContrastManager::activeChanged, this, [this] {
         for (auto it = m_backgroundConstrastRegions.constBegin(); it != m_backgroundConstrastRegions.constEnd(); ++it) {
-            installContrast(it.key(), true, it->contrast, it->intensity, it->saturation, it->region);
-        }
-    });
-    connect(registry, &KWayland::Client::Registry::contrastRemoved, this, [this]() {
-        for (auto it = m_backgroundConstrastRegions.constBegin(); it != m_backgroundConstrastRegions.constEnd(); ++it) {
-            installContrast(it.key(), false);
+            if (m_contrastManager->isActive()) {
+                installContrast(it.key(), true, it->contrast, it->intensity, it->saturation, it->region);
+            } else {
+                installContrast(it.key(), false);
+            }
         }
     });
 
@@ -99,6 +123,7 @@ WindowEffects::WindowEffects()
 WindowEffects::~WindowEffects()
 {
     delete m_blurManager;
+    delete m_contrastManager;
 }
 
 QWindow *WindowEffects::windowForId(WId wid)
@@ -166,7 +191,7 @@ void WindowEffects::resetBlur(QWindow *window, Blur *blur)
     replaceValue(m_blurs, window, blur);
 }
 
-void WindowEffects::resetContrast(QWindow *window, KWayland::Client::Contrast *contrast)
+void WindowEffects::resetContrast(QWindow *window, Contrast *contrast)
 {
     replaceValue(m_contrasts, window, contrast);
 }
@@ -205,7 +230,7 @@ bool WindowEffects::isEffectAvailable(KWindowEffects::Effect effect)
 {
     switch (effect) {
     case KWindowEffects::BackgroundContrast:
-        return WaylandIntegration::self()->waylandContrastManager() != nullptr;
+        return m_contrastManager->isActive();
     case KWindowEffects::BlurBehind:
         return m_blurManager->isActive();
     case KWindowEffects::Slide:
@@ -372,23 +397,24 @@ void WindowEffects::enableBackgroundContrast(WId winId, bool enable, qreal contr
 
 void WindowEffects::installContrast(QWindow *window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
 {
-    if (!WaylandIntegration::self()->waylandContrastManager()) {
+    if (!m_contrastManager->isActive()) {
         return;
     }
-    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
+
+    wl_surface *surface = surfaceForWindow(window);
     if (surface) {
         if (enable) {
-            auto backgroundContrast = WaylandIntegration::self()->waylandContrastManager()->createContrast(surface, surface);
+            auto backgroundContrast = new Contrast(m_contrastManager->create(surface), window);
             std::unique_ptr<KWayland::Client::Region> wlRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
-            backgroundContrast->setRegion(wlRegion.get());
-            backgroundContrast->setContrast(contrast);
-            backgroundContrast->setIntensity(intensity);
-            backgroundContrast->setSaturation(saturation);
+            backgroundContrast->set_region(*(wlRegion.get()));
+            backgroundContrast->set_contrast(wl_fixed_from_double(contrast));
+            backgroundContrast->set_intensity(wl_fixed_from_double(intensity));
+            backgroundContrast->set_saturation(wl_fixed_from_double(saturation));
             backgroundContrast->commit();
             resetContrast(window, backgroundContrast);
         } else {
             resetContrast(window);
-            WaylandIntegration::self()->waylandContrastManager()->removeContrast(surface);
+            m_contrastManager->unset(surface);
         }
 
         WaylandIntegration::self()->waylandConnection()->flush();
@@ -397,24 +423,24 @@ void WindowEffects::installContrast(QWindow *window, bool enable, qreal contrast
 
 void WindowEffects::setBackgroundFrost(QWindow *window, QColor color, const QRegion &region)
 {
-    if (!WaylandIntegration::self()->waylandContrastManager()) {
+    if (!m_contrastManager->isActive()) {
         return;
     }
 
-    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
+    wl_surface *surface = surfaceForWindow(window);
     if (!surface) {
         return;
     }
     if (!color.isValid()) {
         resetContrast(window);
-        WaylandIntegration::self()->waylandContrastManager()->removeContrast(surface);
+        m_contrastManager->unset(surface);
         return;
     }
 
-    auto backgroundContrast = WaylandIntegration::self()->waylandContrastManager()->createContrast(surface, surface);
+    auto backgroundContrast = new Contrast(m_contrastManager->create(surface), window);
     std::unique_ptr<KWayland::Client::Region> wlRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
-    backgroundContrast->setRegion(wlRegion.get());
-    backgroundContrast->setFrost(color);
+    backgroundContrast->set_region(*(wlRegion.get()));
+    backgroundContrast->set_frost(color.red(), color.green(), color.blue(), color.alpha());
     backgroundContrast->commit();
     resetContrast(window, backgroundContrast);
 

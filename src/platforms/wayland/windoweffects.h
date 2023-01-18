@@ -17,15 +17,15 @@ namespace KWayland
 {
 namespace Client
 {
-class ContrastManager;
 class Compositor;
 class ConnectionThread;
-class Contrast;
 }
 }
 
 class BlurManager;
 class Blur;
+class ContrastManager;
+class Contrast;
 
 class WindowEffects : public QObject, public KWindowEffectsPrivateV2
 {
@@ -66,7 +66,7 @@ private:
     void installSlide(QWindow *window, KWindowEffects::SlideFromLocation location, int offset);
 
     void resetBlur(QWindow *window, Blur *blur = nullptr);
-    void resetContrast(QWindow *window, KWayland::Client::Contrast *contrast = nullptr);
+    void resetContrast(QWindow *window, Contrast *contrast = nullptr);
 
     QHash<QWindow *, QList<QMetaObject::Connection>> m_windowWatchers;
     QHash<QWindow *, QRegion> m_blurRegions;
@@ -78,13 +78,14 @@ private:
     };
     QHash<QWindow *, BackgroundContrastData> m_backgroundConstrastRegions;
     QHash<QWindow *, QPointer<Blur>> m_blurs;
-    QHash<QWindow *, QPointer<KWayland::Client::Contrast>> m_contrasts;
+    QHash<QWindow *, QPointer<Contrast>> m_contrasts;
     struct SlideData {
         KWindowEffects::SlideFromLocation location;
         int offset;
     };
     QHash<QWindow *, SlideData> m_slideMap;
     BlurManager *m_blurManager;
+    ContrastManager *m_contrastManager;
 };
 
 #endif

@@ -11,7 +11,6 @@
 
 #include <KWayland/Client/compositor.h>
 #include <KWayland/Client/connection_thread.h>
-#include <KWayland/Client/contrast.h>
 #include <KWayland/Client/plasmashell.h>
 #include <KWayland/Client/plasmawindowmanagement.h>
 #include <KWayland/Client/region.h>
@@ -79,24 +78,6 @@ KWayland::Client::Registry *WaylandIntegration::registry() const
 KWayland::Client::ConnectionThread *WaylandIntegration::waylandConnection() const
 {
     return m_waylandConnection;
-}
-
-KWayland::Client::ContrastManager *WaylandIntegration::waylandContrastManager()
-{
-    if (!m_waylandContrastManager && m_registry) {
-        const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Contrast);
-
-        if (wmInterface.name == 0) {
-            return nullptr;
-        }
-
-        m_waylandContrastManager = m_registry->createContrastManager(wmInterface.name, wmInterface.version, qApp);
-
-        connect(m_waylandContrastManager, &KWayland::Client::ContrastManager::removed, this, [this]() {
-            m_waylandContrastManager->deleteLater();
-        });
-    }
-    return m_waylandContrastManager;
 }
 
 KWayland::Client::SlideManager *WaylandIntegration::waylandSlideManager()

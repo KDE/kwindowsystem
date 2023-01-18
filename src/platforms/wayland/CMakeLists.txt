@@ -24,10 +24,15 @@ if (QT_MAJOR_VERSION EQUAL "5")
         PROTOCOL ${PLASMA_WAYLAND_PROTOCOLS_DIR}/blur.xml
         BASENAME blur
     )
+    ecm_add_qtwayland_client_protocol(wayland_plugin_SRCS
+        PROTOCOL ${PLASMA_WAYLAND_PROTOCOLS_DIR}/contrast.xml
+        BASENAME contrast
+    )
 else()
     qt6_generate_wayland_protocol_client_sources(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin FILES
         ${WaylandProtocols_DATADIR}/staging/xdg-activation/xdg-activation-v1.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/blur.xml
+        ${PLASMA_WAYLAND_PROTOCOLS_DIR}/contrast.xml
     )
 
 endif()
