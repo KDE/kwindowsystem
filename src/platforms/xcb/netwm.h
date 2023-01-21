@@ -687,25 +687,6 @@ public:
     */
     void sendPing(xcb_window_t window, xcb_timestamp_t timestamp);
 
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    /**
-       This function takes the passed XEvent and returns an OR'ed list of
-       NETRootInfo properties that have changed in the properties argument.
-       The new information will be read immediately by the class.
-       The elements of the properties argument are as they would be passed
-       to the constructor, if the array is not large enough,
-       changed properties that don't fit in it won't be listed there
-       (they'll be updated in the class though).
-
-       @param event the event
-       @param properties properties that changed
-       @param properties_size size of the passed properties array
-       @deprecated since 5.0 use event(xcb_generic_event_t*, NET::Properties*, NET::Properties2*)
-
-    **/
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use NETRootInfo::event(xcb_generic_event_t*, NET::Properties*, NET::Properties2*)")
-    void event(xcb_generic_event_t *event, unsigned long *properties, int properties_size);
-#endif
     /**
      * This function takes the passed xcb_generic_event_t and returns the updated properties in the passed in arguments.
      *
@@ -1006,16 +987,6 @@ public:
                NET::Properties properties,
                NET::Properties2 properties2,
                Role role = Client);
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    /**
-        This constructor differs from the above one only in the way it accepts
-        the list of properties the client is interested in.
-        @deprecated since 5.0 use above ctor
-    **/
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use NETWinInfo(xcb_connection_t *, xcb_window_t, xcb_window_t, NET::Properties, NET::Properties2, Role")
-    NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_window_t rootWindow, NET::Properties properties, Role role = Client);
-#endif
 
     /**
        Creates a shared copy of the specified NETWinInfo object.
@@ -1568,24 +1539,6 @@ public:
     **/
     NETFullscreenMonitors fullscreenMonitors() const;
 
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    /**
-       This function takes the passed XEvent and returns an OR'ed list of
-       NETWinInfo properties that have changed in the properties argument.
-       The new information will be read immediately by the class.
-       The elements of the properties argument are as they would be passed
-       to the constructor, if the array is not large enough,
-       changed properties that don't fit in it won't be listed there
-       (they'll be updated in the class though).
-
-       @param event the event
-       @param properties properties that changed
-       @param properties_size size of the passed properties array
-       @deprecated since 5.0 use event(xcb_generic_event_t*, NET::Properties*, NET::Properties2*)
-    **/
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use NETWinInfo::event(xcb_generic_event_t*, NET::Properties*, NET::Properties2*)")
-    void event(xcb_generic_event_t *event, unsigned long *properties, int properties_size);
-#endif
     /**
      * This function takes the passed in xcb_generic_event_t and returns the updated properties
      * in the passed in arguments.

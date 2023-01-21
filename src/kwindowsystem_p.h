@@ -32,10 +32,6 @@ public:
     virtual void setOnAllDesktops(WId win, bool b) = 0;
     virtual void setOnDesktop(WId win, int desktop) = 0;
     virtual void setOnActivities(WId win, const QStringList &activities) = 0;
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-    virtual WId transientFor(WId window) = 0;
-    virtual WId groupLeader(WId window) = 0;
-#endif
     virtual QPixmap icon(WId win, int width, int height, bool scale, int flags) = 0;
     virtual QPixmap iconFromNetWinInfo(int width, int height, bool scale, int flags, NETWinInfo *info);
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)

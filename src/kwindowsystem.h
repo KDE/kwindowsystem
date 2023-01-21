@@ -87,22 +87,6 @@ public:
     static bool hasWId(WId id);
 #endif
 
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    /**
-     * Returns information about window @p win. It is recommended to check
-     * whether the returned info is valid by calling the valid() method.
-     * @param win the id of the window
-     * @param properties all properties that should be retrieved (see NET::Property
-     *    enum for details). Unlisted properties cause related information to be invalid
-     *    in the returned data, but make this function faster when not all data is needed.
-     * @param properties2 additional properties (see NET::Property2 enum)
-     * @return the window information
-     * @deprecated Since 5.0, use KWindowInfo directly
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KWindowInfo(WId, NET::Properties, NET::Properties2")
-    static KWindowInfo windowInfo(WId win, NET::Properties properties, NET::Properties2 properties2 = NET::Properties2());
-#endif
-
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 101)
     /**
      * Returns the list of all toplevel windows currently managed by the
@@ -316,45 +300,6 @@ public:
      */
     static void setMainWindow(QWindow *subwindow, WId mainwindow);
 
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 62)
-    /**
-     * Sets the parent window of @p subwindow to be @p mainwindow.
-     * This overrides the parent set the usual way as the QWidget parent,
-     * but only for the window manager - e.g. stacking order and window grouping
-     * will be affected, but features like automatic deletion of children
-     * when the parent is deleted are unaffected and normally use
-     * the QWidget parent.
-     *
-     * This function should be used before a dialog is shown for a window
-     * that belongs to another application.
-     * @deprecated since 5.62, use setMainWindow(QWindow *). If all you have is a QWidget*,
-     * you might need to call setAttribute(Qt::WA_NativeWindow, true); before calling
-     * >window()->windowHandle().
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 62, "Use KWindowSystem::setMainWindow(QWindow *)")
-    static void setMainWindow(QWidget *subwindow, WId mainwindow);
-#endif
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    /**
-     * Returns the WM_TRANSIENT_FOR property for the given window, i.e. the mainwindow
-     * for this window.
-     *
-     * @param window the id of the window
-     * @deprecated Since 5.0, use KWindowInfo::transientFor
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KWindowInfo::transientFor()")
-    static WId transientFor(WId window);
-
-    /**
-     * Returns the leader window for the group the given window is in, if any.
-     * @param window the id of the window
-     * @deprecated Since 5.0, use KWindowInfo::groupLeader
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KWindowInfo::groupLeader()")
-    static WId groupLeader(WId window);
-#endif
-
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 101)
     /**
      * Returns an icon for window @p win.
@@ -514,22 +459,6 @@ public:
      **/
     KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "Use KX11Extras::unminimizeWindow() or QWindow::setState() instead")
     static void unminimizeWindow(WId win);
-#endif
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    /**
-     * @deprecated since 5.0 the @p animation is ignored.
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KWindowSystem::minimizeWindow(WId)")
-    static void minimizeWindow(WId win, bool animation);
-#endif
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    /**
-     * @deprecated since 5.0 the @p animation is ignored.
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KWindowSystem::unminimizeWindow(WId)")
-    static void unminimizeWindow(WId win, bool animation);
 #endif
 
     /**
@@ -978,48 +907,6 @@ Q_SIGNALS:
      */
     KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "Use KX11Extras::windowChanged")
     void windowChanged(WId id, NET::Properties properties, NET::Properties2 properties2); // clazy:exclude=overloaded-signal
-#endif
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    /**
-     * The window changed.
-     *
-     * The properties parameter contains the NET properties that
-     * were modified (see netwm_def.h). First element are NET::Property
-     * values, second element are NET::Property2 values (i.e. the format
-     * is the same like for the NETWinInfo class constructor).
-     * @param id the id of the window
-     * @param properties the properties that were modified
-     *
-     * @deprecated since 5.0 use windowChanged(WId, NET::Properties, NET::Properties2)
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KWindowSystem::windowChanged(WId, NET::Properties, NET::Properties2)")
-    QT_MOC_COMPAT void windowChanged(WId id, const unsigned long *properties); // clazy:exclude=overloaded-signal
-#endif
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    /**
-     * The window changed.
-     *
-     * The unsigned int parameter contains the NET properties that
-     * were modified (see netwm_def.h).
-     * @param id the id of the window
-     * @param properties the properties that were modified
-     * @deprecated Since 5.0
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KWindowSystem::windowChanged(WId, NET::Properties, NET::Properties2)")
-    QT_MOC_COMPAT void windowChanged(WId id, unsigned int properties); // clazy:exclude=overloaded-signal
-#endif
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 80)
-    /**
-     * The window changed somehow.
-     * @param id the id of the window
-     *
-     * @deprecated since 5.80, use windowChanged(WId, NET::Properties, NET::Properties2);
-     **/
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 80, "Use KWindowSystem::windowChanged(WId, NET::Properties, NET::Properties2)")
-    void windowChanged(WId id); // clazy:exclude=overloaded-signal
 #endif
 
     /**

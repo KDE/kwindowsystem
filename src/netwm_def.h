@@ -538,12 +538,6 @@ public:
            windows).
         **/
         KeepAbove = 1u << 6,
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-        /**
-           @deprecated Since 5.0. This is an obsolete name for KeepAbove.
-        **/
-        StaysOnTop KWINDOWSYSTEM_ENUMERATOR_DEPRECATED_VERSION_BELATED(5, 82, 5, 0, "Use KeepAbove") = KeepAbove, // NOT STANDARD
-#endif
         /**
            indicates that a window should not be included on a pager.
         **/

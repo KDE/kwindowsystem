@@ -48,26 +48,9 @@ bool KWindowEffectsPrivateX11::isEffectAvailable(Effect effect)
     case Slide:
         effectName = QByteArrayLiteral("_KDE_SLIDE");
         break;
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-    case PresentWindows:
-        effectName = QByteArrayLiteral("_KDE_PRESENT_WINDOWS_DESKTOP");
-        break;
-    case PresentWindowsGroup:
-        effectName = QByteArrayLiteral("_KDE_PRESENT_WINDOWS_GROUP");
-        break;
-    case HighlightWindows:
-        effectName = QByteArrayLiteral("_KDE_WINDOW_HIGHLIGHT");
-        break;
-#endif
     case BlurBehind:
         effectName = QByteArrayLiteral("_KDE_NET_WM_BLUR_BEHIND_REGION");
         break;
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
-    case Dashboard:
-        // TODO: Better namespacing for atoms
-        effectName = QByteArrayLiteral("_WM_EFFECT_KDE_DASHBOARD");
-        break;
-#endif
     case BackgroundContrast:
         effectName = QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_CONTRAST_REGION");
         break;
@@ -135,115 +118,6 @@ void KWindowEffectsPrivateX11::slideWindow(WId id, SlideFromLocation location, i
         xcb_change_property(c, XCB_PROP_MODE_REPLACE, id, atom->atom, atom->atom, 32, size, data);
     }
 }
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 81)
-QList<QSize> KWindowEffectsPrivateX11::windowSizes(const QList<WId> &ids)
-{
-    QList<QSize> windowSizes;
-    for (WId id : ids) {
-        if (id > 0) {
-            KWindowInfo info(id, NET::WMGeometry | NET::WMFrameExtents);
-            windowSizes.append(info.frameGeometry().size());
-        } else {
-            windowSizes.append(QSize());
-        }
-    }
-    return windowSizes;
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-void KWindowEffectsPrivateX11::presentWindows(WId controller, const QList<WId> &ids)
-{
-    xcb_connection_t *c = QX11Info::connection();
-    if (!c) {
-        return;
-    }
-
-    const int numWindows = ids.count();
-    QVarLengthArray<int32_t, 32> data(numWindows);
-    int actualCount = 0;
-
-    for (int i = 0; i < numWindows; ++i) {
-        data[i] = ids.at(i);
-        ++actualCount;
-    }
-
-    if (actualCount != numWindows) {
-        data.resize(actualCount);
-    }
-
-    if (data.isEmpty()) {
-        return;
-    }
-
-    const QByteArray effectName = QByteArrayLiteral("_KDE_PRESENT_WINDOWS_GROUP");
-    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
-    UniqueCPointer<xcb_intern_atom_reply_t> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
-    if (!atom) {
-        return;
-    }
-    xcb_change_property(c, XCB_PROP_MODE_REPLACE, controller, atom->atom, atom->atom, 32, data.size(), data.constData());
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-void KWindowEffectsPrivateX11::presentWindows(WId controller, int desktop)
-{
-    xcb_connection_t *c = QX11Info::connection();
-    if (!c) {
-        return;
-    }
-    const QByteArray effectName = QByteArrayLiteral("_KDE_PRESENT_WINDOWS_DESKTOP");
-    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
-    UniqueCPointer<xcb_intern_atom_reply_t> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
-    if (!atom) {
-        return;
-    }
-
-    int32_t data = desktop;
-    xcb_change_property(c, XCB_PROP_MODE_REPLACE, controller, atom->atom, atom->atom, 32, 1, &data);
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-void KWindowEffectsPrivateX11::highlightWindows(WId controller, const QList<WId> &ids)
-{
-    xcb_connection_t *c = QX11Info::connection();
-    if (!c) {
-        return;
-    }
-    const QByteArray effectName = QByteArrayLiteral("_KDE_WINDOW_HIGHLIGHT");
-    xcb_intern_atom_cookie_t atomCookie = xcb_intern_atom_unchecked(c, false, effectName.length(), effectName.constData());
-    UniqueCPointer<xcb_intern_atom_reply_t> atom(xcb_intern_atom_reply(c, atomCookie, nullptr));
-    if (!atom) {
-        return;
-    }
-
-    const int numWindows = ids.count();
-    if (numWindows == 0) {
-        xcb_delete_property(c, controller, atom->atom);
-        return;
-    }
-
-    QVarLengthArray<int32_t, 32> data(numWindows);
-    int actualCount = 0;
-
-    for (int i = 0; i < numWindows; ++i) {
-        data[i] = ids.at(i);
-        ++actualCount;
-    }
-
-    if (actualCount != numWindows) {
-        data.resize(actualCount);
-    }
-
-    if (data.isEmpty()) {
-        return;
-    }
-    xcb_change_property(c, XCB_PROP_MODE_REPLACE, controller, atom->atom, atom->atom, 32, data.size(), data.constData());
-}
-#endif
 
 void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const QRegion &region)
 {
@@ -388,15 +262,3 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
         xcb_delete_property(c, window, atom->atom);
     }
 }
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
-void KWindowEffectsPrivateX11::markAsDashboard(WId window)
-{
-    static const char DASHBOARD_WIN_CLASS[] = "dashboard\0dashboard";
-    xcb_connection_t *c = QX11Info::connection();
-    if (!c) {
-        return;
-    }
-    xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 8, 19, DASHBOARD_WIN_CLASS);
-}
-#endif

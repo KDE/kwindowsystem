@@ -99,22 +99,6 @@ public:
      */
     static void setNewStartupId(QWindow *window, const QByteArray &startup_id);
 
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 62)
-    /**
-     * Use this function if the application got a request with startup
-     * notification from outside (for example, when KUniqueApplication::newInstance()
-     * is called, or e.g.\ when khelpcenter opens new URL in its window).
-     * The window can be either an already existing and visible window,
-     * or a new one, before being shown. Note that this function is usually
-     * needed only when a window is reused.
-     * @deprecated since 5.62, use setNewStartupId(QWindow *) instead
-     * Note: if all you have is a QWidget*, you might need to call
-     * setAttribute(Qt::WA_NativeWindow, true); before calling window()->windowHandle().
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 62, "Use KStartupInfo::setNewStartupId(QWindow*)")
-    static void setNewStartupId(QWidget *window, const QByteArray &startup_id);
-#endif
-
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 102)
     /**
      * If your application shows temporarily some window during its startup,
@@ -177,20 +161,7 @@ public:
      *
      */
     explicit KStartupInfo(int flags, QObject *parent = nullptr);
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    /**
-     * Creates an instance that will receive the startup notifications.
-     *
-     * @param clean_on_cantdetect if true, and a new unknown window appears,
-     *  removes all notification for applications that are not compliant
-     *  with the app startup protocol
-     * @param parent the parent of this QObject (can be @c nullptr for no parent)
-     *
-     * @deprecated since 5.0
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KStartupInfo(int, QObject *)")
-    explicit KStartupInfo(bool clean_on_cantdetect, QObject *parent = nullptr);
-#endif
+
     ~KStartupInfo() override;
     /**
      * Sends given notification data about started application
@@ -205,20 +176,6 @@ public:
      * @see KStartupInfoData
      */
     static bool sendStartup(const KStartupInfoId &id, const KStartupInfoData &data);
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 18)
-    /**
-     * Like sendStartup , uses dpy instead of qt_x11display() for sending the info.
-     * @param dpy the display of the application. Note that the name field
-     * in data is required.
-     * @param id the id of the application
-     * @param data the application's data
-     * @return true if successful, false otherwise
-     * @deprecated since 5.18 use sendStartupXcb
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 18, "Use KStartupInfo::sendStartupXcb(xcb_connection_t *, int, const KStartupInfoId &, const KStartupInfoData &)")
-    static bool sendStartupX(Display *dpy, const KStartupInfoId &id, const KStartupInfoData &data);
-#endif
 
     /**
      * Like sendStartup , uses @p conn instead of QX11Info::connection() for sending the info.
@@ -244,19 +201,6 @@ public:
      */
     static bool sendChange(const KStartupInfoId &id, const KStartupInfoData &data);
 
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 18)
-    /**
-     * Like sendChange , uses dpy instead of qt_x11display() for sending the info.
-     * @param dpy the display of the application.
-     * @param id the id of the application
-     * @param data the application's data
-     * @return true if successful, false otherwise
-     * @deprecated since 5.18 use sendChangeXcb
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 18, "Use KStartupInfo::sendChangeXcb(xcb_connection_t *, int, const KStartupInfoId &, const KStartupInfoData &)")
-    static bool sendChangeX(Display *dpy, const KStartupInfoId &id, const KStartupInfoData &data);
-#endif
-
     /**
      * Like sendChange , uses @p conn instead of QX11Info::connection() for sending the info.
      * @param conn the xcb connection of the application.
@@ -274,18 +218,6 @@ public:
      * @return true if successful, false otherwise
      */
     static bool sendFinish(const KStartupInfoId &id);
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 18)
-    /**
-     * Like sendFinish , uses dpy instead of qt_x11display() for sending the info.
-     * @param dpy the display of the application.
-     * @param id the id of the application
-     * @return true if successful, false otherwise
-     * @deprecated since 5.18 use sendFinishXcb
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 18, "Use KStartupInfo::sendFinishXcb(xcb_connection_t *, int, const KStartupInfoId &)")
-    static bool sendFinishX(Display *dpy, const KStartupInfoId &id);
-#endif
 
     /**
      * Like sendFinish , uses @p conn instead of QX11Info::connection() for sending the info.
@@ -305,19 +237,6 @@ public:
      * @return true if successful, false otherwise
      */
     static bool sendFinish(const KStartupInfoId &id, const KStartupInfoData &data);
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 18)
-    /**
-     * Like sendFinish , uses dpy instead of qt_x11display() for sending the info.
-     * @param dpy the display of the application.
-     * @param id the id of the application
-     * @param data the application's data
-     * @return true if successful, false otherwise
-     * @deprecated since 5.18 use sendFinishXcb
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 18, "Use KStartupInfo::sendFinishXcb(xcb_connection_t *, int, const KStartupInfoId &, const KStartupInfoData &)")
-    static bool sendFinishX(Display *dpy, const KStartupInfoId &id, const KStartupInfoData &data);
-#endif
 
     /**
      * Like sendFinish , uses @p conn instead of QX11Info::connection() for sending the info.
@@ -474,13 +393,6 @@ public:
      * @return true if this object doesn't represent a valid notification identification
      */
     bool isNull() const;
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 0, "Use KStartupInfoId::isNull()")
-    bool none() const
-    {
-        return isNull();
-    }
-#endif
 
     /**
      * Initializes this object with the given identification ( which may be also "0"
@@ -701,26 +613,6 @@ public:
      * @param xinerama the Xinerama screen for the startup notification
      */
     void setXinerama(int xinerama);
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 69)
-    /**
-     * The toplevel window of the application that caused this startup notification,
-     * 0 if unknown.
-     * @deprecated Since 5.69. No known users.
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 69, "Deprecated because not used anywhere. Tell kde-frameworks-devel@kde.org if you disagree")
-    WId launchedBy() const;
-#endif
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 69)
-    /**
-     * Sets the toplevel window of the application that caused this startup notification.
-     * @param window window ID of the toplevel window that is responsible for this startup
-     * @deprecated Since 5.69. No known users of launchedBy().
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 69, "Deprecated because launchedBy() is not used anywhere. Tell kde-frameworks-devel@kde.org if you disagree")
-    void setLaunchedBy(WId window);
-#endif
 
     /**
      * The .desktop file used to initiate this startup notification, or empty. This information

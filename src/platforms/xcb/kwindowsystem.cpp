@@ -337,17 +337,8 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
             }
         }
         if (dirtyProperties || dirtyProperties2) {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
-            Q_EMIT s_q->windowChanged(eventWindow);
-            Q_EMIT s_q->windowChanged(eventWindow, dirtyProperties, dirtyProperties2);
-#endif
             Q_EMIT KX11Extras::self()->windowChanged(eventWindow, dirtyProperties, dirtyProperties2);
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-            unsigned long dirty[2] = {dirtyProperties, dirtyProperties2};
-            Q_EMIT s_q->windowChanged(eventWindow, dirty);
-            Q_EMIT s_q->windowChanged(eventWindow, dirtyProperties);
-#endif
             if ((dirtyProperties & NET::WMStrut) != 0) {
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
                 Q_EMIT s_q->strutChanged();
@@ -519,19 +510,6 @@ void KWindowSystemPrivateX11::connectNotify(const QMetaMethod &signal)
     } else if (signal == QMetaMethod::fromSignal(&KX11Extras::windowChanged)) {
         what = INFO_WINDOWS;
     }
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-    else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, const unsigned long *)>(&KWindowSystem::windowChanged))) {
-        what = INFO_WINDOWS;
-    } else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, uint)>(&KWindowSystem::windowChanged))) {
-        what = INFO_WINDOWS;
-    }
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
-    else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId)>(&KWindowSystem::windowChanged))) {
-        what = INFO_WINDOWS;
-    }
-#endif
 
     init(what);
     NETEventFilter *const s_d = s_d_func();
@@ -756,20 +734,6 @@ void KWindowSystemPrivateX11::demandAttention(WId win, bool set)
 {
     NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMState, NET::Properties2());
     info.setState(set ? NET::DemandsAttention : NET::States(), NET::DemandsAttention);
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-WId KWindowSystemPrivateX11::transientFor(WId win)
-{
-    KWindowInfo info(win, NET::Properties(), NET::WM2TransientFor);
-    return info.transientFor();
-}
-
-WId KWindowSystemPrivateX11::groupLeader(WId win)
-{
-    KWindowInfo info(win, NET::Properties(), NET::WM2GroupLeader);
-    return info.groupLeader();
 }
 #endif
 

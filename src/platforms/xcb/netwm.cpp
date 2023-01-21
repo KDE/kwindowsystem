@@ -1659,26 +1659,6 @@ NET::Properties NETRootInfo::event(xcb_generic_event_t *ev)
     return props;
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-void NETRootInfo::event(xcb_generic_event_t *ev, unsigned long *properties, int properties_size)
-{
-    unsigned long props[PROPERTIES_SIZE] = {0, 0, 0, 0, 0};
-    assert(PROPERTIES_SIZE == 5); // add elements above
-    NET::Properties p;
-    NET::Properties2 p2;
-    event(ev, &p, &p2);
-    props[PROTOCOLS] = p;
-    props[PROTOCOLS2] = p2;
-
-    if (properties_size > PROPERTIES_SIZE) {
-        properties_size = PROPERTIES_SIZE;
-    }
-    for (int i = 0; i < properties_size; ++i) {
-        properties[i] = props[i];
-    }
-}
-#endif
-
 void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties, NET::Properties2 *properties2)
 {
     NET::Properties dirty;
@@ -2579,70 +2559,6 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection,
 
     update(p->properties, p->properties2);
 }
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-NETWinInfo::NETWinInfo(xcb_connection_t *connection, xcb_window_t window, xcb_window_t rootWindow, NET::Properties properties, Role role)
-{
-#ifdef NETWMDEBUG
-    fprintf(stderr, "NETWinInfo::NETWinInfo: constructing object with role '%s'\n", (role == WindowManager) ? "WindowManager" : "Client");
-#endif
-
-    p = new NETWinInfoPrivate;
-    p->ref = 1;
-    p->atoms = atomsForConnection(connection);
-
-    p->conn = connection;
-    p->window = window;
-    p->root = rootWindow;
-    p->mapping_state = Withdrawn;
-    p->mapping_state_dirty = true;
-    p->state = NET::States();
-    p->types[0] = Unknown;
-    p->name = (char *)nullptr;
-    p->visible_name = (char *)nullptr;
-    p->icon_name = (char *)nullptr;
-    p->visible_icon_name = (char *)nullptr;
-    p->desktop = p->pid = 0;
-    p->handled_icons = false;
-    p->user_time = -1U;
-    p->startup_id = nullptr;
-    p->transient_for = XCB_NONE;
-    p->opacity = 0xffffffffU;
-    p->window_group = XCB_NONE;
-    p->icon_pixmap = XCB_PIXMAP_NONE;
-    p->icon_mask = XCB_PIXMAP_NONE;
-    p->allowed_actions = NET::Actions();
-    p->has_net_support = false;
-    p->class_class = (char *)nullptr;
-    p->class_name = (char *)nullptr;
-    p->window_role = (char *)nullptr;
-    p->client_machine = (char *)nullptr;
-    p->icon_sizes = nullptr;
-    p->activities = (char *)nullptr;
-    p->desktop_file = nullptr;
-    p->gtk_application_id = nullptr;
-    p->appmenu_object_path = nullptr;
-    p->appmenu_service_name = nullptr;
-    p->blockCompositing = false;
-    p->urgency = false;
-    p->input = true;
-    p->initialMappingState = NET::Withdrawn;
-    p->protocols = NET::NoProtocol;
-
-    // p->strut.left = p->strut.right = p->strut.top = p->strut.bottom = 0;
-    // p->frame_strut.left = p->frame_strut.right = p->frame_strut.top =
-    // p->frame_strut.bottom = 0;
-
-    p->properties = properties;
-    p->properties2 = NET::Properties2();
-
-    p->icon_count = 0;
-
-    p->role = role;
-
-    update(p->properties);
-}
-#endif
 
 NETWinInfo::NETWinInfo(const NETWinInfo &wininfo)
 {
@@ -3877,24 +3793,6 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
         *properties2 = dirty2;
     }
 }
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-void NETWinInfo::event(xcb_generic_event_t *ev, unsigned long *properties, int properties_size)
-{
-    NET::Properties p;
-    NET::Properties2 p2;
-    event(ev, &p, &p2);
-    unsigned long props[PROPERTIES_SIZE] = {p, p2};
-    assert(PROPERTIES_SIZE == 2); // add elements above
-
-    if (properties_size > PROPERTIES_SIZE) {
-        properties_size = PROPERTIES_SIZE;
-    }
-    for (int i = 0; i < properties_size; ++i) {
-        properties[i] = props[i];
-    }
-}
-#endif
 
 void NETWinInfo::updateWMState()
 {

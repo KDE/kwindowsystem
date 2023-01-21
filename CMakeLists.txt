@@ -31,16 +31,6 @@ set(EXCLUDE_DEPRECATED_BEFORE_AND_AT 0 CACHE STRING "Control the range of deprec
 option(BUILD_QCH "Build API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)" OFF)
 add_feature_info(QCH ${BUILD_QCH} "API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)")
 
-# TODO KF6: remove
-option(KWINDOWSYSTEM_NO_WIDGETS "Disable deprecated API including QWidget usage, so that KWindowSystem does not link to QtWidgets. Warning: this is binary and source incompatible.")
-if (KWINDOWSYSTEM_NO_WIDGETS)
-    # ensure EXCLUDE_DEPRECATED_BEFORE_AND_AT is at least at the version where all QWidgets API is deprecated
-    if (NOT EXCLUDE_DEPRECATED_BEFORE_AND_AT STREQUAL "CURRENT" AND
-        EXCLUDE_DEPRECATED_BEFORE_AND_AT VERSION_LESS "5.62.0")
-        set(EXCLUDE_DEPRECATED_BEFORE_AND_AT "5.62.0")
-    endif()
-endif()
-
 ecm_setup_version(PROJECT VARIABLE_PREFIX KWINDOWSYSTEM
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kwindowsystem_version.h"
                         PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF6WindowSystemConfigVersion.cmake"

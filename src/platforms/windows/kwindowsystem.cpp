@@ -347,10 +347,6 @@ void KWindowSystemPrivate::windowFlash(WId wid)
 
 void KWindowSystemPrivate::windowStateChanged(WId wid)
 {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
-    Q_EMIT KWindowSystem::self()->windowChanged(wid);
-#endif
-
     Q_EMIT KWindowSystem::self()->windowChanged(wid, NET::Properties{}, NET::Properties2{});
 }
 
@@ -683,18 +679,6 @@ void KWindowSystem::connectNotify(const QMetaMethod &method)
     } else if (method == QMetaMethod::fromSignal(qOverload<WId, NET::Properties, NET::Properties2>(&KWindowSystem::windowChanged))) {
         what = INFO_WINDOWS;
     }
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-    else if (method == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, const ulong *)>(&KWindowSystem::windowChanged))) {
-        what = INFO_WINDOWS;
-    } else if (method == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, uint)>(&KWindowSystem::windowChanged))) {
-        what = INFO_WINDOWS;
-    }
-#endif
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
-    else if (method == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId)>(&KWindowSystem::windowChanged))) {
-        what = INFO_WINDOWS;
-    }
-#endif
 
     init(what);
     QObject::connectNotify(method);
@@ -747,14 +731,6 @@ void KWindowSystem::setType(WId win, NET::WindowType windowType)
     // TODO
     qDebug() << "setType( WId win, NET::WindowType windowType ) isn't yet implemented!";
 }
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-KWindowInfo KWindowSystem::windowInfo(WId win, unsigned long properties, unsigned long properties2)
-{
-    KWindowSystem::init(INFO_WINDOWS);
-    return KWindowInfo(win, properties, properties2);
-}
-#endif
 
 bool KWindowSystem::hasWId(WId w)
 {

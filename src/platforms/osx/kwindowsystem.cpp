@@ -332,18 +332,6 @@ bool KWindowSystem::hasWId(WId id)
     return d->windows.contains(id);
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-KWindowInfo KWindowSystem::windowInfo(WId win, unsigned long properties, unsigned long properties2)
-{
-    KWindowSystemPrivate *d = KWindowSystem::s_d_func();
-    if (d->windows.contains(win)) {
-        return d->windows[win];
-    } else {
-        return KWindowInfo(win, properties, properties2);
-    }
-}
-#endif
-
 QList<WId> KWindowSystem::stackingOrder()
 {
     // TODO

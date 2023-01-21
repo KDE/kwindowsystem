@@ -32,22 +32,9 @@ private Q_SLOTS:
     void testSlideWindow_data();
     void testSlideWindow();
     void testSlideWindowRemove();
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-    void testPresentWindows_data();
-    void testPresentWindows();
-    void testPresentWindowsEmptyGroup();
-    void testPresentWindowsGroup_data();
-    void testPresentWindowsGroup();
-    void testHighlightWindows_data();
-    void testHighlightWindows();
-    void testHighlightWindowsEmpty();
-#endif
     void testBlur_data();
     void testBlur();
     void testBlurDisable();
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
-    void testMarkAsDashboard();
-#endif
     void testEffectAvailable_data();
     void testEffectAvailable();
 
@@ -59,11 +46,6 @@ private:
     void performAtomIsRemoveTest(xcb_window_t window, xcb_atom_t atom);
     void getHelperAtom(const QByteArray &name, xcb_atom_t *atom) const;
     xcb_atom_t m_slide;
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-    xcb_atom_t m_presentWindows;
-    xcb_atom_t m_presentWindowsGroup;
-    xcb_atom_t m_highlightWindows;
-#endif
     xcb_atom_t m_thumbnails;
     xcb_atom_t m_blur;
     std::unique_ptr<QWindow> m_window;
@@ -79,11 +61,6 @@ void KWindowEffectsTest::initTestCase()
     QVERIFY(m_widget->effectiveWinId() != XCB_WINDOW_NONE);
 
     getHelperAtom(QByteArrayLiteral("_KDE_SLIDE"), &m_slide);
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-    getHelperAtom(QByteArrayLiteral("_KDE_PRESENT_WINDOWS_DESKTOP"), &m_presentWindows);
-    getHelperAtom(QByteArrayLiteral("_KDE_PRESENT_WINDOWS_GROUP"), &m_presentWindowsGroup);
-    getHelperAtom(QByteArrayLiteral("_KDE_WINDOW_HIGHLIGHT"), &m_highlightWindows);
-#endif
     getHelperAtom(QByteArrayLiteral("_KDE_WINDOW_PREVIEW"), &m_thumbnails);
     getHelperAtom(QByteArrayLiteral("_KDE_NET_WM_BLUR_BEHIND_REGION"), &m_blur);
 }
@@ -174,109 +151,6 @@ int32_t KWindowEffectsTest::locationToValue(KWindowEffects::SlideFromLocation lo
     }
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-void KWindowEffectsTest::testPresentWindows_data()
-{
-    QTest::addColumn<int>("desktop");
-
-    QTest::newRow("all desktops") << -1;
-    QTest::newRow("1") << 1;
-    QTest::newRow("2") << 2;
-    QTest::newRow("3") << 3;
-    QTest::newRow("4") << 4;
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-void KWindowEffectsTest::testPresentWindows()
-{
-    QFETCH(int, desktop);
-
-    KWindowEffects::presentWindows(m_window->winId(), desktop);
-
-    xcb_connection_t *c = QX11Info::connection();
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(), m_presentWindows, m_presentWindows, 0, 100);
-    UniqueCPointer<xcb_get_property_reply_t> reply(xcb_get_property_reply(c, cookie, nullptr));
-    QVERIFY(reply);
-    QCOMPARE(reply->format, uint8_t(32));
-    QCOMPARE(reply->value_len, uint32_t(1));
-    QCOMPARE(reply->type, m_presentWindows);
-    int32_t *data = static_cast<int32_t *>(xcb_get_property_value(reply.get()));
-    QCOMPARE(data[0], desktop);
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-void KWindowEffectsTest::testPresentWindowsEmptyGroup()
-{
-    KWindowEffects::presentWindows(m_window->winId(), QList<WId>());
-
-    xcb_connection_t *c = QX11Info::connection();
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(), m_presentWindowsGroup, m_presentWindowsGroup, 0, 100);
-    UniqueCPointer<xcb_get_property_reply_t> reply(xcb_get_property_reply(c, cookie, nullptr));
-    QVERIFY(reply);
-    QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_NONE));
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-void KWindowEffectsTest::testPresentWindowsGroup_data()
-{
-    QTest::addColumn<QList<WId>>("windows");
-
-    QTest::newRow("one") << (QList<WId>() << m_window->winId());
-    QTest::newRow("two") << (QList<WId>() << m_window->winId() << m_widget->effectiveWinId());
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-void KWindowEffectsTest::testPresentWindowsGroup()
-{
-    QFETCH(QList<WId>, windows);
-    KWindowEffects::presentWindows(m_window->winId(), windows);
-    performWindowsOnPropertyTest(m_presentWindowsGroup, windows);
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-void KWindowEffectsTest::testHighlightWindows_data()
-{
-    QTest::addColumn<QList<WId>>("windows");
-
-    QTest::newRow("one") << (QList<WId>() << m_window->winId());
-    QTest::newRow("two") << (QList<WId>() << m_window->winId() << m_widget->effectiveWinId());
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-void KWindowEffectsTest::testHighlightWindows()
-{
-    QFETCH(QList<WId>, windows);
-    KWindowEffects::highlightWindows(m_window->winId(), windows);
-    performWindowsOnPropertyTest(m_highlightWindows, windows);
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-void KWindowEffectsTest::testHighlightWindowsEmpty()
-{
-    // ensure it's empty
-    KWindowEffects::highlightWindows(m_window->winId(), QList<WId>());
-    performAtomIsRemoveTest(m_window->winId(), m_highlightWindows);
-
-    // install some windows on the atom
-    QList<WId> windows;
-    windows.append(m_window->winId());
-    windows.append(m_widget->effectiveWinId());
-    KWindowEffects::highlightWindows(m_window->winId(), windows);
-    performWindowsOnPropertyTest(m_highlightWindows, windows);
-
-    // and remove it again
-    KWindowEffects::highlightWindows(m_window->winId(), QList<WId>());
-    performAtomIsRemoveTest(m_window->winId(), m_highlightWindows);
-}
-#endif
-
 void KWindowEffectsTest::performWindowsOnPropertyTest(xcb_atom_t atom, const QList<WId> &windows)
 {
     xcb_connection_t *c = QX11Info::connection();
@@ -345,50 +219,13 @@ void KWindowEffectsTest::testBlurDisable()
     performAtomIsRemoveTest(m_window->winId(), m_blur);
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
-void KWindowEffectsTest::testMarkAsDashboard()
-{
-    const QByteArray className = QByteArrayLiteral("dashboard");
-    // should not yet be set
-    xcb_connection_t *c = QX11Info::connection();
-    xcb_get_property_cookie_t cookie = xcb_get_property_unchecked(c, false, m_window->winId(), XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 0, 100);
-    UniqueCPointer<xcb_get_property_reply_t> reply(xcb_get_property_reply(c, cookie, nullptr));
-    QVERIFY(reply);
-    QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_STRING));
-    QCOMPARE(reply->format, uint8_t(8));
-    char *data = static_cast<char *>(xcb_get_property_value(reply.get()));
-    QVERIFY(QByteArray(data) != className);
-
-    // now mark as dashboard
-    KWindowEffects::markAsDashboard(m_window->winId());
-    cookie = xcb_get_property_unchecked(c, false, m_window->winId(), XCB_ATOM_WM_CLASS, XCB_ATOM_STRING, 0, 100);
-    reply.reset(xcb_get_property_reply(c, cookie, nullptr));
-    QVERIFY(reply);
-    QCOMPARE(reply->type, xcb_atom_t(XCB_ATOM_STRING));
-    QCOMPARE(reply->format, uint8_t(8));
-    QCOMPARE(reply->value_len, uint32_t(19));
-    data = static_cast<char *>(xcb_get_property_value(reply.get()));
-    QCOMPARE(QByteArray(data), className);
-    data = data + 10;
-    QCOMPARE(QByteArray(data), className);
-}
-#endif
-
 void KWindowEffectsTest::testEffectAvailable_data()
 {
     QTest::addColumn<KWindowEffects::Effect>("effect");
     QTest::addColumn<QByteArray>("propertyName");
 
     QTest::newRow("slide") << KWindowEffects::Slide << QByteArrayLiteral("_KDE_SLIDE");
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
-    QTest::newRow("PresentWindows") << KWindowEffects::PresentWindows << QByteArrayLiteral("_KDE_PRESENT_WINDOWS_DESKTOP");
-    QTest::newRow("PresentWindowsGroup") << KWindowEffects::PresentWindowsGroup << QByteArrayLiteral("_KDE_PRESENT_WINDOWS_GROUP");
-    QTest::newRow("HighlightWindows") << KWindowEffects::HighlightWindows << QByteArrayLiteral("_KDE_WINDOW_HIGHLIGHT");
-#endif
     QTest::newRow("BlurBehind") << KWindowEffects::BlurBehind << QByteArrayLiteral("_KDE_NET_WM_BLUR_BEHIND_REGION");
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
-    QTest::newRow("Dashboard") << KWindowEffects::Dashboard << QByteArrayLiteral("_WM_EFFECT_KDE_DASHBOARD");
-#endif
     QTest::newRow("BackgroundContrast") << KWindowEffects::BackgroundContrast << QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_CONTRAST_REGION");
 }
 

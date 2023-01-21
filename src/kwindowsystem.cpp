@@ -16,9 +16,6 @@
 #include <QPixmap>
 #include <QPluginLoader>
 #include <QTimer>
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 62)
-#include <QWidget>
-#endif
 #include <QWindow>
 #if KWINDOWSYSTEM_HAVE_X11
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -150,20 +147,6 @@ void KWindowSystemPrivateDummy::setOnActivities(WId win, const QStringList &acti
     Q_UNUSED(win)
     Q_UNUSED(activities)
 }
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-WId KWindowSystemPrivateDummy::transientFor(WId window)
-{
-    Q_UNUSED(window)
-    return 0;
-}
-
-WId KWindowSystemPrivateDummy::groupLeader(WId window)
-{
-    Q_UNUSED(window)
-    return 0;
-}
-#endif
 
 QPixmap KWindowSystemPrivateDummy::icon(WId win, int width, int height, bool scale, int flags)
 {
@@ -389,13 +372,6 @@ QList<WId> KWindowSystem::windows()
 }
 #endif
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-KWindowInfo KWindowSystem::windowInfo(WId win, NET::Properties properties, NET::Properties2 properties2)
-{
-    return KWindowInfo(win, properties, properties2);
-}
-#endif
-
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 bool KWindowSystem::hasWId(WId w)
 {
@@ -497,24 +473,6 @@ void KWindowSystem::demandAttention(WId win, bool set)
 }
 #endif
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-WId KWindowSystem::transientFor(WId win)
-{
-    Q_D(KWindowSystem);
-    return d->transientFor(win);
-}
-
-void KWindowSystem::setMainWindow(QWidget *subWidget, WId mainWindowId)
-{
-    // Set the WA_NativeWindow attribute to force the creation of the QWindow.
-    // Without this QWidget::windowHandle() returns 0.
-    subWidget->setAttribute(Qt::WA_NativeWindow, true);
-    QWindow *subWindow = subWidget->windowHandle();
-    Q_ASSERT(subWindow);
-    setMainWindow(subWindow, mainWindowId);
-}
-#endif
-
 void KWindowSystem::setMainWindow(QWindow *subWindow, WId mainWindowId)
 {
     QWindow *mainWindow = QWindow::fromWinId(mainWindowId);
@@ -525,14 +483,6 @@ void KWindowSystem::setMainWindow(QWindow *subWindow, WId mainWindowId)
         connect(subWindow, &QObject::destroyed, mainWindow, &QObject::deleteLater);
     }
 }
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-WId KWindowSystem::groupLeader(WId win)
-{
-    Q_D(KWindowSystem);
-    return d->groupLeader(win);
-}
-#endif
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale)
@@ -613,22 +563,6 @@ void KWindowSystem::unminimizeWindow(WId win)
 {
     Q_D(KWindowSystem);
     d->unminimizeWindow(win);
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-void KWindowSystem::minimizeWindow(WId win, bool animation)
-{
-    Q_UNUSED(animation)
-    minimizeWindow(win);
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
-void KWindowSystem::unminimizeWindow(WId win, bool animation)
-{
-    Q_UNUSED(animation)
-    unminimizeWindow(win);
 }
 #endif
 

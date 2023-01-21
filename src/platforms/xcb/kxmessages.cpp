@@ -173,12 +173,6 @@ public:
     }
 };
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
-static void send_message_internal(WId w_P, const QString &msg_P, long mask_P, Display *disp, Atom atom1_P, Atom atom2_P, Window handle_P);
-// for broadcasting
-static const long BROADCAST_MASK = PropertyChangeMask;
-// CHECKME
-#endif
 static void
 send_message_internal(xcb_window_t w, const QString &msg, xcb_connection_t *c, xcb_atom_t leadingMessage, xcb_atom_t followingMessage, xcb_window_t handle);
 
@@ -225,30 +219,6 @@ void KXMessages::broadcastMessage(const char *msg_type_P, const QString &message
     send_message_internal(root, message_P, d->connection, a1, a2, d->handle->winId());
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
-bool KXMessages::broadcastMessageX(Display *disp, const char *msg_type_P, const QString &message_P, int screen_P)
-{
-    if (disp == nullptr) {
-        return false;
-    }
-    Atom a2 = XInternAtom(disp, msg_type_P, false);
-    Atom a1 = XInternAtom(disp, QByteArray(QByteArray(msg_type_P) + "_BEGIN").constData(), false);
-    Window root = screen_P == -1 ? DefaultRootWindow(disp) : RootWindow(disp, screen_P);
-    Window win = XCreateSimpleWindow(disp,
-                                     root,
-                                     0,
-                                     0,
-                                     1,
-                                     1,
-                                     0,
-                                     BlackPixel(disp, screen_P == -1 ? DefaultScreen(disp) : screen_P),
-                                     BlackPixel(disp, screen_P == -1 ? DefaultScreen(disp) : screen_P));
-    send_message_internal(root, message_P, BROADCAST_MASK, disp, a1, a2, win);
-    XDestroyWindow(disp, win);
-    return true;
-}
-#endif
-
 bool KXMessages::broadcastMessageX(xcb_connection_t *c, const char *msg_type_P, const QString &message, int screenNumber)
 {
     if (!c) {
@@ -268,60 +238,6 @@ bool KXMessages::broadcastMessageX(xcb_connection_t *c, const char *msg_type_P, 
     xcb_destroy_window(c, win);
     return true;
 }
-
-#if 0 // currently unused
-void KXMessages::sendMessage(WId w_P, const char *msg_type_P, const QString &message_P)
-{
-    Atom a2 = XInternAtom(QX11Info::display(), msg_type_P, false);
-    Atom a1 = XInternAtom(QX11Info::display(), QByteArray(QByteArray(msg_type_P) + "_BEGIN").constData(), false);
-    send_message_internal(w_P, message_P, 0, QX11Info::display(), a1, a2, d->handle->winId());
-}
-
-bool KXMessages::sendMessageX(Display *disp, WId w_P, const char *msg_type_P,
-                              const QString &message_P)
-{
-    if (disp == nullptr) {
-        return false;
-    }
-    Atom a2 = XInternAtom(disp, msg_type_P, false);
-    Atom a1 = XInternAtom(disp, QByteArray(QByteArray(msg_type_P) + "_BEGIN").constData(), false);
-    Window win = XCreateSimpleWindow(disp, DefaultRootWindow(disp), 0, 0, 1, 1,
-                                     0, BlackPixelOfScreen(DefaultScreenOfDisplay(disp)),
-                                     BlackPixelOfScreen(DefaultScreenOfDisplay(disp)));
-    send_message_internal(w_P, message_P, 0, disp, a1, a2, win);
-    XDestroyWindow(disp, win);
-    return true;
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 18)
-static void send_message_internal(WId w_P, const QString &msg_P, long mask_P, Display *disp, Atom atom1_P, Atom atom2_P, Window handle_P)
-{
-    // qDebug() << "send_message_internal" << w_P << msg_P << mask_P << atom1_P << atom2_P << handle_P;
-    unsigned int pos = 0;
-    QByteArray msg = msg_P.toUtf8();
-    const size_t len = msg.size();
-    XEvent e;
-    e.xclient.type = ClientMessage;
-    e.xclient.message_type = atom1_P; // leading message
-    e.xclient.display = disp;
-    e.xclient.window = handle_P;
-    e.xclient.format = 8;
-    do {
-        unsigned int i;
-        for (i = 0; i < 20 && i + pos < len; ++i) {
-            e.xclient.data.b[i] = msg[i + pos];
-        }
-        for (; i < 20; ++i) {
-            e.xclient.data.b[i] = 0;
-        }
-        XSendEvent(disp, w_P, false, mask_P, &e);
-        e.xclient.message_type = atom2_P; // following messages
-        pos += i;
-    } while (pos <= len);
-    XFlush(disp);
-}
-#endif
 
 static void
 send_message_internal(xcb_window_t w, const QString &msg_P, xcb_connection_t *c, xcb_atom_t leadingMessage, xcb_atom_t followingMessage, xcb_window_t handle)

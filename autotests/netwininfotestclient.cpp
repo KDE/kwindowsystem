@@ -59,9 +59,6 @@ private Q_SLOTS:
     void testPid();
     void testName();
     void testIconName();
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    void testStrut();
-#endif
     void testExtendedStrut();
     void testIconGeometry();
     void testWindowType_data();
@@ -433,50 +430,6 @@ void NetWinInfoTestClient::testName()
     ATOM(_NET_WM_NAME)
     performNameTest(atom, &NETWinInfo::name, &NETWinInfo::setName, NET::WMName);
 }
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-void NetWinInfoTestClient::testStrut()
-{
-    QVERIFY(connection());
-    ATOM(_NET_WM_STRUT)
-    INFO
-
-    NETStrut extents = info.strut();
-    QCOMPARE(extents.bottom, 0);
-    QCOMPARE(extents.left, 0);
-    QCOMPARE(extents.right, 0);
-    QCOMPARE(extents.top, 0);
-
-    NETStrut newExtents;
-    newExtents.bottom = 10;
-    newExtents.left   = 20;
-    newExtents.right  = 30;
-    newExtents.top    = 40;
-    info.setStrut(newExtents);
-    extents = info.strut();
-    QCOMPARE(extents.bottom, newExtents.bottom);
-    QCOMPARE(extents.left,   newExtents.left);
-    QCOMPARE(extents.right,  newExtents.right);
-    QCOMPARE(extents.top,    newExtents.top);
-
-    // compare with the X property
-    QVERIFY(atom != XCB_ATOM_NONE);
-    GETPROP(XCB_ATOM_CARDINAL, 4, 32)
-    uint32_t *data = reinterpret_cast<uint32_t *>(xcb_get_property_value(reply.get()));
-    QCOMPARE(data[0], uint32_t(newExtents.left));
-    QCOMPARE(data[1], uint32_t(newExtents.right));
-    QCOMPARE(data[2], uint32_t(newExtents.top));
-    QCOMPARE(data[3], uint32_t(newExtents.bottom));
-
-    // and wait for our event
-    waitForPropertyChange(&info, atom, NET::WMStrut);
-    extents = info.strut();
-    QCOMPARE(extents.bottom, newExtents.bottom);
-    QCOMPARE(extents.left,   newExtents.left);
-    QCOMPARE(extents.right,  newExtents.right);
-    QCOMPARE(extents.top,    newExtents.top);
-}
-#endif
 
 void NetWinInfoTestClient::testExtendedStrut()
 {

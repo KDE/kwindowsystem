@@ -274,16 +274,6 @@ void KWindowSystemX11Test::testWindowTitleChanged()
     QSignalSpy propertiesChangedSpy(KX11Extras::self(), &KX11Extras::windowChanged);
     QVERIFY(propertiesChangedSpy.isValid());
 
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    QSignalSpy propertyChangedSpy(KWindowSystem::self(), qOverload<WId, uint>(&KWindowSystem::windowChanged));
-    QVERIFY(propertyChangedSpy.isValid());
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
-    QSignalSpy windowChangedSpy(KWindowSystem::self(), qOverload<WId>(&KWindowSystem::windowChanged));
-    QVERIFY(windowChangedSpy.isValid());
-#endif
-
     widget.setWindowTitle(QStringLiteral("bar"));
     QX11Info::setAppTime(QX11Info::getTimestamp());
 
@@ -308,43 +298,6 @@ void KWindowSystemX11Test::testWindowTitleChanged()
         counter++;
     }
     QVERIFY(gotWMName);
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 0)
-    gotWMName = false;
-    QCOMPARE(propertyChangedSpy.isEmpty(), false);
-    for (auto it = propertyChangedSpy.constBegin(); it != propertyChangedSpy.constEnd(); ++it) {
-        if ((*it).isEmpty()) {
-            continue;
-        }
-        if ((*it).at(0).toULongLong() == widget.winId()) {
-            unsigned int props = (*it).at(1).value<unsigned int>();
-            if (props & NET::WMName) {
-                gotWMName = true;
-            }
-        }
-        if (gotWMName) {
-            break;
-        }
-    }
-    QVERIFY(gotWMName);
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 80)
-    QCOMPARE(windowChangedSpy.isEmpty(), false);
-    bool gotWindow = false;
-    for (auto it = windowChangedSpy.constBegin(); it != windowChangedSpy.constEnd(); ++it) {
-        if ((*it).isEmpty()) {
-            continue;
-        }
-        if ((*it).at(0).toULongLong() == widget.winId()) {
-            gotWindow = true;
-        }
-        if (gotWindow) {
-            break;
-        }
-    }
-    QVERIFY(gotWindow);
-#endif
 
     // now let's verify the info in KWindowInfo
     // we wait a little bit more as openbox is updating the visible name
