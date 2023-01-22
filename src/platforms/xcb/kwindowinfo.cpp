@@ -12,11 +12,7 @@
 #include "kx11extras.h"
 
 #include <QDebug>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <private/qtx11extras_p.h>
-#else
-#include <QX11Info>
-#endif
 
 #include <X11/Xatom.h>
 #include <kxerrorhandler_p.h>

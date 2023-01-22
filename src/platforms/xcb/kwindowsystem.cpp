@@ -23,11 +23,7 @@
 #include <QMetaMethod>
 #include <QScreen>
 #include <QWindow>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <private/qtx11extras_p.h>
-#else
-#include <QX11Info>
-#endif
 
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
@@ -184,11 +180,7 @@ void NETEventFilter::activate()
     updateStackingOrder();
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 bool NETEventFilter::nativeEventFilter(const QByteArray &eventType, void *message, qintptr *)
-#else
-bool NETEventFilter::nativeEventFilter(const QByteArray &eventType, void *message, long *)
-#endif
 {
     if (eventType != "xcb_generic_event_t") {
         // only interested in XCB events of course

@@ -17,11 +17,7 @@
 #include <QGuiApplication>
 #include <QRect>
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <private/qtx11extras_p.h>
-#else
-#include <QX11Info>
-#endif
 
 // QPoint and QSize all have handy / operators which are useful for scaling, positions and sizes for high DPI support
 // QRect does not, so we create one for internal purposes within this class

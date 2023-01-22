@@ -16,11 +16,7 @@
 
 #include <QMatrix4x4>
 #include <QWindow>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <private/qtx11extras_p.h>
-#else
-#include <QX11Info>
-#endif
 
 #include <xcb/xcb.h>
 

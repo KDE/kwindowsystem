@@ -1,10 +1,10 @@
 @PACKAGE_INIT@
 
 include(CMakeFindDependencyMacro)
-find_dependency(Qt@QT_MAJOR_VERSION@Gui @REQUIRED_QT_VERSION@)
+find_dependency(Qt6Gui @REQUIRED_QT_VERSION@)
 
 if(NOT @KWINDOWSYSTEM_NO_WIDGETS@)
-    find_dependency(Qt@QT_MAJOR_VERSION@Widgets @REQUIRED_QT_VERSION@)
+    find_dependency(Qt6Widgets @REQUIRED_QT_VERSION@)
 endif()
 
 if(@X11_FOUND@)
@@ -12,16 +12,7 @@ if(@X11_FOUND@)
 endif()
 
 if(NOT @BUILD_SHARED_LIBS@)
-    if(@WIN32@)
-        find_dependency(Qt5WinExtras @REQUIRED_QT_VERSION@)
-    endif()
-
     if(@X11_FOUND@)
-        if (NOT TARGET Qt6::Gui)
-            find_dependency(Qt5X11Extras @REQUIRED_QT_VERSION@)
-        else()
-            # qtx11extras_p.h is in Qt6Gui, which is already a dependency
-        endif()
         find_dependency(XCB)
     endif()
 endif()

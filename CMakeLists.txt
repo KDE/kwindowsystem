@@ -38,18 +38,14 @@ ecm_setup_version(PROJECT VARIABLE_PREFIX KWINDOWSYSTEM
 
 # Dependencies
 set(REQUIRED_QT_VERSION 6.4.0)
-find_package(Qt${QT_MAJOR_VERSION}Gui ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
+find_package(Qt6Gui ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
 if(NOT KWINDOWSYSTEM_NO_WIDGETS)
-    find_package(Qt${QT_MAJOR_VERSION}Widgets ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
+    find_package(Qt6Widgets ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
 endif()
 
 if (APPLE)
     cmake_find_frameworks(Carbon)
     cmake_find_frameworks(CoreFoundation)
-endif()
-
-if(WIN32 AND QT_MAJOR_VERSION EQUAL "5")
-   find_package(Qt5WinExtras REQUIRED)
 endif()
 
 if (NOT APPLE)
@@ -61,12 +57,6 @@ set(KWINDOWSYSTEM_HAVE_X11 ${X11_FOUND})
 if(X11_FOUND)
     find_package(XCB COMPONENTS REQUIRED XCB KEYSYMS RES)
     set(KWINDOWSYSTEM_HAVE_XFIXES ${X11_Xfixes_FOUND})
-
-    if (QT_MAJOR_VERSION STREQUAL "5")
-        find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED X11Extras)
-    elseif (QT_MAJOR_VERSION STREQUAL "6")
-        find_package(Qt${QT_MAJOR_VERSION} ${REQUIRED_QT_VERSION} CONFIG REQUIRED Gui) # qtx11extras_p.h
-    endif()
 endif()
 
 # Subdirectories

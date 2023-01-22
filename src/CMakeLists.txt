@@ -45,13 +45,6 @@ if (KWINDOWSYSTEM_HAVE_X11)
             ${CMAKE_CURRENT_SOURCE_DIR}/platforms/xcb
    )
 
-    if (TARGET Qt5::X11Extras)
-        set(_qt_x11_libs Qt5::X11Extras)
-    elseif (TARGET Qt6::Gui)
-        set(_qt_x11_libs Qt6::GuiPrivate) # qtx11extras_p.h
-    endif()
-
-
    target_link_libraries(KF6WindowSystem
         PUBLIC
             # public because they are used in kkeyserver_x11.h
@@ -60,7 +53,7 @@ if (KWINDOWSYSTEM_HAVE_X11)
             XCB::XCB
             X11::Xfixes
             XCB::KEYSYMS
-            ${_qt_x11_libs}
+            Qt6::GuiPrivate # qtx11extras_p.h
    )
 
    target_sources(KF6WindowSystem PRIVATE
@@ -108,9 +101,6 @@ if (WIN32)
 #                                                 kwindowinfo_win.cpp
    )
    target_link_libraries(KF6WindowSystem PRIVATE ws2_32) # gethostname()
-   if (QT_MAJOR_VERSION EQUAL "5")
-      target_link_libraries(KF6WindowSystem PRIVATE Qt5::WinExtras) # QtWin::fromHICON(), QtWin::toHICON()
-   endif()
 endif ()
 
 ecm_generate_export_header(KF6WindowSystem
@@ -125,10 +115,10 @@ ecm_generate_export_header(KF6WindowSystem
 target_include_directories(KF6WindowSystem INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/KWindowSystem>")
 
 target_link_libraries(KF6WindowSystem
-    PUBLIC Qt${QT_MAJOR_VERSION}::Gui
+    PUBLIC Qt6::Gui
 )
 if(NOT KWINDOWSYSTEM_NO_WIDGETS)
-    target_link_libraries(KF6WindowSystem PUBLIC Qt${QT_MAJOR_VERSION}::Widgets)
+    target_link_libraries(KF6WindowSystem PUBLIC Qt6::Widgets)
 endif()
 
 set_target_properties(KF6WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSION}

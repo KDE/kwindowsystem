@@ -6,11 +6,7 @@
 
 #include "kwindowshadow_p_x11.h"
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <private/qtx11extras_p.h>
-#else
-#include <QX11Info>
-#endif
 
 static const QByteArray s_atomName = QByteArrayLiteral("_KDE_NET_WM_SHADOW");
 
