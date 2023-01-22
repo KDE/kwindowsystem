@@ -610,7 +610,7 @@ void KWindowInfoX11Test::testClientMachine()
                         XCB_ATOM_WM_CLIENT_MACHINE,
                         XCB_ATOM_STRING,
                         8,
-                        newHostName.count(),
+                        newHostName.size(),
                         newHostName.data());
     xcb_flush(QX11Info::connection());
 

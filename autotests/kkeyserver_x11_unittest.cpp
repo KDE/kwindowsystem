@@ -47,18 +47,18 @@ private Q_SLOTS:
         // clang-format off
         // Before adding any testcase below, check what `kcmshell5 keys` records, to make sure it matches
         QTest::newRow("a") << int(Qt::Key_A) << uint(0) << numLock << XK_A;
-        QTest::newRow("CTRL_F1") << int(Qt::ControlModifier|Qt::Key_F1) << KKeyServer::modXCtrl() << numLock << XK_F1;
-        QTest::newRow("CTRL_1") << int(Qt::ControlModifier|Qt::Key_1) << KKeyServer::modXCtrl() << numLock << XK_1;
-        QTest::newRow("CTRL_keypad_1") << int(Qt::ControlModifier|Qt::KeypadModifier|Qt::Key_1) << KKeyServer::modXCtrl() << numLock << XK_KP_1;
-        QTest::newRow("CTRL_keypad_slash") << int(Qt::ControlModifier|Qt::KeypadModifier|Qt::Key_Slash) << KKeyServer::modXCtrl() << numLock << XK_KP_Divide;
-        QTest::newRow("CTRL_SHIFT_keypad_end") << int(Qt::ControlModifier|Qt::ShiftModifier|Qt::KeypadModifier|Qt::Key_End) << (KKeyServer::modXCtrl()|KKeyServer::modXShift()) << numLock << XK_KP_End;
-        QTest::newRow("CTRL_keypad_end_no_numlock") << int(Qt::ControlModifier|Qt::KeypadModifier|Qt::Key_End) << (KKeyServer::modXCtrl()) << uint(0) << XK_KP_End;
-        QTest::newRow("CTRL_ampersand") << int(Qt::ControlModifier|Qt::Key_Ampersand) << KKeyServer::modXCtrl() << uint(XCB_MOD_MASK_SHIFT|numLock) << XK_ampersand;
-        QTest::newRow("ALT_SHIFT_right") << int(Qt::AltModifier|Qt::ShiftModifier|Qt::Key_Right) << (KKeyServer::modXAlt() | KKeyServer::modXShift()) << numLock << XK_Right;
-        QTest::newRow("CTRL_SHIFT_right") << int(Qt::ControlModifier|Qt::ShiftModifier|Qt::Key_Right) << (KKeyServer::modXCtrl() | KKeyServer::modXShift()) << numLock << XK_Right;
-        QTest::newRow("META_SHIFT_print") << int(Qt::MetaModifier|Qt::ShiftModifier|Qt::Key_Print) << (KKeyServer::modXMeta() | KKeyServer::modXShift()) << numLock << XK_Print;
-        QTest::newRow("ALT_Tab") << int(Qt::AltModifier|Qt::Key_Tab) << (KKeyServer::modXAlt()) << numLock << XK_Tab;
-        QTest::newRow("ALT_Shift_Tab") << int(Qt::AltModifier|Qt::ShiftModifier|Qt::Key_Tab) << (KKeyServer::modXAlt() | KKeyServer::modXShift()) << numLock << XK_Tab;
+        QTest::newRow("CTRL_F1") << QKeyCombination(Qt::ControlModifier|Qt::Key_F1).toCombined() << KKeyServer::modXCtrl() << numLock << XK_F1;
+        QTest::newRow("CTRL_1") << QKeyCombination(Qt::ControlModifier|Qt::Key_1).toCombined() << KKeyServer::modXCtrl() << numLock << XK_1;
+        QTest::newRow("CTRL_keypad_1") << QKeyCombination(Qt::ControlModifier|Qt::KeypadModifier|Qt::Key_1).toCombined() << KKeyServer::modXCtrl() << numLock << XK_KP_1;
+        QTest::newRow("CTRL_keypad_slash") << QKeyCombination(Qt::ControlModifier|Qt::KeypadModifier|Qt::Key_Slash).toCombined() << KKeyServer::modXCtrl() << numLock << XK_KP_Divide;
+        QTest::newRow("CTRL_SHIFT_keypad_end") << QKeyCombination(Qt::ControlModifier|Qt::ShiftModifier|Qt::KeypadModifier|Qt::Key_End).toCombined() << (KKeyServer::modXCtrl()|KKeyServer::modXShift()) << numLock << XK_KP_End;
+        QTest::newRow("CTRL_keypad_end_no_numlock") << QKeyCombination(Qt::ControlModifier|Qt::KeypadModifier|Qt::Key_End).toCombined() << (KKeyServer::modXCtrl()) << uint(0) << XK_KP_End;
+        QTest::newRow("CTRL_ampersand") << QKeyCombination(Qt::ControlModifier|Qt::Key_Ampersand).toCombined() << KKeyServer::modXCtrl() << uint(XCB_MOD_MASK_SHIFT|numLock) << XK_ampersand;
+        QTest::newRow("ALT_SHIFT_right") << QKeyCombination(Qt::AltModifier|Qt::ShiftModifier|Qt::Key_Right).toCombined() << (KKeyServer::modXAlt() | KKeyServer::modXShift()) << numLock << XK_Right;
+        QTest::newRow("CTRL_SHIFT_right") << QKeyCombination(Qt::ControlModifier|Qt::ShiftModifier|Qt::Key_Right).toCombined() << (KKeyServer::modXCtrl() | KKeyServer::modXShift()) << numLock << XK_Right;
+        QTest::newRow("META_SHIFT_print") << QKeyCombination(Qt::MetaModifier|Qt::ShiftModifier|Qt::Key_Print).toCombined() << (KKeyServer::modXMeta() | KKeyServer::modXShift()) << numLock << XK_Print;
+        QTest::newRow("ALT_Tab") << QKeyCombination(Qt::AltModifier|Qt::Key_Tab).toCombined() << (KKeyServer::modXAlt()) << numLock << XK_Tab;
+        QTest::newRow("ALT_Shift_Tab") << QKeyCombination(Qt::AltModifier|Qt::ShiftModifier|Qt::Key_Tab).toCombined() << (KKeyServer::modXAlt() | KKeyServer::modXShift()) << numLock << XK_Tab;
         // clang-format on
     }
 
