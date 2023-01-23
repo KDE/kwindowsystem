@@ -54,7 +54,6 @@ private Q_SLOTS:
     void checkStartupTest();
     void createNewStartupIdTest();
     void createNewStartupIdForTimestampTest();
-    void setNewStartupIdTest();
 
 private:
     KStartupInfo m_listener;
@@ -320,18 +319,6 @@ void KStartupInfo_UnitTest::createNewStartupIdForTimestampTest()
     const int index = id.indexOf(QByteArrayLiteral("TIME"));
     QVERIFY(index != -1);
     QCOMPARE(id.mid(index + 4).toULongLong(), 5u);
-}
-
-void KStartupInfo_UnitTest::setNewStartupIdTest()
-{
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 102)
-    {
-        QWindow window;
-        const QByteArray str = "somefancyidwhichisrandom_kstartupinfo_unittest_2";
-        KStartupInfo::setNewStartupId(&window, str);
-        QCOMPARE(KStartupInfo::startupId(), str);
-    }
-#endif
 }
 
 QTEST_MAIN(KStartupInfo_UnitTest)

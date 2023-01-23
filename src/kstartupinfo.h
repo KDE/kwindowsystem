@@ -67,20 +67,6 @@ public:
      */
     static void appStarted(const QByteArray &startup_id);
 
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 102)
-    /**
-     * Returns the startup ID set by setStartupId().
-     * @return the startup notification identifier
-     *
-     * @warning This does not give access to the startup ID the app was launched with.
-     * Use QX11Info::nextStartupId() to get that.
-     *
-     * @deprecated since 5.102, use QX11Info::nextStartupId().
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 102, "Use QX11Info::nextStartupId()")
-    static QByteArray startupId();
-#endif
-
     /**
      * Sets a new value for the application startup notification window property for newly
      * created toplevel windows.
@@ -98,21 +84,6 @@ public:
      * needed only when a window is reused.
      */
     static void setNewStartupId(QWindow *window, const QByteArray &startup_id);
-
-#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 102)
-    /**
-     * If your application shows temporarily some window during its startup,
-     * for example a dialog, and only after closing it shows the main window,
-     * startup notification would normally be shown while the dialog is visible.
-     * To temporarily suspend and resume the notification, use this function.
-     * Note that this is cumulative, i.e. after suspending twice, you have to
-     * resume twice.
-     *
-     * @deprecated since 5.102, no known users.
-     */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 102, "No known users")
-    static void silenceStartup(bool silence);
-#endif
 
     /**
      * Creates and returns new startup id. The id includes properly setup

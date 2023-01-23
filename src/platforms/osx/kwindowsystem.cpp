@@ -365,14 +365,6 @@ void KWindowSystem::forceActiveWindow(WId win, long time)
     activateWindow(win, time);
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-void KWindowSystem::demandAttention(WId win, bool set)
-{
-    // TODO
-    qDebug() << "KWindowSystem::demandAttention( WId win, bool set ) isn't yet implemented!";
-}
-#endif
-
 bool KWindowSystem::compositingActive()
 {
     return true;
@@ -459,14 +451,6 @@ QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int flag
     return icon(win, width, height, scale);
     //    qDebug() << "QPixmap KWindowSystem::icon( WId win, int width, int height, bool scale, int flags ) isn't yet implemented!";
 }
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-void KWindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon)
-{
-    // TODO
-    qDebug() << "KWindowSystem::setIcons( WId win, const QPixmap& icon, const QPixmap& miniIcon ) isn't yet implemented!";
-}
-#endif
 
 void KWindowSystem::setType(WId winid, NET::WindowType windowType)
 {

@@ -22,9 +22,6 @@ public:
     virtual WId activeWindow() = 0;
     virtual void activateWindow(WId win, long time = 0) = 0;
     virtual void forceActiveWindow(WId win, long time = 0) = 0;
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-    virtual void demandAttention(WId win, bool set) = 0;
-#endif
     virtual bool compositingActive() = 0;
     virtual int currentDesktop() = 0;
     virtual int numberOfDesktops() = 0;
@@ -34,9 +31,6 @@ public:
     virtual void setOnActivities(WId win, const QStringList &activities) = 0;
     virtual QPixmap icon(WId win, int width, int height, bool scale, int flags) = 0;
     virtual QPixmap iconFromNetWinInfo(int width, int height, bool scale, int flags, NETWinInfo *info);
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-    virtual void setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon) = 0;
-#endif
     virtual void setType(WId win, NET::WindowType windowType) = 0;
     virtual void setState(WId win, NET::States state) = 0;
     virtual void clearState(WId win, NET::States state) = 0;

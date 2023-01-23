@@ -450,23 +450,6 @@ void KWindowSystem::forceActiveWindow(WId win, long time)
     }
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-void KWindowSystem::demandAttention(WId win, bool set)
-{
-// One can not flash a windows in wince
-#ifndef _WIN32_WCE
-    FLASHWINFO fi;
-    fi.cbSize = sizeof(FLASHWINFO);
-    fi.hwnd = reinterpret_cast<HWND>(win);
-    fi.dwFlags = set ? FLASHW_ALL : FLASHW_STOP;
-    fi.uCount = 5;
-    fi.dwTimeout = 0;
-
-    FlashWindowEx(&fi);
-#endif
-}
-#endif
-
 QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale)
 {
     KWindowSystem::init(INFO_WINDOWS);
@@ -499,27 +482,6 @@ QPixmap KWindowSystem::icon(WId win, int width, int height, bool scale, int)
 {
     return icon(win, width, height, scale);
 }
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-void KWindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon)
-{
-    KWindowSystem::init(INFO_WINDOWS);
-    KWindowSystemPrivate *s_d = s_d_func();
-
-    if (s_d->winInfos.contains(win)) {
-        // is this safe enough or do i have to refresh() the window infos
-        s_d->winInfos[win].smallIcon = miniIcon;
-        s_d->winInfos[win].bigIcon = icon;
-    }
-
-    HICON hIconBig = icon.toImage().toHICON();
-    HICON hIconSmall = miniIcon.toImage().toHICON();
-
-    HWND hwnd = reinterpret_cast<HWND>(win);
-    hIconBig = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIconBig);
-    hIconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIconSmall);
-}
-#endif
 
 void KWindowSystem::setState(WId win, NET::States state)
 {

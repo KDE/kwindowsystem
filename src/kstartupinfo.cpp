@@ -613,33 +613,6 @@ void KStartupInfo::appStarted(const QByteArray &startup_id)
 #endif
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 102)
-void KStartupInfo::silenceStartup(bool silence)
-{
-    KStartupInfoId id;
-    id.initId(startupId());
-    if (id.isNull()) {
-        return;
-    }
-    KStartupInfoData data;
-    data.setSilent(silence ? KStartupInfoData::Yes : KStartupInfoData::No);
-    sendChange(id, data);
-}
-#endif
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 102)
-QByteArray KStartupInfo::startupId()
-{
-    if (s_startup_id.isEmpty()) {
-        KStartupInfoId id = currentStartupIdEnv();
-        resetStartupEnv();
-        s_startup_id = id.id();
-    }
-
-    return s_startup_id;
-}
-#endif
-
 void KStartupInfo::setStartupId(const QByteArray &startup_id)
 {
     if (startup_id == s_startup_id) {

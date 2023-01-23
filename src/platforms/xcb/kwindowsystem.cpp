@@ -200,9 +200,6 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
             bool haveOwner = event->owner != XCB_WINDOW_NONE;
             if (compositingEnabled != haveOwner) {
                 compositingEnabled = haveOwner;
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-                Q_EMIT s_q->compositingChanged(compositingEnabled);
-#endif
                 Q_EMIT KX11Extras::self()->compositingChanged(compositingEnabled);
             }
             return true;
@@ -215,9 +212,6 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
                 bool haveOwner = event->owner != XCB_WINDOW_NONE;
                 if (compositingEnabled != haveOwner) {
                     compositingEnabled = haveOwner;
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-                    Q_EMIT s_q->compositingChanged(compositingEnabled);
-#endif
                     Q_EMIT KX11Extras::self()->compositingChanged(compositingEnabled);
                 }
                 // NOTICE this is not our event, we just randomly captured it from Qt -> pass on
@@ -250,52 +244,28 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
         NETRootInfo::event(ev, &props, &props2);
 
         if ((props & CurrentDesktop) && currentDesktop() != old_current_desktop) {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-            Q_EMIT s_q->currentDesktopChanged(currentDesktop());
-#endif
             Q_EMIT KX11Extras::self()->currentDesktopChanged(currentDesktop());
         }
         if ((props & DesktopViewport) && mapViewport() && currentDesktop() != old_current_desktop) {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-            Q_EMIT s_q->currentDesktopChanged(currentDesktop());
-#endif
             Q_EMIT KX11Extras::self()->currentDesktopChanged(currentDesktop());
         }
         if ((props & ActiveWindow) && activeWindow() != old_active_window) {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-            Q_EMIT s_q->activeWindowChanged(activeWindow());
-#endif
             Q_EMIT KX11Extras::self()->activeWindowChanged(activeWindow());
         }
         if (props & DesktopNames) {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-            Q_EMIT s_q->desktopNamesChanged();
-#endif
             Q_EMIT KX11Extras::self()->desktopNamesChanged();
         }
         if ((props & NumberOfDesktops) && numberOfDesktops() != old_number_of_desktops) {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-            Q_EMIT s_q->numberOfDesktopsChanged(numberOfDesktops());
-#endif
             Q_EMIT KX11Extras::self()->numberOfDesktopsChanged(numberOfDesktops());
         }
         if ((props & DesktopGeometry) && mapViewport() && numberOfDesktops() != old_number_of_desktops) {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-            Q_EMIT s_q->numberOfDesktopsChanged(numberOfDesktops());
-#endif
             Q_EMIT KX11Extras::self()->numberOfDesktopsChanged(numberOfDesktops());
         }
         if (props & WorkArea) {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-            Q_EMIT s_q->workAreaChanged();
-#endif
             Q_EMIT KX11Extras::self()->workAreaChanged();
         }
         if (props & ClientListStacking) {
             updateStackingOrder();
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-            Q_EMIT s_q->stackingOrderChanged();
-#endif
             Q_EMIT KX11Extras::self()->stackingOrderChanged();
         }
         if ((props2 & WM2ShowingDesktop) && showingDesktop() != old_showing_desktop) {
@@ -332,9 +302,6 @@ bool NETEventFilter::nativeEventFilter(xcb_generic_event_t *ev)
             Q_EMIT KX11Extras::self()->windowChanged(eventWindow, dirtyProperties, dirtyProperties2);
 
             if ((dirtyProperties & NET::WMStrut) != 0) {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-                Q_EMIT s_q->strutChanged();
-#endif
                 Q_EMIT KX11Extras::self()->strutChanged();
             }
         }
@@ -364,8 +331,6 @@ void NETEventFilter::updateStackingOrder()
 
 void NETEventFilter::addClient(xcb_window_t w)
 {
-    KWindowSystem *s_q = KWindowSystem::self();
-
     if ((what >= KWindowSystemPrivateX11::INFO_WINDOWS)) {
         xcb_connection_t *c = QX11Info::connection();
         UniqueCPointer<xcb_get_window_attributes_reply_t> attr(xcb_get_window_attributes_reply(c, xcb_get_window_attributes_unchecked(c, w), nullptr));
@@ -391,22 +356,14 @@ void NETEventFilter::addClient(xcb_window_t w)
     }
 
     windows.append(w);
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-    Q_EMIT s_q->windowAdded(w);
-#endif
     Q_EMIT KX11Extras::self()->windowAdded(w);
     if (emit_strutChanged) {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-        Q_EMIT s_q->strutChanged();
-#endif
         Q_EMIT KX11Extras::self()->strutChanged();
     }
 }
 
 void NETEventFilter::removeClient(xcb_window_t w)
 {
-    KWindowSystem *s_q = KWindowSystem::self();
-
     bool emit_strutChanged = removeStrutWindow(w);
     if (strutSignalConnected && possibleStrutWindows.contains(w)) {
         NETWinInfo info(QX11Info::connection(), w, QX11Info::appRootWindow(), NET::WMStrut, NET::Properties2());
@@ -418,14 +375,8 @@ void NETEventFilter::removeClient(xcb_window_t w)
 
     possibleStrutWindows.removeAll(w);
     windows.removeAll(w);
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-    Q_EMIT s_q->windowRemoved(w);
-#endif
     Q_EMIT KX11Extras::self()->windowRemoved(w);
     if (emit_strutChanged) {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-        Q_EMIT s_q->strutChanged();
-#endif
         Q_EMIT KX11Extras::self()->strutChanged();
     }
 }
@@ -486,15 +437,6 @@ static void create_atoms()
 void KWindowSystemPrivateX11::connectNotify(const QMetaMethod &signal)
 {
     FilterInfo what = INFO_BASIC;
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-    if (signal == QMetaMethod::fromSignal(&KWindowSystem::workAreaChanged)) {
-        what = INFO_WINDOWS;
-    } else if (signal == QMetaMethod::fromSignal(&KWindowSystem::strutChanged)) {
-        what = INFO_WINDOWS;
-    } else if (signal == QMetaMethod::fromSignal(static_cast<void (KWindowSystem::*)(WId, NET::Properties, NET::Properties2)>(&KWindowSystem::windowChanged))) {
-        what = INFO_WINDOWS;
-    }
-#endif
     if (signal == QMetaMethod::fromSignal(&KX11Extras::workAreaChanged)) {
         what = INFO_WINDOWS;
     } else if (signal == QMetaMethod::fromSignal(&KX11Extras::strutChanged)) {
@@ -505,11 +447,6 @@ void KWindowSystemPrivateX11::connectNotify(const QMetaMethod &signal)
 
     init(what);
     NETEventFilter *const s_d = s_d_func();
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-    if (!s_d->strutSignalConnected && signal == QMetaMethod::fromSignal(&KWindowSystem::strutChanged)) {
-        s_d->strutSignalConnected = true;
-    }
-#endif
     if (!s_d->strutSignalConnected && signal == QMetaMethod::fromSignal(&KX11Extras::strutChanged)) {
         s_d->strutSignalConnected = true;
     }
@@ -544,9 +481,6 @@ void KWindowSystemPrivateX11::init(FilterInfo what)
         d.reset(filter);
         d->activate();
         if (wasCompositing != s_d_func()->compositingEnabled) {
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-            Q_EMIT KWindowSystem::self()->compositingChanged(s_d_func()->compositingEnabled);
-#endif
             Q_EMIT KX11Extras::self()->compositingChanged(s_d_func()->compositingEnabled);
         }
     }
@@ -721,14 +655,6 @@ void KWindowSystemPrivateX11::forceActiveWindow(WId win, long time)
     info.setActiveWindow(win, NET::FromTool, time, 0);
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-void KWindowSystemPrivateX11::demandAttention(WId win, bool set)
-{
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMState, NET::Properties2());
-    info.setState(set ? NET::DemandsAttention : NET::States(), NET::DemandsAttention);
-}
-#endif
-
 QPixmap KWindowSystemPrivateX11::icon(WId win, int width, int height, bool scale, int flags)
 {
     NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::WMIcon, NET::WM2WindowClass | NET::WM2IconPixmap);
@@ -817,33 +743,6 @@ QPixmap KWindowSystemPrivateX11::iconFromNetWinInfo(int width, int height, bool 
     }
     return result;
 }
-
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
-void KWindowSystemPrivateX11::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon)
-{
-    if (icon.isNull()) {
-        return;
-    }
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::Properties(), NET::Properties2());
-    QImage img = icon.toImage().convertToFormat(QImage::Format_ARGB32);
-    NETIcon ni;
-    ni.size.width = img.size().width();
-    ni.size.height = img.size().height();
-    ni.data = (unsigned char *)img.bits();
-    info.setIcon(ni, true);
-    if (miniIcon.isNull()) {
-        return;
-    }
-    img = miniIcon.toImage().convertToFormat(QImage::Format_ARGB32);
-    if (img.isNull()) {
-        return;
-    }
-    ni.size.width = img.size().width();
-    ni.size.height = img.size().height();
-    ni.data = (unsigned char *)img.bits();
-    info.setIcon(ni, false);
-}
-#endif
 
 void KWindowSystemPrivateX11::setType(WId win, NET::WindowType windowType)
 {
