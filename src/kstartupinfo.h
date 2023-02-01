@@ -21,10 +21,6 @@ typedef struct _XDisplay Display;
 
 struct xcb_connection_t;
 
-#ifdef Q_CC_MSVC
-typedef int pid_t;
-#endif
-
 class KStartupInfoId;
 class KStartupInfoData;
 

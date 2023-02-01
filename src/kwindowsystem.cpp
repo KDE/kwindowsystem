@@ -4,12 +4,15 @@
     SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 */
 #include "kwindowsystem.h"
-#include "kstartupinfo.h"
 #include "kwindowsystem_dummy_p.h"
 #include "kwindowsystemplugininterface_p.h"
 #include "pluginwrapper_p.h"
 
 #include <config-kwindowsystem.h>
+
+#if KWINDOWSYSTEM_HAVE_X11
+#include "kstartupinfo.h"
+#endif
 
 #include <QGuiApplication>
 #include <QMetaMethod>

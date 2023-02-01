@@ -22,43 +22,30 @@
 
 #include <QDateTime>
 
-#include <config-kwindowsystem.h> // KWINDOWSYSTEM_HAVE_X11
-
 // need to resolve INT32(qglobal.h)<>INT32(Xlibint.h) conflict
 #ifndef QT_CLEAN_NAMESPACE
 #define QT_CLEAN_NAMESPACE
 #endif
 
-#ifndef Q_OS_WIN
+#include <QTimer>
+#include <netwm.h>
+#include <stdlib.h>
 #include <sys/time.h>
 #include <unistd.h>
-#else
-#include <process.h>
-#include <winsock2.h>
-#endif
-#include <QTimer>
-#include <stdlib.h>
-#if KWINDOWSYSTEM_HAVE_X11
-#include <netwm.h>
 
-#include <private/qtx11extras_p.h>
-
-#endif
 #include <QCoreApplication>
 #include <QDebug>
 #include <QStandardPaths>
-#include <signal.h>
-#if KWINDOWSYSTEM_HAVE_X11
 #include <X11/Xlib.h>
 #include <fixx11h.h>
 #include <kwindowsystem.h>
 #include <kx11extras.h>
 #include <kxmessages.h>
-#endif
+#include <private/qtx11extras_p.h>
+#include <signal.h>
 
-#if KWINDOWSYSTEM_HAVE_X11
 static const char NET_STARTUP_MSG[] = "_NET_STARTUP_INFO";
-#endif
+
 // DESKTOP_STARTUP_ID is used also in kinit/wrapper.c ,
 // kdesu in both kdelibs and kdebase and who knows where else
 static const char NET_STARTUP_ENV[] = "DESKTOP_STARTUP_ID";
@@ -162,18 +149,14 @@ public:
     QMap<KStartupInfoId, KStartupInfo::Data> silent_startups;
     // contains ASN's that had change: but no new: yet
     QMap<KStartupInfoId, KStartupInfo::Data> uninited_startups;
-#if KWINDOWSYSTEM_HAVE_X11
     KXMessages msgs;
-#endif
     QTimer *cleanup;
     int flags;
 
     Private(int flags_P, KStartupInfo *qq)
         : q(qq)
         , timeout(60)
-#if KWINDOWSYSTEM_HAVE_X11
         , msgs(NET_STARTUP_MSG)
-#endif
         , cleanup(nullptr)
         , flags(flags_P)
     {
@@ -181,7 +164,6 @@ public:
 
     void createConnections()
     {
-#if KWINDOWSYSTEM_HAVE_X11
         // d == nullptr means "disabled"
         if (!QX11Info::isPlatformX11() || !QX11Info::display()) {
             return;
@@ -197,7 +179,6 @@ public:
         QObject::connect(&msgs, SIGNAL(gotMessage(QString)), q, SLOT(got_message(QString)));
         cleanup = new QTimer(q);
         QObject::connect(cleanup, SIGNAL(timeout()), q, SLOT(startups_cleanup()));
-#endif
     }
 };
 
@@ -215,7 +196,6 @@ KStartupInfo::~KStartupInfo()
 
 void KStartupInfo::Private::got_message(const QString &msg_P)
 {
-#if KWINDOWSYSTEM_HAVE_X11
     // TODO do something with SCREEN= ?
     // qCDebug(LOG_KWINDOWSYSTEM) << "got:" << msg_P;
     QString msg = msg_P.trimmed();
@@ -226,9 +206,6 @@ void KStartupInfo::Private::got_message(const QString &msg_P)
     } else if (msg.startsWith(QLatin1String("remove:"))) { // must match length below
         got_remove_startup_info(msg.mid(7));
     }
-#else
-    Q_UNUSED(msg_P)
-#endif
 }
 
 // if the application stops responding for a while, KWindowSystem may get
@@ -247,11 +224,7 @@ public:
         , w(w_P)
     {
     }
-#if KWINDOWSYSTEM_HAVE_X11
     Window w;
-#else
-    WId w;
-#endif
     static Type uniqueType()
     {
         return Type(QEvent::User + 15);
@@ -266,11 +239,9 @@ void KStartupInfo::Private::slot_window_added(WId w_P)
 
 void KStartupInfo::customEvent(QEvent *e_P)
 {
-#if KWINDOWSYSTEM_HAVE_X11
     if (e_P->type() == DelayedWindowEvent::uniqueType()) {
         d->window_added(static_cast<DelayedWindowEvent *>(e_P)->w);
     } else
-#endif
         QObject::customEvent(e_P);
 }
 
@@ -447,12 +418,7 @@ bool KStartupInfo::sendStartup(const KStartupInfoId &id_P, const KStartupInfoDat
     if (id_P.isNull()) {
         return false;
     }
-#if KWINDOWSYSTEM_HAVE_X11
     return sendStartupXcb(QX11Info::connection(), QX11Info::appScreen(), id_P, data_P);
-#else
-    Q_UNUSED(data_P)
-#endif
-    return true;
 }
 
 bool KStartupInfo::sendStartupXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id_P, const KStartupInfoData &data_P)
@@ -460,19 +426,12 @@ bool KStartupInfo::sendStartupXcb(xcb_connection_t *conn, int screen, const KSta
     if (id_P.isNull()) {
         return false;
     }
-#if KWINDOWSYSTEM_HAVE_X11
     QString msg = QStringLiteral("new: %1 %2").arg(id_P.d->to_text(), data_P.d->to_text());
     msg = Private::check_required_startup_fields(msg, data_P, screen);
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
     return KXMessages::broadcastMessageX(conn, NET_STARTUP_MSG, msg, screen);
-#else
-    Q_UNUSED(conn)
-    Q_UNUSED(screen)
-    Q_UNUSED(data_P)
-    return true;
-#endif
 }
 
 QString KStartupInfo::Private::check_required_startup_fields(const QString &msg, const KStartupInfoData &data_P, int screen)
@@ -497,12 +456,7 @@ bool KStartupInfo::sendChange(const KStartupInfoId &id_P, const KStartupInfoData
     if (id_P.isNull()) {
         return false;
     }
-#if KWINDOWSYSTEM_HAVE_X11
     return sendChangeXcb(QX11Info::connection(), QX11Info::appScreen(), id_P, data_P);
-#else
-    Q_UNUSED(data_P)
-#endif
-    return true;
 }
 
 bool KStartupInfo::sendChangeXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id_P, const KStartupInfoData &data_P)
@@ -510,18 +464,11 @@ bool KStartupInfo::sendChangeXcb(xcb_connection_t *conn, int screen, const KStar
     if (id_P.isNull()) {
         return false;
     }
-#if KWINDOWSYSTEM_HAVE_X11
     QString msg = QStringLiteral("change: %1 %2").arg(id_P.d->to_text(), data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
     return KXMessages::broadcastMessageX(conn, NET_STARTUP_MSG, msg, screen);
-#else
-    Q_UNUSED(conn)
-    Q_UNUSED(screen)
-    Q_UNUSED(data_P)
-    return true;
-#endif
 }
 
 bool KStartupInfo::sendFinish(const KStartupInfoId &id_P)
@@ -529,10 +476,7 @@ bool KStartupInfo::sendFinish(const KStartupInfoId &id_P)
     if (id_P.isNull()) {
         return false;
     }
-#if KWINDOWSYSTEM_HAVE_X11
     return sendFinishXcb(QX11Info::connection(), QX11Info::appScreen(), id_P);
-#endif
-    return true;
 }
 
 bool KStartupInfo::sendFinishXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id_P)
@@ -540,60 +484,38 @@ bool KStartupInfo::sendFinishXcb(xcb_connection_t *conn, int screen, const KStar
     if (id_P.isNull()) {
         return false;
     }
-#if KWINDOWSYSTEM_HAVE_X11
     QString msg = QStringLiteral("remove: %1").arg(id_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
     return KXMessages::broadcastMessageX(conn, NET_STARTUP_MSG, msg, screen);
-#else
-    Q_UNUSED(conn)
-    Q_UNUSED(screen)
-    return true;
-#endif
 }
 
 bool KStartupInfo::sendFinish(const KStartupInfoId &id_P, const KStartupInfoData &data_P)
 {
-//    if( id_P.isNull()) // id may be null, the pids and hostname matter then
-//        return false;
-#if KWINDOWSYSTEM_HAVE_X11
+    //    if( id_P.isNull()) // id may be null, the pids and hostname matter then
+    //        return false;
     return sendFinishXcb(QX11Info::connection(), QX11Info::appScreen(), id_P, data_P);
-#else
-    Q_UNUSED(id_P)
-    Q_UNUSED(data_P)
-#endif
-    return true;
 }
 
 bool KStartupInfo::sendFinishXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id_P, const KStartupInfoData &data_P)
 {
-//    if( id_P.isNull()) // id may be null, the pids and hostname matter then
-//        return false;
-#if KWINDOWSYSTEM_HAVE_X11
+    //    if( id_P.isNull()) // id may be null, the pids and hostname matter then
+    //        return false;
     QString msg = QStringLiteral("remove: %1 %2").arg(id_P.d->to_text(), data_P.d->to_text());
 #ifdef KSTARTUPINFO_ALL_DEBUG
     qCDebug(LOG_KWINDOWSYSTEM) << "sending " << msg;
 #endif
     return KXMessages::broadcastMessageX(conn, NET_STARTUP_MSG, msg, screen);
-#else
-    Q_UNUSED(conn)
-    Q_UNUSED(screen)
-    Q_UNUSED(id_P)
-    Q_UNUSED(data_P)
-    return true;
-#endif
 }
 
 void KStartupInfo::appStarted()
 {
     QByteArray startupId = s_startup_id;
 
-#if KWINDOWSYSTEM_HAVE_X11
     if (startupId.isEmpty()) {
         startupId = QX11Info::nextStartupId();
     }
-#endif
 
     appStarted(startupId);
     setStartupId("0"); // reset the id, no longer valid (must use clearStartupId() to avoid infinite loop)
@@ -606,11 +528,9 @@ void KStartupInfo::appStarted(const QByteArray &startup_id)
     if (id.isNull()) {
         return;
     }
-#if KWINDOWSYSTEM_HAVE_X11
     if (QX11Info::isPlatformX11() && !qEnvironmentVariableIsEmpty("DISPLAY")) { // don't rely on QX11Info::display()
         KStartupInfo::sendFinish(id);
     }
-#endif
 }
 
 void KStartupInfo::setStartupId(const QByteArray &startup_id)
@@ -622,7 +542,6 @@ void KStartupInfo::setStartupId(const QByteArray &startup_id)
         s_startup_id = "0";
     } else {
         s_startup_id = startup_id;
-#if KWINDOWSYSTEM_HAVE_X11
         if (QX11Info::isPlatformX11()) {
             KStartupInfoId id;
             id.initId(startup_id);
@@ -636,7 +555,6 @@ void KStartupInfo::setStartupId(const QByteArray &startup_id)
                 }
             }
         }
-#endif
     }
 }
 
@@ -644,7 +562,6 @@ void KStartupInfo::setNewStartupId(QWindow *window, const QByteArray &startup_id
 {
     Q_ASSERT(window);
     setStartupId(startup_id);
-#if KWINDOWSYSTEM_HAVE_X11
     bool activate = true;
     if (window != nullptr && QX11Info::isPlatformX11()) {
         if (!startup_id.isEmpty() && startup_id != "0") {
@@ -663,9 +580,6 @@ void KStartupInfo::setNewStartupId(QWindow *window, const QByteArray &startup_id
             KX11Extras::forceActiveWindow(window->winId());
         }
     }
-#else
-    Q_UNUSED(window)
-#endif
 }
 
 KStartupInfo::startup_t KStartupInfo::checkStartup(WId w_P, KStartupInfoId &id_O, KStartupInfoData &data_O)
@@ -709,7 +623,6 @@ KStartupInfo::startup_t KStartupInfo::Private::check_startup_internal(WId w_P, K
         }
         return find_id(id, id_O, data_O) ? Match : NoMatch;
     }
-#if KWINDOWSYSTEM_HAVE_X11
     if (!QX11Info::isPlatformX11()) {
         qCDebug(LOG_KWINDOWSYSTEM) << "check_startup:cantdetect";
         return CantDetect;
@@ -743,7 +656,6 @@ KStartupInfo::startup_t KStartupInfo::Private::check_startup_internal(WId w_P, K
     if (transient_for != QX11Info::appRootWindow() && transient_for != XCB_WINDOW_NONE) {
         return NoMatch;
     }
-#endif
     qCDebug(LOG_KWINDOWSYSTEM) << "check_startup:cantdetect";
     return CantDetect;
 }
@@ -813,7 +725,6 @@ bool KStartupInfo::Private::find_wclass(const QByteArray &_res_name, const QByte
 
 QByteArray KStartupInfo::windowStartupId(WId w_P)
 {
-#if KWINDOWSYSTEM_HAVE_X11
     if (!QX11Info::isPlatformX11()) {
         return QByteArray();
     }
@@ -825,15 +736,10 @@ QByteArray KStartupInfo::windowStartupId(WId w_P)
         ret = groupLeaderInfo.startupId();
     }
     return ret;
-#else
-    Q_UNUSED(w_P)
-    return QByteArray();
-#endif
 }
 
 void KStartupInfo::setWindowStartupId(WId w_P, const QByteArray &id_P)
 {
-#if KWINDOWSYSTEM_HAVE_X11
     if (!QX11Info::isPlatformX11()) {
         return;
     }
@@ -842,10 +748,6 @@ void KStartupInfo::setWindowStartupId(WId w_P, const QByteArray &id_P)
     }
     NETWinInfo info(QX11Info::connection(), w_P, QX11Info::appRootWindow(), NET::Properties(), NET::Properties2());
     info.setStartupId(id_P.constData());
-#else
-    Q_UNUSED(w_P)
-    Q_UNUSED(id_P)
-#endif
 }
 
 void KStartupInfo::setTimeout(unsigned int secs_P)
@@ -915,11 +817,9 @@ void KStartupInfo::Private::clean_all_noncompliant()
 QByteArray KStartupInfo::createNewStartupId()
 {
     quint32 timestamp = 0;
-#if KWINDOWSYSTEM_HAVE_X11
     if (QX11Info::isPlatformX11()) {
         timestamp = QX11Info::getTimestamp();
     }
-#endif
     return KStartupInfo::createNewStartupIdForTimestamp(timestamp);
 }
 
@@ -928,15 +828,7 @@ QByteArray KStartupInfo::createNewStartupIdForTimestamp(quint32 timestamp)
     // Assign a unique id, use hostname+time+pid, that should be 200% unique.
     // Also append the user timestamp (for focus stealing prevention).
     struct timeval tm;
-#ifdef Q_OS_WIN
-    // on windows only msecs accuracy instead of usecs like with gettimeofday
-    // XXX: use Win API to get better accuracy
-    qint64 msecsSinceEpoch = QDateTime::currentMSecsSinceEpoch();
-    tm.tv_sec = msecsSinceEpoch / 1000;
-    tm.tv_usec = (msecsSinceEpoch % 1000) * 1000;
-#else
     gettimeofday(&tm, nullptr);
-#endif
     char hostname[256];
     hostname[0] = '\0';
     if (!gethostname(hostname, 255)) {
