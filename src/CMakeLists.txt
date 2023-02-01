@@ -79,9 +79,6 @@ if (APPLE)
             ${CMAKE_CURRENT_SOURCE_DIR}/platforms/osx)
    target_sources(KF6WindowSystem PRIVATE
         platforms/osx/kkeyserver.cpp
-#                                                 kwindowsystem_mac.cpp
-# FIXME: adjust kwindowinfo_mac to inherit from KWindowInfoPrivate
-#                                                 kwindowinfo_mac.cpp
    )
    target_link_libraries(KF6WindowSystem
         PRIVATE
@@ -96,9 +93,6 @@ if (WIN32)
    )
    target_sources(KF6WindowSystem PRIVATE
         platforms/windows/kkeyserver.cpp
-#                                                 kwindowsystem_win.cpp
-# FIXME: adjust kwindowinfo_win to inherit from KWindowInfoPrivate
-#                                                 kwindowinfo_win.cpp
    )
    target_link_libraries(KF6WindowSystem PRIVATE ws2_32) # gethostname()
 endif ()
