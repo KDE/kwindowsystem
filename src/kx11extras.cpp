@@ -62,6 +62,11 @@ void KX11Extras::forceActiveWindow(WId win, long time)
     KWindowSystem::d_func()->forceActiveWindow(win, time);
 }
 
+void KX11Extras::forceActiveWindow(QWindow *win, long time)
+{
+    KWindowSystem::d_func()->forceActiveWindow(win->winId(), time);
+}
+
 bool KX11Extras::compositingActive()
 {
     return KWindowSystem::d_func()->compositingActive();

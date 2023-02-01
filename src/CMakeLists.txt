@@ -168,6 +168,10 @@ endif()
 
 add_subdirectory(platforms)
 
+if(KWINDOWSYSTEM_QML)
+    add_subdirectory(qml)
+endif()
+
 ecm_qt_install_logging_categories(
     EXPORT KWINDOWSYSTEM
     FILE kwindowsystem.categories

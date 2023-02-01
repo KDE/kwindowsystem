@@ -25,6 +25,7 @@ include(ECMQtDeclareLoggingCategory)
 include(ECMDeprecationSettings)
 include(ECMAddQch)
 include(ECMPoQmTools)
+include(ECMQmlModule)
 
 set(EXCLUDE_DEPRECATED_BEFORE_AND_AT 0 CACHE STRING "Control the range of deprecated API excluded from the build [default=0].")
 
@@ -39,6 +40,12 @@ ecm_setup_version(PROJECT VARIABLE_PREFIX KWINDOWSYSTEM
 # Dependencies
 set(REQUIRED_QT_VERSION 6.4.0)
 find_package(Qt6Gui ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
+
+option(KWINDOWSYSTEM_QML "Build QML bindings" ON)
+
+if (KWINDOWSYSTEM_QML)
+    find_package(Qt6Qml ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
+endif()
 
 find_package(X11)
 

@@ -47,6 +47,11 @@ class KWINDOWSYSTEM_EXPORT KWindowSystem : public QObject, public NET
     Q_PROPERTY(bool isPlatformWayland READ isPlatformWayland CONSTANT)
     Q_PROPERTY(bool isPlatformX11 READ isPlatformX11 CONSTANT)
 
+    /**
+     * @brief Whether "show desktop" is currently active
+     */
+    Q_PROPERTY(bool showingDesktop READ showingDesktop WRITE setShowingDesktop NOTIFY showingDesktopChanged)
+
 public:
     /**
      * Access to the singleton instance. Useful mainly for connecting to signals.

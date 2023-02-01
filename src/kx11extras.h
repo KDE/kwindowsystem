@@ -28,6 +28,11 @@ class KWINDOWSYSTEM_EXPORT KX11Extras : public QObject
 {
     Q_OBJECT
 
+    /**
+     * @brief Whether desktop compositing is active
+     */
+    Q_PROPERTY(bool compositingActive READ compositingActive NOTIFY compositingChanged)
+
 public:
     static KX11Extras *self();
 
@@ -113,6 +118,21 @@ public:
      *    caused this request
      */
     static void forceActiveWindow(WId win, long time = 0);
+
+    /**
+     * Sets window @p win to be the active window. Note that this
+     * should be called only in special cases, applications
+     * shouldn't force themselves or other windows to be the active
+     * window. Generally, this call should used only by pagers
+     * and similar tools. See the explanation in the description
+     * of activateWindow().
+     *
+     * @param win the window to make active
+     * @param time X server timestamp of the user activity that
+     *    caused this request
+     * @since 6.0
+     */
+    Q_INVOKABLE static void forceActiveWindow(QWindow *window, long time = 0);
 
     /**
      * Returns true if a compositing manager is running (i.e. ARGB windows
