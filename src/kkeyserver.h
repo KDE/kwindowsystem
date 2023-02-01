@@ -15,12 +15,8 @@
 #include <qglobal.h>
 
 #include <config-kwindowsystem.h>
-#if KWINDOWSYSTEM_HAVE_X11 /*or defined Q_OS_WIN*/
+#if KWINDOWSYSTEM_HAVE_X11
 #include "kkeyserver_x11.h"
-#elif defined Q_OS_MAC
-#include "kkeyserver_mac.h"
-#elif defined Q_OS_WIN
-#include "kkeyserver_win.h"
 #endif
 
 class QString;

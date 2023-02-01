@@ -73,30 +73,6 @@ if (KWINDOWSYSTEM_HAVE_X11)
    target_include_directories(KF6WindowSystem PUBLIC ${XCB_XCB_INCLUDE_DIR})
 endif ()
 
-if (APPLE)
-   target_include_directories(KF6WindowSystem
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/osx)
-   target_sources(KF6WindowSystem PRIVATE
-        platforms/osx/kkeyserver.cpp
-   )
-   target_link_libraries(KF6WindowSystem
-        PRIVATE
-            "-framework CoreFoundation -framework Carbon"
-   )
-endif ()
-
-if (WIN32)
-   target_include_directories(KF6WindowSystem
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/platforms/windows
-   )
-   target_sources(KF6WindowSystem PRIVATE
-        platforms/windows/kkeyserver.cpp
-   )
-   target_link_libraries(KF6WindowSystem PRIVATE ws2_32) # gethostname()
-endif ()
-
 ecm_generate_export_header(KF6WindowSystem
     BASE_NAME KWindowSystem
     GROUP_BASE_NAME KF
