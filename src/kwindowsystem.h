@@ -181,19 +181,9 @@ public:
 
     /**
      * @internal
-     * Returns mapped virtual desktop for the given position in the viewport.
-     */
-    static int viewportToDesktop(const QPoint &pos);
-    /**
-     * @internal
      * Returns mapped virtual desktop for the given window geometry.
      */
     static int viewportWindowToDesktop(const QRect &r);
-    /**
-     * @internal
-     * Returns topleft corner of the viewport area for the given mapped virtual desktop.
-     */
-    static QPoint desktopToViewport(int desktop, bool absolute);
 
     /**
      * Updates the platform-specific startup id, if any.

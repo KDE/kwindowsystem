@@ -277,23 +277,10 @@ bool KWindowSystemPrivateDummy::mapViewport()
     return false;
 }
 
-int KWindowSystemPrivateDummy::viewportToDesktop(const QPoint &pos)
-{
-    Q_UNUSED(pos)
-    return 0;
-}
-
 int KWindowSystemPrivateDummy::viewportWindowToDesktop(const QRect &r)
 {
     Q_UNUSED(r)
     return 0;
-}
-
-QPoint KWindowSystemPrivateDummy::desktopToViewport(int desktop, bool absolute)
-{
-    Q_UNUSED(desktop)
-    Q_UNUSED(absolute)
-    return QPoint();
 }
 
 QPoint KWindowSystemPrivateDummy::constrainViewportRelativePosition(const QPoint &pos)
@@ -383,22 +370,10 @@ void KWindowSystem::allowExternalProcessWindowActivation(int pid)
     d->allowExternalProcessWindowActivation(pid);
 }
 
-int KWindowSystem::viewportToDesktop(const QPoint &p)
-{
-    Q_D(KWindowSystem);
-    return d->viewportToDesktop(p / qApp->devicePixelRatio());
-}
-
 int KWindowSystem::viewportWindowToDesktop(const QRect &r)
 {
     Q_D(KWindowSystem);
     return d->viewportWindowToDesktop(r / qApp->devicePixelRatio());
-}
-
-QPoint KWindowSystem::desktopToViewport(int desktop, bool absolute)
-{
-    Q_D(KWindowSystem);
-    return d->desktopToViewport(desktop, absolute);
 }
 
 static inline KWindowSystem::Platform initPlatform()

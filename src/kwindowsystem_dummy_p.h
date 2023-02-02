@@ -55,9 +55,7 @@ public:
     QString readNameProperty(WId window, unsigned long atom) override;
     void allowExternalProcessWindowActivation(int pid) override;
     bool mapViewport() override;
-    int viewportToDesktop(const QPoint &pos) override;
     int viewportWindowToDesktop(const QRect &r) override;
-    QPoint desktopToViewport(int desktop, bool absolute) override;
     QPoint constrainViewportRelativePosition(const QPoint &pos) override;
 
     void connectNotify(const QMetaMethod &signal) override;

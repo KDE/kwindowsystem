@@ -508,7 +508,7 @@ int KWindowSystemPrivateX11::currentDesktop()
         init(INFO_BASIC);
         NETEventFilter *const s_d = s_d_func();
         NETPoint p = s_d->desktopViewport(s_d->currentDesktop(true));
-        return viewportToDesktop(QPoint(p.x, p.y));
+        return viewportToDesktop(QPoint(p.x, p.y) / qApp->devicePixelRatio());
     }
 
     NETEventFilter *const s_d = s_d_func();

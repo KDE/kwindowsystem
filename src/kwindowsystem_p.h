@@ -61,9 +61,7 @@ public:
     virtual QString readNameProperty(WId window, unsigned long atom) = 0;
     virtual void allowExternalProcessWindowActivation(int pid) = 0;
     virtual bool mapViewport() = 0;
-    virtual int viewportToDesktop(const QPoint &pos) = 0;
     virtual int viewportWindowToDesktop(const QRect &r) = 0;
-    virtual QPoint desktopToViewport(int desktop, bool absolute) = 0;
     virtual QPoint constrainViewportRelativePosition(const QPoint &pos) = 0;
 
     virtual void connectNotify(const QMetaMethod &signal) = 0;
