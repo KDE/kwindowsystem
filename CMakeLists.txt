@@ -39,9 +39,6 @@ ecm_setup_version(PROJECT VARIABLE_PREFIX KWINDOWSYSTEM
 # Dependencies
 set(REQUIRED_QT_VERSION 6.4.0)
 find_package(Qt6Gui ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
-if(NOT KWINDOWSYSTEM_NO_WIDGETS)
-    find_package(Qt6Widgets ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
-endif()
 
 find_package(X11)
 

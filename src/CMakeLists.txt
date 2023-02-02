@@ -84,9 +84,6 @@ target_include_directories(KF6WindowSystem INTERFACE "$<INSTALL_INTERFACE:${KDE_
 target_link_libraries(KF6WindowSystem
     PUBLIC Qt6::Gui
 )
-if(NOT KWINDOWSYSTEM_NO_WIDGETS)
-    target_link_libraries(KF6WindowSystem PUBLIC Qt6::Widgets)
-endif()
 
 set_target_properties(KF6WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSION}
                                                  SOVERSION ${KWINDOWSYSTEM_SOVERSION}

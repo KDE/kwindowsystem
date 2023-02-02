@@ -3,10 +3,6 @@
 include(CMakeFindDependencyMacro)
 find_dependency(Qt6Gui @REQUIRED_QT_VERSION@)
 
-if(NOT @KWINDOWSYSTEM_NO_WIDGETS@)
-    find_dependency(Qt6Widgets @REQUIRED_QT_VERSION@)
-endif()
-
 if(@X11_FOUND@)
     find_dependency(X11)
 endif()
