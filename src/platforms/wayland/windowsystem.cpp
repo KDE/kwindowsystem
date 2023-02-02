@@ -9,6 +9,7 @@
 #include "waylandintegration.h"
 #include "waylandxdgactivationv1_p.h"
 
+#include <KWaylandExtras>
 #include <KWindowSystem>
 
 #include "qwayland-plasma-window-management.h"
@@ -93,7 +94,7 @@ void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString 
     if (!activation->isActive()) {
         // Ensure that xdgActivationTokenArrived is always emitted asynchronously
         QTimer::singleShot(0, [serial] {
-            Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
+            Q_EMIT KWaylandExtras::self()->xdgActivationTokenArrived(serial, {});
         });
         return;
     }
@@ -102,10 +103,10 @@ void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString 
     auto seat = waylandWindow ? waylandWindow->display()->defaultInputDevice()->wl_seat() : nullptr;
     auto tokenReq = activation->requestXdgActivationToken(seat, wlSurface, serial, app_id);
     connect(tokenReq, &WaylandXdgActivationTokenV1::failed, KWindowSystem::self(), [serial, app_id]() {
-        Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
+        Q_EMIT KWaylandExtras::self()->xdgActivationTokenArrived(serial, {});
     });
     connect(tokenReq, &WaylandXdgActivationTokenV1::done, KWindowSystem::self(), [serial](const QString &token) {
-        Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, token);
+        Q_EMIT KWaylandExtras::self()->xdgActivationTokenArrived(serial, token);
     });
 }
 

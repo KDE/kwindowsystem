@@ -74,6 +74,10 @@ if (KWINDOWSYSTEM_X11)
    target_include_directories(KF6WindowSystem PUBLIC ${XCB_XCB_INCLUDE_DIR})
 endif ()
 
+if (KWINDOWSYSTEM_WAYLAND)
+    target_sources(KF6WindowSystem PRIVATE kwaylandextras.cpp)
+endif()
+
 ecm_generate_export_header(KF6WindowSystem
     BASE_NAME KWindowSystem
     GROUP_BASE_NAME KF
@@ -109,6 +113,15 @@ if (KWINDOWSYSTEM_X11)
     KWindowInfo
 
     REQUIRED_HEADERS KWindowSystem_HEADERS
+    )
+endif()
+
+if (KWINDOWSYSTEM_WAYLAND)
+    ecm_generate_headers(KWindowSystem_HEADERS
+        HEADER_NAMES
+        KWaylandExtras
+
+        REQUIRED_HEADERS KWindowSystem_HEADERS
     )
 endif()
 

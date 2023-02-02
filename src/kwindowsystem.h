@@ -164,32 +164,11 @@ public:
     static bool isPlatformWayland();
 
     /**
-     * Requests an xdg_activation_v1 token for a specific window.
-     *
-     * @param win window in behalf this request is made
-     * @param serial of the event that triggered the request
-     * @param app_id identifier of the application that we are launching
-     *
-     * @see lastInputSerial
-     * @since 5.83
-     */
-    Q_INVOKABLE static void requestXdgActivationToken(QWindow *win, uint32_t serial, const QString &app_id);
-
-    /**
      * Sets the @p token that will be used when activateWindow is called next
      *
      * @since 5.83
      */
     Q_INVOKABLE static void setCurrentXdgActivationToken(const QString &token);
-
-    /**
-     * Offers the seat's current serial
-     *
-     * This will mostly be useful on wayland sessions.
-     *
-     * @since 5.83
-     */
-    Q_INVOKABLE static quint32 lastInputSerial(QWindow *window);
 
 Q_SIGNALS:
     /**
@@ -197,21 +176,13 @@ Q_SIGNALS:
      */
     void showingDesktopChanged(bool showing);
 
-    /**
-     * Activation @p token to pass to the client.
-     *
-     * @see requestXdgActivationToken
-     * @see setCurrentXdgActivationToken
-     * @since 5.83
-     */
-    void xdgActivationTokenArrived(int serial, const QString &token);
-
 protected:
     void connectNotify(const QMetaMethod &signal) override;
 
 private:
     friend class KWindowSystemStaticContainer;
     friend class KX11Extras;
+    friend class KWaylandExtras;
 
     KWindowSystem()
     {

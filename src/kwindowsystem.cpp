@@ -374,21 +374,6 @@ void KWindowSystem::updateStartupId(QWindow *window)
     // clang-format on
 }
 
-void KWindowSystem::requestXdgActivationToken(QWindow *win, uint32_t serial, const QString &app_id)
-{
-    Q_D(KWindowSystem);
-    auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(d);
-    if (!dv2) {
-        // Ensure that xdgActivationTokenArrived is always emitted asynchronously
-        QTimer::singleShot(0, [serial] {
-            Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});
-        });
-
-        return;
-    }
-    dv2->requestToken(win, serial, app_id);
-}
-
 void KWindowSystem::setCurrentXdgActivationToken(const QString &token)
 {
     Q_D(KWindowSystem);
@@ -397,16 +382,6 @@ void KWindowSystem::setCurrentXdgActivationToken(const QString &token)
         return;
     }
     dv2->setCurrentToken(token);
-}
-
-quint32 KWindowSystem::lastInputSerial(QWindow *window)
-{
-    Q_D(KWindowSystem);
-    auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(d);
-    if (!dv2) {
-        return 0;
-    }
-    return dv2->lastInputSerial(window);
 }
 
 #include "moc_kwindowsystem.cpp"

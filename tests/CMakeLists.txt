@@ -26,3 +26,9 @@ if(KWINDOWSYSTEM_X11)
     )
     target_link_libraries(icontest Qt6::GuiPrivate)
 endif()
+
+if(KWINDOWSYSTEM_WAYLAND)
+  kwindowsystem_executable_tests(
+    kwaylandextrastest
+  )
+endif()
