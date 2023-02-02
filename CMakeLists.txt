@@ -43,14 +43,7 @@ if(NOT KWINDOWSYSTEM_NO_WIDGETS)
     find_package(Qt6Widgets ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
 endif()
 
-if (APPLE)
-    cmake_find_frameworks(Carbon)
-    cmake_find_frameworks(CoreFoundation)
-endif()
-
-if (NOT APPLE)
-    find_package(X11)
-endif()
+find_package(X11)
 
 set(KWINDOWSYSTEM_HAVE_X11 ${X11_FOUND})
 

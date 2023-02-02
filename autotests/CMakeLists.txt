@@ -10,10 +10,8 @@ find_package(Qt6 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Test Widgets)
 
 add_subdirectory(helper)
 
-if (NOT APPLE)
-    find_package(X11)
-    find_package(XCB COMPONENTS XCB ICCCM KEYSYMS)
-endif()
+find_package(X11)
+find_package(XCB COMPONENTS XCB ICCCM KEYSYMS)
 
 macro(KWINDOWSYSTEM_UNIT_TESTS)
    foreach(_testname ${ARGN})
