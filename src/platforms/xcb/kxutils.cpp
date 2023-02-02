@@ -91,7 +91,7 @@ QPixmap createPixmapFromHandle(xcb_connection_t *c, WId pixmap, WId pixmap_mask)
 #endif
     const xcb_setup_t *setup = xcb_get_setup(c);
     if (setup->image_byte_order != XCB_IMAGE_ORDER_LSB_FIRST) {
-        qCDebug(LOG_KKEYSERVER_X11) << "Byte order not supported";
+        qDebug() << "Byte order not supported";
         return QPixmap();
     }
 

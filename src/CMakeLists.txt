@@ -6,7 +6,6 @@ add_library(KF6::WindowSystem ALIAS KF6WindowSystem)
 ecm_create_qm_loader(KF6WindowSystem kwindowsystem5_qt)
 
 target_sources(KF6WindowSystem PRIVATE
-    kkeyserver.cpp
     kwindoweffects.cpp
     kwindoweffects_dummy.cpp
     kwindowinfo.cpp
@@ -22,15 +21,6 @@ ecm_qt_declare_logging_category(KF6WindowSystem
     OLD_CATEGORY_NAMES org.kde.kwindowsystem
     DEFAULT_SEVERITY Warning
     DESCRIPTION "KWindowSystem"
-    EXPORT KWINDOWSYSTEM
-)
-ecm_qt_declare_logging_category(KF6WindowSystem
-    HEADER kwindowsystem_xcb_debug.h
-    IDENTIFIER LOG_KKEYSERVER_X11
-    CATEGORY_NAME kf.windowsystem.keyserver.x11
-    OLD_CATEGORY_NAMES org.kde.kwindowsystem.keyserver.x11
-    DEFAULT_SEVERITY Warning
-    DESCRIPTION "KKeyServer (KWindowSystem)"
     EXPORT KWINDOWSYSTEM
 )
 
@@ -54,14 +44,21 @@ if (KWINDOWSYSTEM_HAVE_X11)
             Qt6::GuiPrivate # qtx11extras_p.h
    )
 
+   ecm_qt_declare_logging_category(KF6WindowSystem
+        HEADER kwindowsystem_xcb_debug.h
+        IDENTIFIER LOG_KKEYSERVER_X11
+        CATEGORY_NAME kf.windowsystem.keyserver.x11
+        DEFAULT_SEVERITY Warning
+    )
+
    target_sources(KF6WindowSystem PRIVATE
-        platforms/xcb/kkeyserver.cpp
         platforms/xcb/kselectionowner.cpp
         platforms/xcb/kselectionwatcher.cpp
         platforms/xcb/kxerrorhandler.cpp
         platforms/xcb/kxmessages.cpp
         platforms/xcb/kxutils.cpp
         platforms/xcb/netwm.cpp
+        kkeyserver.cpp
         kx11extras.cpp
         kstartupinfo.cpp
         kusertimestamp.cpp
@@ -98,7 +95,6 @@ set_target_properties(KF6WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSI
 
 ecm_generate_headers(KWindowSystem_HEADERS
   HEADER_NAMES
-  KKeyServer
   KWindowEffects
   KWindowInfo
   KWindowShadow,KWindowShadowTile
@@ -113,6 +109,7 @@ if (KWINDOWSYSTEM_HAVE_X11)
     KX11Extras
     KStartupInfo
     KUserTimestamp
+    KKeyServer
 
     REQUIRED_HEADERS KWindowSystem_HEADERS
     )
