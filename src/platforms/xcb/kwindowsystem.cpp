@@ -1016,16 +1016,6 @@ bool KWindowSystemPrivateX11::icccmCompliantMappingState()
     return wm_is_1_2_compliant == yes;
 }
 
-bool KWindowSystemPrivateX11::allowedActionsSupported()
-{
-    static enum { noidea, yes, no } wm_supports_allowed_actions = noidea;
-    if (wm_supports_allowed_actions == noidea) {
-        NETRootInfo info(QX11Info::connection(), NET::Supported, NET::Properties2(), QX11Info::appScreen());
-        wm_supports_allowed_actions = info.isSupported(NET::WM2AllowedActions) ? yes : no;
-    }
-    return wm_supports_allowed_actions == yes;
-}
-
 QString KWindowSystemPrivateX11::readNameProperty(WId win, unsigned long atom)
 {
     XTextProperty tp;

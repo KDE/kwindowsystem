@@ -61,7 +61,6 @@ public:
                           int bottom_start,
                           int bottom_end) override;
     void setStrut(WId win, int left, int right, int top, int bottom) override;
-    bool allowedActionsSupported() override;
     QString readNameProperty(WId window, unsigned long atom) override;
     void allowExternalProcessWindowActivation(int pid) override;
     void setBlockingCompositing(WId window, bool active) override;

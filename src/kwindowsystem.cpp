@@ -271,11 +271,6 @@ void KWindowSystemPrivateDummy::setStrut(WId win, int left, int right, int top, 
     Q_UNUSED(bottom)
 }
 
-bool KWindowSystemPrivateDummy::allowedActionsSupported()
-{
-    return false;
-}
-
 QString KWindowSystemPrivateDummy::readNameProperty(WId window, unsigned long atom)
 {
     Q_UNUSED(window)
@@ -397,12 +392,6 @@ void KWindowSystem::setShowingDesktop(bool showing)
 {
     Q_D(KWindowSystem);
     return d->setShowingDesktop(showing);
-}
-
-bool KWindowSystem::allowedActionsSupported()
-{
-    Q_D(KWindowSystem);
-    return d->allowedActionsSupported();
 }
 
 void KWindowSystem::allowExternalProcessWindowActivation(int pid)

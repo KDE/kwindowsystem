@@ -411,6 +411,16 @@ QByteArray KWindowInfoPrivateX11::clientMachine() const
     return m_info->clientMachine();
 }
 
+bool KWindowInfoPrivateX11::allowedActionsSupported() const
+{
+    static enum { noidea, yes, no } wm_supports_allowed_actions = noidea;
+    if (wm_supports_allowed_actions == noidea) {
+        NETRootInfo info(QX11Info::connection(), NET::Supported, NET::Properties2(), QX11Info::appScreen());
+        wm_supports_allowed_actions = info.isSupported(NET::WM2AllowedActions) ? yes : no;
+    }
+    return wm_supports_allowed_actions == yes;
+}
+
 bool KWindowInfoPrivateX11::actionSupported(NET::Action action) const
 {
 #if !defined(KDE_NO_WARNING_OUTPUT)
@@ -418,7 +428,7 @@ bool KWindowInfoPrivateX11::actionSupported(NET::Action action) const
         qWarning() << "Pass NET::WM2AllowedActions to KWindowInfo";
     }
 #endif
-    if (KWindowSystem::allowedActionsSupported()) {
+    if (allowedActionsSupported()) {
         return m_info->allowedActions() & action;
     } else {
         return true; // no idea if it's supported or not -> pretend it is

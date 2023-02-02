@@ -156,11 +156,6 @@ public:
     static void setMainWindow(QWindow *subwindow, WId mainwindow);
 
     /**
-     * Returns true if the WM announces which actions it allows for windows.
-     */
-    static bool allowedActionsSupported();
-
-    /**
      * Allows a window from another process to raise and activate itself.
      * Depending on the window manager, the grant may only be temporary,
      * or for a single activation, and it may require the current process

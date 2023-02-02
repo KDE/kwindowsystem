@@ -56,6 +56,7 @@ public:
 
 private:
     bool icccmCompliantMappingState() const;
+    bool allowedActionsSupported() const;
 
     std::unique_ptr<NETWinInfo> m_info;
     QString m_name;
