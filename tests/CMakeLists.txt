@@ -18,7 +18,7 @@ kwindowsystem_executable_tests(
   backgroundcontrasttest
 )
 
-if(KWINDOWSYSTEM_HAVE_X11)
+if(KWINDOWSYSTEM_X11)
     kwindowsystem_executable_tests(
       icontest
       createpixmapfromhandletest

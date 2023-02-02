@@ -1,3 +1,3 @@
-if(KWINDOWSYSTEM_HAVE_X11)
+if(KWINDOWSYSTEM_X11)
     add_subdirectory(xcb)
 endif()

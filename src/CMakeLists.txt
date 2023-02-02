@@ -24,7 +24,7 @@ ecm_qt_declare_logging_category(KF6WindowSystem
     EXPORT KWINDOWSYSTEM
 )
 
-if (KWINDOWSYSTEM_HAVE_X11)
+if (KWINDOWSYSTEM_X11)
    if(NOT X11_Xfixes_LIB)
       message(FATAL_ERROR "The XFixes library could not be found. Please install the development package for it.")
    endif()
@@ -100,7 +100,7 @@ ecm_generate_headers(KWindowSystem_HEADERS
   REQUIRED_HEADERS KWindowSystem_HEADERS
 )
 
-if (KWINDOWSYSTEM_HAVE_X11)
+if (KWINDOWSYSTEM_X11)
     ecm_generate_headers(KWindowSystem_HEADERS
     HEADER_NAMES
     KX11Extras

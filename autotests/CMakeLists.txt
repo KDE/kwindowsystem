@@ -10,15 +10,14 @@ find_package(Qt6 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Test Widgets)
 
 add_subdirectory(helper)
 
-find_package(X11)
-find_package(XCB COMPONENTS XCB ICCCM KEYSYMS)
-
 macro(KWINDOWSYSTEM_UNIT_TESTS)
    foreach(_testname ${ARGN})
-      set(libs KF6::WindowSystem Qt6::Test Qt6::Widgets XCB::ICCCM XCB::KEYSYMS Qt6::GuiPrivate)
-      if(X11_FOUND)
-         list(APPEND libs ${XCB_XCB_LIBRARY})
+      set(libs KF6::WindowSystem Qt6::Test Qt6::Widgets Qt6::GuiPrivate)
+
+      if (KWINDOWSYSTEM_X11)
+         list(APPEND libs XCB::XCB XCB::KEYSYMS XCB::ICCCM)
       endif()
+
       ecm_add_test(${_testname}.cpp LINK_LIBRARIES ${libs} NAME_PREFIX "kwindowsystem-" GUI)
    endforeach(_testname)
 endmacro(KWINDOWSYSTEM_UNIT_TESTS)
@@ -30,7 +29,7 @@ macro(KWINDOWSYSTEM_EXECUTABLE_TESTS)
    endforeach()
 endmacro()
 
-if(X11_FOUND)
+if(KWINDOWSYSTEM_X11)
     include_directories(${CMAKE_SOURCE_DIR}/src/platforms/xcb)
     kwindowsystem_unit_tests(
         kmanagerselectiontest
