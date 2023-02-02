@@ -187,11 +187,6 @@ void KWindowSystemPrivateDummy::lowerWindow(WId win)
     Q_UNUSED(win)
 }
 
-bool KWindowSystemPrivateDummy::icccmCompliantMappingState()
-{
-    return false;
-}
-
 QRect KWindowSystemPrivateDummy::workArea(int desktop)
 {
     Q_UNUSED(desktop)
@@ -225,12 +220,6 @@ bool KWindowSystemPrivateDummy::showingDesktop()
 void KWindowSystemPrivateDummy::setShowingDesktop(bool showing)
 {
     Q_UNUSED(showing);
-}
-
-void KWindowSystemPrivateDummy::setUserTime(WId win, long time)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(time)
 }
 
 void KWindowSystemPrivateDummy::setExtendedStrut(WId win,
@@ -281,12 +270,6 @@ QString KWindowSystemPrivateDummy::readNameProperty(WId window, unsigned long at
 void KWindowSystemPrivateDummy::allowExternalProcessWindowActivation(int pid)
 {
     Q_UNUSED(pid)
-}
-
-void KWindowSystemPrivateDummy::setBlockingCompositing(WId window, bool active)
-{
-    Q_UNUSED(window)
-    Q_UNUSED(active)
 }
 
 bool KWindowSystemPrivateDummy::mapViewport()

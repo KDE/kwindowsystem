@@ -38,14 +38,12 @@ public:
     virtual void unminimizeWindow(WId win) = 0;
     virtual void raiseWindow(WId win) = 0;
     virtual void lowerWindow(WId win) = 0;
-    virtual bool icccmCompliantMappingState() = 0;
     virtual QRect workArea(int desktop) = 0;
     virtual QRect workArea(const QList<WId> &excludes, int desktop) = 0;
     virtual QString desktopName(int desktop) = 0;
     virtual void setDesktopName(int desktop, const QString &name) = 0;
     virtual bool showingDesktop() = 0;
     virtual void setShowingDesktop(bool showing) = 0;
-    virtual void setUserTime(WId win, long time) = 0;
     virtual void setExtendedStrut(WId win,
                                   int left_width,
                                   int left_start,
@@ -62,7 +60,6 @@ public:
     virtual void setStrut(WId win, int left, int right, int top, int bottom) = 0;
     virtual QString readNameProperty(WId window, unsigned long atom) = 0;
     virtual void allowExternalProcessWindowActivation(int pid) = 0;
-    virtual void setBlockingCompositing(WId window, bool active) = 0;
     virtual bool mapViewport() = 0;
     virtual int viewportToDesktop(const QPoint &pos) = 0;
     virtual int viewportWindowToDesktop(const QRect &r) = 0;

@@ -956,12 +956,6 @@ void KWindowSystemPrivateX11::setShowingDesktop(bool showing)
     info.setShowingDesktop(showing);
 }
 
-void KWindowSystemPrivateX11::setUserTime(WId win, long time)
-{
-    NETWinInfo info(QX11Info::connection(), win, QX11Info::appRootWindow(), NET::Properties(), NET::Properties2());
-    info.setUserTime(time);
-}
-
 void KWindowSystemPrivateX11::setExtendedStrut(WId win,
                                                int left_width,
                                                int left_start,
@@ -1006,16 +1000,6 @@ void KWindowSystemPrivateX11::setStrut(WId win, int left, int right, int top, in
     setExtendedStrut(win, left, 0, left != 0 ? w : 0, right, 0, right != 0 ? w : 0, top, 0, top != 0 ? h : 0, bottom, 0, bottom != 0 ? h : 0);
 }
 
-bool KWindowSystemPrivateX11::icccmCompliantMappingState()
-{
-    static enum { noidea, yes, no } wm_is_1_2_compliant = noidea;
-    if (wm_is_1_2_compliant == noidea) {
-        NETRootInfo info(QX11Info::connection(), NET::Supported, NET::Properties2(), QX11Info::appScreen());
-        wm_is_1_2_compliant = info.isSupported(NET::Hidden) ? yes : no;
-    }
-    return wm_is_1_2_compliant == yes;
-}
-
 QString KWindowSystemPrivateX11::readNameProperty(WId win, unsigned long atom)
 {
     XTextProperty tp;
@@ -1044,12 +1028,6 @@ void KWindowSystemPrivateX11::allowExternalProcessWindowActivation(int pid)
 {
     // Normally supported by X11, but may depend on some window managers ?
     Q_UNUSED(pid)
-}
-
-void KWindowSystemPrivateX11::setBlockingCompositing(WId window, bool active)
-{
-    NETWinInfo info(QX11Info::connection(), window, QX11Info::appRootWindow(), NET::Properties(), NET::Properties2());
-    info.setBlockingCompositing(active);
 }
 
 bool KWindowSystemPrivateX11::mapViewport()
