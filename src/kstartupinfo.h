@@ -217,13 +217,6 @@ public:
     static bool sendFinishXcb(xcb_connection_t *conn, int screen, const KStartupInfoId &id, const KStartupInfoData &data);
 
     /**
-     * Returns the current startup notification identification for the current
-     * startup notification environment variable. Note that KApplication constructor
-     * unsets the variable and you have to use KApplication::startupId .
-     * @return the current startup notification identification
-     */
-    static KStartupInfoId currentStartupIdEnv();
-    /**
      * Unsets the startup notification environment variable.
      */
     static void resetStartupEnv();
@@ -270,12 +263,6 @@ public:
      * @param secs the new timeout in seconds
      */
     void setTimeout(unsigned int secs);
-    /**
-     * Sets the startup notification window property on the given window.
-     * @param window the id of the window
-     * @param id the startup notification id
-     */
-    static void setWindowStartupId(WId window, const QByteArray &id);
     /**
      * Returns startup notification identification of the given window.
      * @param w the id of the window

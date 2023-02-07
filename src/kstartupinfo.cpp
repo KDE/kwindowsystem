@@ -141,6 +141,7 @@ public:
     void startups_cleanup_internal(bool age_P);
     void clean_all_noncompliant();
     static QString check_required_startup_fields(const QString &msg, const KStartupInfoData &data, int screen);
+    static void setWindowStartupId(WId w_P, const QByteArray &id_P);
 
     KStartupInfo *q;
     unsigned int timeout;
@@ -567,7 +568,7 @@ void KStartupInfo::setNewStartupId(QWindow *window, const QByteArray &startup_id
         if (!startup_id.isEmpty() && startup_id != "0") {
             NETRootInfo i(QX11Info::connection(), NET::Supported);
             if (i.isSupported(NET::WM2StartupId)) {
-                KStartupInfo::setWindowStartupId(window->winId(), startup_id);
+                KStartupInfo::Private::setWindowStartupId(window->winId(), startup_id);
                 activate = false; // WM will take care of it
             }
         }
@@ -738,7 +739,7 @@ QByteArray KStartupInfo::windowStartupId(WId w_P)
     return ret;
 }
 
-void KStartupInfo::setWindowStartupId(WId w_P, const QByteArray &id_P)
+void KStartupInfo::Private::setWindowStartupId(WId w_P, const QByteArray &id_P)
 {
     if (!QX11Info::isPlatformX11()) {
         return;
@@ -888,18 +889,6 @@ bool KStartupInfoId::setupStartupEnv() const
         return false;
     }
     return !qputenv(NET_STARTUP_ENV, id()) == 0;
-}
-
-KStartupInfoId KStartupInfo::currentStartupIdEnv()
-{
-    const QByteArray startup_env = qgetenv(NET_STARTUP_ENV);
-    KStartupInfoId id;
-    if (!startup_env.isEmpty()) {
-        id.d->id = startup_env;
-    } else {
-        id.d->id = "0";
-    }
-    return id;
 }
 
 void KStartupInfo::resetStartupEnv()
