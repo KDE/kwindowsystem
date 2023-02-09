@@ -770,11 +770,13 @@ QString KWindowSystem::readNameProperty(WId win, unsigned long atom)
 }
 #endif
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 104)
 void KWindowSystem::allowExternalProcessWindowActivation(int pid)
 {
     Q_D(KWindowSystem);
     d->allowExternalProcessWindowActivation(pid);
 }
+#endif
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
 void KWindowSystem::setBlockingCompositing(WId window, bool active)

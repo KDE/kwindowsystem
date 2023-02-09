@@ -715,6 +715,7 @@ public:
     static QString readNameProperty(WId window, unsigned long atom);
 #endif
 
+#if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 104)
     /**
      * Allows a window from another process to raise and activate itself.
      * Depending on the window manager, the grant may only be temporary,
@@ -731,8 +732,12 @@ public:
      *
      * @param pid if specified, the grant only applies to windows belonging to the
      *            specific process. By default, a value of -1 means all processes.
+     *
+     * @deprecated since 5.104, not implemented.
      */
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 104, "Not implemented");
     static void allowExternalProcessWindowActivation(int pid = -1);
+#endif
 
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(5, 101)
     /**
