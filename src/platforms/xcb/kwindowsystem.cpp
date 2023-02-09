@@ -1024,12 +1024,6 @@ QString KWindowSystemPrivateX11::readNameProperty(WId win, unsigned long atom)
     return result;
 }
 
-void KWindowSystemPrivateX11::allowExternalProcessWindowActivation(int pid)
-{
-    // Normally supported by X11, but may depend on some window managers ?
-    Q_UNUSED(pid)
-}
-
 bool KWindowSystemPrivateX11::mapViewport()
 {
     NETEventFilter *const s_d = s_d_func();

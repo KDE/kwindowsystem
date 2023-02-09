@@ -59,7 +59,6 @@ public:
                                   int bottom_end) = 0;
     virtual void setStrut(WId win, int left, int right, int top, int bottom) = 0;
     virtual QString readNameProperty(WId window, unsigned long atom) = 0;
-    virtual void allowExternalProcessWindowActivation(int pid) = 0;
     virtual bool mapViewport() = 0;
     virtual int viewportWindowToDesktop(const QRect &r) = 0;
     virtual QPoint constrainViewportRelativePosition(const QPoint &pos) = 0;

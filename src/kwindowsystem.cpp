@@ -267,11 +267,6 @@ QString KWindowSystemPrivateDummy::readNameProperty(WId window, unsigned long at
     return QString();
 }
 
-void KWindowSystemPrivateDummy::allowExternalProcessWindowActivation(int pid)
-{
-    Q_UNUSED(pid)
-}
-
 bool KWindowSystemPrivateDummy::mapViewport()
 {
     return false;
@@ -362,12 +357,6 @@ void KWindowSystem::setShowingDesktop(bool showing)
 {
     Q_D(KWindowSystem);
     return d->setShowingDesktop(showing);
-}
-
-void KWindowSystem::allowExternalProcessWindowActivation(int pid)
-{
-    Q_D(KWindowSystem);
-    d->allowExternalProcessWindowActivation(pid);
 }
 
 int KWindowSystem::viewportWindowToDesktop(const QRect &r)

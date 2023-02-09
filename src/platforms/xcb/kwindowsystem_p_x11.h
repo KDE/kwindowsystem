@@ -60,7 +60,6 @@ public:
                           int bottom_end) override;
     void setStrut(WId win, int left, int right, int top, int bottom) override;
     QString readNameProperty(WId window, unsigned long atom) override;
-    void allowExternalProcessWindowActivation(int pid) override;
     bool mapViewport() override;
     int viewportWindowToDesktop(const QRect &r) override;
     QPoint constrainViewportRelativePosition(const QPoint &pos) override;
