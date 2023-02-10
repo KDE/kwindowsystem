@@ -735,7 +735,7 @@ public:
      *
      * @deprecated since 5.104, not implemented.
      */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 104, "Not implemented");
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 104, "Not implemented")
     static void allowExternalProcessWindowActivation(int pid = -1);
 #endif
 
