@@ -41,25 +41,16 @@ public:
     static KWindowSystem *self();
 
     /**
-     * Requests that window @p win is activated.
+     * Requests that window @p window is activated.
      *
-     * There are two ways how to activate a window, by calling
-     * activateWindow() and forceActiveWindow(). Generally,
-     * applications shouldn't make attempts to explicitly activate
-     * their windows, and instead let the user to activate them.
+     * Applications shouldn't make attempts to explicitly activate
+     * their windows, and instead let the user activate them.
      * In the special cases where this may be needed, applications
-     * should use activateWindow(). Window manager may consider whether
+     * can use activateWindow(). The window manager may consider whether
      * this request wouldn't result in focus stealing, which
      * would be obtrusive, and may refuse the request.
      *
-     * The usage of forceActiveWindow() is meant only for pagers
-     * and similar tools, which represent direct user actions
-     * related to window manipulation.
-     * Except for rare cases, this request will be always honored,
-     * and normal applications are forbidden to use it.
-     *
-     * In case of problems, consult the KWin README in the kdebase
-     * package (kdebase/kwin/README), or ask on the kwin@kde.org
+     * In case of problems, consult KWin's README.md file, or ask on the kwin@kde.org
      * mailing list.
      *
      * @param window the window to make active
