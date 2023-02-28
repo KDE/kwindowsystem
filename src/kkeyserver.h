@@ -189,7 +189,7 @@ KWINDOWSYSTEM_EXPORT bool modXToQt(uint modX, int *modQt);
  *        if successful
  * @return true if successful, false otherwise
  */
-// KWINDOWSYSTEM_EXPORT bool xEventToQt(XEvent *e, int *keyModQt);
+KWINDOWSYSTEM_EXPORT bool xEventToQt(XEvent *e, int *keyModQt);
 
 /**
  * Converts an XCB keypress event into a Qt key + modifier code
