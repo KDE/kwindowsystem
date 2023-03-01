@@ -13,8 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 
-#: platforms/osx/kwindowsystem.cpp:575 platforms/windows/kwindowsystem.cpp:650
-#: platforms/xcb/kwindowsystem.cpp:1072
+#: platforms/xcb/kwindowsystem.cpp:927
 #, qt-format
 msgctxt "KWindowSystem|"
 msgid "Desktop %1"

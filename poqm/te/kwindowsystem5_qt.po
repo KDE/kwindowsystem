@@ -25,8 +25,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "X-Qt-Contexts: true\n"
 
-#: platforms/osx/kwindowsystem.cpp:575 platforms/windows/kwindowsystem.cpp:650
-#: platforms/xcb/kwindowsystem.cpp:1072
+#: platforms/xcb/kwindowsystem.cpp:927
 #, fuzzy, qt-format
 #| msgid "Desktop %1"
 msgctxt "KWindowSystem|"
