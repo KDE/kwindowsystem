@@ -1,4 +1,4 @@
-add_library(KF5WindowSystemKWaylandPlugin MODULE)
+add_library(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin MODULE)
 set(wayland_plugin_SRCS
     plugin.cpp
     waylandintegration.cpp
@@ -21,7 +21,7 @@ if (QT_MAJOR_VERSION EQUAL "5")
         BASENAME xdg-activation-v1
     )
 else()
-    qt6_generate_wayland_protocol_client_sources(KF5WindowSystemKWaylandPlugin FILES
+    qt6_generate_wayland_protocol_client_sources(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin FILES
         ${WaylandProtocols_DATADIR}/staging/xdg-activation/xdg-activation-v1.xml
     )
 
@@ -30,13 +30,13 @@ ecm_qt_declare_logging_category(wayland_plugin_SRCS HEADER logging.h IDENTIFIER 
     CATEGORY_NAME org.kde.kf5.kwindowsystem.kwayland DEFAULT_SEVERITY Warning
     DESCRIPTION "wayland integration (windowsystem)" EXPORT KWAYLAND)
 
-target_sources(KF5WindowSystemKWaylandPlugin PRIVATE ${wayland_plugin_SRCS})
+target_sources(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin PRIVATE ${wayland_plugin_SRCS})
 
 pkg_check_modules(XKBCommon REQUIRED IMPORTED_TARGET xkbcommon)
 
-target_link_libraries(KF5WindowSystemKWaylandPlugin
-    KF5::WindowSystem
-    KF5::WaylandClient
+target_link_libraries(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin
+    KF${QT_MAJOR_VERSION}::WindowSystem
+    KF${QT_MAJOR_VERSION}::WaylandClient
     Qt::Widgets
     Wayland::Client
     Qt::WaylandClient
@@ -45,14 +45,14 @@ target_link_libraries(KF5WindowSystemKWaylandPlugin
 )
 
 if (QT_MAJOR_VERSION EQUAL "5")
-    target_link_libraries(KF5WindowSystemKWaylandPlugin
+    target_link_libraries(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin
         Qt::XkbCommonSupportPrivate
     )
 endif()
 
 install(
     TARGETS
-        KF5WindowSystemKWaylandPlugin
+        KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin
     DESTINATION
         ${KDE_INSTALL_PLUGINDIR}/kf${QT_MAJOR_VERSION}/kwindowsystem/
 )
