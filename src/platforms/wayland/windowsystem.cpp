@@ -111,15 +111,19 @@ WId WindowSystem::activeWindow()
     return 0;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 bool WindowSystem::allowedActionsSupported()
 {
     return false;
 }
+#endif
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowSystem::allowExternalProcessWindowActivation(int pid)
 {
     Q_UNUSED(pid)
 }
+#endif
 
 bool WindowSystem::compositingActive()
 {
@@ -145,7 +149,7 @@ int WindowSystem::currentDesktop()
     return 0;
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowSystem::demandAttention(WId win, bool set)
 {
     Q_UNUSED(win)
@@ -161,6 +165,7 @@ QString WindowSystem::desktopName(int desktop)
     return QString();
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 QPoint WindowSystem::desktopToViewport(int desktop, bool absolute)
 {
     Q_UNUSED(desktop)
@@ -168,8 +173,9 @@ QPoint WindowSystem::desktopToViewport(int desktop, bool absolute)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support viewport positions";
     return QPoint();
 }
+#endif
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 WId WindowSystem::groupLeader(WId window)
 {
     Q_UNUSED(window)
@@ -178,10 +184,12 @@ WId WindowSystem::groupLeader(WId window)
 }
 #endif
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 bool WindowSystem::icccmCompliantMappingState()
 {
     return false;
 }
+#endif
 
 QPixmap WindowSystem::icon(WId win, int width, int height, bool scale, int flags)
 {
@@ -238,12 +246,14 @@ QString WindowSystem::readNameProperty(WId window, long unsigned int atom)
     return QString();
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowSystem::setBlockingCompositing(WId window, bool active)
 {
     Q_UNUSED(window)
     Q_UNUSED(active)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support blocking compositing";
 }
+#endif
 
 void WindowSystem::setCurrentDesktop(int desktop)
 {
@@ -298,7 +308,7 @@ void WindowSystem::setStrut(WId win, int left, int right, int top, int bottom)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support window struts";
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 101)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon)
 {
     Q_UNUSED(win)
@@ -501,12 +511,14 @@ void WindowSystem::setType(WId win, NET::WindowType windowType)
     shellSurface->setRole(role);
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowSystem::setUserTime(WId win, long int time)
 {
     Q_UNUSED(win)
     Q_UNUSED(time)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support setting user type";
 }
+#endif
 
 bool WindowSystem::showingDesktop()
 {
@@ -522,7 +534,7 @@ QList<WId> WindowSystem::stackingOrder()
     return QList<WId>();
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 0)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 WId WindowSystem::transientFor(WId window)
 {
     Q_UNUSED(window)
@@ -531,12 +543,14 @@ WId WindowSystem::transientFor(WId window)
 }
 #endif
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 int WindowSystem::viewportToDesktop(const QPoint &pos)
 {
     Q_UNUSED(pos)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support viewports";
     return 0;
 }
+#endif
 
 int WindowSystem::viewportWindowToDesktop(const QRect &r)
 {
