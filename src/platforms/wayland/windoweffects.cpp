@@ -244,7 +244,8 @@ void WindowEffects::installSlide(QWindow *window, KWindowEffects::SlideFromLocat
     }
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 81)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+
 QList<QSize> WindowEffects::windowSizes(const QList<WId> &ids)
 {
     Q_UNUSED(ids)
@@ -253,7 +254,7 @@ QList<QSize> WindowEffects::windowSizes(const QList<WId> &ids)
 }
 #endif
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowEffects::presentWindows(WId controller, const QList<WId> &ids)
 {
     Q_UNUSED(controller)
@@ -261,7 +262,7 @@ void WindowEffects::presentWindows(WId controller, const QList<WId> &ids)
 }
 #endif
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowEffects::presentWindows(WId controller, int desktop)
 {
     Q_UNUSED(controller)
@@ -269,7 +270,7 @@ void WindowEffects::presentWindows(WId controller, int desktop)
 }
 #endif
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 82)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowEffects::highlightWindows(WId controller, const QList<WId> &ids)
 {
     Q_UNUSED(controller)
@@ -390,7 +391,7 @@ void WindowEffects::setBackgroundFrost(QWindow *window, QColor color, const QReg
     WaylandIntegration::self()->waylandConnection()->flush();
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(5, 67)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowEffects::markAsDashboard(WId window)
 {
     Q_UNUSED(window)
