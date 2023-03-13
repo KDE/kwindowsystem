@@ -3,7 +3,7 @@ configure_file(config-kwindowsystem.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-k
 add_library(KF6WindowSystem)
 add_library(KF6::WindowSystem ALIAS KF6WindowSystem)
 
-ecm_create_qm_loader(KF6WindowSystem kwindowsystem5_qt)
+ecm_create_qm_loader(KF6WindowSystem kwindowsystem6_qt)
 
 target_sources(KF6WindowSystem PRIVATE
     kwindoweffects.cpp
