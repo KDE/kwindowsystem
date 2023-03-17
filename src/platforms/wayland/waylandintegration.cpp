@@ -104,30 +104,6 @@ KWayland::Client::Compositor *WaylandIntegration::waylandCompositor() const
     return m_waylandCompositor;
 }
 
-KWayland::Client::PlasmaWindowManagement *WaylandIntegration::plasmaWindowManagement()
-{
-    using namespace KWayland::Client;
-
-    if (!m_wm && m_registry) {
-        const Registry::AnnouncedInterface wmInterface = m_registry->interface(Registry::Interface::PlasmaWindowManagement);
-
-        if (wmInterface.name == 0) {
-            qCWarning(KWAYLAND_KWS) << "This compositor does not support the Plasma Window Management interface";
-            return nullptr;
-        }
-
-        m_wm = m_registry->createPlasmaWindowManagement(wmInterface.name, wmInterface.version, qApp);
-        connect(m_wm, &PlasmaWindowManagement::showingDesktopChanged, KWindowSystem::self(), &KWindowSystem::showingDesktopChanged);
-        qCDebug(KWAYLAND_KWS) << "Plasma Window Management interface bound";
-
-        connect(m_wm, &KWayland::Client::PlasmaWindowManagement::removed, this, [this]() {
-            m_wm->deleteLater();
-        });
-    }
-
-    return m_wm;
-}
-
 KWayland::Client::PlasmaShell *WaylandIntegration::waylandPlasmaShell()
 {
     if (!m_waylandPlasmaShell && m_registry) {

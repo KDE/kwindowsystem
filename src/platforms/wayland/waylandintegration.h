@@ -18,7 +18,6 @@ namespace Client
 {
 class Compositor;
 class ConnectionThread;
-class PlasmaWindowManagement;
 class PlasmaShell;
 class Registry;
 class ShadowManager;
@@ -40,7 +39,6 @@ public:
     KWayland::Client::ConnectionThread *waylandConnection() const;
     KWayland::Client::ShadowManager *waylandShadowManager();
     KWayland::Client::Compositor *waylandCompositor() const;
-    KWayland::Client::PlasmaWindowManagement *plasmaWindowManagement();
     KWayland::Client::PlasmaShell *waylandPlasmaShell();
     KWayland::Client::ShmPool *createShmPool();
     WaylandXdgActivationV1 *activation();
@@ -50,7 +48,6 @@ private:
     QPointer<KWayland::Client::Compositor> m_waylandCompositor;
     QPointer<KWayland::Client::Registry> m_registry;
     QPointer<KWayland::Client::ShadowManager> m_waylandShadowManager;
-    QPointer<KWayland::Client::PlasmaWindowManagement> m_wm;
     QPointer<KWayland::Client::PlasmaShell> m_waylandPlasmaShell;
     QPointer<WaylandXdgActivationV1> m_activation;
     struct {

@@ -18,11 +18,14 @@ class PlasmaShell;
 }
 }
 
+class WindowManagement;
+
 class WindowSystem : public QObject, public KWindowSystemPrivateV2
 {
     Q_OBJECT
 public:
     WindowSystem();
+    ~WindowSystem() override;
     QList<WId> windows() override;
     QList<WId> stackingOrder() override;
     WId activeWindow() override;
@@ -104,6 +107,7 @@ public:
 private:
     KWayland::Client::PlasmaShell *m_waylandPlasmaShell = nullptr;
     QString m_lastToken;
+    WindowManagement *m_windowManagement;
 };
 
 #endif

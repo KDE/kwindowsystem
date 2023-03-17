@@ -12,20 +12,38 @@
 
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/plasmashell.h>
-#include <KWayland/Client/plasmawindowmanagement.h>
 #include <KWayland/Client/registry.h>
 #include <KWayland/Client/seat.h>
 #include <KWayland/Client/surface.h>
 
+#include "qwayland-plasma-window-management.h"
 #include <QGuiApplication>
 #include <QPixmap>
 #include <QPoint>
 #include <QString>
+#include <QWaylandClientExtensionTemplate>
 #include <QWindow>
 #include <private/qwaylanddisplay_p.h>
 #include <private/qwaylandinputdevice_p.h>
 #include <private/qwaylandwindow_p.h>
 #include <qpa/qplatformnativeinterface.h>
+#include <qwaylandclientextension.h>
+
+class WindowManagement : public QWaylandClientExtensionTemplate<WindowManagement>, public QtWayland::org_kde_plasma_window_management
+{
+public:
+    WindowManagement()
+        : QWaylandClientExtensionTemplate<WindowManagement>(16)
+    {
+    }
+
+    void org_kde_plasma_window_management_show_desktop_changed(uint32_t state) override
+    {
+        showingDesktop = state == show_desktop_enabled;
+    }
+
+    bool showingDesktop = false;
+};
 
 using namespace KWayland::Client;
 
@@ -34,6 +52,12 @@ WindowSystem::WindowSystem()
     , KWindowSystemPrivateV2()
     , m_lastToken(qEnvironmentVariable("XDG_ACTIVATION_TOKEN"))
 {
+    m_windowManagement = new WindowManagement;
+}
+
+WindowSystem::~WindowSystem()
+{
+    delete m_windowManagement;
 }
 
 void WindowSystem::activateWindow(WId win, long int time)
@@ -341,10 +365,10 @@ void WindowSystem::setOnDesktop(WId win, int desktop)
 
 void WindowSystem::setShowingDesktop(bool showing)
 {
-    if (!WaylandIntegration::self()->plasmaWindowManagement()) {
+    if (!m_windowManagement->isActive()) {
         return;
     }
-    WaylandIntegration::self()->plasmaWindowManagement()->setShowingDesktop(showing);
+    m_windowManagement->show_desktop(showing ? WindowManagement::show_desktop_enabled : WindowManagement::show_desktop_disabled);
 }
 
 void WindowSystem::clearState(WId win, NET::States state)
@@ -530,10 +554,10 @@ void WindowSystem::setUserTime(WId win, long int time)
 
 bool WindowSystem::showingDesktop()
 {
-    if (!WaylandIntegration::self()->plasmaWindowManagement()) {
+    if (!m_windowManagement->isActive()) {
         return false;
     }
-    return WaylandIntegration::self()->plasmaWindowManagement()->isShowingDesktop();
+    return m_windowManagement->showingDesktop;
 }
 
 QList<WId> WindowSystem::stackingOrder()
