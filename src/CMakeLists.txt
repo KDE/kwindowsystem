@@ -3,6 +3,12 @@ configure_file(config-kwindowsystem.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-k
 add_library(KF6WindowSystem)
 add_library(KF6::WindowSystem ALIAS KF6WindowSystem)
 
+set_target_properties(KF6WindowSystem PROPERTIES
+    VERSION     ${KWINDOWSYSTEM_VERSION}
+    SOVERSION   ${KWINDOWSYSTEM_SOVERSION}
+    EXPORT_NAME WindowSystem
+)
+
 ecm_create_qm_loader(KF6WindowSystem kwindowsystem6_qt)
 
 target_sources(KF6WindowSystem PRIVATE
@@ -83,11 +89,6 @@ target_include_directories(KF6WindowSystem INTERFACE "$<INSTALL_INTERFACE:${KDE_
 
 target_link_libraries(KF6WindowSystem
     PUBLIC Qt6::Gui
-)
-
-set_target_properties(KF6WindowSystem PROPERTIES VERSION   ${KWINDOWSYSTEM_VERSION}
-                                                 SOVERSION ${KWINDOWSYSTEM_SOVERSION}
-                                                 EXPORT_NAME WindowSystem
 )
 
 ecm_generate_headers(KWindowSystem_HEADERS
