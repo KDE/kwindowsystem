@@ -32,8 +32,9 @@ set(EXCLUDE_DEPRECATED_BEFORE_AND_AT 0 CACHE STRING "Control the range of deprec
 option(BUILD_QCH "Build API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)" OFF)
 add_feature_info(QCH ${BUILD_QCH} "API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)")
 
+set(kwindowsystem_version_header "${CMAKE_CURRENT_BINARY_DIR}/src/kwindowsystem_version.h")
 ecm_setup_version(PROJECT VARIABLE_PREFIX KWINDOWSYSTEM
-                        VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kwindowsystem_version.h"
+                        VERSION_HEADER "${kwindowsystem_version_header}"
                         PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF6WindowSystemConfigVersion.cmake"
                         SOVERSION 6)
 
@@ -101,7 +102,7 @@ install(FILES  "${CMAKE_CURRENT_BINARY_DIR}/KF6WindowSystemConfig.cmake"
 install(EXPORT KF6WindowSystemTargets DESTINATION "${CMAKECONFIG_INSTALL_DIR}" FILE KF6WindowSystemTargets.cmake NAMESPACE KF6:: )
 
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/kwindowsystem_version.h
+install(FILES ${kwindowsystem_version_header}
         DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KWindowSystem COMPONENT Devel )
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
