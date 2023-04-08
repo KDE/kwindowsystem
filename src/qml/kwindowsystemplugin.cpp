@@ -22,11 +22,12 @@ void KWindowSystemPlugin::registerTypes(const char *uri)
 
 #if KWINDOWSYSTEM_HAVE_X11
     qmlRegisterSingletonType<KX11Extras>("org.kde.kwindowsystem", 1, 0, "KX11Extras", [](QQmlEngine *, QJSEngine *) -> QObject * {
+        QQmlEngine::setObjectOwnership(KX11Extras::self(), QQmlEngine::CppOwnership);
         return KX11Extras::self();
     });
 #endif
-
     qmlRegisterSingletonType<KWindowSystem>("org.kde.kwindowsystem", 1, 0, "KWindowSystem", [](QQmlEngine *, QJSEngine *) -> QObject * {
+        QQmlEngine::setObjectOwnership(KWindowSystem::self(), QQmlEngine::CppOwnership);
         return KWindowSystem::self();
     });
 }
