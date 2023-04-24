@@ -241,6 +241,12 @@ bool WindowEffects::eventFilter(QObject *watched, QEvent *event)
                 installContrast(window, true, it->contrast, it->intensity, it->saturation, it->region);
             }
         }
+        {
+            auto it = m_slideMap.constFind(window);
+            if (it != m_slideMap.constEnd()) {
+                installSlide(window, it->location, it->offset);
+            }
+        }
     }
     return false;
 }
