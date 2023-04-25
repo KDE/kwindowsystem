@@ -290,3 +290,8 @@ void KX11Extras::connectNotify(const QMetaMethod &signal)
     KWindowSystem::self()->d_func()->connectNotify(signal);
     QObject::connectNotify(signal);
 }
+
+void KX11Extras::setType(WId win, NET::WindowType windowType)
+{
+    KWindowSystem::self()->d_func()->setType(win, windowType);
+}

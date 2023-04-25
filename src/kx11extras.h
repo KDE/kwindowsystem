@@ -369,6 +369,16 @@ public:
      */
     static void setStrut(WId win, int left, int right, int top, int bottom);
 
+    /**
+     * Sets the type of window @p win to @p windowType.
+     *
+     * @param win the id of the window
+     * @param windowType the type of the window (see NET::WindowType)
+     *
+     * @since 6.0
+     */
+    static void setType(WId win, NET::WindowType windowType);
+
 Q_SIGNALS:
 
     /**
