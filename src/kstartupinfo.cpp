@@ -1278,7 +1278,7 @@ void KStartupInfoData::setApplicationId(const QString &desktop)
     // the spec requires this is always a full path, in order for everyone to be able to find it
     QString desk = QStandardPaths::locate(QStandardPaths::ApplicationsLocation, desktop);
     if (desk.isEmpty()) {
-        desk = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QLatin1String("kservices5/") + desktop);
+        desk = QStandardPaths::locate(QStandardPaths::GenericDataLocation, QLatin1String("kservices6/") + desktop);
     }
     if (desk.isEmpty()) {
         return;
