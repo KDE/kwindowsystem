@@ -171,7 +171,7 @@ public:
         }
 
         if (!(flags & DisableKWinModule)) {
-            QObject::connect(KWindowSystem::self(), SIGNAL(windowAdded(WId)), q, SLOT(slot_window_added(WId)));
+            QObject::connect(KX11Extras::self(), SIGNAL(windowAdded(WId)), q, SLOT(slot_window_added(WId)));
 #ifdef __GNUC__
 #warning "systemTrayWindowAdded signal was remove from KWindowSystem class"
 #endif
