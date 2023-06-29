@@ -295,3 +295,5 @@ void KX11Extras::setType(WId win, NET::WindowType windowType)
 {
     KWindowSystem::self()->d_func()->setType(win, windowType);
 }
+
+#include "moc_kx11extras.cpp"

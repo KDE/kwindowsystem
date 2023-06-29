@@ -610,3 +610,5 @@ xcb_atom_t KSelectionOwner::Private::manager_atom = XCB_NONE;
 xcb_atom_t KSelectionOwner::Private::xa_multiple = XCB_NONE;
 xcb_atom_t KSelectionOwner::Private::xa_targets = XCB_NONE;
 xcb_atom_t KSelectionOwner::Private::xa_timestamp = XCB_NONE;
+
+#include "moc_kselectionowner.cpp"

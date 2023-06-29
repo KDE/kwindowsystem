@@ -164,3 +164,5 @@ void SigCheckWatcher::lostOwner()
 }
 
 QTEST_MAIN(KManagerSelectionTest)
+
+#include "moc_kmanagerselectiontest.cpp"

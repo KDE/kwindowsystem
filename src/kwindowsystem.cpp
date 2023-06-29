@@ -460,3 +460,5 @@ quint32 KWindowSystem::lastInputSerial(QWindow *window)
     }
     return dv2->lastInputSerial(window);
 }
+
+#include "moc_kwindowsystem.cpp"

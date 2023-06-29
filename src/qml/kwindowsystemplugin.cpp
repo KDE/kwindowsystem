@@ -31,3 +31,5 @@ void KWindowSystemPlugin::registerTypes(const char *uri)
         return KWindowSystem::self();
     });
 }
+
+#include "moc_kwindowsystemplugin.cpp"

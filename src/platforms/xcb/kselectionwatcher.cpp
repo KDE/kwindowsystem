@@ -242,3 +242,5 @@ void KSelectionWatcher::filterEvent(void *ev_P)
 }
 
 xcb_atom_t KSelectionWatcher::Private::manager_atom = XCB_NONE;
+
+#include "moc_kselectionwatcher.cpp"
