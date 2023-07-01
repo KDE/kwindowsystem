@@ -289,3 +289,5 @@ void KX11Extras::connectNotify(const QMetaMethod &signal)
     KWindowSystem::self()->d_func()->connectNotify(signal);
     QObject::connectNotify(signal);
 }
+
+#include "moc_kx11extras.cpp"

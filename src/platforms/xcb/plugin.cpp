@@ -43,3 +43,5 @@ KWindowShadowTilePrivate *X11Plugin::createWindowShadowTile()
 {
     return new KWindowShadowTilePrivateX11();
 }
+
+#include "moc_plugin.cpp"

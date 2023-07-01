@@ -42,3 +42,5 @@ KWindowShadowTilePrivate *KWindowSystemPluginInterface::createWindowShadowTile()
 {
     return nullptr;
 }
+
+#include "moc_kwindowsystemplugininterface_p.cpp"

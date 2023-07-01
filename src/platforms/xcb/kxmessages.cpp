@@ -353,4 +353,6 @@ send_message_internal(xcb_window_t w, const QString &msg_P, xcb_connection_t *c,
     xcb_flush(c);
 }
 
+#include "moc_kxmessages.cpp"
+
 #endif

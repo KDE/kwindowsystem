@@ -334,3 +334,5 @@ bool KWindowShadowPrivateDummy::create()
 void KWindowShadowPrivateDummy::destroy()
 {
 }
+
+#include "moc_kwindowshadow.cpp"
