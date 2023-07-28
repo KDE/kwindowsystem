@@ -99,11 +99,6 @@ KWayland::Client::ShadowManager *WaylandIntegration::waylandShadowManager()
     return m_waylandShadowManager;
 }
 
-KWayland::Client::Compositor *WaylandIntegration::waylandCompositor() const
-{
-    return m_waylandCompositor;
-}
-
 KWayland::Client::PlasmaShell *WaylandIntegration::waylandPlasmaShell()
 {
     if (!m_waylandPlasmaShell && m_registry) {

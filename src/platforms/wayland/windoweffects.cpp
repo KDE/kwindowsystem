@@ -13,9 +13,7 @@
 #include <QGuiApplication>
 #include <QWidget>
 
-#include <KWayland/Client/compositor.h>
 #include <KWayland/Client/connection_thread.h>
-#include <KWayland/Client/region.h>
 #include <private/qwaylandwindow_p.h>
 
 #include <QWaylandClientExtensionTemplate>
@@ -26,6 +24,23 @@
 #include "qwayland-slide.h"
 
 #include "surfacehelper.h"
+
+static wl_region *createRegion(const QRegion &region)
+{
+    QPlatformNativeInterface *native = qGuiApp->platformNativeInterface();
+    if (!native) {
+        return nullptr;
+    }
+    auto compositor = reinterpret_cast<wl_compositor *>(native->nativeResourceForIntegration(QByteArrayLiteral("compositor")));
+    if (!compositor) {
+        return nullptr;
+    }
+    auto wl_region = wl_compositor_create_region(compositor);
+    for (const auto &rect : region) {
+        wl_region_add(wl_region, rect.x(), rect.y(), rect.width(), rect.height());
+    }
+    return wl_region;
+}
 
 class BlurManager : public QWaylandClientExtensionTemplate<BlurManager>, public QtWayland::org_kde_kwin_blur_manager
 {
@@ -385,10 +400,14 @@ void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &reg
 
     if (surface) {
         if (enable) {
+            auto wl_region = createRegion(region);
+            if (!wl_region) {
+                return;
+            }
             auto blur = new Blur(m_blurManager->create(surface), window);
-            std::unique_ptr<KWayland::Client::Region> wlRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
-            blur->set_region(*(wlRegion.get()));
+            blur->set_region(wl_region);
             blur->commit();
+            wl_region_destroy(wl_region);
             resetBlur(window, blur);
         } else {
             resetBlur(window);
@@ -429,13 +448,17 @@ void WindowEffects::installContrast(QWindow *window, bool enable, qreal contrast
     wl_surface *surface = surfaceForWindow(window);
     if (surface) {
         if (enable) {
+            auto wl_region = createRegion(region);
+            if (!wl_region) {
+                return;
+            }
             auto backgroundContrast = new Contrast(m_contrastManager->create(surface), window);
-            std::unique_ptr<KWayland::Client::Region> wlRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
-            backgroundContrast->set_region(*(wlRegion.get()));
+            backgroundContrast->set_region(wl_region);
             backgroundContrast->set_contrast(wl_fixed_from_double(contrast));
             backgroundContrast->set_intensity(wl_fixed_from_double(intensity));
             backgroundContrast->set_saturation(wl_fixed_from_double(saturation));
             backgroundContrast->commit();
+            wl_region_destroy(wl_region);
             resetContrast(window, backgroundContrast);
         } else {
             resetContrast(window);
@@ -462,11 +485,15 @@ void WindowEffects::setBackgroundFrost(QWindow *window, QColor color, const QReg
         return;
     }
 
+    auto wl_region = createRegion(region);
+    if (!wl_region) {
+        return;
+    }
     auto backgroundContrast = new Contrast(m_contrastManager->create(surface), window);
-    std::unique_ptr<KWayland::Client::Region> wlRegion(WaylandIntegration::self()->waylandCompositor()->createRegion(region, nullptr));
-    backgroundContrast->set_region(*(wlRegion.get()));
+    backgroundContrast->set_region(wl_region);
     backgroundContrast->set_frost(color.red(), color.green(), color.blue(), color.alpha());
     backgroundContrast->commit();
+    wl_region_destroy(wl_region);
     resetContrast(window, backgroundContrast);
 
     WaylandIntegration::self()->waylandConnection()->flush();

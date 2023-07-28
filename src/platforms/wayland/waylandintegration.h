@@ -38,7 +38,6 @@ public:
     KWayland::Client::Registry *registry() const;
     KWayland::Client::ConnectionThread *waylandConnection() const;
     KWayland::Client::ShadowManager *waylandShadowManager();
-    KWayland::Client::Compositor *waylandCompositor() const;
     KWayland::Client::PlasmaShell *waylandPlasmaShell();
     KWayland::Client::ShmPool *createShmPool();
     WaylandXdgActivationV1 *activation();
