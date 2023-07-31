@@ -74,11 +74,6 @@ KWayland::Client::Registry *WaylandIntegration::registry() const
     return m_registry;
 }
 
-KWayland::Client::ConnectionThread *WaylandIntegration::waylandConnection() const
-{
-    return m_waylandConnection;
-}
-
 KWayland::Client::ShadowManager *WaylandIntegration::waylandShadowManager()
 {
     if (!m_waylandShadowManager && m_registry) {

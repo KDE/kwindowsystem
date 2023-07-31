@@ -36,7 +36,6 @@ public:
     static WaylandIntegration *self();
 
     KWayland::Client::Registry *registry() const;
-    KWayland::Client::ConnectionThread *waylandConnection() const;
     KWayland::Client::ShadowManager *waylandShadowManager();
     KWayland::Client::PlasmaShell *waylandPlasmaShell();
     KWayland::Client::ShmPool *createShmPool();

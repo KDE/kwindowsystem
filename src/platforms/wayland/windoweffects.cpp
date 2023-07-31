@@ -6,14 +6,12 @@
 */
 
 #include "windoweffects.h"
-#include "waylandintegration.h"
 
 #include <QDebug>
 #include <QExposeEvent>
 #include <QGuiApplication>
 #include <QWidget>
 
-#include <KWayland/Client/connection_thread.h>
 #include <private/qwaylandwindow_p.h>
 
 #include <QWaylandClientExtensionTemplate>
@@ -333,8 +331,6 @@ void WindowEffects::installSlide(QWindow *window, KWindowEffects::SlideFromLocat
         } else {
             m_slideManager->unset(surface);
         }
-
-        WaylandIntegration::self()->waylandConnection()->flush();
     }
 }
 
@@ -413,8 +409,6 @@ void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &reg
             resetBlur(window);
             m_blurManager->unset(surface);
         }
-
-        WaylandIntegration::self()->waylandConnection()->flush();
     }
 }
 
@@ -464,8 +458,6 @@ void WindowEffects::installContrast(QWindow *window, bool enable, qreal contrast
             resetContrast(window);
             m_contrastManager->unset(surface);
         }
-
-        WaylandIntegration::self()->waylandConnection()->flush();
     }
 }
 
@@ -495,8 +487,6 @@ void WindowEffects::setBackgroundFrost(QWindow *window, QColor color, const QReg
     backgroundContrast->commit();
     wl_region_destroy(wl_region);
     resetContrast(window, backgroundContrast);
-
-    WaylandIntegration::self()->waylandConnection()->flush();
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
