@@ -1,21 +1,73 @@
 /*
     SPDX-FileCopyrightText: 2020 Vlad Zahorodnii <vlad.zahorodnii@kde.org>
+    SPDX-FileCopyrightText: 2023 David Redondo <kde@david-redondo.de>
 
     SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 */
 
 #include "windowshadow.h"
 #include "logging.h"
+#include "surfacehelper.h"
 #include "waylandintegration.h"
 
 #include <KWayland/Client/shm_pool.h>
 #include <KWayland/Client/surface.h>
 
+#include <qwayland-shadow.h>
+
 #include <QDebug>
 #include <QExposeEvent>
+#include <QWaylandClientExtension>
+
+#include <private/qwaylandwindow_p.h>
 
 WindowShadowTile::WindowShadowTile() {}
 WindowShadowTile::~WindowShadowTile() {}
+
+class ShadowManager : public QWaylandClientExtensionTemplate<ShadowManager>, public QtWayland::org_kde_kwin_shadow_manager
+{
+    Q_OBJECT
+    static constexpr int version = 2;
+    explicit ShadowManager(QObject *parent = nullptr)
+        : QWaylandClientExtensionTemplate(version)
+    {
+        setParent(parent);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
+        initialize();
+#else
+        QMetaObject::invokeMethod(this, "addRegistryListener");
+#endif
+
+        connect(this, &QWaylandClientExtension::activeChanged, this, [this] {
+            if (!isActive()) {
+                destroy();
+            }
+        });
+    }
+
+public:
+    ~ShadowManager()
+    {
+        if (isActive()) {
+            destroy();
+        }
+    }
+    static ShadowManager *instance()
+    {
+        static ShadowManager *instance = new ShadowManager(qGuiApp);
+        return instance;
+    }
+};
+
+class Shadow : public QtWayland::org_kde_kwin_shadow
+{
+public:
+    using QtWayland::org_kde_kwin_shadow::org_kde_kwin_shadow;
+    ~Shadow()
+    {
+        destroy();
+    }
+};
 
 bool WindowShadowTile::create()
 {
@@ -38,13 +90,14 @@ WindowShadowTile *WindowShadowTile::get(const KWindowShadowTile *tile)
     return static_cast<WindowShadowTile *>(d);
 }
 
-static KWayland::Client::Buffer::Ptr bufferForTile(const KWindowShadowTile::Ptr &tile)
+static wl_buffer *bufferForTile(const KWindowShadowTile::Ptr &tile)
 {
     if (!tile) {
-        return KWayland::Client::Buffer::Ptr();
+        return nullptr;
     }
     WindowShadowTile *d = WindowShadowTile::get(tile.data());
-    return d->buffer;
+    auto strongBuffer = d->buffer.toStrongRef();
+    return strongBuffer ? strongBuffer->buffer() : nullptr;
 }
 
 bool WindowShadow::eventFilter(QObject *watched, QEvent *event)
@@ -57,8 +110,6 @@ bool WindowShadow::eventFilter(QObject *watched, QEvent *event)
                 qCWarning(KWAYLAND_KWS) << "Failed to recreate shadow for" << window;
             }
         }
-    } else if (event->type() == QEvent::Hide) {
-        internalDestroy();
     }
     return false;
 }
@@ -68,25 +119,39 @@ bool WindowShadow::internalCreate()
     if (shadow) {
         return true;
     }
-    KWayland::Client::ShadowManager *shadowManager = WaylandIntegration::self()->waylandShadowManager();
-    if (!shadowManager) {
+    if (!ShadowManager::instance()->isActive()) {
         return false;
     }
-    KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
+    auto surface = surfaceForWindow(window);
     if (!surface) {
         return false;
     }
 
-    shadow = shadowManager->createShadow(surface, surface);
-    shadow->attachLeft(bufferForTile(leftTile));
-    shadow->attachTopLeft(bufferForTile(topLeftTile));
-    shadow->attachTop(bufferForTile(topTile));
-    shadow->attachTopRight(bufferForTile(topRightTile));
-    shadow->attachRight(bufferForTile(rightTile));
-    shadow->attachBottomRight(bufferForTile(bottomRightTile));
-    shadow->attachBottom(bufferForTile(bottomTile));
-    shadow->attachBottomLeft(bufferForTile(bottomLeftTile));
-    shadow->setOffsets(padding);
+    shadow = new Shadow(ShadowManager::instance()->create(surface));
+    auto waylandWindow = dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle());
+    if (waylandWindow) {
+        connect(waylandWindow, &QtWaylandClient::QWaylandWindow::wlSurfaceDestroyed, this, &WindowShadow::internalDestroy, Qt::UniqueConnection);
+    }
+
+    auto attach = [](Shadow *shadow, auto attach_func, const KWindowShadowTile::Ptr &tile) {
+        if (auto buffer = bufferForTile(tile)) {
+            (shadow->*attach_func)(buffer);
+        }
+    };
+    attach(shadow, &Shadow::attach_left, leftTile);
+    attach(shadow, &Shadow::attach_top_left, topLeftTile);
+    attach(shadow, &Shadow::attach_top, topTile);
+    attach(shadow, &Shadow::attach_top_right, topRightTile);
+    attach(shadow, &Shadow::attach_right, rightTile);
+    attach(shadow, &Shadow::attach_bottom_right, bottomRightTile);
+    attach(shadow, &Shadow::attach_bottom, bottomTile);
+    attach(shadow, &Shadow::attach_bottom_left, bottomLeftTile);
+
+    shadow->set_left_offset(wl_fixed_from_double(padding.left()));
+    shadow->set_top_offset(wl_fixed_from_double(padding.top()));
+    shadow->set_right_offset(wl_fixed_from_double(padding.right()));
+    shadow->set_bottom_offset(wl_fixed_from_double(padding.bottom()));
+
     shadow->commit();
 
     // Commit wl_surface at the next available time.
@@ -97,10 +162,10 @@ bool WindowShadow::internalCreate()
 
 bool WindowShadow::create()
 {
-    KWayland::Client::ShadowManager *shadowManager = WaylandIntegration::self()->waylandShadowManager();
-    if (!shadowManager) {
+    if (!ShadowManager::instance()->isActive()) {
         return false;
     }
+
     internalCreate();
     window->installEventFilter(this);
     return true;
@@ -112,11 +177,9 @@ void WindowShadow::internalDestroy()
         return;
     }
 
-    KWayland::Client::ShadowManager *shadowManager = WaylandIntegration::self()->waylandShadowManager();
-    if (shadowManager) {
-        KWayland::Client::Surface *surface = KWayland::Client::Surface::fromWindow(window);
-        if (surface) {
-            shadowManager->removeShadow(surface);
+    if (ShadowManager::instance()->isActive()) {
+        if (auto surface = surfaceForWindow(window)) {
+            ShadowManager::instance()->unset(surface);
         }
     }
 
@@ -135,3 +198,5 @@ void WindowShadow::destroy()
     }
     internalDestroy();
 }
+
+#include "windowshadow.moc"

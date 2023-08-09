@@ -36,6 +36,10 @@ if (QT_MAJOR_VERSION EQUAL "5")
         PROTOCOL ${PLASMA_WAYLAND_PROTOCOLS_DIR}/plasma-window-management.xml
         BASENAME plasma-window-management
     )
+    ecm_add_qtwayland_client_protocol(wayland_plugin_SRCS
+        PROTOCOL ${PLASMA_WAYLAND_PROTOCOLS_DIR}/shadow.xml
+        BASENAME shadow
+    )
 else()
     qt6_generate_wayland_protocol_client_sources(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin FILES
         ${WaylandProtocols_DATADIR}/staging/xdg-activation/xdg-activation-v1.xml
@@ -43,6 +47,7 @@ else()
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/contrast.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/slide.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/plasma-window-management.xml
+        ${PLASMA_WAYLAND_PROTOCOLS_DIR}/shadow.xml
     )
 
 endif()

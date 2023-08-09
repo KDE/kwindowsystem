@@ -36,7 +36,6 @@ public:
     static WaylandIntegration *self();
 
     KWayland::Client::Registry *registry() const;
-    KWayland::Client::ShadowManager *waylandShadowManager();
     KWayland::Client::PlasmaShell *waylandPlasmaShell();
     KWayland::Client::ShmPool *createShmPool();
     WaylandXdgActivationV1 *activation();
@@ -45,7 +44,6 @@ private:
     QPointer<KWayland::Client::ConnectionThread> m_waylandConnection;
     QPointer<KWayland::Client::Compositor> m_waylandCompositor;
     QPointer<KWayland::Client::Registry> m_registry;
-    QPointer<KWayland::Client::ShadowManager> m_waylandShadowManager;
     QPointer<KWayland::Client::PlasmaShell> m_waylandPlasmaShell;
     std::unique_ptr<WaylandXdgActivationV1> m_activation;
     struct {

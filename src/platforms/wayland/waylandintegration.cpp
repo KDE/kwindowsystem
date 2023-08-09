@@ -69,26 +69,6 @@ KWayland::Client::Registry *WaylandIntegration::registry() const
     return m_registry;
 }
 
-KWayland::Client::ShadowManager *WaylandIntegration::waylandShadowManager()
-{
-    if (!m_waylandShadowManager && m_registry) {
-        const KWayland::Client::Registry::AnnouncedInterface wmInterface = m_registry->interface(KWayland::Client::Registry::Interface::Shadow);
-
-        if (wmInterface.name == 0) {
-            qCWarning(KWAYLAND_KWS) << "This compositor does not support the Shadow interface";
-            return nullptr;
-        }
-
-        m_waylandShadowManager = m_registry->createShadowManager(wmInterface.name, wmInterface.version, qApp);
-
-        connect(m_waylandShadowManager, &KWayland::Client::ShadowManager::removed, this, [this]() {
-            m_waylandShadowManager->deleteLater();
-        });
-    }
-
-    return m_waylandShadowManager;
-}
-
 KWayland::Client::PlasmaShell *WaylandIntegration::waylandPlasmaShell()
 {
     if (!m_waylandPlasmaShell && m_registry) {

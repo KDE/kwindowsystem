@@ -9,10 +9,11 @@
 #include <QWindow>
 
 #include <QGuiApplication>
-#include <private/qwaylandwindow_p.h>
 #include <qpa/qplatformnativeinterface.h>
 
-wl_surface *surfaceForWindow(QWindow *window)
+struct wl_surface;
+
+inline wl_surface *surfaceForWindow(QWindow *window)
 {
     if (!window) {
         return nullptr;

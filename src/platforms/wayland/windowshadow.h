@@ -8,8 +8,9 @@
 #define WINDOWSHADOW_H
 
 #include <KWayland/Client/buffer.h>
-#include <KWayland/Client/shadow.h>
 #include <private/kwindowshadow_p.h>
+
+class Shadow;
 
 class WindowShadowTile final : public KWindowShadowTilePrivate
 {
@@ -39,7 +40,7 @@ private:
     bool internalCreate();
     void internalDestroy();
 
-    QPointer<KWayland::Client::Shadow> shadow;
+    Shadow *shadow;
 };
 
 #endif // WINDOWSHADOW_H
