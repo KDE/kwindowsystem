@@ -669,7 +669,7 @@ public:
      * @param bottom_start starting x coordinate of the strut at the bottom edge
      * @param bottom_end ending x coordinate of the strut at the bottom edge
      */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "Use KX11Extras::setExtendedStrut() instead")
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "Use KX11Extras::setExtendedStrut() instead. In KF6 all arguments must be in the logical coordinates.")
     static void setExtendedStrut(WId win,
                                  int left_width,
                                  int left_start,
@@ -697,7 +697,7 @@ public:
      * @param top the top strut
      * @param bottom the bottom strut
      */
-    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "Use KX11Extras::setStrut() instead")
+    KWINDOWSYSTEM_DEPRECATED_VERSION(5, 101, "Use KX11Extras::setStrut() instead. In KF6 all arguments must be in the logical coordinates.")
     static void setStrut(WId win, int left, int right, int top, int bottom);
 #endif
 
