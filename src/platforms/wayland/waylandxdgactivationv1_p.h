@@ -9,6 +9,7 @@
 
 #include "qwayland-xdg-activation-v1.h"
 #include <QObject>
+#include <QtWaylandClient/QWaylandClientExtension>
 
 class QWaylandSurface;
 
@@ -26,10 +27,10 @@ Q_SIGNALS:
     void done(const QString &token);
 };
 
-class WaylandXdgActivationV1 : public QObject, public QtWayland::xdg_activation_v1
+class WaylandXdgActivationV1 : public QWaylandClientExtensionTemplate<WaylandXdgActivationV1>, public QtWayland::xdg_activation_v1
 {
 public:
-    WaylandXdgActivationV1(struct ::wl_registry *registry, uint32_t id, uint32_t availableVersion);
+    WaylandXdgActivationV1();
     ~WaylandXdgActivationV1() override;
 
     WaylandXdgActivationTokenV1 *requestXdgActivationToken(wl_seat *seat, struct ::wl_surface *surface, uint32_t serial, const QString &app_id);

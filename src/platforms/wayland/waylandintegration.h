@@ -47,7 +47,7 @@ private:
     QPointer<KWayland::Client::Registry> m_registry;
     QPointer<KWayland::Client::ShadowManager> m_waylandShadowManager;
     QPointer<KWayland::Client::PlasmaShell> m_waylandPlasmaShell;
-    QPointer<WaylandXdgActivationV1> m_activation;
+    std::unique_ptr<WaylandXdgActivationV1> m_activation;
     struct {
         quint32 name = 0;
         quint32 version = 0;

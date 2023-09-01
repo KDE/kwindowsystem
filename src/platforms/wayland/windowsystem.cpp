@@ -68,7 +68,7 @@ void WindowSystem::activateWindow(WId win, long int time)
         return;
     }
     WaylandXdgActivationV1 *activation = WaylandIntegration::self()->activation();
-    if (!activation) {
+    if (!activation->isActive()) {
         return;
     }
     activation->activate(m_lastToken, *s);
@@ -95,7 +95,7 @@ void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString 
     }(window);
 
     WaylandXdgActivationV1 *activation = WaylandIntegration::self()->activation();
-    if (!activation) {
+    if (!activation->isActive()) {
         // Ensure that xdgActivationTokenArrived is always emitted asynchronously
         QTimer::singleShot(0, [serial] {
             Q_EMIT KWindowSystem::self()->xdgActivationTokenArrived(serial, {});

@@ -6,15 +6,16 @@
 
 #include "waylandxdgactivationv1_p.h"
 
-WaylandXdgActivationV1::WaylandXdgActivationV1(wl_registry *registry, uint32_t id, uint32_t availableVersion)
-    : QtWayland::xdg_activation_v1(registry, id, qMin(availableVersion, 1u))
+WaylandXdgActivationV1::WaylandXdgActivationV1()
+    : QWaylandClientExtensionTemplate<WaylandXdgActivationV1>(1)
 {
 }
 
 WaylandXdgActivationV1::~WaylandXdgActivationV1()
 {
-    Q_ASSERT(isInitialized());
-    destroy();
+    if (isActive()) {
+        destroy();
+    }
 }
 
 WaylandXdgActivationTokenV1 *
