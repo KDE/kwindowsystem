@@ -250,39 +250,39 @@ bool KX11Extras::mapViewport()
 }
 
 void KX11Extras::setExtendedStrut(WId win,
-                                  int left_width,
-                                  int left_start,
-                                  int left_end,
-                                  int right_width,
-                                  int right_start,
-                                  int right_end,
-                                  int top_width,
-                                  int top_start,
-                                  int top_end,
-                                  int bottom_width,
-                                  int bottom_start,
-                                  int bottom_end)
+                                  qreal left_width,
+                                  qreal left_start,
+                                  qreal left_end,
+                                  qreal right_width,
+                                  qreal right_start,
+                                  qreal right_end,
+                                  qreal top_width,
+                                  qreal top_start,
+                                  qreal top_end,
+                                  qreal bottom_width,
+                                  qreal bottom_start,
+                                  qreal bottom_end)
 {
     const qreal dpr = qApp->devicePixelRatio();
     KWindowSystem::d_func()->setExtendedStrut(win,
-                                              left_width * dpr,
-                                              left_start * dpr,
-                                              left_end * dpr,
-                                              right_width * dpr,
-                                              right_start * dpr,
-                                              right_end * dpr,
-                                              top_width * dpr,
-                                              top_start * dpr,
-                                              top_end * dpr,
-                                              bottom_width * dpr,
-                                              bottom_start * dpr,
-                                              bottom_end * dpr);
+                                              std::lround(left_width * dpr),
+                                              std::lround(left_start * dpr),
+                                              std::lround(left_end * dpr),
+                                              std::lround(right_width * dpr),
+                                              std::lround(right_start * dpr),
+                                              std::lround(right_end * dpr),
+                                              std::lround(top_width * dpr),
+                                              std::lround(top_start * dpr),
+                                              std::lround(top_end * dpr),
+                                              std::lround(bottom_width * dpr),
+                                              std::lround(bottom_start * dpr),
+                                              std::lround(bottom_end * dpr));
 }
 
-void KX11Extras::setStrut(WId win, int left, int right, int top, int bottom)
+void KX11Extras::setStrut(WId win, qreal left, qreal right, qreal top, qreal bottom)
 {
     const qreal dpr = qApp->devicePixelRatio();
-    KWindowSystem::d_func()->setStrut(win, left * dpr, right * dpr, top * dpr, bottom * dpr);
+    KWindowSystem::d_func()->setStrut(win, std::lround(left * dpr), std::lround(right * dpr), std::lround(top * dpr), std::lround(bottom * dpr));
 }
 
 void KX11Extras::connectNotify(const QMetaMethod &signal)

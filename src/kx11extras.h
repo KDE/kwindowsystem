@@ -344,18 +344,18 @@ public:
      * @param bottom_end ending x coordinate of the strut at the bottom edge
      */
     static void setExtendedStrut(WId win,
-                                 int left_width,
-                                 int left_start,
-                                 int left_end,
-                                 int right_width,
-                                 int right_start,
-                                 int right_end,
-                                 int top_width,
-                                 int top_start,
-                                 int top_end,
-                                 int bottom_width,
-                                 int bottom_start,
-                                 int bottom_end);
+                                 qreal left_width,
+                                 qreal left_start,
+                                 qreal left_end,
+                                 qreal right_width,
+                                 qreal right_start,
+                                 qreal right_end,
+                                 qreal top_width,
+                                 qreal top_start,
+                                 qreal top_end,
+                                 qreal bottom_width,
+                                 qreal bottom_start,
+                                 qreal bottom_end);
     /**
      * Convenience function for setExtendedStrut() that automatically makes struts
      * as wide/high as the screen width/height.
@@ -367,7 +367,7 @@ public:
      * @param top the top strut
      * @param bottom the bottom strut
      */
-    static void setStrut(WId win, int left, int right, int top, int bottom);
+    static void setStrut(WId win, qreal left, qreal right, qreal top, qreal bottom);
 
     /**
      * Sets the type of window @p win to @p windowType.
