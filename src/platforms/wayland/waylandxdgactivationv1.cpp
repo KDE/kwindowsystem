@@ -5,6 +5,7 @@
 */
 
 #include "waylandxdgactivationv1_p.h"
+#include <QGuiApplication>
 
 WaylandXdgActivationV1::WaylandXdgActivationV1()
     : QWaylandClientExtensionTemplate<WaylandXdgActivationV1>(1)
@@ -13,7 +14,7 @@ WaylandXdgActivationV1::WaylandXdgActivationV1()
 
 WaylandXdgActivationV1::~WaylandXdgActivationV1()
 {
-    if (isActive()) {
+    if (qGuiApp && isActive()) {
         destroy();
     }
 }
