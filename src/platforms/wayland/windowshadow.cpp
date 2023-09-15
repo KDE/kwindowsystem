@@ -113,6 +113,13 @@ static wl_buffer *bufferForTile(const KWindowShadowTile::Ptr &tile)
     return d->buffer ? d->buffer.get()->object() : nullptr;
 }
 
+WindowShadow::WindowShadow()
+{
+}
+WindowShadow::~WindowShadow()
+{
+}
+
 bool WindowShadow::eventFilter(QObject *watched, QEvent *event)
 {
     Q_UNUSED(watched)
@@ -140,15 +147,15 @@ bool WindowShadow::internalCreate()
         return false;
     }
 
-    shadow = new Shadow(ShadowManager::instance()->create(surface));
+    shadow = std::make_unique<Shadow>(ShadowManager::instance()->create(surface));
     auto waylandWindow = dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle());
     if (waylandWindow) {
         connect(waylandWindow, &QtWaylandClient::QWaylandWindow::wlSurfaceDestroyed, this, &WindowShadow::internalDestroy, Qt::UniqueConnection);
     }
 
-    auto attach = [](Shadow *shadow, auto attach_func, const KWindowShadowTile::Ptr &tile) {
+    auto attach = [](const std::unique_ptr<Shadow> &shadow, auto attach_func, const KWindowShadowTile::Ptr &tile) {
         if (auto buffer = bufferForTile(tile)) {
-            (shadow->*attach_func)(buffer);
+            (*shadow.*attach_func)(buffer);
         }
     };
     attach(shadow, &Shadow::attach_left, leftTile);
@@ -196,8 +203,7 @@ void WindowShadow::internalDestroy()
         }
     }
 
-    delete shadow;
-    shadow = nullptr;
+    shadow.reset();
 
     if (window) {
         window->requestUpdate();

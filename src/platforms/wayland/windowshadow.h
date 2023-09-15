@@ -32,6 +32,8 @@ public:
 class WindowShadow final : public QObject, public KWindowShadowPrivate
 {
 public:
+    WindowShadow();
+    ~WindowShadow() override;
     bool create() override;
     void destroy() override;
 
@@ -42,7 +44,7 @@ private:
     bool internalCreate();
     void internalDestroy();
 
-    Shadow *shadow;
+    std::unique_ptr<Shadow> shadow;
 };
 
 #endif // WINDOWSHADOW_H
