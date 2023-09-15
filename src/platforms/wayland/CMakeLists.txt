@@ -1,6 +1,7 @@
 add_library(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin MODULE)
 set(wayland_plugin_SRCS
     plugin.cpp
+    shm.cpp
     waylandintegration.cpp
     windoweffects.cpp
     windowinfo.cpp
@@ -40,6 +41,10 @@ if (QT_MAJOR_VERSION EQUAL "5")
         PROTOCOL ${PLASMA_WAYLAND_PROTOCOLS_DIR}/shadow.xml
         BASENAME shadow
     )
+    ecm_add_qtwayland_client_protocol(wayland_plugin_SRCS
+        PROTOCOL ${Wayland_DATADIR}/wayland.xml
+        BASENAME wayland
+    )
 else()
     qt6_generate_wayland_protocol_client_sources(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin FILES
         ${WaylandProtocols_DATADIR}/staging/xdg-activation/xdg-activation-v1.xml
@@ -48,6 +53,7 @@ else()
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/slide.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/plasma-window-management.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/shadow.xml
+        ${Wayland_DATADIR}/wayland.xml
     )
 
 endif()
@@ -56,6 +62,10 @@ ecm_qt_declare_logging_category(wayland_plugin_SRCS HEADER logging.h IDENTIFIER 
     DESCRIPTION "wayland integration (windowsystem)" EXPORT KWAYLAND)
 
 target_sources(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin PRIVATE ${wayland_plugin_SRCS})
+
+if(HAVE_MEMFD)
+    target_compile_definitions(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin PRIVATE -DHAVE_MEMFD)
+endif()
 
 pkg_check_modules(XKBCommon REQUIRED IMPORTED_TARGET xkbcommon)
 

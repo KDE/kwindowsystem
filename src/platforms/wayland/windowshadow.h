@@ -7,12 +7,15 @@
 #ifndef WINDOWSHADOW_H
 #define WINDOWSHADOW_H
 
-#include <KWayland/Client/buffer.h>
 #include <private/kwindowshadow_p.h>
 
-class Shadow;
+#include <memory>
 
-class WindowShadowTile final : public KWindowShadowTilePrivate
+class Shadow;
+class ShmBuffer;
+class Shm;
+
+class WindowShadowTile final : public QObject, public KWindowShadowTilePrivate
 {
 public:
     WindowShadowTile();
@@ -23,8 +26,7 @@ public:
 
     static WindowShadowTile *get(const KWindowShadowTile *tile);
 
-    KWayland::Client::Buffer::Ptr buffer;
-    QScopedPointer<KWayland::Client::ShmPool> m_shmPool;
+    std::unique_ptr<ShmBuffer> buffer;
 };
 
 class WindowShadow final : public QObject, public KWindowShadowPrivate

@@ -7,6 +7,7 @@
 
 #include "windowshadow.h"
 #include "logging.h"
+#include "shm.h"
 #include "surfacehelper.h"
 #include "waylandintegration.h"
 
@@ -20,9 +21,6 @@
 #include <QWaylandClientExtension>
 
 #include <private/qwaylandwindow_p.h>
-
-WindowShadowTile::WindowShadowTile() {}
-WindowShadowTile::~WindowShadowTile() {}
 
 class ShadowManager : public QWaylandClientExtensionTemplate<ShadowManager>, public QtWayland::org_kde_kwin_shadow_manager
 {
@@ -69,19 +67,31 @@ public:
     }
 };
 
+WindowShadowTile::WindowShadowTile()
+{
+    connect(Shm::instance(), &Shm::activeChanged, this, [this] {
+        if (Shm::instance()->isActive()) {
+            buffer.reset();
+        }
+    });
+}
+WindowShadowTile::~WindowShadowTile()
+{
+}
+
 bool WindowShadowTile::create()
 {
-    m_shmPool.reset(WaylandIntegration::self()->createShmPool());
-    if (!m_shmPool) {
+    if (!Shm::instance()->isActive()) {
         return false;
     }
-    buffer = m_shmPool->createBuffer(image);
+
+    buffer = Shm::instance()->createBuffer(image);
     return true;
 }
 
 void WindowShadowTile::destroy()
 {
-    buffer = nullptr;
+    buffer.reset();
 }
 
 WindowShadowTile *WindowShadowTile::get(const KWindowShadowTile *tile)
@@ -96,8 +106,11 @@ static wl_buffer *bufferForTile(const KWindowShadowTile::Ptr &tile)
         return nullptr;
     }
     WindowShadowTile *d = WindowShadowTile::get(tile.data());
-    auto strongBuffer = d->buffer.toStrongRef();
-    return strongBuffer ? strongBuffer->buffer() : nullptr;
+    // Our buffer has been deleted in the meantime, try to create it again
+    if (!d->buffer && d->isCreated) {
+        d->buffer = Shm::instance()->createBuffer(d->image);
+    }
+    return d->buffer ? d->buffer.get()->object() : nullptr;
 }
 
 bool WindowShadow::eventFilter(QObject *watched, QEvent *event)
