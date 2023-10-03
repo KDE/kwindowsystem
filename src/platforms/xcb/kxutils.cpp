@@ -9,6 +9,7 @@
 #include "cptr_p.h"
 #include "kxutils_p.h"
 #include <QBitmap>
+#include <QDebug>
 
 #include <private/qtx11extras_p.h>
 
