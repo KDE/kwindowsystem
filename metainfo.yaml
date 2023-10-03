@@ -17,8 +17,7 @@ portingAid: false
 deprecated: false
 release: true
 libraries:
- - qmake: KWindowSystem
-   cmake: "KF6::WindowSystem"
+ - cmake: "KF6::WindowSystem"
 cmakename: KF6WindowSystem
 
 public_lib: true
