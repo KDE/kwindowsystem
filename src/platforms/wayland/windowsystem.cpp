@@ -258,11 +258,13 @@ int WindowSystem::numberOfDesktops()
     return 1;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowSystem::raiseWindow(WId win)
 {
     Q_UNUSED(win)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support raising windows";
 }
+#endif
 
 QString WindowSystem::readNameProperty(WId window, long unsigned int atom)
 {
