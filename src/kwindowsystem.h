@@ -89,13 +89,6 @@ public:
     Q_INVOKABLE static void activateWindow(QWindow *window, long time = 0);
 
     /**
-     * Sets the type of window @p win to @p windowType.
-     *
-     * @param win the id of the window
-     * @param windowType the type of the window (see NET::WindowType)
-     */
-    static void setType(WId win, NET::WindowType windowType);
-    /**
      * Sets the state of window @p win to @p state.
      *
      * Possible values are or'ed combinations of NET::Modal,

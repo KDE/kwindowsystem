@@ -313,12 +313,6 @@ void KWindowSystem::setMainWindow(QWindow *subWindow, WId mainWindowId)
     }
 }
 
-void KWindowSystem::setType(WId win, NET::WindowType windowType)
-{
-    Q_D(KWindowSystem);
-    d->setType(win, windowType);
-}
-
 void KWindowSystem::setState(WId win, NET::States state)
 {
     Q_D(KWindowSystem);

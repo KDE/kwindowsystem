@@ -338,7 +338,7 @@ void KWindowInfoX11Test::testWindowType()
     QFETCH(NET::WindowType, type);
     QFETCH(NET::WindowType, expectedType);
 
-    KWindowSystem::setType(window->winId(), type);
+    KX11Extras::setType(window->winId(), type);
     // setWindowType just changes an xproperty, so a roundtrip waiting for another property ensures we are updated
     QX11Info::getTimestamp();
     KWindowInfo info2(window->winId(), NET::WMWindowType);
