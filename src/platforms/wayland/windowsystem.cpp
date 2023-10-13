@@ -226,11 +226,13 @@ QPixmap WindowSystem::icon(WId win, int width, int height, bool scale, int flags
     return QPixmap();
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowSystem::lowerWindow(WId win)
 {
     Q_UNUSED(win)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support lower window";
 }
+#endif
 
 bool WindowSystem::mapViewport()
 {

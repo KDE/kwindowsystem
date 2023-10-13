@@ -58,8 +58,8 @@ public:
     void minimizeWindow(WId win) override;
     void unminimizeWindow(WId win) override;
     void raiseWindow(WId win) override;
-    void lowerWindow(WId win) override;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    void lowerWindow(WId win) override;
     bool icccmCompliantMappingState() override;
 #endif
     QRect workArea(int desktop) override;
