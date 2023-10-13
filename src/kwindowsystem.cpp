@@ -313,18 +313,6 @@ void KWindowSystem::setMainWindow(QWindow *subWindow, WId mainWindowId)
     }
 }
 
-void KWindowSystem::setState(WId win, NET::States state)
-{
-    Q_D(KWindowSystem);
-    d->setState(win, state);
-}
-
-void KWindowSystem::clearState(WId win, NET::States state)
-{
-    Q_D(KWindowSystem);
-    d->clearState(win, state);
-}
-
 bool KWindowSystem::showingDesktop()
 {
     Q_D(KWindowSystem);

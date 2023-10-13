@@ -488,7 +488,7 @@ public:
 
        To set the state of a window, you'll typically do something like:
        \code
-         KWindowSystem::setState( winId(), NET::SkipTaskbar | NET::SkipPager | NET::SkipSwitcher );
+         KX11Extras::setState( winId(), NET::SkipTaskbar | NET::SkipPager | NET::SkipSwitcher );
        \endcode
 
        for example to not show the window on the taskbar, desktop pager, or window switcher.

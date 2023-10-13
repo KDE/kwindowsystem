@@ -296,4 +296,14 @@ void KX11Extras::setType(WId win, NET::WindowType windowType)
     KWindowSystem::self()->d_func()->setType(win, windowType);
 }
 
+void KX11Extras::setState(WId win, NET::States state)
+{
+    KWindowSystem::self()->d_func()->setState(win, state);
+}
+
+void KX11Extras::clearState(WId win, NET::States state)
+{
+    KWindowSystem::self()->d_func()->clearState(win, state);
+}
+
 #include "moc_kx11extras.cpp"

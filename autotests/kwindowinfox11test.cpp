@@ -214,7 +214,7 @@ void KWindowInfoX11Test::testState()
     QSignalSpy spy(KX11Extras::self(), &KX11Extras::windowChanged);
     QVERIFY(spy.isValid());
     // now we have a clean window and can do fun stuff
-    KWindowSystem::setState(window->winId(), state);
+    KX11Extras::setState(window->winId(), state);
 
     QVERIFY(waitForWindow(spy, window->winId(), NET::WMState));
 
