@@ -807,17 +807,6 @@ void KWindowSystemPrivateX11::raiseWindow(WId win)
     }
 }
 
-void KWindowSystemPrivateX11::lowerWindow(WId win)
-{
-    NETRootInfo info(QX11Info::connection(), NET::Supported, NET::Properties2(), QX11Info::appScreen());
-    if (info.isSupported(NET::WM2RestackWindow)) {
-        info.restackRequest(win, NET::FromTool, XCB_WINDOW_NONE, XCB_STACK_MODE_BELOW, QX11Info::appUserTime());
-    } else {
-        const uint32_t values[] = {XCB_STACK_MODE_BELOW};
-        xcb_configure_window(QX11Info::connection(), win, XCB_CONFIG_WINDOW_STACK_MODE, values);
-    }
-}
-
 bool KWindowSystemPrivateX11::compositingActive()
 {
     init(INFO_BASIC);

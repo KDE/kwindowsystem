@@ -182,11 +182,6 @@ void KWindowSystemPrivateDummy::raiseWindow(WId win)
     Q_UNUSED(win)
 }
 
-void KWindowSystemPrivateDummy::lowerWindow(WId win)
-{
-    Q_UNUSED(win)
-}
-
 QRect KWindowSystemPrivateDummy::workArea(int desktop)
 {
     Q_UNUSED(desktop)
