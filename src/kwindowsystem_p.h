@@ -36,7 +36,6 @@ public:
     virtual void clearState(WId win, NET::States state) = 0;
     virtual void minimizeWindow(WId win) = 0;
     virtual void unminimizeWindow(WId win) = 0;
-    virtual void raiseWindow(WId win) = 0;
     virtual QRect workArea(int desktop) = 0;
     virtual QRect workArea(const QList<WId> &excludes, int desktop) = 0;
     virtual QString desktopName(int desktop) = 0;

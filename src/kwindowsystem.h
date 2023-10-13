@@ -124,14 +124,6 @@ public:
     static void clearState(WId win, NET::States state);
 
     /**
-     * Raises the given window. This call is only for pagers and similar
-     * tools that represent direct user actions. Applications should not
-     * use it, they should keep using QWidget::raise() or XRaiseWindow()
-     * if necessary.
-     */
-    static void raiseWindow(WId win);
-
-    /**
      * Returns the state of showing the desktop.
      */
     static bool showingDesktop();
