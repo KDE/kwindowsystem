@@ -62,6 +62,7 @@ NETExtendedStrut WindowInfo::extendedStrut() const
 
 NET::WindowType WindowInfo::windowType(NET::WindowTypes supported_types) const
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (!m_plasmaShellSurface || !m_plasmaShellSurface->isValid()) {
         return NET::Unknown;
     }
@@ -109,6 +110,10 @@ NET::WindowType WindowInfo::windowType(NET::WindowTypes supported_types) const
     }
 
     return NET::Unknown;
+#else
+    Q_UNUSED(supported_types)
+    return NET::Unknown;
+#endif
 }
 
 QString WindowInfo::visibleName() const
