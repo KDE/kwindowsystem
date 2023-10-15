@@ -19,7 +19,7 @@ msgstr ""
 "X-Generator: Poedit 1.5.5\n"
 "X-Qt-Contexts: true\n"
 
-#: platforms/xcb/kwindowsystem.cpp:927
+#: platforms/xcb/kwindowsystem.cpp:905
 #, fuzzy, qt-format
 #| msgid "Desktop %1"
 msgctxt "KWindowSystem|"

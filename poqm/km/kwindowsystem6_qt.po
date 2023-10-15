@@ -17,7 +17,7 @@ msgstr ""
 "X-Language: km-KH\n"
 "X-Qt-Contexts: true\n"
 
-#: platforms/xcb/kwindowsystem.cpp:927
+#: platforms/xcb/kwindowsystem.cpp:905
 #, fuzzy, qt-format
 #| msgid "Desktop %1"
 msgctxt "KWindowSystem|"

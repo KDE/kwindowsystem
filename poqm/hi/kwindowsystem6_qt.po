@@ -22,7 +22,7 @@ msgstr ""
 "X-Generator: Lokalize 20.04.3\n"
 "X-Qt-Contexts: true\n"
 
-#: platforms/xcb/kwindowsystem.cpp:927
+#: platforms/xcb/kwindowsystem.cpp:905
 #, qt-format
 msgctxt "KWindowSystem|"
 msgid "Desktop %1"

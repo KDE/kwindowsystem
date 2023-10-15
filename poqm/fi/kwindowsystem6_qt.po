@@ -38,7 +38,7 @@ msgstr ""
 "X-POT-Import-Date: 2013-01-13 20:43:21+0000\n"
 "X-Qt-Contexts: true\n"
 
-#: platforms/xcb/kwindowsystem.cpp:927
+#: platforms/xcb/kwindowsystem.cpp:905
 #, qt-format
 msgctxt "KWindowSystem|"
 msgid "Desktop %1"
