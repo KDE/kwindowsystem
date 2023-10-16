@@ -35,21 +35,22 @@ public:
     WindowEffects();
     ~WindowEffects() override;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     static QWindow *windowForId(WId);
+#endif
 
     bool eventFilter(QObject *watched, QEvent *event) override;
     void trackWindow(QWindow *window);
     void releaseWindow(QWindow *window);
 
     bool isEffectAvailable(KWindowEffects::Effect effect) override;
-    void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) override;
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) override;
     QList<QSize> windowSizes(const QList<WId> &ids) override;
 
     void presentWindows(WId controller, const QList<WId> &ids) override;
     void presentWindows(WId controller, int desktop = NET::OnAllDesktops) override;
     void highlightWindows(WId controller, const QList<WId> &ids) override;
-#endif
     void enableBlurBehind(WId winId, bool enable = true, const QRegion &region = QRegion()) override;
     void enableBackgroundContrast(WId winId,
                                   bool enable = true,
@@ -57,10 +58,19 @@ public:
                                   qreal intensity = 1,
                                   qreal saturation = 1,
                                   const QRegion &region = QRegion()) override;
-    void setBackgroundFrost(QWindow *window, QColor color, const QRegion &region = QRegion()) override;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void markAsDashboard(WId window) override;
+#else
+    void slideWindow(QWindow *window, KWindowEffects::SlideFromLocation location, int offset) override;
+    void enableBlurBehind(QWindow *window, bool enable = true, const QRegion &region = QRegion()) override;
+    void enableBackgroundContrast(QWindow *window,
+                                  bool enable = true,
+                                  qreal contrast = 1,
+                                  qreal intensity = 1,
+                                  qreal saturation = 1,
+                                  const QRegion &region = QRegion()) override;
 #endif
+    void setBackgroundFrost(QWindow *window, QColor color, const QRegion &region = QRegion()) override;
+
 private:
     void installContrast(QWindow *window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());
     void installBlur(QWindow *window, bool enable, const QRegion &region);
