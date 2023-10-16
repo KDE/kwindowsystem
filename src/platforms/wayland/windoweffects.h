@@ -28,7 +28,11 @@ class ContrastManager;
 class Contrast;
 class SlideManager;
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 class WindowEffects : public QObject, public KWindowEffectsPrivateV2
+#else
+class WindowEffects : public QObject, public KWindowEffectsPrivate
+#endif
 {
     Q_OBJECT
 public:
@@ -59,6 +63,7 @@ public:
                                   qreal saturation = 1,
                                   const QRegion &region = QRegion()) override;
     void markAsDashboard(WId window) override;
+    void setBackgroundFrost(QWindow *window, QColor color, const QRegion &region = QRegion()) override;
 #else
     void slideWindow(QWindow *window, KWindowEffects::SlideFromLocation location, int offset) override;
     void enableBlurBehind(QWindow *window, bool enable = true, const QRegion &region = QRegion()) override;
@@ -69,7 +74,6 @@ public:
                                   qreal saturation = 1,
                                   const QRegion &region = QRegion()) override;
 #endif
-    void setBackgroundFrost(QWindow *window, QColor color, const QRegion &region = QRegion()) override;
 
 private:
     void installContrast(QWindow *window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());

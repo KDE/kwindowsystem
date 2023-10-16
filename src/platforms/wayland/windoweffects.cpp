@@ -114,7 +114,11 @@ public:
 
 WindowEffects::WindowEffects()
     : QObject()
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     , KWindowEffectsPrivateV2()
+#else
+    , KWindowEffectsPrivate()
+#endif
 {
     m_blurManager = new BlurManager();
     m_contrastManager = new ContrastManager();
@@ -481,6 +485,7 @@ void WindowEffects::installContrast(QWindow *window, bool enable, qreal contrast
     }
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowEffects::setBackgroundFrost(QWindow *window, QColor color, const QRegion &region)
 {
     if (!m_contrastManager->isActive()) {
@@ -508,6 +513,7 @@ void WindowEffects::setBackgroundFrost(QWindow *window, QColor color, const QReg
     wl_region_destroy(wl_region);
     resetContrast(window, backgroundContrast);
 }
+#endif
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WindowEffects::markAsDashboard(WId window)
