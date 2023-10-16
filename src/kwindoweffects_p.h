@@ -13,9 +13,9 @@ class KWINDOWSYSTEM_EXPORT KWindowEffectsPrivate
 public:
     virtual ~KWindowEffectsPrivate();
     virtual bool isEffectAvailable(KWindowEffects::Effect effect) = 0;
-    virtual void slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset) = 0;
-    virtual void enableBlurBehind(WId window, bool enable = true, const QRegion &region = QRegion()) = 0;
-    virtual void enableBackgroundContrast(WId window,
+    virtual void slideWindow(QWindow *window, KWindowEffects::SlideFromLocation location, int offset) = 0;
+    virtual void enableBlurBehind(QWindow *window, bool enable = true, const QRegion &region = QRegion()) = 0;
+    virtual void enableBackgroundContrast(QWindow *window,
                                           bool enable = true,
                                           qreal contrast = 1,
                                           qreal intensity = 1,

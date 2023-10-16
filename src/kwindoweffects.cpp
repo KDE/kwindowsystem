@@ -34,12 +34,12 @@ bool isEffectAvailable(Effect effect)
 
 void enableBlurBehind(QWindow *window, bool enable, const QRegion &region)
 {
-    KWindowSystemPluginWrapper::self().effects()->enableBlurBehind(window->winId(), enable, region);
+    KWindowSystemPluginWrapper::self().effects()->enableBlurBehind(window, enable, region);
 }
 
 void enableBackgroundContrast(QWindow *window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
 {
-    KWindowSystemPluginWrapper::self().effects()->enableBackgroundContrast(window->winId(), enable, contrast, intensity, saturation, region);
+    KWindowSystemPluginWrapper::self().effects()->enableBackgroundContrast(window, enable, contrast, intensity, saturation, region);
 }
 
 void setBackgroundFrost(QWindow *window, QColor frostColor, const QRegion &region)
@@ -52,6 +52,6 @@ void setBackgroundFrost(QWindow *window, QColor frostColor, const QRegion &regio
 
 void slideWindow(QWindow *window, SlideFromLocation location, int offset)
 {
-    KWindowSystemPluginWrapper::self().effects()->slideWindow(window->winId(), location, offset);
+    KWindowSystemPluginWrapper::self().effects()->slideWindow(window, location, offset);
 }
 }

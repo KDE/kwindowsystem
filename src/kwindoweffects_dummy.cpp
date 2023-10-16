@@ -23,21 +23,26 @@ bool KWindowEffectsPrivateDummy::isEffectAvailable(KWindowEffects::Effect effect
     return false;
 }
 
-void KWindowEffectsPrivateDummy::slideWindow(WId id, KWindowEffects::SlideFromLocation location, int offset)
+void KWindowEffectsPrivateDummy::slideWindow(QWindow *window, KWindowEffects::SlideFromLocation location, int offset)
 {
-    Q_UNUSED(id)
+    Q_UNUSED(window)
     Q_UNUSED(location)
     Q_UNUSED(offset)
 }
 
-void KWindowEffectsPrivateDummy::enableBlurBehind(WId window, bool enable, const QRegion &region)
+void KWindowEffectsPrivateDummy::enableBlurBehind(QWindow *window, bool enable, const QRegion &region)
 {
     Q_UNUSED(window)
     Q_UNUSED(enable)
     Q_UNUSED(region)
 }
 
-void KWindowEffectsPrivateDummy::enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+void KWindowEffectsPrivateDummy::enableBackgroundContrast(QWindow *window,
+                                                          bool enable,
+                                                          qreal contrast,
+                                                          qreal intensity,
+                                                          qreal saturation,
+                                                          const QRegion &region)
 {
     Q_UNUSED(window)
     Q_UNUSED(enable)

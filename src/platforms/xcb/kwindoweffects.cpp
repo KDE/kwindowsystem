@@ -74,7 +74,7 @@ bool KWindowEffectsPrivateX11::isEffectAvailable(Effect effect)
     return false;
 }
 
-void KWindowEffectsPrivateX11::slideWindow(WId id, SlideFromLocation location, int offset)
+void KWindowEffectsPrivateX11::slideWindow(QWindow *window, SlideFromLocation location, int offset)
 {
     xcb_connection_t *c = QX11Info::connection();
     if (!c) {
@@ -109,13 +109,13 @@ void KWindowEffectsPrivateX11::slideWindow(WId id, SlideFromLocation location, i
         return;
     }
     if (location == NoEdge) {
-        xcb_delete_property(c, id, atom->atom);
+        xcb_delete_property(c, window->winId(), atom->atom);
     } else {
-        xcb_change_property(c, XCB_PROP_MODE_REPLACE, id, atom->atom, atom->atom, 32, size, data);
+        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window->winId(), atom->atom, atom->atom, 32, size, data);
     }
 }
 
-void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const QRegion &region)
+void KWindowEffectsPrivateX11::enableBlurBehind(QWindow *window, bool enable, const QRegion &region)
 {
     xcb_connection_t *c = QX11Info::connection();
     if (!c) {
@@ -137,9 +137,9 @@ void KWindowEffectsPrivateX11::enableBlurBehind(WId window, bool enable, const Q
             data << std::floor(r.x() * dpr) << std::floor(r.y() * dpr) << std::ceil(r.width() * dpr) << std::ceil(r.height() * dpr);
         }
 
-        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, XCB_ATOM_CARDINAL, 32, data.size(), data.constData());
+        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window->winId(), atom->atom, XCB_ATOM_CARDINAL, 32, data.size(), data.constData());
     } else {
-        xcb_delete_property(c, window, atom->atom);
+        xcb_delete_property(c, window->winId(), atom->atom);
     }
 }
 
@@ -160,7 +160,7 @@ void KWindowEffectsPrivateX11::setBackgroundFrost(QWindow *window, QColor color,
         return;
     }
 
-    enableBackgroundContrast(id, false);
+    enableBackgroundContrast(window, false);
 
     QVector<uint32_t> data;
     data.reserve(region.rectCount() * 4 + 4);
@@ -177,18 +177,7 @@ void KWindowEffectsPrivateX11::setBackgroundFrost(QWindow *window, QColor color,
     xcb_change_property(c, XCB_PROP_MODE_REPLACE, id, atom->atom, atom->atom, 32, data.size(), data.constData());
 }
 
-static QWindow *getWindowFromWinId(WId winId)
-{
-    const QWindowList windows = qGuiApp->topLevelWindows();
-    for (auto window : windows) {
-        if (window->handle() && window->winId() == winId) {
-            return window;
-        }
-    }
-    return nullptr;
-}
-
-void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
+void KWindowEffectsPrivateX11::enableBackgroundContrast(QWindow *window, bool enable, qreal contrast, qreal intensity, qreal saturation, const QRegion &region)
 {
     xcb_connection_t *c = QX11Info::connection();
     const QByteArray effectName = QByteArrayLiteral("_KDE_NET_WM_BACKGROUND_CONTRAST_REGION");
@@ -199,9 +188,7 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
     }
 
     if (enable) {
-        if (QWindow *windowObject = getWindowFromWinId(window)) {
-            setBackgroundFrost(windowObject, {});
-        }
+        setBackgroundFrost(window, {});
         QVector<uint32_t> data;
         data.reserve(region.rectCount() * 4 + 16);
         for (const QRect &r : region) {
@@ -253,8 +240,8 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(WId window, bool enable,
             data << rawData[i];
         }
 
-        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window, atom->atom, atom->atom, 32, data.size(), data.constData());
+        xcb_change_property(c, XCB_PROP_MODE_REPLACE, window->winId(), atom->atom, atom->atom, 32, data.size(), data.constData());
     } else {
-        xcb_delete_property(c, window, atom->atom);
+        xcb_delete_property(c, window->winId(), atom->atom);
     }
 }
