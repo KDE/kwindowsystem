@@ -88,30 +88,6 @@ KWINDOWSYSTEM_EXPORT void
 enableBackgroundContrast(QWindow *window, bool enable = true, qreal contrast = 1, qreal intensity = 1, qreal saturation = 1, const QRegion &region = QRegion());
 
 /**
- * Instructs the window manager to modify the color of the background
- * in the specified region behind the given window,
- * in order to improve the contrast and readability of any text
- * in the translucent window.
- * The given region will overwrite any previous backgroundcontrast region.
- * Passing a null region will enable the frost effect for the whole window.
- * The region is relative to the top-left corner of the client area.
- *
- * If @a color is null, frost will be disabled for the whole window
- * (@a region is ignored).
- *
- * Note that you will usually want to set the region to the shape of the window,
- * excluding any shadow or halo.
- *
- * @param window The window for which to enable the background frost effect
- * @param frostColor The color to use as an anchor point for adjusting colors of windows behind the window; usually a translucent version of the window's
- * background colour
- * @param region The region within the window where the background will be modified, specified in logical pixels
- *
- * @since 5.86
- */
-KWINDOWSYSTEM_EXPORT void setBackgroundFrost(QWindow *window, QColor frostColor, const QRegion &region = QRegion());
-
-/**
  * Mark a window as sliding from screen edge
  *
  * @param id of the window on which we want to apply the effect

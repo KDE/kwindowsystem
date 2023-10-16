@@ -8,7 +8,7 @@
 #define KWINDOWEFFECTS_DUMMY_P_H
 #include "kwindoweffects_p.h"
 
-class KWindowEffectsPrivateDummy : public KWindowEffectsPrivateV2
+class KWindowEffectsPrivateDummy : public KWindowEffectsPrivate
 {
 public:
     KWindowEffectsPrivateDummy();
@@ -22,7 +22,6 @@ public:
                                   qreal intensity = 1,
                                   qreal saturation = 1,
                                   const QRegion &region = QRegion()) override;
-    void setBackgroundFrost(QWindow *window, QColor color, const QRegion &region = QRegion()) override;
 };
 
 #endif

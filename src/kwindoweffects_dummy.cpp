@@ -51,10 +51,3 @@ void KWindowEffectsPrivateDummy::enableBackgroundContrast(QWindow *window,
     Q_UNUSED(saturation)
     Q_UNUSED(region)
 }
-
-void KWindowEffectsPrivateDummy::setBackgroundFrost(QWindow *window, QColor color, const QRegion &region)
-{
-    Q_UNUSED(window)
-    Q_UNUSED(color)
-    Q_UNUSED(region)
-}

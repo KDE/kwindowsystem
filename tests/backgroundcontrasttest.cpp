@@ -33,9 +33,6 @@ private:
     QPushButton *m_btnRect;
     QPushButton *m_btnEllipse;
 
-    QPushButton *m_frost;
-    QColor m_frostColor;
-
     QPushButton *m_blur;
     bool m_doBlur;
 
@@ -89,8 +86,6 @@ ContrastTestWindow::ContrastTestWindow()
     m_btnFullWindow = new QPushButton("Full window");
     m_btnRect = new QPushButton("Rectangle");
     m_btnEllipse = new QPushButton("Ellipse");
-    m_frost = new QPushButton("Enable Frost");
-    m_frost->setCheckable(true);
     m_blur = new QPushButton("Enable Blur");
     m_blur->setCheckable(true);
     m_bg = new QPushButton("Set Background Colour...");
@@ -100,21 +95,6 @@ ContrastTestWindow::ContrastTestWindow()
         repaint();
     });
 
-    connect(m_frost, &QPushButton::toggled, this, [this](bool checked) {
-        m_frost->setText(checked ? "Disable Frost" : "Enable Frost");
-
-        if (!checked) {
-            m_frostColor = QColor();
-
-            update();
-
-            return;
-        }
-
-        m_frostColor = QColorDialog::getColor(Qt::white, nullptr, "pick colour", QColorDialog::ShowAlphaChannel);
-
-        update();
-    });
     connect(m_blur, &QPushButton::toggled, this, [this](bool checked) {
         m_blur->setText(checked ? "Disable Blur" : "Enable Blur");
         m_doBlur = checked;
@@ -158,7 +138,6 @@ ContrastTestWindow::ContrastTestWindow()
     layout->addWidget(m_intSlider);
     layout->addWidget(m_satSlider);
     layout->addWidget(m_area);
-    layout->addWidget(m_frost);
     layout->addWidget(m_blur);
     layout->addWidget(m_bg);
 
@@ -191,12 +170,7 @@ void ContrastTestWindow::update()
 
     KWindowEffects::enableBlurBehind(windowHandle(), m_doBlur, region);
 
-    if (!m_frostColor.isValid()) {
-        KWindowEffects::enableBackgroundContrast(windowHandle(), true, m_contrast, m_intensity, m_saturation, region);
-    } else {
-        qWarning() << "frost color";
-        KWindowEffects::setBackgroundFrost(windowHandle(), m_frostColor, region);
-    }
+    KWindowEffects::enableBackgroundContrast(windowHandle(), true, m_contrast, m_intensity, m_saturation, region);
 
     repaint();
 }

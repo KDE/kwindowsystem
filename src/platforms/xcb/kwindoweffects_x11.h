@@ -8,7 +8,7 @@
 #define KWINDOWEFFECTS_X11_H
 #include "kwindoweffects_p.h"
 
-class KWindowEffectsPrivateX11 : public KWindowEffectsPrivateV2
+class KWindowEffectsPrivateX11 : public KWindowEffectsPrivate
 {
 public:
     KWindowEffectsPrivateX11();
@@ -22,7 +22,6 @@ public:
                                   qreal intensity = 1,
                                   qreal saturation = 1,
                                   const QRegion &region = QRegion()) override;
-    void setBackgroundFrost(QWindow *window, QColor color, const QRegion &region = QRegion()) override;
 };
 
 #endif
