@@ -42,20 +42,8 @@ public:
             kwm.moveToThread(QCoreApplication::instance()->thread());
         }
     }
-    KWindowSystemPrivate *xcbPlugin()
-    {
-        if (!xcbPrivate) {
-            QPluginLoader loader(QStringLiteral(XCB_PLUGIN_PATH));
-            std::unique_ptr<KWindowSystemPluginInterface> xcbPlugin(qobject_cast<KWindowSystemPluginInterface *>(loader.instance()));
-            if (xcbPlugin) {
-                xcbPrivate.reset(xcbPlugin->createWindowSystem());
-            }
-        }
-        return xcbPrivate.get();
-    }
     KWindowSystem kwm;
     std::unique_ptr<KWindowSystemPrivate> d;
-    std::unique_ptr<KWindowSystemPrivate> xcbPrivate;
 };
 
 Q_GLOBAL_STATIC(KWindowSystemStaticContainer, g_kwmInstanceContainer)
