@@ -22,23 +22,20 @@
 class KWindowInfoPrivate;
 
 /**
- * This class provides information about a given window in the platform specific
- * windowing system. It provides the information for the current state when a
- * KWindowInfo instance gets created. The instance does not get updated when the
+ * This class provides information about a given X11 window. It provides the information
+ * for the current state when a KWindowInfo instance gets created.
+ * The instance does not get updated when the
  * window changes. To get update about window changes connect to the
- * @link KWindowSystem::windowChanged windowChanged@endlink signal of KWindowSystem
+ * @link KX11Extras::windowChanged windowChanged@endlink signal of KX11Extras
  * and create a new KWindowInfo instance to reflect the current state.
  *
  * KWindowInfo does not encapsulate all information about the window. One needs to
  * request which information is required by passing the appropriate NET::Property and
  * NET::Property2 flags to the constructor. Please refer to the documentation of the
  * methods to see which flags are required. This is done to limit the interaction with
- * the underlying windowing system as fetching the information can cause several context
- * switches and roundtrips to a server instance (e.g. when using the X11 platform).
+ * the xserver and avoid excess roundtrips.
  *
- * Please note that KWindowInfo is an abstraction of the underlying windowing system
- * inspired by the X11 platform. Thus not all concepts apply to all platforms and some
- * methods might return a default value for some platforms.
+ * KWindowInfo does nothing when running outside of X11.
  *
  * Example usage of this class illustrated by monitoring a QWidget for change of the
  * demands attention window state:
@@ -46,8 +43,8 @@ class KWindowInfoPrivate;
  * @code
  * QWidget *widget = new QWidget(nullptr);
  * widget->show(); // ensures native window gets created
- * connect(KWindowSystem::self(), static_cast<void (KWindowSystem::*)(WId, unsigned int)>(&KWindowSystem::windowChanged),
- *        [window](WId winId, unsigned int properties) {
+ * connect(KX11Extras::self(), &KX11Extras::KWindowSystem::windowChanged,
+ *        [window](WId id, NET::Properties properties, NET::Properties2 properties2) {
  *     if (widget->winId() != winId) {
  *         return; // not our window
  *     }
@@ -78,10 +75,7 @@ public:
     /**
      * Returns false if this window info is not valid.
      *
-     * In case the window does not exist @c false is returned. Also if there is no
-     * appropriate implementation for KWindowInfo on the current windowing
-     * system platform this method returns @c false. In that case all methods return a
-     * default value and thus it is recommended to check whether valid returns @c true.
+     * In case the window does not exist @c false is returned.
      *
      * @param withdrawn_is_valid if true, windows in the withdrawn state
      *        (i.e. not managed) are also considered. This is usually not the case.
@@ -424,7 +418,7 @@ public:
     /**
      * Returns the window identifier of the main window this window belongs to.
      *
-     * On platform X11 this is the value of the WM_TRANSIENT_FOR property.
+     * This is the value of the WM_TRANSIENT_FOR X11 property.
      *
      * Requires NET::WM2TransientFor passed as properties2 parameter to the constructor.
      *
@@ -453,9 +447,8 @@ public:
     WId groupLeader() const;
 
     /**
-     * Returns the class component of the window class for the window.
+     * Returns the class component of the WM_CLASS X11 property for the window.
      *
-     * On platform X11 this is part of the WM_CLASS property.
      * Requires NET::WM2WindowClass passed as properties2 parameter to the constructor.
      *
      * @code
@@ -469,9 +462,8 @@ public:
     QByteArray windowClassClass() const;
 
     /**
-     * Returns the name component of the window class for the window.
+     * Returns the name component of the WM_CLASS X11 property for the window.
      *
-     * On platform X11 this is part of the WM_CLASS property.
      * Requires NET::WM2WindowClass passed as properties2 parameter to the constructor.
      *
      * @code
@@ -485,9 +477,8 @@ public:
     QByteArray windowClassName() const;
 
     /**
-     * Returns the window role for the window.
+     * Returns the WM_WINDOW_ROLE X11 property for the window.
      *
-     * On platform X11 this is the value of the WM_WINDOW_ROLE property.
      * Requires NET::WM2WindowRole passed as properties2 parameter to the constructor.
      *
      * @code
@@ -501,9 +492,8 @@ public:
     QByteArray windowRole() const;
 
     /**
-     * Returns the client machine for the window.
+     * Returns the WM_CLIENT_MACHINE property for the window.
      *
-     * On platform X11 this is the value of the WM_CLIENT_MACHINE property.
      * Requires NET::WM2ClientMachine passed as properties2 parameter to the constructor.
      *
      * @code
@@ -519,7 +509,7 @@ public:
     /**
      * Returns true if the given action is currently supported for the window.
      *
-     * On platform X11 the supported actions are set by the window manager and
+     * The supported actions are set by the window manager and
      * can differ depending on the window manager.
      * Requires NET::WM2AllowedActions passed as properties2 parameter to the constructor.
      *
