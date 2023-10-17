@@ -2,6 +2,3 @@
 
 /* Define to 1 if you have the Xlib */
 #cmakedefine01 KWINDOWSYSTEM_HAVE_X11
-
-/* Define to 1 if you have the Xfixes library */
-#cmakedefine01 KWINDOWSYSTEM_HAVE_XFIXES

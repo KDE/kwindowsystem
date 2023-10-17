@@ -27,14 +27,9 @@
 
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
+#include <X11/extensions/Xfixes.h>
 #include <xcb/xcb.h>
 #include <xcb/xfixes.h>
-
-#include <config-kwindowsystem.h>
-
-#if KWINDOWSYSTEM_HAVE_XFIXES
-#include <X11/extensions/Xfixes.h>
-#endif
 
 #include "kx11extras.h"
 
@@ -137,7 +132,6 @@ NETEventFilter::NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what)
 {
     QCoreApplication::instance()->installNativeEventFilter(this);
 
-#if KWINDOWSYSTEM_HAVE_XFIXES
     int errorBase;
     if ((haveXfixes = XFixesQueryExtension(QX11Info::display(), &xfixesEventBase, &errorBase))) {
         create_atoms();
@@ -162,7 +156,6 @@ NETEventFilter::NETEventFilter(KWindowSystemPrivateX11::FilterInfo _what)
                                    XFixesSetSelectionOwnerNotifyMask | XFixesSelectionWindowDestroyNotifyMask | XFixesSelectionClientCloseNotifyMask);
         compositingEnabled = XGetSelectionOwner(QX11Info::display(), net_wm_cm) != None;
     }
-#endif
 }
 
 NETEventFilter::~NETEventFilter()
