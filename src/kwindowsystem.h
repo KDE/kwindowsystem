@@ -16,10 +16,8 @@
 #include <QWidgetList> //For WId
 #include <kwindowinfo.h>
 #include <kwindowsystem_export.h>
-#include <netwm_def.h>
 
 class KWindowSystemPrivate;
-class NETWinInfo;
 
 /**
  *
@@ -41,7 +39,7 @@ class NETWinInfo;
  * @short Class for interaction with the window manager.
  * @author Matthias Ettrich (ettrich@kde.org)
  */
-class KWINDOWSYSTEM_EXPORT KWindowSystem : public QObject, public NET
+class KWINDOWSYSTEM_EXPORT KWindowSystem : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool isPlatformWayland READ isPlatformWayland CONSTANT)
