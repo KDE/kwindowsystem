@@ -21,23 +21,8 @@ class KWindowSystemPrivate;
 
 /**
  *
- * Convenience access to certain properties and features of the
- * window manager.
+ * Convenience access to certain properties and features of window systems.
  *
- * The class KWindowSystem provides information about the state of the
- * window manager and allows asking the window manager to change them
- * using a more high-level interface than the NETWinInfo/NETRootInfo
- * lowlevel classes.
- *
- * Because of limitations of the way Qt is implemented on Mac OSX, the WId's
- * returned by methods in this class are not compatible with those expected
- * by other Qt methods. So while it should be fine to pass WId's retrieved by
- * for example calling the winId method on a QWidget to methods in this class
- * the reverse is not true. You should never pass a WId obtained from this class
- * to a Qt method accepting a WId parameter.
- *
- * @short Class for interaction with the window manager.
- * @author Matthias Ettrich (ettrich@kde.org)
  */
 class KWINDOWSYSTEM_EXPORT KWindowSystem : public QObject
 {
@@ -151,18 +136,17 @@ public:
          **/
         Unknown,
         /**
-         * The xcb/X11 windowing system platorm.
+         * The X11 window system.
          **/
         X11,
         /**
-         * The Wayland windowing system platform.
+         * The Wayland window system.
          **/
         Wayland,
     };
     Q_ENUM(Platform)
     /**
      * Returns the Platform used by the QGuiApplication.
-     * This method allows to check for the used windowing system in a cheap and reliable way.
      * The Platform gets resolved the first time the method is invoked and cached for further
      * usages.
      * @returns The Platform used by the QGuiApplication.
