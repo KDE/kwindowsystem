@@ -6,7 +6,6 @@
 
 #include "plugin.h"
 #include "kwindoweffects_x11.h"
-#include "kwindowinfo_p_x11.h"
 #include "kwindowshadow_p_x11.h"
 #include "kwindowsystem_p_x11.h"
 
@@ -27,11 +26,6 @@ KWindowEffectsPrivate *X11Plugin::createEffects()
 KWindowSystemPrivate *X11Plugin::createWindowSystem()
 {
     return new KWindowSystemPrivateX11();
-}
-
-KWindowInfoPrivate *X11Plugin::createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2)
-{
-    return new KWindowInfoPrivateX11(window, properties, properties2);
 }
 
 KWindowShadowPrivate *X11Plugin::createWindowShadow()

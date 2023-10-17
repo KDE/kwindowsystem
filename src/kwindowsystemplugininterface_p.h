@@ -5,14 +5,12 @@
 */
 #ifndef KWINDOWSYSTEMPLUGININTERFACE_P_H
 #define KWINDOWSYSTEMPLUGININTERFACE_P_H
-#include "netwm_def.h"
 #include <kwindowsystem_export.h>
 
 #include <QObject>
 #include <QWidgetList> //For WId
 
 class KWindowEffectsPrivate;
-class KWindowInfoPrivate;
 class KWindowShadowPrivate;
 class KWindowShadowTilePrivate;
 class KWindowSystemPrivate;
@@ -28,7 +26,6 @@ public:
 
     virtual KWindowEffectsPrivate *createEffects();
     virtual KWindowSystemPrivate *createWindowSystem();
-    virtual KWindowInfoPrivate *createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2);
     virtual KWindowShadowPrivate *createWindowShadow();
     virtual KWindowShadowTilePrivate *createWindowShadowTile();
 };

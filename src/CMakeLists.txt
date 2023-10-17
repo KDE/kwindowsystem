@@ -14,7 +14,6 @@ ecm_create_qm_loader(KF6WindowSystem kwindowsystem6_qt)
 target_sources(KF6WindowSystem PRIVATE
     kwindoweffects.cpp
     kwindoweffects_dummy.cpp
-    kwindowinfo.cpp
     kwindowshadow.cpp
     kwindowsystem.cpp
     pluginwrapper.cpp
@@ -42,6 +41,7 @@ if (KWINDOWSYSTEM_X11)
             X11::X11
         PRIVATE
             XCB::XCB
+            XCB::RES
             X11::Xfixes
             XCB::KEYSYMS
             Qt6::GuiPrivate # qtx11extras_p.h
@@ -57,7 +57,6 @@ if (KWINDOWSYSTEM_X11)
    target_sources(KF6WindowSystem PRIVATE
         platforms/xcb/kselectionowner.cpp
         platforms/xcb/kselectionwatcher.cpp
-        platforms/xcb/kxerrorhandler.cpp
         platforms/xcb/kxmessages.cpp
         platforms/xcb/kxutils.cpp
         platforms/xcb/netwm.cpp
@@ -65,6 +64,8 @@ if (KWINDOWSYSTEM_X11)
         kx11extras.cpp
         kstartupinfo.cpp
         kusertimestamp.cpp
+        kxerrorhandler.cpp
+        kwindowinfo.cpp
    )
 
    # we install kkeyserver_x11.h which needs the X11 headers available
@@ -92,7 +93,6 @@ target_link_libraries(KF6WindowSystem
 ecm_generate_headers(KWindowSystem_HEADERS
   HEADER_NAMES
   KWindowEffects
-  KWindowInfo
   KWindowShadow,KWindowShadowTile
   KWindowSystem
 
@@ -106,6 +106,7 @@ if (KWINDOWSYSTEM_X11)
     KStartupInfo
     KUserTimestamp
     KKeyServer
+    KWindowInfo
 
     REQUIRED_HEADERS KWindowSystem_HEADERS
     )
@@ -125,7 +126,6 @@ install(FILES
 install(
     FILES
         kwindoweffects_p.h
-        kwindowinfo_p.h
         kwindowshadow_p.h
         kwindowsystem_p.h
         kwindowsystemplugininterface_p.h

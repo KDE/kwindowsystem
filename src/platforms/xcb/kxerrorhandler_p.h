@@ -10,8 +10,6 @@
 
 #include <QtGlobal>
 
-#if KWINDOWSYSTEM_HAVE_X11
-
 #include <private/qtx11extras_p.h>
 
 #include <X11/Xlib.h>
@@ -92,7 +90,5 @@ private:
     Q_DISABLE_COPY(KXErrorHandler)
     KXErrorHandlerPrivate *const d;
 };
-
-#endif // KWINDOWSYSTEM_HAVE_X11
 
 #endif

@@ -2,10 +2,8 @@ add_library(KF6WindowSystemX11Plugin MODULE)
 
 target_sources(KF6WindowSystemX11Plugin PRIVATE
     kwindoweffects.cpp
-    kwindowinfo.cpp
     kwindowshadow.cpp
     kwindowsystem.cpp
-    kxerrorhandler.cpp
     kxutils.cpp
     plugin.cpp
 )

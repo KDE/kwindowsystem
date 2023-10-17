@@ -4,7 +4,6 @@
     SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 */
 #include "kwindoweffects_dummy_p.h"
-#include "kwindowinfo_dummy_p.h"
 #include "kwindowshadow_dummy_p.h"
 #include "kwindowsystem_debug.h"
 #include "kwindowsystem_dummy_p.h"
@@ -129,18 +128,6 @@ KWindowSystemPrivate *KWindowSystemPluginWrapper::createWindowSystem() const
     }
     if (!p) {
         p = new KWindowSystemPrivateDummy();
-    }
-    return p;
-}
-
-KWindowInfoPrivate *KWindowSystemPluginWrapper::createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2) const
-{
-    KWindowInfoPrivate *p = nullptr;
-    if (m_plugin) {
-        p = m_plugin->createWindowInfo(window, properties, properties2);
-    }
-    if (!p) {
-        p = new KWindowInfoPrivateDummy(window, properties, properties2);
     }
     return p;
 }

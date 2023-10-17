@@ -25,14 +25,6 @@ KWindowSystemPrivate *KWindowSystemPluginInterface::createWindowSystem()
     return nullptr;
 }
 
-KWindowInfoPrivate *KWindowSystemPluginInterface::createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2)
-{
-    Q_UNUSED(window)
-    Q_UNUSED(properties)
-    Q_UNUSED(properties2)
-    return nullptr;
-}
-
 KWindowShadowPrivate *KWindowSystemPluginInterface::createWindowShadow()
 {
     return nullptr;
