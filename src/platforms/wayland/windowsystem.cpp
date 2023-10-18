@@ -5,16 +5,19 @@
 */
 #include "windowsystem.h"
 #include "logging.h"
+#include "surfacehelper.h"
 #include "waylandintegration.h"
 #include "waylandxdgactivationv1_p.h"
 
 #include <KWindowSystem>
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/plasmashell.h>
 #include <KWayland/Client/registry.h>
 #include <KWayland/Client/seat.h>
 #include <KWayland/Client/surface.h>
+#endif
 
 #include "qwayland-plasma-window-management.h"
 #include <QGuiApplication>
@@ -63,7 +66,7 @@ WindowSystem::~WindowSystem()
 void WindowSystem::activateWindow(WId win, long int time)
 {
     Q_UNUSED(time);
-    Surface *s = Surface::fromQtWinId(win);
+    auto s = surfaceForWindow(QWindow::fromWinId(win));
     if (!s) {
         return;
     }
@@ -71,7 +74,7 @@ void WindowSystem::activateWindow(WId win, long int time)
     if (!activation->isActive()) {
         return;
     }
-    activation->activate(m_lastToken, *s);
+    activation->activate(m_lastToken, s);
 }
 
 void WindowSystem::forceActiveWindow(WId win, long int time)

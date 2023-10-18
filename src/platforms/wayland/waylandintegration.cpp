@@ -9,6 +9,7 @@
 #include "waylandintegration.h"
 #include "logging.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <KWayland/Client/compositor.h>
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/plasmashell.h>
@@ -18,6 +19,7 @@
 #include <KWayland/Client/shadow.h>
 #include <KWayland/Client/shm_pool.h>
 #include <KWayland/Client/surface.h>
+#endif
 
 #include <KWindowSystem>
 
@@ -36,13 +38,16 @@ WaylandIntegration::WaylandIntegration()
     : QObject()
     , m_activation(new WaylandXdgActivationV1)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     setupKWaylandIntegration();
+#endif
 }
 
 WaylandIntegration::~WaylandIntegration()
 {
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void WaylandIntegration::setupKWaylandIntegration()
 {
     using namespace KWayland::Client;
@@ -58,17 +63,21 @@ void WaylandIntegration::setupKWaylandIntegration()
     m_registry->setup();
     m_waylandConnection->roundtrip();
 }
+#endif
 
 WaylandIntegration *WaylandIntegration::self()
 {
     return &privateWaylandIntegrationSelf()->self;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 KWayland::Client::Registry *WaylandIntegration::registry() const
 {
     return m_registry;
 }
+#endif
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 KWayland::Client::PlasmaShell *WaylandIntegration::waylandPlasmaShell()
 {
     if (!m_waylandPlasmaShell && m_registry) {
@@ -82,6 +91,7 @@ KWayland::Client::PlasmaShell *WaylandIntegration::waylandPlasmaShell()
     }
     return m_waylandPlasmaShell;
 }
+#endif
 
 WaylandXdgActivationV1 *WaylandIntegration::activation()
 {
