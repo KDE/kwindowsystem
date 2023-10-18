@@ -515,6 +515,7 @@ void WindowSystem::setState(WId win, NET::States state)
 
 void WindowSystem::setType(WId win, NET::WindowType windowType)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     if (!WaylandIntegration::self()->waylandPlasmaShell()) {
         return;
     }
@@ -553,6 +554,9 @@ void WindowSystem::setType(WId win, NET::WindowType windowType)
     KWayland::Client::PlasmaShellSurface *shellSurface = WaylandIntegration::self()->waylandPlasmaShell()->createSurface(s, this);
 
     shellSurface->setRole(role);
+#else
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support setting window type";
+#endif
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
