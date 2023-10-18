@@ -6,7 +6,7 @@
 #ifndef KWINDOWSYSTEM_KWAYLAND_PLUGIN_H
 #define KWINDOWSYSTEM_KWAYLAND_PLUGIN_H
 
-#include <private/kwindowsystemplugininterface_p.h>
+#include "kwindowsystemplugininterface_p.h"
 
 class KWaylandPlugin : public KWindowSystemPluginInterface
 {

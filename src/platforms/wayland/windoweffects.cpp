@@ -10,7 +10,6 @@
 #include <QDebug>
 #include <QExposeEvent>
 #include <QGuiApplication>
-#include <QWidget>
 
 #include <private/qwaylandwindow_p.h>
 

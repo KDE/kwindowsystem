@@ -6,7 +6,7 @@
 #ifndef WINDOWSYSTEM_H
 #define WINDOWSYSTEM_H
 
-#include <private/kwindowsystem_p.h>
+#include "kwindowsystem_p.h"
 
 #include <QObject>
 

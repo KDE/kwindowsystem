@@ -7,7 +7,7 @@
 #ifndef WINDOWSHADOW_H
 #define WINDOWSHADOW_H
 
-#include <private/kwindowshadow_p.h>
+#include "kwindowshadow_p.h"
 
 #include <memory>
 

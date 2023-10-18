@@ -6,8 +6,8 @@
 */
 #ifndef WINDOWEFFECTS_H
 #define WINDOWEFFECTS_H
+#include "kwindoweffects_p.h"
 #include <kwindowsystem_version.h>
-#include <private/kwindoweffects_p.h>
 
 #include <QHash>
 #include <QObject>
