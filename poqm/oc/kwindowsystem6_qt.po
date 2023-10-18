@@ -19,7 +19,7 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 "X-Qt-Contexts: true\n"
 
-#: platforms/xcb/kwindowsystem.cpp:905
+#: platforms/xcb/kwindowsystem.cpp:898
 #, fuzzy, qt-format
 #| msgid "Desktop %1"
 msgctxt "KWindowSystem|"

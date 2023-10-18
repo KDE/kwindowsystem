@@ -20,7 +20,7 @@ msgstr ""
 "|| n%100>=20) ? 1 : 2)\n"
 "X-Qt-Contexts: true\n"
 
-#: platforms/xcb/kwindowsystem.cpp:905
+#: platforms/xcb/kwindowsystem.cpp:898
 #, fuzzy, qt-format
 #| msgid "Desktop %1"
 msgctxt "KWindowSystem|"

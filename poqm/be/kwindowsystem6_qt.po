@@ -30,7 +30,7 @@ msgstr ""
 "X-Crowdin-File: /main/be/kwindowsystem/kwindowsystem5_qt.po\n"
 "X-Crowdin-File-ID: 8371\n"
 
-#: platforms/xcb/kwindowsystem.cpp:905
+#: platforms/xcb/kwindowsystem.cpp:898
 #, qt-format
 msgctxt "KWindowSystem|"
 msgid "Desktop %1"

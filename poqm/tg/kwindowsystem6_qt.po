@@ -22,7 +22,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Qt-Contexts: true\n"
 
-#: platforms/xcb/kwindowsystem.cpp:905
+#: platforms/xcb/kwindowsystem.cpp:898
 #, qt-format
 msgctxt "KWindowSystem|"
 msgid "Desktop %1"
