@@ -20,7 +20,9 @@ public:
 
     KWindowEffectsPrivate *createEffects() override;
     KWindowSystemPrivate *createWindowSystem() override;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     KWindowInfoPrivate *createWindowInfo(WId window, NET::Properties properties, NET::Properties2 properties2) override;
+#endif
     KWindowShadowTilePrivate *createWindowShadowTile() override;
     KWindowShadowPrivate *createWindowShadow() override;
 };
