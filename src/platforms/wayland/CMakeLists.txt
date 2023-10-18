@@ -67,11 +67,13 @@ if(HAVE_MEMFD)
     target_compile_definitions(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin PRIVATE -DHAVE_MEMFD)
 endif()
 
+
+target_compile_options(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin PRIVATE -UQT_NO_KEYWORDS)
+
 pkg_check_modules(XKBCommon REQUIRED IMPORTED_TARGET xkbcommon)
 
 target_link_libraries(KF${QT_MAJOR_VERSION}WindowSystemKWaylandPlugin
     KF${QT_MAJOR_VERSION}::WindowSystem
-    Qt::Widgets
     Wayland::Client
     Qt::WaylandClient
     Qt::WaylandClientPrivate

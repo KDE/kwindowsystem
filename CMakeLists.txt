@@ -49,15 +49,36 @@ if (KWINDOWSYSTEM_QML)
 endif()
 
 option(KWINDOWSYSTEM_X11 "Build X11 support" ON)
+option(KWINDOWSYSTEM_WAYLAND "Build Wayland support" ON)
+
 
 if (WIN32 OR APPLE OR ANDROID)
     set(KWINDOWSYSTEM_X11 OFF)
+    set(KWINDOWSYSTEM_WAYLAND OFF)
 endif()
 
 if (KWINDOWSYSTEM_X11)
-
     find_package(X11 REQUIRED)
     find_package(XCB COMPONENTS REQUIRED XCB KEYSYMS RES ICCCM)
+endif()
+
+if (KWINDOWSYSTEM_WAYLAND)
+    find_package(Qt6WaylandClient ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
+    find_package(WaylandProtocols 1.21 REQUIRED)
+    find_package(PlasmaWaylandProtocols REQUIRED)
+    check_cxx_source_compiles("
+        #include <fcntl.h>
+        #include <sys/mman.h>
+        #include <unistd.h>
+
+        int main() {
+            const int size = 10;
+            int fd = memfd_create(\"test\", MFD_CLOEXEC | MFD_ALLOW_SEALING);
+            ftruncate(fd, size);
+            fcntl(fd, F_ADD_SEALS, F_SEAL_SHRINK | F_SEAL_SEAL);
+            mmap(nullptr, size, PROT_WRITE, MAP_SHARED, fd, 0);
+            return 0;
+        }" HAVE_MEMFD)
 endif()
 
 set(KWINDOWSYSTEM_HAVE_X11 ${KWINDOWSYSTEM_X11})
