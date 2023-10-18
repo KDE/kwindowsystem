@@ -377,6 +377,7 @@ void WindowSystem::setShowingDesktop(bool showing)
 
 void WindowSystem::clearState(WId win, NET::States state)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     Surface *s = Surface::fromQtWinId(win);
     if (!s) {
         return;
@@ -438,10 +439,14 @@ void WindowSystem::clearState(WId win, NET::States state)
     if (state & NET::DemandsAttention) {
         qCDebug(KWAYLAND_KWS) << "This plugin does not support changing DemandsAttention window state";
     }
+#else
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support changing window state";
+#endif
 }
 
 void WindowSystem::setState(WId win, NET::States state)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     Surface *s = Surface::fromQtWinId(win);
     if (!s) {
         return;
@@ -503,6 +508,9 @@ void WindowSystem::setState(WId win, NET::States state)
     if (state & NET::DemandsAttention) {
         qCDebug(KWAYLAND_KWS) << "This plugin does not support changing DemandsAttention window state";
     }
+#else
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support changing window state";
+#endif
 }
 
 void WindowSystem::setType(WId win, NET::WindowType windowType)
