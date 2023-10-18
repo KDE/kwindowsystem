@@ -11,9 +11,6 @@
 #include "surfacehelper.h"
 #include "waylandintegration.h"
 
-#include <KWayland/Client/shm_pool.h>
-#include <KWayland/Client/surface.h>
-
 #include <qwayland-shadow.h>
 
 #include <QDebug>

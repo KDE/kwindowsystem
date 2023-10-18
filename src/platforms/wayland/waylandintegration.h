@@ -37,7 +37,6 @@ public:
 
     KWayland::Client::Registry *registry() const;
     KWayland::Client::PlasmaShell *waylandPlasmaShell();
-    KWayland::Client::ShmPool *createShmPool();
     WaylandXdgActivationV1 *activation();
 
 private:
