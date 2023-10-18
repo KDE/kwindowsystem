@@ -58,6 +58,7 @@ if (KWINDOWSYSTEM_X11)
     )
 
    target_sources(KF6WindowSystem PRIVATE
+        platforms/xcb/atoms.cpp
         platforms/xcb/kselectionowner.cpp
         platforms/xcb/kselectionwatcher.cpp
         platforms/xcb/kxerrorhandler.cpp

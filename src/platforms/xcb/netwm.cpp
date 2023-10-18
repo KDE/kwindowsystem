@@ -42,30 +42,6 @@ struct kde_wm_hints {
     xcb_window_t window_group;
 };
 
-typedef QHash<xcb_connection_t *, QSharedDataPointer<Atoms>> AtomHash;
-Q_GLOBAL_STATIC(AtomHash, s_gAtomsHash)
-
-static QSharedDataPointer<Atoms> atomsForConnection(xcb_connection_t *c)
-{
-    auto it = s_gAtomsHash->constFind(c);
-    if (it == s_gAtomsHash->constEnd()) {
-        QSharedDataPointer<Atoms> atom(new Atoms(c));
-        s_gAtomsHash->insert(c, atom);
-        return atom;
-    }
-    return it.value();
-}
-
-Atoms::Atoms(xcb_connection_t *c)
-    : QSharedData()
-    , m_connection(c)
-{
-    for (int i = 0; i < KwsAtomCount; ++i) {
-        m_atoms[i] = XCB_ATOM_NONE;
-    }
-    init();
-}
-
 static const uint32_t netwm_sendevent_mask = (XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY);
 
 const long MAX_PROP_SIZE = 100000;
@@ -274,28 +250,6 @@ static QByteArray get_atom_name(xcb_connection_t *c, xcb_atom_t atom)
 }
 #endif
 
-void Atoms::init()
-{
-#define ENUM_CREATE_CHAR_ARRAY 1
-#include "atoms_p.h" // creates const char* array "KwsAtomStrings"
-    // Send the intern atom requests
-    xcb_intern_atom_cookie_t cookies[KwsAtomCount];
-    for (int i = 0; i < KwsAtomCount; ++i) {
-        cookies[i] = xcb_intern_atom(m_connection, false, strlen(KwsAtomStrings[i]), KwsAtomStrings[i]);
-    }
-
-    // Get the replies
-    for (int i = 0; i < KwsAtomCount; ++i) {
-        xcb_intern_atom_reply_t *reply = xcb_intern_atom_reply(m_connection, cookies[i], nullptr);
-        if (!reply) {
-            continue;
-        }
-
-        m_atoms[i] = reply->atom;
-        free(reply);
-    }
-}
-
 static void readIcon(xcb_connection_t *c, const xcb_get_property_cookie_t cookie, NETRArray<NETIcon> &icons, int &icon_count)
 {
 #ifdef NETWMDEBUG
@@ -441,7 +395,6 @@ NETRootInfo::NETRootInfo(xcb_connection_t *connection,
 
     p = new NETRootInfoPrivate;
     p->ref = 1;
-    p->atoms = atomsForConnection(connection);
 
     p->name = nstrdup(wmName);
 
@@ -496,7 +449,6 @@ NETRootInfo::NETRootInfo(xcb_connection_t *connection, NET::Properties propertie
 
     p = new NETRootInfoPrivate;
     p->ref = 1;
-    p->atoms = atomsForConnection(connection);
 
     p->name = nullptr;
 
@@ -611,7 +563,14 @@ void NETRootInfo::setClientList(const xcb_window_t *windows, unsigned int count)
     fprintf(stderr, "NETRootInfo::setClientList: setting list with %ld windows\n", p->clients_count);
 #endif
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_CLIENT_LIST), XCB_ATOM_WINDOW, 32, p->clients_count, (const void *)windows);
+    xcb_change_property(p->conn,
+                        XCB_PROP_MODE_REPLACE,
+                        p->root,
+                        atomForConnection(p->conn, _NET_CLIENT_LIST),
+                        XCB_ATOM_WINDOW,
+                        32,
+                        p->clients_count,
+                        (const void *)windows);
 }
 
 void NETRootInfo::setClientListStacking(const xcb_window_t *windows, unsigned int count)
@@ -631,7 +590,7 @@ void NETRootInfo::setClientListStacking(const xcb_window_t *windows, unsigned in
     xcb_change_property(p->conn,
                         XCB_PROP_MODE_REPLACE,
                         p->root,
-                        p->atom(_NET_CLIENT_LIST_STACKING),
+                        atomForConnection(p->conn, _NET_CLIENT_LIST_STACKING),
                         XCB_ATOM_WINDOW,
                         32,
                         p->stacking_count,
@@ -647,11 +606,18 @@ void NETRootInfo::setNumberOfDesktops(int numberOfDesktops)
     if (p->role == WindowManager) {
         p->number_of_desktops = numberOfDesktops;
         const uint32_t d = numberOfDesktops;
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_NUMBER_OF_DESKTOPS), XCB_ATOM_CARDINAL, 32, 1, (const void *)&d);
+        xcb_change_property(p->conn,
+                            XCB_PROP_MODE_REPLACE,
+                            p->root,
+                            atomForConnection(p->conn, _NET_NUMBER_OF_DESKTOPS),
+                            XCB_ATOM_CARDINAL,
+                            32,
+                            1,
+                            (const void *)&d);
     } else {
         const uint32_t data[5] = {uint32_t(numberOfDesktops), 0, 0, 0, 0};
 
-        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, p->atom(_NET_NUMBER_OF_DESKTOPS), data);
+        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, atomForConnection(p->conn, _NET_NUMBER_OF_DESKTOPS), data);
     }
 }
 
@@ -664,7 +630,14 @@ void NETRootInfo::setCurrentDesktop(int desktop, bool ignore_viewport)
     if (p->role == WindowManager) {
         p->current_desktop = desktop;
         uint32_t d = p->current_desktop - 1;
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_CURRENT_DESKTOP), XCB_ATOM_CARDINAL, 32, 1, (const void *)&d);
+        xcb_change_property(p->conn,
+                            XCB_PROP_MODE_REPLACE,
+                            p->root,
+                            atomForConnection(p->conn, _NET_CURRENT_DESKTOP),
+                            XCB_ATOM_CARDINAL,
+                            32,
+                            1,
+                            (const void *)&d);
     } else {
         if (!ignore_viewport && KX11Extras::mapViewport()) {
             KX11Extras::setCurrentDesktop(desktop);
@@ -673,7 +646,7 @@ void NETRootInfo::setCurrentDesktop(int desktop, bool ignore_viewport)
 
         const uint32_t data[5] = {uint32_t(desktop - 1), 0, 0, 0, 0};
 
-        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, p->atom(_NET_CURRENT_DESKTOP), data);
+        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, atomForConnection(p->conn, _NET_CURRENT_DESKTOP), data);
     }
 }
 
@@ -715,7 +688,14 @@ void NETRootInfo::setDesktopName(int desktop, const char *desktopName)
             proplen);
 #endif
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_DESKTOP_NAMES), p->atom(UTF8_STRING), 8, proplen, (const void *)prop);
+    xcb_change_property(p->conn,
+                        XCB_PROP_MODE_REPLACE,
+                        p->root,
+                        atomForConnection(p->conn, _NET_DESKTOP_NAMES),
+                        atomForConnection(p->conn, UTF8_STRING),
+                        8,
+                        proplen,
+                        (const void *)prop);
 
     delete[] prop;
 }
@@ -733,11 +713,18 @@ void NETRootInfo::setDesktopGeometry(const NETSize &geometry)
         data[0] = p->geometry.width;
         data[1] = p->geometry.height;
 
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_DESKTOP_GEOMETRY), XCB_ATOM_CARDINAL, 32, 2, (const void *)data);
+        xcb_change_property(p->conn,
+                            XCB_PROP_MODE_REPLACE,
+                            p->root,
+                            atomForConnection(p->conn, _NET_DESKTOP_GEOMETRY),
+                            XCB_ATOM_CARDINAL,
+                            32,
+                            2,
+                            (const void *)data);
     } else {
         uint32_t data[5] = {uint32_t(geometry.width), uint32_t(geometry.height), 0, 0, 0};
 
-        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, p->atom(_NET_DESKTOP_GEOMETRY), data);
+        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, atomForConnection(p->conn, _NET_DESKTOP_GEOMETRY), data);
     }
 }
 
@@ -764,13 +751,20 @@ void NETRootInfo::setDesktopViewport(int desktop, const NETPoint &viewport)
             data[i++] = p->viewport[d].y;
         }
 
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_DESKTOP_VIEWPORT), XCB_ATOM_CARDINAL, 32, l, (const void *)data);
+        xcb_change_property(p->conn,
+                            XCB_PROP_MODE_REPLACE,
+                            p->root,
+                            atomForConnection(p->conn, _NET_DESKTOP_VIEWPORT),
+                            XCB_ATOM_CARDINAL,
+                            32,
+                            l,
+                            (const void *)data);
 
         delete[] data;
     } else {
         const uint32_t data[5] = {uint32_t(viewport.x), uint32_t(viewport.y), 0, 0, 0};
 
-        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, p->atom(_NET_DESKTOP_VIEWPORT), data);
+        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, atomForConnection(p->conn, _NET_DESKTOP_VIEWPORT), data);
     }
 }
 
@@ -788,333 +782,340 @@ void NETRootInfo::setSupported()
     int pnum = 2;
 
     // Root window properties/messages
-    atoms[0] = p->atom(_NET_SUPPORTED);
-    atoms[1] = p->atom(_NET_SUPPORTING_WM_CHECK);
+    atoms[0] = atomForConnection(p->conn, _NET_SUPPORTED);
+    atoms[1] = atomForConnection(p->conn, _NET_SUPPORTING_WM_CHECK);
 
     if (p->properties & ClientList) {
-        atoms[pnum++] = p->atom(_NET_CLIENT_LIST);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_CLIENT_LIST);
     }
 
     if (p->properties & ClientListStacking) {
-        atoms[pnum++] = p->atom(_NET_CLIENT_LIST_STACKING);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_CLIENT_LIST_STACKING);
     }
 
     if (p->properties & NumberOfDesktops) {
-        atoms[pnum++] = p->atom(_NET_NUMBER_OF_DESKTOPS);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_NUMBER_OF_DESKTOPS);
     }
 
     if (p->properties & DesktopGeometry) {
-        atoms[pnum++] = p->atom(_NET_DESKTOP_GEOMETRY);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_DESKTOP_GEOMETRY);
     }
 
     if (p->properties & DesktopViewport) {
-        atoms[pnum++] = p->atom(_NET_DESKTOP_VIEWPORT);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_DESKTOP_VIEWPORT);
     }
 
     if (p->properties & CurrentDesktop) {
-        atoms[pnum++] = p->atom(_NET_CURRENT_DESKTOP);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_CURRENT_DESKTOP);
     }
 
     if (p->properties & DesktopNames) {
-        atoms[pnum++] = p->atom(_NET_DESKTOP_NAMES);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_DESKTOP_NAMES);
     }
 
     if (p->properties & ActiveWindow) {
-        atoms[pnum++] = p->atom(_NET_ACTIVE_WINDOW);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_ACTIVE_WINDOW);
     }
 
     if (p->properties & WorkArea) {
-        atoms[pnum++] = p->atom(_NET_WORKAREA);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WORKAREA);
     }
 
     if (p->properties & VirtualRoots) {
-        atoms[pnum++] = p->atom(_NET_VIRTUAL_ROOTS);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_VIRTUAL_ROOTS);
     }
 
     if (p->properties2 & WM2DesktopLayout) {
-        atoms[pnum++] = p->atom(_NET_DESKTOP_LAYOUT);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_DESKTOP_LAYOUT);
     }
 
     if (p->properties & CloseWindow) {
-        atoms[pnum++] = p->atom(_NET_CLOSE_WINDOW);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_CLOSE_WINDOW);
     }
 
     if (p->properties2 & WM2RestackWindow) {
-        atoms[pnum++] = p->atom(_NET_RESTACK_WINDOW);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_RESTACK_WINDOW);
     }
 
     if (p->properties2 & WM2ShowingDesktop) {
-        atoms[pnum++] = p->atom(_NET_SHOWING_DESKTOP);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_SHOWING_DESKTOP);
     }
 
     // Application window properties/messages
     if (p->properties & WMMoveResize) {
-        atoms[pnum++] = p->atom(_NET_WM_MOVERESIZE);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_MOVERESIZE);
     }
 
     if (p->properties2 & WM2MoveResizeWindow) {
-        atoms[pnum++] = p->atom(_NET_MOVERESIZE_WINDOW);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_MOVERESIZE_WINDOW);
     }
 
     if (p->properties & WMName) {
-        atoms[pnum++] = p->atom(_NET_WM_NAME);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_NAME);
     }
 
     if (p->properties & WMVisibleName) {
-        atoms[pnum++] = p->atom(_NET_WM_VISIBLE_NAME);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_VISIBLE_NAME);
     }
 
     if (p->properties & WMIconName) {
-        atoms[pnum++] = p->atom(_NET_WM_ICON_NAME);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ICON_NAME);
     }
 
     if (p->properties & WMVisibleIconName) {
-        atoms[pnum++] = p->atom(_NET_WM_VISIBLE_ICON_NAME);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_VISIBLE_ICON_NAME);
     }
 
     if (p->properties & WMDesktop) {
-        atoms[pnum++] = p->atom(_NET_WM_DESKTOP);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_DESKTOP);
     }
 
     if (p->properties & WMWindowType) {
-        atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE);
 
         // Application window types
         if (p->windowTypes & NormalMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_NORMAL);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_NORMAL);
         }
         if (p->windowTypes & DesktopMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_DESKTOP);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DESKTOP);
         }
         if (p->windowTypes & DockMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_DOCK);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DOCK);
         }
         if (p->windowTypes & ToolbarMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_TOOLBAR);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_TOOLBAR);
         }
         if (p->windowTypes & MenuMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_MENU);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_MENU);
         }
         if (p->windowTypes & DialogMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_DIALOG);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DIALOG);
         }
         if (p->windowTypes & UtilityMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_UTILITY);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_UTILITY);
         }
         if (p->windowTypes & SplashMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_SPLASH);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_SPLASH);
         }
         if (p->windowTypes & DropdownMenuMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_DROPDOWN_MENU);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DROPDOWN_MENU);
         }
         if (p->windowTypes & PopupMenuMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_POPUP_MENU);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_POPUP_MENU);
         }
         if (p->windowTypes & TooltipMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_TOOLTIP);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_TOOLTIP);
         }
         if (p->windowTypes & NotificationMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_NOTIFICATION);
         }
         if (p->windowTypes & ComboBoxMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_COMBO);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_COMBO);
         }
         if (p->windowTypes & DNDIconMask) {
-            atoms[pnum++] = p->atom(_NET_WM_WINDOW_TYPE_DND);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DND);
         }
         // KDE extensions
         if (p->windowTypes & OverrideMask) {
-            atoms[pnum++] = p->atom(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE);
+            atoms[pnum++] = atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_OVERRIDE);
         }
         if (p->windowTypes & TopMenuMask) {
-            atoms[pnum++] = p->atom(_KDE_NET_WM_WINDOW_TYPE_TOPMENU);
+            atoms[pnum++] = atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_TOPMENU);
         }
         if (p->windowTypes & OnScreenDisplayMask) {
-            atoms[pnum++] = p->atom(_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY);
+            atoms[pnum++] = atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY);
         }
         if (p->windowTypes & CriticalNotificationMask) {
-            atoms[pnum++] = p->atom(_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION);
+            atoms[pnum++] = atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION);
         }
         if (p->windowTypes & AppletPopupMask) {
-            atoms[pnum++] = p->atom(_KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP);
+            atoms[pnum++] = atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP);
         }
     }
 
     if (p->properties & WMState) {
-        atoms[pnum++] = p->atom(_NET_WM_STATE);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE);
 
         // Application window states
         if (p->states & Modal) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_MODAL);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_MODAL);
         }
         if (p->states & Sticky) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_STICKY);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_STICKY);
         }
         if (p->states & MaxVert) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_VERT);
         }
         if (p->states & MaxHoriz) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_HORZ);
         }
         if (p->states & Shaded) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_SHADED);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_SHADED);
         }
         if (p->states & SkipTaskbar) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_SKIP_TASKBAR);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_SKIP_TASKBAR);
         }
         if (p->states & SkipPager) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_SKIP_PAGER);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_SKIP_PAGER);
         }
         if (p->states & SkipSwitcher) {
-            atoms[pnum++] = p->atom(_KDE_NET_WM_STATE_SKIP_SWITCHER);
+            atoms[pnum++] = atomForConnection(p->conn, _KDE_NET_WM_STATE_SKIP_SWITCHER);
         }
         if (p->states & Hidden) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_HIDDEN);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_HIDDEN);
         }
         if (p->states & FullScreen) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_FULLSCREEN);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_FULLSCREEN);
         }
         if (p->states & KeepAbove) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_ABOVE);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_ABOVE);
             // deprecated variant
-            atoms[pnum++] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_STAYS_ON_TOP);
         }
         if (p->states & KeepBelow) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_BELOW);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_BELOW);
         }
         if (p->states & DemandsAttention) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_DEMANDS_ATTENTION);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_DEMANDS_ATTENTION);
         }
 
         if (p->states & Focused) {
-            atoms[pnum++] = p->atom(_NET_WM_STATE_FOCUSED);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STATE_FOCUSED);
         }
     }
 
     if (p->properties & WMStrut) {
-        atoms[pnum++] = p->atom(_NET_WM_STRUT);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STRUT);
     }
 
     if (p->properties2 & WM2ExtendedStrut) {
-        atoms[pnum++] = p->atom(_NET_WM_STRUT_PARTIAL);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_STRUT_PARTIAL);
     }
 
     if (p->properties & WMIconGeometry) {
-        atoms[pnum++] = p->atom(_NET_WM_ICON_GEOMETRY);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ICON_GEOMETRY);
     }
 
     if (p->properties & WMIcon) {
-        atoms[pnum++] = p->atom(_NET_WM_ICON);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ICON);
     }
 
     if (p->properties & WMPid) {
-        atoms[pnum++] = p->atom(_NET_WM_PID);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_PID);
     }
 
     if (p->properties & WMHandledIcons) {
-        atoms[pnum++] = p->atom(_NET_WM_HANDLED_ICONS);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_HANDLED_ICONS);
     }
 
     if (p->properties & WMPing) {
-        atoms[pnum++] = p->atom(_NET_WM_PING);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_PING);
     }
 
     if (p->properties2 & WM2UserTime) {
-        atoms[pnum++] = p->atom(_NET_WM_USER_TIME);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_USER_TIME);
     }
 
     if (p->properties2 & WM2StartupId) {
-        atoms[pnum++] = p->atom(_NET_STARTUP_ID);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_STARTUP_ID);
     }
 
     if (p->properties2 & WM2Opacity) {
-        atoms[pnum++] = p->atom(_NET_WM_WINDOW_OPACITY);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_WINDOW_OPACITY);
     }
 
     if (p->properties2 & WM2FullscreenMonitors) {
-        atoms[pnum++] = p->atom(_NET_WM_FULLSCREEN_MONITORS);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_FULLSCREEN_MONITORS);
     }
 
     if (p->properties2 & WM2AllowedActions) {
-        atoms[pnum++] = p->atom(_NET_WM_ALLOWED_ACTIONS);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ALLOWED_ACTIONS);
 
         // Actions
         if (p->actions & ActionMove) {
-            atoms[pnum++] = p->atom(_NET_WM_ACTION_MOVE);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ACTION_MOVE);
         }
         if (p->actions & ActionResize) {
-            atoms[pnum++] = p->atom(_NET_WM_ACTION_RESIZE);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ACTION_RESIZE);
         }
         if (p->actions & ActionMinimize) {
-            atoms[pnum++] = p->atom(_NET_WM_ACTION_MINIMIZE);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ACTION_MINIMIZE);
         }
         if (p->actions & ActionShade) {
-            atoms[pnum++] = p->atom(_NET_WM_ACTION_SHADE);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ACTION_SHADE);
         }
         if (p->actions & ActionStick) {
-            atoms[pnum++] = p->atom(_NET_WM_ACTION_STICK);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ACTION_STICK);
         }
         if (p->actions & ActionMaxVert) {
-            atoms[pnum++] = p->atom(_NET_WM_ACTION_MAXIMIZE_VERT);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ACTION_MAXIMIZE_VERT);
         }
         if (p->actions & ActionMaxHoriz) {
-            atoms[pnum++] = p->atom(_NET_WM_ACTION_MAXIMIZE_HORZ);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ACTION_MAXIMIZE_HORZ);
         }
         if (p->actions & ActionFullScreen) {
-            atoms[pnum++] = p->atom(_NET_WM_ACTION_FULLSCREEN);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ACTION_FULLSCREEN);
         }
         if (p->actions & ActionChangeDesktop) {
-            atoms[pnum++] = p->atom(_NET_WM_ACTION_CHANGE_DESKTOP);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ACTION_CHANGE_DESKTOP);
         }
         if (p->actions & ActionClose) {
-            atoms[pnum++] = p->atom(_NET_WM_ACTION_CLOSE);
+            atoms[pnum++] = atomForConnection(p->conn, _NET_WM_ACTION_CLOSE);
         }
     }
 
     if (p->properties & WMFrameExtents) {
-        atoms[pnum++] = p->atom(_NET_FRAME_EXTENTS);
-        atoms[pnum++] = p->atom(_KDE_NET_WM_FRAME_STRUT);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_FRAME_EXTENTS);
+        atoms[pnum++] = atomForConnection(p->conn, _KDE_NET_WM_FRAME_STRUT);
     }
 
     if (p->properties2 & WM2FrameOverlap) {
-        atoms[pnum++] = p->atom(_NET_WM_FRAME_OVERLAP);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_FRAME_OVERLAP);
     }
 
     if (p->properties2 & WM2KDETemporaryRules) {
-        atoms[pnum++] = p->atom(_KDE_NET_WM_TEMPORARY_RULES);
+        atoms[pnum++] = atomForConnection(p->conn, _KDE_NET_WM_TEMPORARY_RULES);
     }
     if (p->properties2 & WM2FullPlacement) {
-        atoms[pnum++] = p->atom(_NET_WM_FULL_PLACEMENT);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_FULL_PLACEMENT);
     }
 
     if (p->properties2 & WM2Activities) {
-        atoms[pnum++] = p->atom(_KDE_NET_WM_ACTIVITIES);
+        atoms[pnum++] = atomForConnection(p->conn, _KDE_NET_WM_ACTIVITIES);
     }
 
     if (p->properties2 & WM2BlockCompositing) {
-        atoms[pnum++] = p->atom(_KDE_NET_WM_BLOCK_COMPOSITING);
-        atoms[pnum++] = p->atom(_NET_WM_BYPASS_COMPOSITOR);
+        atoms[pnum++] = atomForConnection(p->conn, _KDE_NET_WM_BLOCK_COMPOSITING);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_BYPASS_COMPOSITOR);
     }
 
     if (p->properties2 & WM2KDEShadow) {
-        atoms[pnum++] = p->atom(_KDE_NET_WM_SHADOW);
+        atoms[pnum++] = atomForConnection(p->conn, _KDE_NET_WM_SHADOW);
     }
 
     if (p->properties2 & WM2OpaqueRegion) {
-        atoms[pnum++] = p->atom(_NET_WM_OPAQUE_REGION);
+        atoms[pnum++] = atomForConnection(p->conn, _NET_WM_OPAQUE_REGION);
     }
 
     if (p->properties2 & WM2GTKFrameExtents) {
-        atoms[pnum++] = p->atom(_GTK_FRAME_EXTENTS);
+        atoms[pnum++] = atomForConnection(p->conn, _GTK_FRAME_EXTENTS);
     }
 
     if (p->properties2 & WM2GTKShowWindowMenu) {
-        atoms[pnum++] = p->atom(_GTK_SHOW_WINDOW_MENU);
+        atoms[pnum++] = atomForConnection(p->conn, _GTK_SHOW_WINDOW_MENU);
     }
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_SUPPORTED), XCB_ATOM_ATOM, 32, pnum, (const void *)atoms);
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, atomForConnection(p->conn, _NET_SUPPORTED), XCB_ATOM_ATOM, 32, pnum, (const void *)atoms);
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_SUPPORTING_WM_CHECK), XCB_ATOM_WINDOW, 32, 1, (const void *)&(p->supportwindow));
+    xcb_change_property(p->conn,
+                        XCB_PROP_MODE_REPLACE,
+                        p->root,
+                        atomForConnection(p->conn, _NET_SUPPORTING_WM_CHECK),
+                        XCB_ATOM_WINDOW,
+                        32,
+                        1,
+                        (const void *)&(p->supportwindow));
 
 #ifdef NETWMDEBUG
     fprintf(stderr,
@@ -1129,7 +1130,7 @@ void NETRootInfo::setSupported()
     xcb_change_property(p->conn,
                         XCB_PROP_MODE_REPLACE,
                         p->supportwindow,
-                        p->atom(_NET_SUPPORTING_WM_CHECK),
+                        atomForConnection(p->conn, _NET_SUPPORTING_WM_CHECK),
                         XCB_ATOM_WINDOW,
                         32,
                         1,
@@ -1138,8 +1139,8 @@ void NETRootInfo::setSupported()
     xcb_change_property(p->conn,
                         XCB_PROP_MODE_REPLACE,
                         p->supportwindow,
-                        p->atom(_NET_WM_NAME),
-                        p->atom(UTF8_STRING),
+                        atomForConnection(p->conn, _NET_WM_NAME),
+                        atomForConnection(p->conn, UTF8_STRING),
                         8,
                         strlen(p->name),
                         (const void *)p->name);
@@ -1147,297 +1148,297 @@ void NETRootInfo::setSupported()
 
 void NETRootInfo::updateSupportedProperties(xcb_atom_t atom)
 {
-    if (atom == p->atom(_NET_SUPPORTED)) {
+    if (atom == atomForConnection(p->conn, _NET_SUPPORTED)) {
         p->properties |= Supported;
     }
 
-    else if (atom == p->atom(_NET_SUPPORTING_WM_CHECK)) {
+    else if (atom == atomForConnection(p->conn, _NET_SUPPORTING_WM_CHECK)) {
         p->properties |= SupportingWMCheck;
     }
 
-    else if (atom == p->atom(_NET_CLIENT_LIST)) {
+    else if (atom == atomForConnection(p->conn, _NET_CLIENT_LIST)) {
         p->properties |= ClientList;
     }
 
-    else if (atom == p->atom(_NET_CLIENT_LIST_STACKING)) {
+    else if (atom == atomForConnection(p->conn, _NET_CLIENT_LIST_STACKING)) {
         p->properties |= ClientListStacking;
     }
 
-    else if (atom == p->atom(_NET_NUMBER_OF_DESKTOPS)) {
+    else if (atom == atomForConnection(p->conn, _NET_NUMBER_OF_DESKTOPS)) {
         p->properties |= NumberOfDesktops;
     }
 
-    else if (atom == p->atom(_NET_DESKTOP_GEOMETRY)) {
+    else if (atom == atomForConnection(p->conn, _NET_DESKTOP_GEOMETRY)) {
         p->properties |= DesktopGeometry;
     }
 
-    else if (atom == p->atom(_NET_DESKTOP_VIEWPORT)) {
+    else if (atom == atomForConnection(p->conn, _NET_DESKTOP_VIEWPORT)) {
         p->properties |= DesktopViewport;
     }
 
-    else if (atom == p->atom(_NET_CURRENT_DESKTOP)) {
+    else if (atom == atomForConnection(p->conn, _NET_CURRENT_DESKTOP)) {
         p->properties |= CurrentDesktop;
     }
 
-    else if (atom == p->atom(_NET_DESKTOP_NAMES)) {
+    else if (atom == atomForConnection(p->conn, _NET_DESKTOP_NAMES)) {
         p->properties |= DesktopNames;
     }
 
-    else if (atom == p->atom(_NET_ACTIVE_WINDOW)) {
+    else if (atom == atomForConnection(p->conn, _NET_ACTIVE_WINDOW)) {
         p->properties |= ActiveWindow;
     }
 
-    else if (atom == p->atom(_NET_WORKAREA)) {
+    else if (atom == atomForConnection(p->conn, _NET_WORKAREA)) {
         p->properties |= WorkArea;
     }
 
-    else if (atom == p->atom(_NET_VIRTUAL_ROOTS)) {
+    else if (atom == atomForConnection(p->conn, _NET_VIRTUAL_ROOTS)) {
         p->properties |= VirtualRoots;
     }
 
-    else if (atom == p->atom(_NET_DESKTOP_LAYOUT)) {
+    else if (atom == atomForConnection(p->conn, _NET_DESKTOP_LAYOUT)) {
         p->properties2 |= WM2DesktopLayout;
     }
 
-    else if (atom == p->atom(_NET_CLOSE_WINDOW)) {
+    else if (atom == atomForConnection(p->conn, _NET_CLOSE_WINDOW)) {
         p->properties |= CloseWindow;
     }
 
-    else if (atom == p->atom(_NET_RESTACK_WINDOW)) {
+    else if (atom == atomForConnection(p->conn, _NET_RESTACK_WINDOW)) {
         p->properties2 |= WM2RestackWindow;
     }
 
-    else if (atom == p->atom(_NET_SHOWING_DESKTOP)) {
+    else if (atom == atomForConnection(p->conn, _NET_SHOWING_DESKTOP)) {
         p->properties2 |= WM2ShowingDesktop;
     }
 
     // Application window properties/messages
-    else if (atom == p->atom(_NET_WM_MOVERESIZE)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_MOVERESIZE)) {
         p->properties |= WMMoveResize;
     }
 
-    else if (atom == p->atom(_NET_MOVERESIZE_WINDOW)) {
+    else if (atom == atomForConnection(p->conn, _NET_MOVERESIZE_WINDOW)) {
         p->properties2 |= WM2MoveResizeWindow;
     }
 
-    else if (atom == p->atom(_NET_WM_NAME)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_NAME)) {
         p->properties |= WMName;
     }
 
-    else if (atom == p->atom(_NET_WM_VISIBLE_NAME)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_VISIBLE_NAME)) {
         p->properties |= WMVisibleName;
     }
 
-    else if (atom == p->atom(_NET_WM_ICON_NAME)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_ICON_NAME)) {
         p->properties |= WMIconName;
     }
 
-    else if (atom == p->atom(_NET_WM_VISIBLE_ICON_NAME)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_VISIBLE_ICON_NAME)) {
         p->properties |= WMVisibleIconName;
     }
 
-    else if (atom == p->atom(_NET_WM_DESKTOP)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_DESKTOP)) {
         p->properties |= WMDesktop;
     }
 
-    else if (atom == p->atom(_NET_WM_WINDOW_TYPE)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE)) {
         p->properties |= WMWindowType;
     }
 
     // Application window types
-    else if (atom == p->atom(_NET_WM_WINDOW_TYPE_NORMAL)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_NORMAL)) {
         p->windowTypes |= NormalMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_DESKTOP)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DESKTOP)) {
         p->windowTypes |= DesktopMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_DOCK)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DOCK)) {
         p->windowTypes |= DockMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_TOOLBAR)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_TOOLBAR)) {
         p->windowTypes |= ToolbarMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_MENU)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_MENU)) {
         p->windowTypes |= MenuMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_DIALOG)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DIALOG)) {
         p->windowTypes |= DialogMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_UTILITY)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_UTILITY)) {
         p->windowTypes |= UtilityMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_SPLASH)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_SPLASH)) {
         p->windowTypes |= SplashMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_DROPDOWN_MENU)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DROPDOWN_MENU)) {
         p->windowTypes |= DropdownMenuMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_POPUP_MENU)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_POPUP_MENU)) {
         p->windowTypes |= PopupMenuMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_TOOLTIP)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_TOOLTIP)) {
         p->windowTypes |= TooltipMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_NOTIFICATION)) {
         p->windowTypes |= NotificationMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_COMBO)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_COMBO)) {
         p->windowTypes |= ComboBoxMask;
-    } else if (atom == p->atom(_NET_WM_WINDOW_TYPE_DND)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DND)) {
         p->windowTypes |= DNDIconMask;
     }
     // KDE extensions
-    else if (atom == p->atom(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE)) {
+    else if (atom == atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_OVERRIDE)) {
         p->windowTypes |= OverrideMask;
-    } else if (atom == p->atom(_KDE_NET_WM_WINDOW_TYPE_TOPMENU)) {
+    } else if (atom == atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_TOPMENU)) {
         p->windowTypes |= TopMenuMask;
-    } else if (atom == p->atom(_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY)) {
+    } else if (atom == atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY)) {
         p->windowTypes |= OnScreenDisplayMask;
-    } else if (atom == p->atom(_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION)) {
+    } else if (atom == atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION)) {
         p->windowTypes |= CriticalNotificationMask;
-    } else if (atom == p->atom(_KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP)) {
+    } else if (atom == atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP)) {
         p->windowTypes |= AppletPopupMask;
     }
 
-    else if (atom == p->atom(_NET_WM_STATE)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_STATE)) {
         p->properties |= WMState;
     }
 
     // Application window states
-    else if (atom == p->atom(_NET_WM_STATE_MODAL)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_STATE_MODAL)) {
         p->states |= Modal;
-    } else if (atom == p->atom(_NET_WM_STATE_STICKY)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_STICKY)) {
         p->states |= Sticky;
-    } else if (atom == p->atom(_NET_WM_STATE_MAXIMIZED_VERT)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_VERT)) {
         p->states |= MaxVert;
-    } else if (atom == p->atom(_NET_WM_STATE_MAXIMIZED_HORZ)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_HORZ)) {
         p->states |= MaxHoriz;
-    } else if (atom == p->atom(_NET_WM_STATE_SHADED)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_SHADED)) {
         p->states |= Shaded;
-    } else if (atom == p->atom(_NET_WM_STATE_SKIP_TASKBAR)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_SKIP_TASKBAR)) {
         p->states |= SkipTaskbar;
-    } else if (atom == p->atom(_NET_WM_STATE_SKIP_PAGER)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_SKIP_PAGER)) {
         p->states |= SkipPager;
-    } else if (atom == p->atom(_KDE_NET_WM_STATE_SKIP_SWITCHER)) {
+    } else if (atom == atomForConnection(p->conn, _KDE_NET_WM_STATE_SKIP_SWITCHER)) {
         p->states |= SkipSwitcher;
-    } else if (atom == p->atom(_NET_WM_STATE_HIDDEN)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_HIDDEN)) {
         p->states |= Hidden;
-    } else if (atom == p->atom(_NET_WM_STATE_FULLSCREEN)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_FULLSCREEN)) {
         p->states |= FullScreen;
-    } else if (atom == p->atom(_NET_WM_STATE_ABOVE)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_ABOVE)) {
         p->states |= KeepAbove;
-    } else if (atom == p->atom(_NET_WM_STATE_BELOW)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_BELOW)) {
         p->states |= KeepBelow;
-    } else if (atom == p->atom(_NET_WM_STATE_DEMANDS_ATTENTION)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_DEMANDS_ATTENTION)) {
         p->states |= DemandsAttention;
-    } else if (atom == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_STAYS_ON_TOP)) {
         p->states |= KeepAbove;
-    } else if (atom == p->atom(_NET_WM_STATE_FOCUSED)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_STATE_FOCUSED)) {
         p->states |= Focused;
     }
 
-    else if (atom == p->atom(_NET_WM_STRUT)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_STRUT)) {
         p->properties |= WMStrut;
     }
 
-    else if (atom == p->atom(_NET_WM_STRUT_PARTIAL)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_STRUT_PARTIAL)) {
         p->properties2 |= WM2ExtendedStrut;
     }
 
-    else if (atom == p->atom(_NET_WM_ICON_GEOMETRY)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_ICON_GEOMETRY)) {
         p->properties |= WMIconGeometry;
     }
 
-    else if (atom == p->atom(_NET_WM_ICON)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_ICON)) {
         p->properties |= WMIcon;
     }
 
-    else if (atom == p->atom(_NET_WM_PID)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_PID)) {
         p->properties |= WMPid;
     }
 
-    else if (atom == p->atom(_NET_WM_HANDLED_ICONS)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_HANDLED_ICONS)) {
         p->properties |= WMHandledIcons;
     }
 
-    else if (atom == p->atom(_NET_WM_PING)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_PING)) {
         p->properties |= WMPing;
     }
 
-    else if (atom == p->atom(_NET_WM_USER_TIME)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_USER_TIME)) {
         p->properties2 |= WM2UserTime;
     }
 
-    else if (atom == p->atom(_NET_STARTUP_ID)) {
+    else if (atom == atomForConnection(p->conn, _NET_STARTUP_ID)) {
         p->properties2 |= WM2StartupId;
     }
 
-    else if (atom == p->atom(_NET_WM_WINDOW_OPACITY)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_WINDOW_OPACITY)) {
         p->properties2 |= WM2Opacity;
     }
 
-    else if (atom == p->atom(_NET_WM_FULLSCREEN_MONITORS)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_FULLSCREEN_MONITORS)) {
         p->properties2 |= WM2FullscreenMonitors;
     }
 
-    else if (atom == p->atom(_NET_WM_ALLOWED_ACTIONS)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_ALLOWED_ACTIONS)) {
         p->properties2 |= WM2AllowedActions;
     }
 
     // Actions
-    else if (atom == p->atom(_NET_WM_ACTION_MOVE)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_ACTION_MOVE)) {
         p->actions |= ActionMove;
-    } else if (atom == p->atom(_NET_WM_ACTION_RESIZE)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_ACTION_RESIZE)) {
         p->actions |= ActionResize;
-    } else if (atom == p->atom(_NET_WM_ACTION_MINIMIZE)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_ACTION_MINIMIZE)) {
         p->actions |= ActionMinimize;
-    } else if (atom == p->atom(_NET_WM_ACTION_SHADE)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_ACTION_SHADE)) {
         p->actions |= ActionShade;
-    } else if (atom == p->atom(_NET_WM_ACTION_STICK)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_ACTION_STICK)) {
         p->actions |= ActionStick;
-    } else if (atom == p->atom(_NET_WM_ACTION_MAXIMIZE_VERT)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_ACTION_MAXIMIZE_VERT)) {
         p->actions |= ActionMaxVert;
-    } else if (atom == p->atom(_NET_WM_ACTION_MAXIMIZE_HORZ)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_ACTION_MAXIMIZE_HORZ)) {
         p->actions |= ActionMaxHoriz;
-    } else if (atom == p->atom(_NET_WM_ACTION_FULLSCREEN)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_ACTION_FULLSCREEN)) {
         p->actions |= ActionFullScreen;
-    } else if (atom == p->atom(_NET_WM_ACTION_CHANGE_DESKTOP)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_ACTION_CHANGE_DESKTOP)) {
         p->actions |= ActionChangeDesktop;
-    } else if (atom == p->atom(_NET_WM_ACTION_CLOSE)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_ACTION_CLOSE)) {
         p->actions |= ActionClose;
     }
 
-    else if (atom == p->atom(_NET_FRAME_EXTENTS)) {
+    else if (atom == atomForConnection(p->conn, _NET_FRAME_EXTENTS)) {
         p->properties |= WMFrameExtents;
-    } else if (atom == p->atom(_KDE_NET_WM_FRAME_STRUT)) {
+    } else if (atom == atomForConnection(p->conn, _KDE_NET_WM_FRAME_STRUT)) {
         p->properties |= WMFrameExtents;
-    } else if (atom == p->atom(_NET_WM_FRAME_OVERLAP)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_FRAME_OVERLAP)) {
         p->properties2 |= WM2FrameOverlap;
     }
 
-    else if (atom == p->atom(_KDE_NET_WM_TEMPORARY_RULES)) {
+    else if (atom == atomForConnection(p->conn, _KDE_NET_WM_TEMPORARY_RULES)) {
         p->properties2 |= WM2KDETemporaryRules;
-    } else if (atom == p->atom(_NET_WM_FULL_PLACEMENT)) {
+    } else if (atom == atomForConnection(p->conn, _NET_WM_FULL_PLACEMENT)) {
         p->properties2 |= WM2FullPlacement;
     }
 
-    else if (atom == p->atom(_KDE_NET_WM_ACTIVITIES)) {
+    else if (atom == atomForConnection(p->conn, _KDE_NET_WM_ACTIVITIES)) {
         p->properties2 |= WM2Activities;
     }
 
-    else if (atom == p->atom(_KDE_NET_WM_BLOCK_COMPOSITING) || atom == p->atom(_NET_WM_BYPASS_COMPOSITOR)) {
+    else if (atom == atomForConnection(p->conn, _KDE_NET_WM_BLOCK_COMPOSITING) || atom == atomForConnection(p->conn, _NET_WM_BYPASS_COMPOSITOR)) {
         p->properties2 |= WM2BlockCompositing;
     }
 
-    else if (atom == p->atom(_KDE_NET_WM_SHADOW)) {
+    else if (atom == atomForConnection(p->conn, _KDE_NET_WM_SHADOW)) {
         p->properties2 |= WM2KDEShadow;
     }
 
-    else if (atom == p->atom(_NET_WM_OPAQUE_REGION)) {
+    else if (atom == atomForConnection(p->conn, _NET_WM_OPAQUE_REGION)) {
         p->properties2 |= WM2OpaqueRegion;
     }
 
-    else if (atom == p->atom(_GTK_FRAME_EXTENTS)) {
+    else if (atom == atomForConnection(p->conn, _GTK_FRAME_EXTENTS)) {
         p->properties2 |= WM2GTKFrameExtents;
     }
 
-    else if (atom == p->atom(_GTK_SHOW_WINDOW_MENU)) {
+    else if (atom == atomForConnection(p->conn, _GTK_SHOW_WINDOW_MENU)) {
         p->properties2 |= WM2GTKShowWindowMenu;
     }
 
-    else if (atom == p->atom(_KDE_NET_WM_APPMENU_OBJECT_PATH)) {
+    else if (atom == atomForConnection(p->conn, _KDE_NET_WM_APPMENU_OBJECT_PATH)) {
         p->properties2 |= WM2AppMenuObjectPath;
     }
 
-    else if (atom == p->atom(_KDE_NET_WM_APPMENU_SERVICE_NAME)) {
+    else if (atom == atomForConnection(p->conn, _KDE_NET_WM_APPMENU_SERVICE_NAME)) {
         p->properties2 |= WM2AppMenuServiceName;
     }
 }
@@ -1456,11 +1457,18 @@ void NETRootInfo::setActiveWindow(xcb_window_t window, NET::RequestSource src, x
     if (p->role == WindowManager) {
         p->active = window;
 
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_ACTIVE_WINDOW), XCB_ATOM_WINDOW, 32, 1, (const void *)&(p->active));
+        xcb_change_property(p->conn,
+                            XCB_PROP_MODE_REPLACE,
+                            p->root,
+                            atomForConnection(p->conn, _NET_ACTIVE_WINDOW),
+                            XCB_ATOM_WINDOW,
+                            32,
+                            1,
+                            (const void *)&(p->active));
     } else {
         const uint32_t data[5] = {src, timestamp, active_window, 0, 0};
 
-        send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_NET_ACTIVE_WINDOW), data);
+        send_client_message(p->conn, netwm_sendevent_mask, p->root, window, atomForConnection(p->conn, _NET_ACTIVE_WINDOW), data);
     }
 }
 
@@ -1493,7 +1501,14 @@ void NETRootInfo::setWorkArea(int desktop, const NETRect &workarea)
         wa[o++] = p->workarea[i].size.height;
     }
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_WORKAREA), XCB_ATOM_CARDINAL, 32, p->number_of_desktops * 4, (const void *)wa);
+    xcb_change_property(p->conn,
+                        XCB_PROP_MODE_REPLACE,
+                        p->root,
+                        atomForConnection(p->conn, _NET_WORKAREA),
+                        XCB_ATOM_CARDINAL,
+                        32,
+                        p->number_of_desktops * 4,
+                        (const void *)wa);
 
     delete[] wa;
 }
@@ -1515,7 +1530,7 @@ void NETRootInfo::setVirtualRoots(const xcb_window_t *windows, unsigned int coun
     xcb_change_property(p->conn,
                         XCB_PROP_MODE_REPLACE,
                         p->root,
-                        p->atom(_NET_VIRTUAL_ROOTS),
+                        atomForConnection(p->conn, _NET_VIRTUAL_ROOTS),
                         XCB_ATOM_WINDOW,
                         32,
                         p->virtual_roots_count,
@@ -1539,17 +1554,24 @@ void NETRootInfo::setDesktopLayout(NET::Orientation orientation, int columns, in
     data[2] = rows;
     data[3] = corner;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_DESKTOP_LAYOUT), XCB_ATOM_CARDINAL, 32, 4, (const void *)data);
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, atomForConnection(p->conn, _NET_DESKTOP_LAYOUT), XCB_ATOM_CARDINAL, 32, 4, (const void *)data);
 }
 
 void NETRootInfo::setShowingDesktop(bool showing)
 {
     if (p->role == WindowManager) {
         uint32_t d = p->showing_desktop = showing;
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->root, p->atom(_NET_SHOWING_DESKTOP), XCB_ATOM_CARDINAL, 32, 1, (const void *)&d);
+        xcb_change_property(p->conn,
+                            XCB_PROP_MODE_REPLACE,
+                            p->root,
+                            atomForConnection(p->conn, _NET_SHOWING_DESKTOP),
+                            XCB_ATOM_CARDINAL,
+                            32,
+                            1,
+                            (const void *)&d);
     } else {
         uint32_t data[5] = {uint32_t(showing ? 1 : 0), 0, 0, 0, 0};
-        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, p->atom(_NET_SHOWING_DESKTOP), data);
+        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->root, atomForConnection(p->conn, _NET_SHOWING_DESKTOP), data);
     }
 }
 
@@ -1565,7 +1587,7 @@ void NETRootInfo::closeWindowRequest(xcb_window_t window)
 #endif
 
     const uint32_t data[5] = {0, 0, 0, 0, 0};
-    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_NET_CLOSE_WINDOW), data);
+    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, atomForConnection(p->conn, _NET_CLOSE_WINDOW), data);
 }
 
 void NETRootInfo::moveResizeRequest(xcb_window_t window, int x_root, int y_root, Direction direction)
@@ -1576,7 +1598,7 @@ void NETRootInfo::moveResizeRequest(xcb_window_t window, int x_root, int y_root,
 
     const uint32_t data[5] = {uint32_t(x_root), uint32_t(y_root), uint32_t(direction), 0, 0};
 
-    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_NET_WM_MOVERESIZE), data);
+    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, atomForConnection(p->conn, _NET_WM_MOVERESIZE), data);
 }
 
 void NETRootInfo::moveResizeWindowRequest(xcb_window_t window, int flags, int x, int y, int width, int height)
@@ -1587,7 +1609,7 @@ void NETRootInfo::moveResizeWindowRequest(xcb_window_t window, int flags, int x,
 
     const uint32_t data[5] = {uint32_t(flags), uint32_t(x), uint32_t(y), uint32_t(width), uint32_t(height)};
 
-    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_NET_MOVERESIZE_WINDOW), data);
+    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, atomForConnection(p->conn, _NET_MOVERESIZE_WINDOW), data);
 }
 
 void NETRootInfo::showWindowMenuRequest(xcb_window_t window, int device_id, int x_root, int y_root)
@@ -1597,7 +1619,7 @@ void NETRootInfo::showWindowMenuRequest(xcb_window_t window, int device_id, int 
 #endif
 
     const uint32_t data[5] = {uint32_t(device_id), uint32_t(x_root), uint32_t(y_root), 0, 0};
-    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_GTK_SHOW_WINDOW_MENU), data);
+    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, atomForConnection(p->conn, _GTK_SHOW_WINDOW_MENU), data);
 }
 
 void NETRootInfo::restackRequest(xcb_window_t window, RequestSource src, xcb_window_t above, int detail, xcb_timestamp_t timestamp)
@@ -1608,7 +1630,7 @@ void NETRootInfo::restackRequest(xcb_window_t window, RequestSource src, xcb_win
 
     const uint32_t data[5] = {uint32_t(src), uint32_t(above), uint32_t(detail), uint32_t(timestamp), 0};
 
-    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_NET_RESTACK_WINDOW), data);
+    send_client_message(p->conn, netwm_sendevent_mask, p->root, window, atomForConnection(p->conn, _NET_RESTACK_WINDOW), data);
 }
 
 void NETRootInfo::sendPing(xcb_window_t window, xcb_timestamp_t timestamp)
@@ -1621,9 +1643,9 @@ void NETRootInfo::sendPing(xcb_window_t window, xcb_timestamp_t timestamp)
     fprintf(stderr, "NETRootInfo::setPing: window 0x%lx, timestamp %lu\n", window, timestamp);
 #endif
 
-    const uint32_t data[5] = {p->atom(_NET_WM_PING), timestamp, window, 0, 0};
+    const uint32_t data[5] = {atomForConnection(p->conn, _NET_WM_PING), timestamp, window, 0, 0};
 
-    send_client_message(p->conn, 0, window, window, p->atom(WM_PROTOCOLS), data);
+    send_client_message(p->conn, 0, window, window, atomForConnection(p->conn, WM_PROTOCOLS), data);
 }
 
 // assignment operator
@@ -1670,7 +1692,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
         fprintf(stderr, "NETRootInfo::event: handling ClientMessage event\n");
 #endif
 
-        if (message->type == p->atom(_NET_NUMBER_OF_DESKTOPS)) {
+        if (message->type == atomForConnection(p->conn, _NET_NUMBER_OF_DESKTOPS)) {
             dirty = NumberOfDesktops;
 
 #ifdef NETWMDEBUG
@@ -1678,7 +1700,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
             changeNumberOfDesktops(message->data.data32[0]);
-        } else if (message->type == p->atom(_NET_DESKTOP_GEOMETRY)) {
+        } else if (message->type == atomForConnection(p->conn, _NET_DESKTOP_GEOMETRY)) {
             dirty = DesktopGeometry;
 
             NETSize sz;
@@ -1690,7 +1712,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
             changeDesktopGeometry(~0, sz);
-        } else if (message->type == p->atom(_NET_DESKTOP_VIEWPORT)) {
+        } else if (message->type == atomForConnection(p->conn, _NET_DESKTOP_VIEWPORT)) {
             dirty = DesktopViewport;
 
             NETPoint pt;
@@ -1702,7 +1724,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
             changeDesktopViewport(p->current_desktop, pt);
-        } else if (message->type == p->atom(_NET_CURRENT_DESKTOP)) {
+        } else if (message->type == atomForConnection(p->conn, _NET_CURRENT_DESKTOP)) {
             dirty = CurrentDesktop;
 
 #ifdef NETWMDEBUG
@@ -1710,7 +1732,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
             changeCurrentDesktop(message->data.data32[0] + 1);
-        } else if (message->type == p->atom(_NET_ACTIVE_WINDOW)) {
+        } else if (message->type == atomForConnection(p->conn, _NET_ACTIVE_WINDOW)) {
             dirty = ActiveWindow;
 
 #ifdef NETWMDEBUG
@@ -1727,7 +1749,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
                 active_window = message->data.data32[2];
             }
             changeActiveWindow(message->window, src, timestamp, active_window);
-        } else if (message->type == p->atom(_NET_WM_MOVERESIZE)) {
+        } else if (message->type == atomForConnection(p->conn, _NET_WM_MOVERESIZE)) {
 #ifdef NETWMDEBUG
             fprintf(stderr,
                     "NETRootInfo::event: moveResize(%ld, %ld, %ld, %ld)\n",
@@ -1738,7 +1760,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
             moveResize(message->window, message->data.data32[0], message->data.data32[1], message->data.data32[2]);
-        } else if (message->type == p->atom(_NET_MOVERESIZE_WINDOW)) {
+        } else if (message->type == atomForConnection(p->conn, _NET_MOVERESIZE_WINDOW)) {
 #ifdef NETWMDEBUG
             fprintf(stderr,
                     "NETRootInfo::event: moveResizeWindow(%ld, %ld, %ld, %ld, %ld, %ld)\n",
@@ -1756,13 +1778,13 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
                              message->data.data32[2],
                              message->data.data32[3],
                              message->data.data32[4]);
-        } else if (message->type == p->atom(_NET_CLOSE_WINDOW)) {
+        } else if (message->type == atomForConnection(p->conn, _NET_CLOSE_WINDOW)) {
 #ifdef NETWMDEBUG
             fprintf(stderr, "NETRootInfo::event: closeWindow(0x%lx)\n", message->window);
 #endif
 
             closeWindow(message->window);
-        } else if (message->type == p->atom(_NET_RESTACK_WINDOW)) {
+        } else if (message->type == atomForConnection(p->conn, _NET_RESTACK_WINDOW)) {
 #ifdef NETWMDEBUG
             fprintf(stderr, "NETRootInfo::event: restackWindow(0x%lx)\n", message->window);
 #endif
@@ -1775,14 +1797,15 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
                 timestamp = message->data.data32[3];
             }
             restackWindow(message->window, src, message->data.data32[1], message->data.data32[2], timestamp);
-        } else if (message->type == p->atom(WM_PROTOCOLS) && (xcb_atom_t)message->data.data32[0] == p->atom(_NET_WM_PING)) {
+        } else if (message->type == atomForConnection(p->conn, WM_PROTOCOLS)
+                   && (xcb_atom_t)message->data.data32[0] == atomForConnection(p->conn, _NET_WM_PING)) {
             dirty = WMPing;
 
 #ifdef NETWMDEBUG
             fprintf(stderr, "NETRootInfo::event: gotPing(0x%lx,%lu)\n", message->window, message->data.data32[1]);
 #endif
             gotPing(message->data.data32[2], message->data.data32[1]);
-        } else if (message->type == p->atom(_NET_SHOWING_DESKTOP)) {
+        } else if (message->type == atomForConnection(p->conn, _NET_SHOWING_DESKTOP)) {
             dirty2 = WM2ShowingDesktop;
 
 #ifdef NETWMDEBUG
@@ -1790,7 +1813,7 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
             changeShowingDesktop(message->data.data32[0]);
-        } else if (message->type == p->atom(_GTK_SHOW_WINDOW_MENU)) {
+        } else if (message->type == atomForConnection(p->conn, _GTK_SHOW_WINDOW_MENU)) {
 #ifdef NETWMDEBUG
             fprintf(stderr,
                     "NETRootInfo::event: showWindowMenu(%ld, %ld, %ld, %ld)\n",
@@ -1810,33 +1833,33 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
 #endif
 
         xcb_property_notify_event_t *pe = reinterpret_cast<xcb_property_notify_event_t *>(event);
-        if (pe->atom == p->atom(_NET_CLIENT_LIST)) {
+        if (pe->atom == atomForConnection(p->conn, _NET_CLIENT_LIST)) {
             dirty |= ClientList;
-        } else if (pe->atom == p->atom(_NET_CLIENT_LIST_STACKING)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_CLIENT_LIST_STACKING)) {
             dirty |= ClientListStacking;
-        } else if (pe->atom == p->atom(_NET_DESKTOP_NAMES)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_DESKTOP_NAMES)) {
             dirty |= DesktopNames;
-        } else if (pe->atom == p->atom(_NET_WORKAREA)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WORKAREA)) {
             dirty |= WorkArea;
-        } else if (pe->atom == p->atom(_NET_NUMBER_OF_DESKTOPS)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_NUMBER_OF_DESKTOPS)) {
             dirty |= NumberOfDesktops;
-        } else if (pe->atom == p->atom(_NET_DESKTOP_GEOMETRY)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_DESKTOP_GEOMETRY)) {
             dirty |= DesktopGeometry;
-        } else if (pe->atom == p->atom(_NET_DESKTOP_VIEWPORT)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_DESKTOP_VIEWPORT)) {
             dirty |= DesktopViewport;
-        } else if (pe->atom == p->atom(_NET_CURRENT_DESKTOP)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_CURRENT_DESKTOP)) {
             dirty |= CurrentDesktop;
-        } else if (pe->atom == p->atom(_NET_ACTIVE_WINDOW)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_ACTIVE_WINDOW)) {
             dirty |= ActiveWindow;
-        } else if (pe->atom == p->atom(_NET_SHOWING_DESKTOP)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_SHOWING_DESKTOP)) {
             dirty2 |= WM2ShowingDesktop;
-        } else if (pe->atom == p->atom(_NET_SUPPORTED)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_SUPPORTED)) {
             dirty |= Supported; // update here?
-        } else if (pe->atom == p->atom(_NET_SUPPORTING_WM_CHECK)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_SUPPORTING_WM_CHECK)) {
             dirty |= SupportingWMCheck;
-        } else if (pe->atom == p->atom(_NET_VIRTUAL_ROOTS)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_VIRTUAL_ROOTS)) {
             dirty |= VirtualRoots;
-        } else if (pe->atom == p->atom(_NET_DESKTOP_LAYOUT)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_DESKTOP_LAYOUT)) {
             dirty2 |= WM2DesktopLayout;
         }
 
@@ -1872,59 +1895,65 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
 
     // Send the property requests
     if (dirty & Supported) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_SUPPORTED), XCB_ATOM_ATOM, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_SUPPORTED), XCB_ATOM_ATOM, 0, MAX_PROP_SIZE);
     }
 
     if (dirty & ClientList) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_CLIENT_LIST), XCB_ATOM_WINDOW, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_CLIENT_LIST), XCB_ATOM_WINDOW, 0, MAX_PROP_SIZE);
     }
 
     if (dirty & ClientListStacking) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_CLIENT_LIST_STACKING), XCB_ATOM_WINDOW, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_CLIENT_LIST_STACKING), XCB_ATOM_WINDOW, 0, MAX_PROP_SIZE);
     }
 
     if (dirty & NumberOfDesktops) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_NUMBER_OF_DESKTOPS), XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_NUMBER_OF_DESKTOPS), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty & DesktopGeometry) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_DESKTOP_GEOMETRY), XCB_ATOM_CARDINAL, 0, 2);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_DESKTOP_GEOMETRY), XCB_ATOM_CARDINAL, 0, 2);
     }
 
     if (dirty & DesktopViewport) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_DESKTOP_VIEWPORT), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_DESKTOP_VIEWPORT), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
     }
 
     if (dirty & CurrentDesktop) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_CURRENT_DESKTOP), XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_CURRENT_DESKTOP), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty & DesktopNames) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_DESKTOP_NAMES), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn,
+                                        false,
+                                        p->root,
+                                        atomForConnection(p->conn, _NET_DESKTOP_NAMES),
+                                        atomForConnection(p->conn, UTF8_STRING),
+                                        0,
+                                        MAX_PROP_SIZE);
     }
 
     if (dirty & ActiveWindow) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_ACTIVE_WINDOW), XCB_ATOM_WINDOW, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_ACTIVE_WINDOW), XCB_ATOM_WINDOW, 0, 1);
     }
 
     if (dirty & WorkArea) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_WORKAREA), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_WORKAREA), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
     }
 
     if (dirty & SupportingWMCheck) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_SUPPORTING_WM_CHECK), XCB_ATOM_WINDOW, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_SUPPORTING_WM_CHECK), XCB_ATOM_WINDOW, 0, 1);
     }
 
     if (dirty & VirtualRoots) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_VIRTUAL_ROOTS), XCB_ATOM_WINDOW, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_VIRTUAL_ROOTS), XCB_ATOM_WINDOW, 0, 1);
     }
 
     if (dirty2 & WM2DesktopLayout) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_DESKTOP_LAYOUT), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_DESKTOP_LAYOUT), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2ShowingDesktop) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->root, p->atom(_NET_SHOWING_DESKTOP), XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->root, atomForConnection(p->conn, _NET_SHOWING_DESKTOP), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     // Get the replies
@@ -2094,7 +2123,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
 
         p->desktop_names.reset();
 
-        const QList<QByteArray> names = get_stringlist_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
+        const QList<QByteArray> names = get_stringlist_reply(p->conn, cookies[c++], atomForConnection(p->conn, UTF8_STRING));
         for (int i = 0; i < names.count(); i++) {
             p->desktop_names[i] = nstrndup(names[i].constData(), names[i].length());
         }
@@ -2139,7 +2168,13 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
         // We'll get the reply for this request at the bottom of this function,
         // after we've processing the other pending replies
         if (p->supportwindow) {
-            wm_name_cookie = xcb_get_property(p->conn, false, p->supportwindow, p->atom(_NET_WM_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
+            wm_name_cookie = xcb_get_property(p->conn,
+                                              false,
+                                              p->supportwindow,
+                                              atomForConnection(p->conn, _NET_WM_NAME),
+                                              atomForConnection(p->conn, UTF8_STRING),
+                                              0,
+                                              MAX_PROP_SIZE);
         }
     }
 
@@ -2204,7 +2239,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
     }
 
     if ((dirty & SupportingWMCheck) && p->supportwindow) {
-        const QByteArray ba = get_string_reply(p->conn, wm_name_cookie, p->atom(UTF8_STRING));
+        const QByteArray ba = get_string_reply(p->conn, wm_name_cookie, atomForConnection(p->conn, UTF8_STRING));
         if (ba.length() > 0) {
             p->name = nstrndup((const char *)ba.constData(), ba.length());
         }
@@ -2502,7 +2537,6 @@ NETWinInfo::NETWinInfo(xcb_connection_t *connection,
 
     p = new NETWinInfoPrivate;
     p->ref = 1;
-    p->atoms = atomsForConnection(connection);
 
     p->conn = connection;
     p->window = window;
@@ -2595,7 +2629,7 @@ const NETWinInfo &NETWinInfo::operator=(const NETWinInfo &wininfo)
 
 void NETWinInfo::setIcon(NETIcon icon, bool replace)
 {
-    setIconInternal(p->icons, p->icon_count, p->atom(_NET_WM_ICON), icon, replace);
+    setIconInternal(p->icons, p->icon_count, atomForConnection(p->conn, _NET_WM_ICON), icon, replace);
 }
 
 void NETWinInfo::setIconInternal(NETRArray<NETIcon> &icons, int &icon_count, xcb_atom_t property, NETIcon icon, bool replace)
@@ -2670,7 +2704,7 @@ void NETWinInfo::setIconGeometry(NETRect geometry)
     p->icon_geom = geometry;
 
     if (geometry.size.width == 0) { // Empty
-        xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_ICON_GEOMETRY));
+        xcb_delete_property(p->conn, p->window, atomForConnection(p->conn, _NET_WM_ICON_GEOMETRY));
     } else {
         uint32_t data[4];
         data[0] = geometry.pos.x;
@@ -2678,7 +2712,14 @@ void NETWinInfo::setIconGeometry(NETRect geometry)
         data[2] = geometry.size.width;
         data[3] = geometry.size.height;
 
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_ICON_GEOMETRY), XCB_ATOM_CARDINAL, 32, 4, (const void *)data);
+        xcb_change_property(p->conn,
+                            XCB_PROP_MODE_REPLACE,
+                            p->window,
+                            atomForConnection(p->conn, _NET_WM_ICON_GEOMETRY),
+                            XCB_ATOM_CARDINAL,
+                            32,
+                            4,
+                            (const void *)data);
     }
 }
 
@@ -2704,7 +2745,14 @@ void NETWinInfo::setExtendedStrut(const NETExtendedStrut &extended_strut)
     data[10] = extended_strut.bottom_start;
     data[11] = extended_strut.bottom_end;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_STRUT_PARTIAL), XCB_ATOM_CARDINAL, 32, 12, (const void *)data);
+    xcb_change_property(p->conn,
+                        XCB_PROP_MODE_REPLACE,
+                        p->window,
+                        atomForConnection(p->conn, _NET_WM_STRUT_PARTIAL),
+                        XCB_ATOM_CARDINAL,
+                        32,
+                        12,
+                        (const void *)data);
 }
 
 void NETWinInfo::setStrut(NETStrut strut)
@@ -2721,7 +2769,7 @@ void NETWinInfo::setStrut(NETStrut strut)
     data[2] = strut.top;
     data[3] = strut.bottom;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_STRUT), XCB_ATOM_CARDINAL, 32, 4, (const void *)data);
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, atomForConnection(p->conn, _NET_WM_STRUT), XCB_ATOM_CARDINAL, 32, 4, (const void *)data);
 }
 
 void NETWinInfo::setFullscreenMonitors(NETFullscreenMonitors topology)
@@ -2729,7 +2777,7 @@ void NETWinInfo::setFullscreenMonitors(NETFullscreenMonitors topology)
     if (p->role == Client) {
         const uint32_t data[5] = {uint32_t(topology.top), uint32_t(topology.bottom), uint32_t(topology.left), uint32_t(topology.right), 1};
 
-        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->window, p->atom(_NET_WM_FULLSCREEN_MONITORS), data);
+        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->window, atomForConnection(p->conn, _NET_WM_FULLSCREEN_MONITORS), data);
     } else {
         p->fullscreen_monitors = topology;
 
@@ -2739,7 +2787,14 @@ void NETWinInfo::setFullscreenMonitors(NETFullscreenMonitors topology)
         data[2] = topology.left;
         data[3] = topology.right;
 
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_FULLSCREEN_MONITORS), XCB_ATOM_CARDINAL, 32, 4, (const void *)data);
+        xcb_change_property(p->conn,
+                            XCB_PROP_MODE_REPLACE,
+                            p->window,
+                            atomForConnection(p->conn, _NET_WM_FULLSCREEN_MONITORS),
+                            XCB_ATOM_CARDINAL,
+                            32,
+                            4,
+                            (const void *)data);
     }
 }
 
@@ -2768,13 +2823,13 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
         event.format = 32;
         event.sequence = 0;
         event.window = p->window;
-        event.type = p->atom(_NET_WM_STATE);
+        event.type = atomForConnection(p->conn, _NET_WM_STATE);
         event.data.data32[3] = 0;
         event.data.data32[4] = 0;
 
         if ((mask & Modal) && ((p->state & Modal) != (state & Modal))) {
             event.data.data32[0] = (state & Modal) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_MODAL);
+            event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_MODAL);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
@@ -2782,7 +2837,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & Sticky) && ((p->state & Sticky) != (state & Sticky))) {
             event.data.data32[0] = (state & Sticky) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_STICKY);
+            event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_STICKY);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
@@ -2793,34 +2848,34 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             if (((wishstate & MaxHoriz) != (p->state & MaxHoriz)) && ((wishstate & MaxVert) != (p->state & MaxVert))) {
                 if ((wishstate & Max) == Max) {
                     event.data.data32[0] = 1;
-                    event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
-                    event.data.data32[2] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
+                    event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_HORZ);
+                    event.data.data32[2] = atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_VERT);
                     xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
                 } else if ((wishstate & Max) == 0) {
                     event.data.data32[0] = 0;
-                    event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
-                    event.data.data32[2] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
+                    event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_HORZ);
+                    event.data.data32[2] = atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_VERT);
                     xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
                 } else {
                     event.data.data32[0] = (wishstate & MaxHoriz) ? 1 : 0;
-                    event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
+                    event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_HORZ);
                     event.data.data32[2] = 0;
                     xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
 
                     event.data.data32[0] = (wishstate & MaxVert) ? 1 : 0;
-                    event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
+                    event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_VERT);
                     event.data.data32[2] = 0;
                     xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
                 }
             } else if ((wishstate & MaxVert) != (p->state & MaxVert)) {
                 event.data.data32[0] = (wishstate & MaxVert) ? 1 : 0;
-                event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
+                event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_VERT);
                 event.data.data32[2] = 0;
 
                 xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
             } else if ((wishstate & MaxHoriz) != (p->state & MaxHoriz)) {
                 event.data.data32[0] = (wishstate & MaxHoriz) ? 1 : 0;
-                event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
+                event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_HORZ);
                 event.data.data32[2] = 0;
 
                 xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
@@ -2829,7 +2884,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & Shaded) && ((p->state & Shaded) != (state & Shaded))) {
             event.data.data32[0] = (state & Shaded) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_SHADED);
+            event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_SHADED);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
@@ -2837,7 +2892,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & SkipTaskbar) && ((p->state & SkipTaskbar) != (state & SkipTaskbar))) {
             event.data.data32[0] = (state & SkipTaskbar) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_SKIP_TASKBAR);
+            event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_SKIP_TASKBAR);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
@@ -2845,7 +2900,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & SkipPager) && ((p->state & SkipPager) != (state & SkipPager))) {
             event.data.data32[0] = (state & SkipPager) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_SKIP_PAGER);
+            event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_SKIP_PAGER);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
@@ -2853,7 +2908,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & SkipSwitcher) && ((p->state & SkipSwitcher) != (state & SkipSwitcher))) {
             event.data.data32[0] = (state & SkipSwitcher) ? 1 : 0;
-            event.data.data32[1] = p->atom(_KDE_NET_WM_STATE_SKIP_SWITCHER);
+            event.data.data32[1] = atomForConnection(p->conn, _KDE_NET_WM_STATE_SKIP_SWITCHER);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
@@ -2861,7 +2916,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & Hidden) && ((p->state & Hidden) != (state & Hidden))) {
             event.data.data32[0] = (state & Hidden) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_HIDDEN);
+            event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_HIDDEN);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
@@ -2869,7 +2924,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & FullScreen) && ((p->state & FullScreen) != (state & FullScreen))) {
             event.data.data32[0] = (state & FullScreen) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_FULLSCREEN);
+            event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_FULLSCREEN);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
@@ -2877,14 +2932,14 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & KeepAbove) && ((p->state & KeepAbove) != (state & KeepAbove))) {
             event.data.data32[0] = (state & KeepAbove) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_ABOVE);
+            event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_ABOVE);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
 
             // deprecated variant
             event.data.data32[0] = (state & KeepAbove) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
+            event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_STAYS_ON_TOP);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
@@ -2892,7 +2947,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & KeepBelow) && ((p->state & KeepBelow) != (state & KeepBelow))) {
             event.data.data32[0] = (state & KeepBelow) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_BELOW);
+            event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_BELOW);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
@@ -2900,7 +2955,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         if ((mask & DemandsAttention) && ((p->state & DemandsAttention) != (state & DemandsAttention))) {
             event.data.data32[0] = (state & DemandsAttention) ? 1 : 0;
-            event.data.data32[1] = p->atom(_NET_WM_STATE_DEMANDS_ATTENTION);
+            event.data.data32[1] = atomForConnection(p->conn, _NET_WM_STATE_DEMANDS_ATTENTION);
             event.data.data32[2] = 0l;
 
             xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
@@ -2916,50 +2971,50 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
 
         // Hints
         if (p->state & Modal) {
-            data[count++] = p->atom(_NET_WM_STATE_MODAL);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_MODAL);
         }
         if (p->state & MaxVert) {
-            data[count++] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_VERT);
         }
         if (p->state & MaxHoriz) {
-            data[count++] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_HORZ);
         }
         if (p->state & Shaded) {
-            data[count++] = p->atom(_NET_WM_STATE_SHADED);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_SHADED);
         }
         if (p->state & Hidden) {
-            data[count++] = p->atom(_NET_WM_STATE_HIDDEN);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_HIDDEN);
         }
         if (p->state & FullScreen) {
-            data[count++] = p->atom(_NET_WM_STATE_FULLSCREEN);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_FULLSCREEN);
         }
         if (p->state & DemandsAttention) {
-            data[count++] = p->atom(_NET_WM_STATE_DEMANDS_ATTENTION);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_DEMANDS_ATTENTION);
         }
         if (p->state & Focused) {
-            data[count++] = p->atom(_NET_WM_STATE_FOCUSED);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_FOCUSED);
         }
 
         // Policy
         if (p->state & KeepAbove) {
-            data[count++] = p->atom(_NET_WM_STATE_ABOVE);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_ABOVE);
             // deprecated variant
-            data[count++] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_STAYS_ON_TOP);
         }
         if (p->state & KeepBelow) {
-            data[count++] = p->atom(_NET_WM_STATE_BELOW);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_BELOW);
         }
         if (p->state & Sticky) {
-            data[count++] = p->atom(_NET_WM_STATE_STICKY);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_STICKY);
         }
         if (p->state & SkipTaskbar) {
-            data[count++] = p->atom(_NET_WM_STATE_SKIP_TASKBAR);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_SKIP_TASKBAR);
         }
         if (p->state & SkipPager) {
-            data[count++] = p->atom(_NET_WM_STATE_SKIP_PAGER);
+            data[count++] = atomForConnection(p->conn, _NET_WM_STATE_SKIP_PAGER);
         }
         if (p->state & SkipSwitcher) {
-            data[count++] = p->atom(_KDE_NET_WM_STATE_SKIP_SWITCHER);
+            data[count++] = atomForConnection(p->conn, _KDE_NET_WM_STATE_SKIP_SWITCHER);
         }
 
 #ifdef NETWMDEBUG
@@ -2970,7 +3025,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
         }
 #endif
 
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_STATE), XCB_ATOM_ATOM, 32, count, (const void *)data);
+        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, atomForConnection(p->conn, _NET_WM_STATE), XCB_ATOM_ATOM, 32, count, (const void *)data);
     }
 }
 
@@ -2987,19 +3042,19 @@ void NETWinInfo::setWindowType(WindowType type)
     case Override:
         // spec extension: override window type.  we must comply with the spec
         // and provide a fall back (normal seems best)
-        data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE);
-        data[1] = p->atom(_NET_WM_WINDOW_TYPE_NORMAL);
+        data[0] = atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_OVERRIDE);
+        data[1] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_NORMAL);
         len = 2;
         break;
 
     case Dialog:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_DIALOG);
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DIALOG);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case Menu:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_MENU);
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_MENU);
         data[1] = XCB_NONE;
         len = 1;
         break;
@@ -3007,104 +3062,111 @@ void NETWinInfo::setWindowType(WindowType type)
     case TopMenu:
         // spec extension: override window type.  we must comply with the spec
         // and provide a fall back (dock seems best)
-        data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_TOPMENU);
-        data[1] = p->atom(_NET_WM_WINDOW_TYPE_DOCK);
+        data[0] = atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_TOPMENU);
+        data[1] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DOCK);
         len = 2;
         break;
 
     case Toolbar:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_TOOLBAR);
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_TOOLBAR);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case Dock:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_DOCK);
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DOCK);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case Desktop:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_DESKTOP);
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DESKTOP);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case Utility:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_UTILITY);
-        data[1] = p->atom(_NET_WM_WINDOW_TYPE_DIALOG); // fallback for old netwm version
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_UTILITY);
+        data[1] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DIALOG); // fallback for old netwm version
         len = 2;
         break;
 
     case Splash:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_SPLASH);
-        data[1] = p->atom(_NET_WM_WINDOW_TYPE_DOCK); // fallback (dock seems best)
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_SPLASH);
+        data[1] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DOCK); // fallback (dock seems best)
         len = 2;
         break;
 
     case DropdownMenu:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_DROPDOWN_MENU);
-        data[1] = p->atom(_NET_WM_WINDOW_TYPE_MENU); // fallback (tearoff seems to be the best)
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DROPDOWN_MENU);
+        data[1] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_MENU); // fallback (tearoff seems to be the best)
         len = 1;
         break;
 
     case PopupMenu:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_POPUP_MENU);
-        data[1] = p->atom(_NET_WM_WINDOW_TYPE_MENU); // fallback (tearoff seems to be the best)
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_POPUP_MENU);
+        data[1] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_MENU); // fallback (tearoff seems to be the best)
         len = 1;
         break;
 
     case Tooltip:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_TOOLTIP);
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_TOOLTIP);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case Notification:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
-        data[1] = p->atom(_NET_WM_WINDOW_TYPE_UTILITY); // fallback (utility seems to be the best)
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_NOTIFICATION);
+        data[1] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_UTILITY); // fallback (utility seems to be the best)
         len = 1;
         break;
 
     case ComboBox:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_COMBO);
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_COMBO);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case DNDIcon:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_DND);
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DND);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     case OnScreenDisplay:
-        data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY);
-        data[1] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
+        data[0] = atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY);
+        data[1] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_NOTIFICATION);
         len = 2;
         break;
 
     case CriticalNotification:
-        data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION);
-        data[1] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
+        data[0] = atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION);
+        data[1] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_NOTIFICATION);
         len = 2;
         break;
     
     case AppletPopup:
-        data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP);
+        data[0] = atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP);
         data[1] = XCB_NONE;
         len = 1;
         break;
 
     default:
     case Normal:
-        data[0] = p->atom(_NET_WM_WINDOW_TYPE_NORMAL);
+        data[0] = atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_NORMAL);
         data[1] = XCB_NONE;
         len = 1;
         break;
     }
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_WINDOW_TYPE), XCB_ATOM_ATOM, 32, len, (const void *)&data);
+    xcb_change_property(p->conn,
+                        XCB_PROP_MODE_REPLACE,
+                        p->window,
+                        atomForConnection(p->conn, _NET_WM_WINDOW_TYPE),
+                        XCB_ATOM_ATOM,
+                        32,
+                        len,
+                        (const void *)&data);
 }
 
 void NETWinInfo::setName(const char *name)
@@ -3117,9 +3179,16 @@ void NETWinInfo::setName(const char *name)
     p->name = nstrdup(name);
 
     if (p->name[0] != '\0') {
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_NAME), p->atom(UTF8_STRING), 8, strlen(p->name), (const void *)p->name);
+        xcb_change_property(p->conn,
+                            XCB_PROP_MODE_REPLACE,
+                            p->window,
+                            atomForConnection(p->conn, _NET_WM_NAME),
+                            atomForConnection(p->conn, UTF8_STRING),
+                            8,
+                            strlen(p->name),
+                            (const void *)p->name);
     } else {
-        xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_NAME));
+        xcb_delete_property(p->conn, p->window, atomForConnection(p->conn, _NET_WM_NAME));
     }
 }
 
@@ -3136,13 +3205,13 @@ void NETWinInfo::setVisibleName(const char *visibleName)
         xcb_change_property(p->conn,
                             XCB_PROP_MODE_REPLACE,
                             p->window,
-                            p->atom(_NET_WM_VISIBLE_NAME),
-                            p->atom(UTF8_STRING),
+                            atomForConnection(p->conn, _NET_WM_VISIBLE_NAME),
+                            atomForConnection(p->conn, UTF8_STRING),
                             8,
                             strlen(p->visible_name),
                             (const void *)p->visible_name);
     } else {
-        xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_VISIBLE_NAME));
+        xcb_delete_property(p->conn, p->window, atomForConnection(p->conn, _NET_WM_VISIBLE_NAME));
     }
 }
 
@@ -3159,13 +3228,13 @@ void NETWinInfo::setIconName(const char *iconName)
         xcb_change_property(p->conn,
                             XCB_PROP_MODE_REPLACE,
                             p->window,
-                            p->atom(_NET_WM_ICON_NAME),
-                            p->atom(UTF8_STRING),
+                            atomForConnection(p->conn, _NET_WM_ICON_NAME),
+                            atomForConnection(p->conn, UTF8_STRING),
                             8,
                             strlen(p->icon_name),
                             (const void *)p->icon_name);
     } else {
-        xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_ICON_NAME));
+        xcb_delete_property(p->conn, p->window, atomForConnection(p->conn, _NET_WM_ICON_NAME));
     }
 }
 
@@ -3182,13 +3251,13 @@ void NETWinInfo::setVisibleIconName(const char *visibleIconName)
         xcb_change_property(p->conn,
                             XCB_PROP_MODE_REPLACE,
                             p->window,
-                            p->atom(_NET_WM_VISIBLE_ICON_NAME),
-                            p->atom(UTF8_STRING),
+                            atomForConnection(p->conn, _NET_WM_VISIBLE_ICON_NAME),
+                            atomForConnection(p->conn, UTF8_STRING),
                             8,
                             strlen(p->visible_icon_name),
                             (const void *)p->visible_icon_name);
     } else {
-        xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_VISIBLE_ICON_NAME));
+        xcb_delete_property(p->conn, p->window, atomForConnection(p->conn, _NET_WM_VISIBLE_ICON_NAME));
     }
 }
 
@@ -3212,16 +3281,23 @@ void NETWinInfo::setDesktop(int desktop, bool ignore_viewport)
 
         const uint32_t data[5] = {desktop == OnAllDesktops ? 0xffffffff : desktop - 1, 0, 0, 0, 0};
 
-        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->window, p->atom(_NET_WM_DESKTOP), data);
+        send_client_message(p->conn, netwm_sendevent_mask, p->root, p->window, atomForConnection(p->conn, _NET_WM_DESKTOP), data);
     } else {
         // Otherwise we just set or remove the property directly
         p->desktop = desktop;
 
         if (desktop == 0) {
-            xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_DESKTOP));
+            xcb_delete_property(p->conn, p->window, atomForConnection(p->conn, _NET_WM_DESKTOP));
         } else {
             uint32_t d = (desktop == OnAllDesktops ? 0xffffffff : desktop - 1);
-            xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_DESKTOP), XCB_ATOM_CARDINAL, 32, 1, (const void *)&d);
+            xcb_change_property(p->conn,
+                                XCB_PROP_MODE_REPLACE,
+                                p->window,
+                                atomForConnection(p->conn, _NET_WM_DESKTOP),
+                                XCB_ATOM_CARDINAL,
+                                32,
+                                1,
+                                (const void *)&d);
         }
     }
 }
@@ -3234,7 +3310,7 @@ void NETWinInfo::setPid(int pid)
 
     p->pid = pid;
     uint32_t d = pid;
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_PID), XCB_ATOM_CARDINAL, 32, 1, (const void *)&d);
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, atomForConnection(p->conn, _NET_WM_PID), XCB_ATOM_CARDINAL, 32, 1, (const void *)&d);
 }
 
 void NETWinInfo::setHandledIcons(bool handled)
@@ -3245,7 +3321,14 @@ void NETWinInfo::setHandledIcons(bool handled)
 
     p->handled_icons = handled;
     uint32_t d = handled;
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_HANDLED_ICONS), XCB_ATOM_CARDINAL, 32, 1, (const void *)&d);
+    xcb_change_property(p->conn,
+                        XCB_PROP_MODE_REPLACE,
+                        p->window,
+                        atomForConnection(p->conn, _NET_WM_HANDLED_ICONS),
+                        XCB_ATOM_CARDINAL,
+                        32,
+                        1,
+                        (const void *)&d);
 }
 
 void NETWinInfo::setStartupId(const char *id)
@@ -3260,8 +3343,8 @@ void NETWinInfo::setStartupId(const char *id)
     xcb_change_property(p->conn,
                         XCB_PROP_MODE_REPLACE,
                         p->window,
-                        p->atom(_NET_STARTUP_ID),
-                        p->atom(UTF8_STRING),
+                        atomForConnection(p->conn, _NET_STARTUP_ID),
+                        atomForConnection(p->conn, UTF8_STRING),
                         8,
                         strlen(p->startup_id),
                         (const void *)p->startup_id);
@@ -3272,7 +3355,14 @@ void NETWinInfo::setOpacity(unsigned long opacity)
     //    if (p->role != Client) return;
 
     p->opacity = opacity;
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_WINDOW_OPACITY), XCB_ATOM_CARDINAL, 32, 1, (const void *)&p->opacity);
+    xcb_change_property(p->conn,
+                        XCB_PROP_MODE_REPLACE,
+                        p->window,
+                        atomForConnection(p->conn, _NET_WM_WINDOW_OPACITY),
+                        XCB_ATOM_CARDINAL,
+                        32,
+                        1,
+                        (const void *)&p->opacity);
 }
 
 void NETWinInfo::setOpacityF(qreal opacity)
@@ -3291,34 +3381,34 @@ void NETWinInfo::setAllowedActions(NET::Actions actions)
 
     p->allowed_actions = actions;
     if (p->allowed_actions & ActionMove) {
-        data[count++] = p->atom(_NET_WM_ACTION_MOVE);
+        data[count++] = atomForConnection(p->conn, _NET_WM_ACTION_MOVE);
     }
     if (p->allowed_actions & ActionResize) {
-        data[count++] = p->atom(_NET_WM_ACTION_RESIZE);
+        data[count++] = atomForConnection(p->conn, _NET_WM_ACTION_RESIZE);
     }
     if (p->allowed_actions & ActionMinimize) {
-        data[count++] = p->atom(_NET_WM_ACTION_MINIMIZE);
+        data[count++] = atomForConnection(p->conn, _NET_WM_ACTION_MINIMIZE);
     }
     if (p->allowed_actions & ActionShade) {
-        data[count++] = p->atom(_NET_WM_ACTION_SHADE);
+        data[count++] = atomForConnection(p->conn, _NET_WM_ACTION_SHADE);
     }
     if (p->allowed_actions & ActionStick) {
-        data[count++] = p->atom(_NET_WM_ACTION_STICK);
+        data[count++] = atomForConnection(p->conn, _NET_WM_ACTION_STICK);
     }
     if (p->allowed_actions & ActionMaxVert) {
-        data[count++] = p->atom(_NET_WM_ACTION_MAXIMIZE_VERT);
+        data[count++] = atomForConnection(p->conn, _NET_WM_ACTION_MAXIMIZE_VERT);
     }
     if (p->allowed_actions & ActionMaxHoriz) {
-        data[count++] = p->atom(_NET_WM_ACTION_MAXIMIZE_HORZ);
+        data[count++] = atomForConnection(p->conn, _NET_WM_ACTION_MAXIMIZE_HORZ);
     }
     if (p->allowed_actions & ActionFullScreen) {
-        data[count++] = p->atom(_NET_WM_ACTION_FULLSCREEN);
+        data[count++] = atomForConnection(p->conn, _NET_WM_ACTION_FULLSCREEN);
     }
     if (p->allowed_actions & ActionChangeDesktop) {
-        data[count++] = p->atom(_NET_WM_ACTION_CHANGE_DESKTOP);
+        data[count++] = atomForConnection(p->conn, _NET_WM_ACTION_CHANGE_DESKTOP);
     }
     if (p->allowed_actions & ActionClose) {
-        data[count++] = p->atom(_NET_WM_ACTION_CLOSE);
+        data[count++] = atomForConnection(p->conn, _NET_WM_ACTION_CLOSE);
     }
 
 #ifdef NETWMDEBUG
@@ -3329,7 +3419,14 @@ void NETWinInfo::setAllowedActions(NET::Actions actions)
     }
 #endif
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_ALLOWED_ACTIONS), XCB_ATOM_ATOM, 32, count, (const void *)data);
+    xcb_change_property(p->conn,
+                        XCB_PROP_MODE_REPLACE,
+                        p->window,
+                        atomForConnection(p->conn, _NET_WM_ALLOWED_ACTIONS),
+                        XCB_ATOM_ATOM,
+                        32,
+                        count,
+                        (const void *)data);
 }
 
 void NETWinInfo::setFrameExtents(NETStrut strut)
@@ -3346,8 +3443,15 @@ void NETWinInfo::setFrameExtents(NETStrut strut)
     d[2] = strut.top;
     d[3] = strut.bottom;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 32, 4, (const void *)d);
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_KDE_NET_WM_FRAME_STRUT), XCB_ATOM_CARDINAL, 32, 4, (const void *)d);
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, atomForConnection(p->conn, _NET_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 32, 4, (const void *)d);
+    xcb_change_property(p->conn,
+                        XCB_PROP_MODE_REPLACE,
+                        p->window,
+                        atomForConnection(p->conn, _KDE_NET_WM_FRAME_STRUT),
+                        XCB_ATOM_CARDINAL,
+                        32,
+                        4,
+                        (const void *)d);
 }
 
 NETStrut NETWinInfo::frameExtents() const
@@ -3372,7 +3476,14 @@ void NETWinInfo::setFrameOverlap(NETStrut strut)
     d[2] = strut.top;
     d[3] = strut.bottom;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_FRAME_OVERLAP), XCB_ATOM_CARDINAL, 32, 4, (const void *)d);
+    xcb_change_property(p->conn,
+                        XCB_PROP_MODE_REPLACE,
+                        p->window,
+                        atomForConnection(p->conn, _NET_WM_FRAME_OVERLAP),
+                        XCB_ATOM_CARDINAL,
+                        32,
+                        4,
+                        (const void *)d);
 }
 
 NETStrut NETWinInfo::frameOverlap() const
@@ -3390,7 +3501,7 @@ void NETWinInfo::setGtkFrameExtents(NETStrut strut)
     d[2] = strut.top;
     d[3] = strut.bottom;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_GTK_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 32, 4, (const void *)d);
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, atomForConnection(p->conn, _GTK_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 32, 4, (const void *)d);
 }
 
 NETStrut NETWinInfo::gtkFrameExtents() const
@@ -3410,7 +3521,7 @@ void NETWinInfo::setAppMenuObjectPath(const char *name)
     xcb_change_property(p->conn,
                         XCB_PROP_MODE_REPLACE,
                         p->window,
-                        p->atom(_KDE_NET_WM_APPMENU_OBJECT_PATH),
+                        atomForConnection(p->conn, _KDE_NET_WM_APPMENU_OBJECT_PATH),
                         XCB_ATOM_STRING,
                         8,
                         strlen(p->appmenu_object_path),
@@ -3429,7 +3540,7 @@ void NETWinInfo::setAppMenuServiceName(const char *name)
     xcb_change_property(p->conn,
                         XCB_PROP_MODE_REPLACE,
                         p->window,
-                        p->atom(_KDE_NET_WM_APPMENU_SERVICE_NAME),
+                        atomForConnection(p->conn, _KDE_NET_WM_APPMENU_SERVICE_NAME),
                         XCB_ATOM_STRING,
                         8,
                         strlen(p->appmenu_service_name),
@@ -3545,7 +3656,7 @@ void NETWinInfo::setUserTime(xcb_timestamp_t time)
     p->user_time = time;
     uint32_t d = time;
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_USER_TIME), XCB_ATOM_CARDINAL, 32, 1, (const void *)&d);
+    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, atomForConnection(p->conn, _NET_WM_USER_TIME), XCB_ATOM_CARDINAL, 32, 1, (const void *)&d);
 }
 
 NET::Properties NETWinInfo::event(xcb_generic_event_t *ev)
@@ -3568,7 +3679,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
         fprintf(stderr, "NETWinInfo::event: handling ClientMessage event\n");
 #endif // NETWMDEBUG
 
-        if (message->type == p->atom(_NET_WM_STATE)) {
+        if (message->type == atomForConnection(p->conn, _NET_WM_STATE)) {
             dirty = WMState;
 
             // we need to generate a change mask
@@ -3587,35 +3698,35 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
                 fprintf(stderr, "NETWinInfo::event:  message %ld '%s'\n", message->data.data32[i], ba.constData());
 #endif
 
-                if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_MODAL)) {
+                if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_MODAL)) {
                     mask |= Modal;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_STICKY)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_STICKY)) {
                     mask |= Sticky;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_MAXIMIZED_VERT)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_VERT)) {
                     mask |= MaxVert;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_MAXIMIZED_HORZ)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_HORZ)) {
                     mask |= MaxHoriz;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_SHADED)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_SHADED)) {
                     mask |= Shaded;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_SKIP_TASKBAR)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_SKIP_TASKBAR)) {
                     mask |= SkipTaskbar;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_SKIP_PAGER)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_SKIP_PAGER)) {
                     mask |= SkipPager;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_KDE_NET_WM_STATE_SKIP_SWITCHER)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _KDE_NET_WM_STATE_SKIP_SWITCHER)) {
                     mask |= SkipSwitcher;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_HIDDEN)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_HIDDEN)) {
                     mask |= Hidden;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_FULLSCREEN)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_FULLSCREEN)) {
                     mask |= FullScreen;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_ABOVE)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_ABOVE)) {
                     mask |= KeepAbove;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_BELOW)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_BELOW)) {
                     mask |= KeepBelow;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_DEMANDS_ATTENTION)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_DEMANDS_ATTENTION)) {
                     mask |= DemandsAttention;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_STAYS_ON_TOP)) {
                     mask |= KeepAbove;
-                } else if ((xcb_atom_t)message->data.data32[i] == p->atom(_NET_WM_STATE_FOCUSED)) {
+                } else if ((xcb_atom_t)message->data.data32[i] == atomForConnection(p->conn, _NET_WM_STATE_FOCUSED)) {
                     mask |= Focused;
                 }
             }
@@ -3642,7 +3753,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
 #endif
 
             changeState(state, mask);
-        } else if (message->type == p->atom(_NET_WM_DESKTOP)) {
+        } else if (message->type == atomForConnection(p->conn, _NET_WM_DESKTOP)) {
             dirty = WMDesktop;
 
             if (message->data.data32[0] == (unsigned)OnAllDesktops) {
@@ -3650,7 +3761,7 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             } else {
                 changeDesktop(message->data.data32[0] + 1);
             }
-        } else if (message->type == p->atom(_NET_WM_FULLSCREEN_MONITORS)) {
+        } else if (message->type == atomForConnection(p->conn, _NET_WM_FULLSCREEN_MONITORS)) {
             dirty2 = WM2FullscreenMonitors;
 
             NETFullscreenMonitors topology;
@@ -3680,47 +3791,47 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
 
         xcb_property_notify_event_t *pe = reinterpret_cast<xcb_property_notify_event_t *>(event);
 
-        if (pe->atom == p->atom(_NET_WM_NAME)) {
+        if (pe->atom == atomForConnection(p->conn, _NET_WM_NAME)) {
             dirty |= WMName;
-        } else if (pe->atom == p->atom(_NET_WM_VISIBLE_NAME)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_VISIBLE_NAME)) {
             dirty |= WMVisibleName;
-        } else if (pe->atom == p->atom(_NET_WM_DESKTOP)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_DESKTOP)) {
             dirty |= WMDesktop;
-        } else if (pe->atom == p->atom(_NET_WM_WINDOW_TYPE)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE)) {
             dirty |= WMWindowType;
-        } else if (pe->atom == p->atom(_NET_WM_STATE)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_STATE)) {
             dirty |= WMState;
-        } else if (pe->atom == p->atom(_NET_WM_STRUT)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_STRUT)) {
             dirty |= WMStrut;
-        } else if (pe->atom == p->atom(_NET_WM_STRUT_PARTIAL)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_STRUT_PARTIAL)) {
             dirty2 |= WM2ExtendedStrut;
-        } else if (pe->atom == p->atom(_NET_WM_ICON_GEOMETRY)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_ICON_GEOMETRY)) {
             dirty |= WMIconGeometry;
-        } else if (pe->atom == p->atom(_NET_WM_ICON)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_ICON)) {
             dirty |= WMIcon;
-        } else if (pe->atom == p->atom(_NET_WM_PID)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_PID)) {
             dirty |= WMPid;
-        } else if (pe->atom == p->atom(_NET_WM_HANDLED_ICONS)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_HANDLED_ICONS)) {
             dirty |= WMHandledIcons;
-        } else if (pe->atom == p->atom(_NET_STARTUP_ID)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_STARTUP_ID)) {
             dirty2 |= WM2StartupId;
-        } else if (pe->atom == p->atom(_NET_WM_WINDOW_OPACITY)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_WINDOW_OPACITY)) {
             dirty2 |= WM2Opacity;
-        } else if (pe->atom == p->atom(_NET_WM_ALLOWED_ACTIONS)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_ALLOWED_ACTIONS)) {
             dirty2 |= WM2AllowedActions;
-        } else if (pe->atom == p->atom(WM_STATE)) {
+        } else if (pe->atom == atomForConnection(p->conn, WM_STATE)) {
             dirty |= XAWMState;
-        } else if (pe->atom == p->atom(_NET_FRAME_EXTENTS)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_FRAME_EXTENTS)) {
             dirty |= WMFrameExtents;
-        } else if (pe->atom == p->atom(_KDE_NET_WM_FRAME_STRUT)) {
+        } else if (pe->atom == atomForConnection(p->conn, _KDE_NET_WM_FRAME_STRUT)) {
             dirty |= WMFrameExtents;
-        } else if (pe->atom == p->atom(_NET_WM_FRAME_OVERLAP)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_FRAME_OVERLAP)) {
             dirty2 |= WM2FrameOverlap;
-        } else if (pe->atom == p->atom(_NET_WM_ICON_NAME)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_ICON_NAME)) {
             dirty |= WMIconName;
-        } else if (pe->atom == p->atom(_NET_WM_VISIBLE_ICON_NAME)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_VISIBLE_ICON_NAME)) {
             dirty |= WMVisibleIconName;
-        } else if (pe->atom == p->atom(_NET_WM_USER_TIME)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_USER_TIME)) {
             dirty2 |= WM2UserTime;
         } else if (pe->atom == XCB_ATOM_WM_HINTS) {
             dirty2 |= WM2GroupLeader;
@@ -3732,33 +3843,33 @@ void NETWinInfo::event(xcb_generic_event_t *event, NET::Properties *properties, 
             dirty2 |= WM2TransientFor;
         } else if (pe->atom == XCB_ATOM_WM_CLASS) {
             dirty2 |= WM2WindowClass;
-        } else if (pe->atom == p->atom(WM_WINDOW_ROLE)) {
+        } else if (pe->atom == atomForConnection(p->conn, WM_WINDOW_ROLE)) {
             dirty2 |= WM2WindowRole;
         } else if (pe->atom == XCB_ATOM_WM_CLIENT_MACHINE) {
             dirty2 |= WM2ClientMachine;
-        } else if (pe->atom == p->atom(_KDE_NET_WM_ACTIVITIES)) {
+        } else if (pe->atom == atomForConnection(p->conn, _KDE_NET_WM_ACTIVITIES)) {
             dirty2 |= WM2Activities;
-        } else if (pe->atom == p->atom(_KDE_NET_WM_BLOCK_COMPOSITING) || pe->atom == p->atom(_NET_WM_BYPASS_COMPOSITOR)) {
+        } else if (pe->atom == atomForConnection(p->conn, _KDE_NET_WM_BLOCK_COMPOSITING) || pe->atom == atomForConnection(p->conn, _NET_WM_BYPASS_COMPOSITOR)) {
             dirty2 |= WM2BlockCompositing;
-        } else if (pe->atom == p->atom(_KDE_NET_WM_SHADOW)) {
+        } else if (pe->atom == atomForConnection(p->conn, _KDE_NET_WM_SHADOW)) {
             dirty2 |= WM2KDEShadow;
-        } else if (pe->atom == p->atom(WM_PROTOCOLS)) {
+        } else if (pe->atom == atomForConnection(p->conn, WM_PROTOCOLS)) {
             dirty2 |= WM2Protocols;
-        } else if (pe->atom == p->atom(_NET_WM_OPAQUE_REGION)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_OPAQUE_REGION)) {
             dirty2 |= WM2OpaqueRegion;
-        } else if (pe->atom == p->atom(_KDE_NET_WM_DESKTOP_FILE)) {
+        } else if (pe->atom == atomForConnection(p->conn, _KDE_NET_WM_DESKTOP_FILE)) {
             dirty2 = WM2DesktopFileName;
-        } else if (pe->atom == p->atom(_GTK_APPLICATION_ID)) {
+        } else if (pe->atom == atomForConnection(p->conn, _GTK_APPLICATION_ID)) {
             dirty2 = WM2GTKApplicationId;
-        } else if (pe->atom == p->atom(_NET_WM_FULLSCREEN_MONITORS)) {
+        } else if (pe->atom == atomForConnection(p->conn, _NET_WM_FULLSCREEN_MONITORS)) {
             dirty2 = WM2FullscreenMonitors;
-        } else if (pe->atom == p->atom(_GTK_FRAME_EXTENTS)) {
+        } else if (pe->atom == atomForConnection(p->conn, _GTK_FRAME_EXTENTS)) {
             dirty2 |= WM2GTKFrameExtents;
-        } else if (pe->atom == p->atom(_GTK_SHOW_WINDOW_MENU)) {
+        } else if (pe->atom == atomForConnection(p->conn, _GTK_SHOW_WINDOW_MENU)) {
             dirty2 |= WM2GTKShowWindowMenu;
-        } else if (pe->atom == p->atom(_KDE_NET_WM_APPMENU_SERVICE_NAME)) {
+        } else if (pe->atom == atomForConnection(p->conn, _KDE_NET_WM_APPMENU_SERVICE_NAME)) {
             dirty2 |= WM2AppMenuServiceName;
-        } else if (pe->atom == p->atom(_KDE_NET_WM_APPMENU_OBJECT_PATH)) {
+        } else if (pe->atom == atomForConnection(p->conn, _KDE_NET_WM_APPMENU_OBJECT_PATH)) {
             dirty2 |= WM2AppMenuObjectPath;
         }
 
@@ -3809,93 +3920,113 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     int c = 0;
 
     if (dirty & XAWMState) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(WM_STATE), p->atom(WM_STATE), 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, WM_STATE), atomForConnection(p->conn, WM_STATE), 0, 1);
     }
 
     if (dirty & WMState) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_STATE), XCB_ATOM_ATOM, 0, 2048);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_STATE), XCB_ATOM_ATOM, 0, 2048);
     }
 
     if (dirty & WMDesktop) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_DESKTOP), XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_DESKTOP), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty & WMName) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
+        cookies[c++] =
+            xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_NAME), atomForConnection(p->conn, UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
     if (dirty & WMVisibleName) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_VISIBLE_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn,
+                                        false,
+                                        p->window,
+                                        atomForConnection(p->conn, _NET_WM_VISIBLE_NAME),
+                                        atomForConnection(p->conn, UTF8_STRING),
+                                        0,
+                                        MAX_PROP_SIZE);
     }
 
     if (dirty & WMIconName) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_ICON_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn,
+                                        false,
+                                        p->window,
+                                        atomForConnection(p->conn, _NET_WM_ICON_NAME),
+                                        atomForConnection(p->conn, UTF8_STRING),
+                                        0,
+                                        MAX_PROP_SIZE);
     }
 
     if (dirty & WMVisibleIconName) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_VISIBLE_ICON_NAME), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn,
+                                        false,
+                                        p->window,
+                                        atomForConnection(p->conn, _NET_WM_VISIBLE_ICON_NAME),
+                                        atomForConnection(p->conn, UTF8_STRING),
+                                        0,
+                                        MAX_PROP_SIZE);
     }
 
     if (dirty & WMWindowType) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_WINDOW_TYPE), XCB_ATOM_ATOM, 0, 2048);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_WINDOW_TYPE), XCB_ATOM_ATOM, 0, 2048);
     }
 
     if (dirty & WMStrut) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_STRUT), XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_STRUT), XCB_ATOM_CARDINAL, 0, 4);
     }
 
     if (dirty2 & WM2ExtendedStrut) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_STRUT_PARTIAL), XCB_ATOM_CARDINAL, 0, 12);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_STRUT_PARTIAL), XCB_ATOM_CARDINAL, 0, 12);
     }
 
     if (dirty2 & WM2FullscreenMonitors) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_FULLSCREEN_MONITORS), XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_FULLSCREEN_MONITORS), XCB_ATOM_CARDINAL, 0, 4);
     }
 
     if (dirty & WMIconGeometry) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_ICON_GEOMETRY), XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_ICON_GEOMETRY), XCB_ATOM_CARDINAL, 0, 4);
     }
 
     if (dirty & WMIcon) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_ICON), XCB_ATOM_CARDINAL, 0, 0xffffffff);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_ICON), XCB_ATOM_CARDINAL, 0, 0xffffffff);
     }
 
     if (dirty & WMFrameExtents) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 0, 4);
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_FRAME_STRUT), XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _KDE_NET_WM_FRAME_STRUT), XCB_ATOM_CARDINAL, 0, 4);
     }
 
     if (dirty2 & WM2FrameOverlap) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_FRAME_OVERLAP), XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_FRAME_OVERLAP), XCB_ATOM_CARDINAL, 0, 4);
     }
 
     if (dirty2 & WM2Activities) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_ACTIVITIES), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _KDE_NET_WM_ACTIVITIES), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2BlockCompositing) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_BLOCK_COMPOSITING), XCB_ATOM_CARDINAL, 0, 1);
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_BYPASS_COMPOSITOR), XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _KDE_NET_WM_BLOCK_COMPOSITING), XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_BYPASS_COMPOSITOR), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty & WMPid) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_PID), XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_PID), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty2 & WM2StartupId) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_STARTUP_ID), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
+        cookies[c++] =
+            xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_STARTUP_ID), atomForConnection(p->conn, UTF8_STRING), 0, MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2Opacity) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_WINDOW_OPACITY), XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_WINDOW_OPACITY), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty2 & WM2AllowedActions) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_ALLOWED_ACTIONS), XCB_ATOM_ATOM, 0, 2048);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_ALLOWED_ACTIONS), XCB_ATOM_ATOM, 0, 2048);
     }
 
     if (dirty2 & WM2UserTime) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_USER_TIME), XCB_ATOM_CARDINAL, 0, 1);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_USER_TIME), XCB_ATOM_CARDINAL, 0, 1);
     }
 
     if (dirty2 & WM2TransientFor) {
@@ -3911,7 +4042,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     }
 
     if (dirty2 & WM2WindowRole) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(WM_WINDOW_ROLE), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, WM_WINDOW_ROLE), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2ClientMachine) {
@@ -3919,31 +4050,45 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     }
 
     if (dirty2 & WM2Protocols) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(WM_PROTOCOLS), XCB_ATOM_ATOM, 0, 2048);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, WM_PROTOCOLS), XCB_ATOM_ATOM, 0, 2048);
     }
 
     if (dirty2 & WM2OpaqueRegion) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_NET_WM_OPAQUE_REGION), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _NET_WM_OPAQUE_REGION), XCB_ATOM_CARDINAL, 0, MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2DesktopFileName) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_DESKTOP_FILE), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn,
+                                        false,
+                                        p->window,
+                                        atomForConnection(p->conn, _KDE_NET_WM_DESKTOP_FILE),
+                                        atomForConnection(p->conn, UTF8_STRING),
+                                        0,
+                                        MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2GTKApplicationId) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_GTK_APPLICATION_ID), p->atom(UTF8_STRING), 0, MAX_PROP_SIZE);
+        cookies[c++] = xcb_get_property(p->conn,
+                                        false,
+                                        p->window,
+                                        atomForConnection(p->conn, _GTK_APPLICATION_ID),
+                                        atomForConnection(p->conn, UTF8_STRING),
+                                        0,
+                                        MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2GTKFrameExtents) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_GTK_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 0, 4);
+        cookies[c++] = xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _GTK_FRAME_EXTENTS), XCB_ATOM_CARDINAL, 0, 4);
     }
 
     if (dirty2 & WM2AppMenuObjectPath) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_APPMENU_OBJECT_PATH), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
+        cookies[c++] =
+            xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _KDE_NET_WM_APPMENU_OBJECT_PATH), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
     if (dirty2 & WM2AppMenuServiceName) {
-        cookies[c++] = xcb_get_property(p->conn, false, p->window, p->atom(_KDE_NET_WM_APPMENU_SERVICE_NAME), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
+        cookies[c++] =
+            xcb_get_property(p->conn, false, p->window, atomForConnection(p->conn, _KDE_NET_WM_APPMENU_SERVICE_NAME), XCB_ATOM_STRING, 0, MAX_PROP_SIZE);
     }
 
     c = 0;
@@ -3952,7 +4097,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         p->mapping_state = Withdrawn;
 
         bool success;
-        uint32_t state = get_value_reply<uint32_t>(p->conn, cookies[c++], p->atom(WM_STATE), 0, &success);
+        uint32_t state = get_value_reply<uint32_t>(p->conn, cookies[c++], atomForConnection(p->conn, WM_STATE), 0, &success);
 
         if (success) {
             switch (state) {
@@ -3987,63 +4132,63 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
             const QByteArray ba = get_atom_name(p->conn, state);
             fprintf(stderr, "NETWinInfo::update:   adding window state %ld '%s'\n", state, ba.constData());
 #endif
-            if (state == p->atom(_NET_WM_STATE_MODAL)) {
+            if (state == atomForConnection(p->conn, _NET_WM_STATE_MODAL)) {
                 p->state |= Modal;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_STICKY)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_STICKY)) {
                 p->state |= Sticky;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_MAXIMIZED_VERT)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_VERT)) {
                 p->state |= MaxVert;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_MAXIMIZED_HORZ)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_MAXIMIZED_HORZ)) {
                 p->state |= MaxHoriz;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_SHADED)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_SHADED)) {
                 p->state |= Shaded;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_SKIP_TASKBAR)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_SKIP_TASKBAR)) {
                 p->state |= SkipTaskbar;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_SKIP_PAGER)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_SKIP_PAGER)) {
                 p->state |= SkipPager;
             }
 
-            else if (state == p->atom(_KDE_NET_WM_STATE_SKIP_SWITCHER)) {
+            else if (state == atomForConnection(p->conn, _KDE_NET_WM_STATE_SKIP_SWITCHER)) {
                 p->state |= SkipSwitcher;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_HIDDEN)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_HIDDEN)) {
                 p->state |= Hidden;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_FULLSCREEN)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_FULLSCREEN)) {
                 p->state |= FullScreen;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_ABOVE)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_ABOVE)) {
                 p->state |= KeepAbove;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_BELOW)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_BELOW)) {
                 p->state |= KeepBelow;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_DEMANDS_ATTENTION)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_DEMANDS_ATTENTION)) {
                 p->state |= DemandsAttention;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_STAYS_ON_TOP)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_STAYS_ON_TOP)) {
                 p->state |= KeepAbove;
             }
 
-            else if (state == p->atom(_NET_WM_STATE_FOCUSED)) {
+            else if (state == atomForConnection(p->conn, _NET_WM_STATE_FOCUSED)) {
                 p->state |= Focused;
             }
         }
@@ -4068,7 +4213,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         delete[] p->name;
         p->name = nullptr;
 
-        const QByteArray str = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
+        const QByteArray str = get_string_reply(p->conn, cookies[c++], atomForConnection(p->conn, UTF8_STRING));
         if (str.length() > 0) {
             p->name = nstrndup(str.constData(), str.length());
         }
@@ -4078,7 +4223,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         delete[] p->visible_name;
         p->visible_name = nullptr;
 
-        const QByteArray str = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
+        const QByteArray str = get_string_reply(p->conn, cookies[c++], atomForConnection(p->conn, UTF8_STRING));
         if (str.length() > 0) {
             p->visible_name = nstrndup(str.constData(), str.length());
         }
@@ -4088,7 +4233,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         delete[] p->icon_name;
         p->icon_name = nullptr;
 
-        const QByteArray str = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
+        const QByteArray str = get_string_reply(p->conn, cookies[c++], atomForConnection(p->conn, UTF8_STRING));
         if (str.length() > 0) {
             p->icon_name = nstrndup(str.constData(), str.length());
         }
@@ -4098,7 +4243,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         delete[] p->visible_icon_name;
         p->visible_icon_name = nullptr;
 
-        const QByteArray str = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
+        const QByteArray str = get_string_reply(p->conn, cookies[c++], atomForConnection(p->conn, UTF8_STRING));
         if (str.length() > 0) {
             p->visible_icon_name = nstrndup(str.constData(), str.length());
         }
@@ -4123,79 +4268,79 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
                 const QByteArray name = get_atom_name(p->conn, type);
                 fprintf(stderr, "NETWinInfo::update:   examining window type %ld %s\n", type, name.constData());
 #endif
-                if (type == p->atom(_NET_WM_WINDOW_TYPE_NORMAL)) {
+                if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_NORMAL)) {
                     p->types[pos++] = Normal;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_DESKTOP)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DESKTOP)) {
                     p->types[pos++] = Desktop;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_DOCK)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DOCK)) {
                     p->types[pos++] = Dock;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_TOOLBAR)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_TOOLBAR)) {
                     p->types[pos++] = Toolbar;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_MENU)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_MENU)) {
                     p->types[pos++] = Menu;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_DIALOG)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DIALOG)) {
                     p->types[pos++] = Dialog;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_UTILITY)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_UTILITY)) {
                     p->types[pos++] = Utility;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_SPLASH)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_SPLASH)) {
                     p->types[pos++] = Splash;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_DROPDOWN_MENU)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DROPDOWN_MENU)) {
                     p->types[pos++] = DropdownMenu;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_POPUP_MENU)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_POPUP_MENU)) {
                     p->types[pos++] = PopupMenu;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_TOOLTIP)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_TOOLTIP)) {
                     p->types[pos++] = Tooltip;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_NOTIFICATION)) {
                     p->types[pos++] = Notification;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_COMBO)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_COMBO)) {
                     p->types[pos++] = ComboBox;
                 }
 
-                else if (type == p->atom(_NET_WM_WINDOW_TYPE_DND)) {
+                else if (type == atomForConnection(p->conn, _NET_WM_WINDOW_TYPE_DND)) {
                     p->types[pos++] = DNDIcon;
                 }
 
-                else if (type == p->atom(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE)) {
+                else if (type == atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_OVERRIDE)) {
                     p->types[pos++] = Override;
                 }
 
-                else if (type == p->atom(_KDE_NET_WM_WINDOW_TYPE_TOPMENU)) {
+                else if (type == atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_TOPMENU)) {
                     p->types[pos++] = TopMenu;
                 }
 
-                else if (type == p->atom(_KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY)) {
+                else if (type == atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_ON_SCREEN_DISPLAY)) {
                     p->types[pos++] = OnScreenDisplay;
                 }
 
-                else if (type == p->atom(_KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION)) {
+                else if (type == atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_CRITICAL_NOTIFICATION)) {
                     p->types[pos++] = CriticalNotification;
                 }
 
-                else if (type == p->atom(_KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP)) {
+                else if (type == atomForConnection(p->conn, _KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP)) {
                     p->types[pos++] = AppletPopup;
                 }
             }
@@ -4339,7 +4484,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         delete[] p->startup_id;
         p->startup_id = nullptr;
 
-        const QByteArray id = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
+        const QByteArray id = get_string_reply(p->conn, cookies[c++], atomForConnection(p->conn, UTF8_STRING));
         if (id.length() > 0) {
             p->startup_id = nstrndup(id.constData(), id.length());
         }
@@ -4363,43 +4508,43 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
                 const QByteArray name = get_atom_name(p->conn, action);
                 fprintf(stderr, "NETWinInfo::update:   adding allowed action %ld '%s'\n", action, name.constData());
 #endif
-                if (action == p->atom(_NET_WM_ACTION_MOVE)) {
+                if (action == atomForConnection(p->conn, _NET_WM_ACTION_MOVE)) {
                     p->allowed_actions |= ActionMove;
                 }
 
-                else if (action == p->atom(_NET_WM_ACTION_RESIZE)) {
+                else if (action == atomForConnection(p->conn, _NET_WM_ACTION_RESIZE)) {
                     p->allowed_actions |= ActionResize;
                 }
 
-                else if (action == p->atom(_NET_WM_ACTION_MINIMIZE)) {
+                else if (action == atomForConnection(p->conn, _NET_WM_ACTION_MINIMIZE)) {
                     p->allowed_actions |= ActionMinimize;
                 }
 
-                else if (action == p->atom(_NET_WM_ACTION_SHADE)) {
+                else if (action == atomForConnection(p->conn, _NET_WM_ACTION_SHADE)) {
                     p->allowed_actions |= ActionShade;
                 }
 
-                else if (action == p->atom(_NET_WM_ACTION_STICK)) {
+                else if (action == atomForConnection(p->conn, _NET_WM_ACTION_STICK)) {
                     p->allowed_actions |= ActionStick;
                 }
 
-                else if (action == p->atom(_NET_WM_ACTION_MAXIMIZE_VERT)) {
+                else if (action == atomForConnection(p->conn, _NET_WM_ACTION_MAXIMIZE_VERT)) {
                     p->allowed_actions |= ActionMaxVert;
                 }
 
-                else if (action == p->atom(_NET_WM_ACTION_MAXIMIZE_HORZ)) {
+                else if (action == atomForConnection(p->conn, _NET_WM_ACTION_MAXIMIZE_HORZ)) {
                     p->allowed_actions |= ActionMaxHoriz;
                 }
 
-                else if (action == p->atom(_NET_WM_ACTION_FULLSCREEN)) {
+                else if (action == atomForConnection(p->conn, _NET_WM_ACTION_FULLSCREEN)) {
                     p->allowed_actions |= ActionFullScreen;
                 }
 
-                else if (action == p->atom(_NET_WM_ACTION_CHANGE_DESKTOP)) {
+                else if (action == atomForConnection(p->conn, _NET_WM_ACTION_CHANGE_DESKTOP)) {
                     p->allowed_actions |= ActionChangeDesktop;
                 }
 
-                else if (action == p->atom(_NET_WM_ACTION_CLOSE)) {
+                else if (action == atomForConnection(p->conn, _NET_WM_ACTION_CLOSE)) {
                     p->allowed_actions |= ActionClose;
                 }
             }
@@ -4503,15 +4648,15 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         const QVector<xcb_atom_t> protocols = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
         p->protocols = NET::NoProtocol;
         for (auto it = protocols.begin(); it != protocols.end(); ++it) {
-            if ((*it) == p->atom(WM_TAKE_FOCUS)) {
+            if ((*it) == atomForConnection(p->conn, WM_TAKE_FOCUS)) {
                 p->protocols |= TakeFocusProtocol;
-            } else if ((*it) == p->atom(WM_DELETE_WINDOW)) {
+            } else if ((*it) == atomForConnection(p->conn, WM_DELETE_WINDOW)) {
                 p->protocols |= DeleteWindowProtocol;
-            } else if ((*it) == p->atom(_NET_WM_PING)) {
+            } else if ((*it) == atomForConnection(p->conn, _NET_WM_PING)) {
                 p->protocols |= PingProtocol;
-            } else if ((*it) == p->atom(_NET_WM_SYNC_REQUEST)) {
+            } else if ((*it) == atomForConnection(p->conn, _NET_WM_SYNC_REQUEST)) {
                 p->protocols |= SyncRequestProtocol;
-            } else if ((*it) == p->atom(_NET_WM_CONTEXT_HELP)) {
+            } else if ((*it) == atomForConnection(p->conn, _NET_WM_CONTEXT_HELP)) {
                 p->protocols |= ContextHelpProtocol;
             }
         }
@@ -4535,7 +4680,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         delete[] p->desktop_file;
         p->desktop_file = nullptr;
 
-        const QByteArray id = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
+        const QByteArray id = get_string_reply(p->conn, cookies[c++], atomForConnection(p->conn, UTF8_STRING));
         if (id.length() > 0) {
             p->desktop_file = nstrndup(id.constData(), id.length());
         }
@@ -4545,7 +4690,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         delete[] p->gtk_application_id;
         p->gtk_application_id = nullptr;
 
-        const QByteArray id = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
+        const QByteArray id = get_string_reply(p->conn, cookies[c++], atomForConnection(p->conn, UTF8_STRING));
         if (id.length() > 0) {
             p->gtk_application_id = nstrndup(id.constData(), id.length());
         }
@@ -4802,7 +4947,14 @@ void NETWinInfo::setActivities(const char *activities)
         p->activities = nstrdup(activities);
     }
 
-    xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_KDE_NET_WM_ACTIVITIES), XCB_ATOM_STRING, 8, strlen(p->activities), p->activities);
+    xcb_change_property(p->conn,
+                        XCB_PROP_MODE_REPLACE,
+                        p->window,
+                        atomForConnection(p->conn, _KDE_NET_WM_ACTIVITIES),
+                        XCB_ATOM_STRING,
+                        8,
+                        strlen(p->activities),
+                        p->activities);
 }
 
 void NETWinInfo::setBlockingCompositing(bool active)
@@ -4814,11 +4966,25 @@ void NETWinInfo::setBlockingCompositing(bool active)
     p->blockCompositing = active;
     if (active) {
         uint32_t d = 1;
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_KDE_NET_WM_BLOCK_COMPOSITING), XCB_ATOM_CARDINAL, 32, 1, (const void *)&d);
-        xcb_change_property(p->conn, XCB_PROP_MODE_REPLACE, p->window, p->atom(_NET_WM_BYPASS_COMPOSITOR), XCB_ATOM_CARDINAL, 32, 1, (const void *)&d);
+        xcb_change_property(p->conn,
+                            XCB_PROP_MODE_REPLACE,
+                            p->window,
+                            atomForConnection(p->conn, _KDE_NET_WM_BLOCK_COMPOSITING),
+                            XCB_ATOM_CARDINAL,
+                            32,
+                            1,
+                            (const void *)&d);
+        xcb_change_property(p->conn,
+                            XCB_PROP_MODE_REPLACE,
+                            p->window,
+                            atomForConnection(p->conn, _NET_WM_BYPASS_COMPOSITOR),
+                            XCB_ATOM_CARDINAL,
+                            32,
+                            1,
+                            (const void *)&d);
     } else {
-        xcb_delete_property(p->conn, p->window, p->atom(_KDE_NET_WM_BLOCK_COMPOSITING));
-        xcb_delete_property(p->conn, p->window, p->atom(_NET_WM_BYPASS_COMPOSITOR));
+        xcb_delete_property(p->conn, p->window, atomForConnection(p->conn, _KDE_NET_WM_BLOCK_COMPOSITING));
+        xcb_delete_property(p->conn, p->window, atomForConnection(p->conn, _NET_WM_BYPASS_COMPOSITOR));
     }
 }
 
@@ -4879,8 +5045,8 @@ void NETWinInfo::setDesktopFileName(const char *name)
     xcb_change_property(p->conn,
                         XCB_PROP_MODE_REPLACE,
                         p->window,
-                        p->atom(_KDE_NET_WM_DESKTOP_FILE),
-                        p->atom(UTF8_STRING),
+                        atomForConnection(p->conn, _KDE_NET_WM_DESKTOP_FILE),
+                        atomForConnection(p->conn, UTF8_STRING),
                         8,
                         strlen(p->desktop_file),
                         (const void *)p->desktop_file);

@@ -61,7 +61,7 @@ public:
     xcb_window_t root;
     const xcb_atom_t selection;
     xcb_window_t selection_owner;
-    static xcb_atom_t manager_atom;
+    xcb_atom_t manager_atom;
 
     static Private *create(KSelectionWatcher *watcher, xcb_atom_t selection_P, int screen_P);
     static Private *create(KSelectionWatcher *watcher, const char *selection_P, int screen_P);
@@ -146,14 +146,14 @@ void KSelectionWatcher::init()
     if (!d) {
         return;
     }
-    if (Private::manager_atom == XCB_NONE) {
+    if (d->manager_atom == XCB_NONE) {
         xcb_connection_t *c = d->connection;
 
         xcb_intern_atom_cookie_t atom_cookie = xcb_intern_atom(c, false, strlen("MANAGER"), "MANAGER");
         xcb_get_window_attributes_cookie_t attr_cookie = xcb_get_window_attributes(c, d->root);
 
         xcb_intern_atom_reply_t *atom_reply = xcb_intern_atom_reply(c, atom_cookie, nullptr);
-        Private::manager_atom = atom_reply->atom;
+        d->manager_atom = atom_reply->atom;
         free(atom_reply);
 
         xcb_get_window_attributes_reply_t *attr = xcb_get_window_attributes_reply(c, attr_cookie, nullptr);
@@ -219,7 +219,7 @@ void KSelectionWatcher::filterEvent(void *ev_P)
     if (response_type == XCB_CLIENT_MESSAGE) {
         xcb_client_message_event_t *cm_event = reinterpret_cast<xcb_client_message_event_t *>(event);
 
-        if (cm_event->type != Private::manager_atom || cm_event->data.data32[1] != d->selection) {
+        if (cm_event->type != d->manager_atom || cm_event->data.data32[1] != d->selection) {
             return;
         }
         // owner() checks whether the owner changed and emits newOwner()
@@ -240,7 +240,5 @@ void KSelectionWatcher::filterEvent(void *ev_P)
         return;
     }
 }
-
-xcb_atom_t KSelectionWatcher::Private::manager_atom = XCB_NONE;
 
 #include "moc_kselectionwatcher.cpp"

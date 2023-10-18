@@ -4,6 +4,10 @@
     SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 */
 
+#include <QSharedData>
+#include <QSharedDataPointer>
+#include <xcb/xproto.h>
+
 #if (!defined ATOMS_H) || (defined ENUM_CREATE_CHAR_ARRAY)
 
 #undef ENUM_BEGIN
@@ -173,5 +177,7 @@ ENUM_BEGIN(KwsAtom)
     ENUM(_KDE_NET_WM_SHADOW)
     ENUM_COUNT(KwsAtom)
 ENUM_END(KwsAtom)
+
+xcb_atom_t atomForConnection(xcb_connection_t *c, KwsAtom atom);
 
 #endif // ATOMS_H

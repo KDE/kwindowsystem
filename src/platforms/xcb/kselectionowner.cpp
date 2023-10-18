@@ -78,10 +78,10 @@ public:
     uint32_t extra1, extra2;
     QBasicTimer timer;
     bool force_kill;
-    static xcb_atom_t manager_atom;
-    static xcb_atom_t xa_multiple;
-    static xcb_atom_t xa_targets;
-    static xcb_atom_t xa_timestamp;
+    xcb_atom_t manager_atom = XCB_NONE;
+    xcb_atom_t xa_multiple = XCB_NONE;
+    xcb_atom_t xa_targets = XCB_NONE;
+    xcb_atom_t xa_timestamp = XCB_NONE;
 
     static Private *create(KSelectionOwner *owner, xcb_atom_t selection_P, int screen_P);
     static Private *create(KSelectionOwner *owner, const char *selection_P, int screen_P);
@@ -172,7 +172,7 @@ void KSelectionOwner::Private::claimSucceeded()
     ev.response_type = XCB_CLIENT_MESSAGE;
     ev.format = 32;
     ev.window = root;
-    ev.type = Private::manager_atom;
+    ev.type = manager_atom;
     ev.data.data32[0] = timestamp;
     ev.data.data32[1] = selection;
     ev.data.data32[2] = window;
@@ -248,7 +248,7 @@ void KSelectionOwner::claim(bool force_P, bool force_kill_P)
     }
     Q_ASSERT(d->state == Private::Idle);
 
-    if (Private::manager_atom == XCB_NONE) {
+    if (d->manager_atom == XCB_NONE) {
         getAtoms();
     }
 
@@ -463,7 +463,7 @@ void KSelectionOwner::filter_selection_request(void *event)
     xcb_connection_t *c = d->connection;
     bool handled = false;
 
-    if (ev->target == Private::xa_multiple) {
+    if (ev->target == d->xa_multiple) {
         if (ev->property != XCB_NONE) {
             const int MAX_ATOMS = 100;
 
@@ -527,7 +527,7 @@ bool KSelectionOwner::handle_selection(xcb_atom_t target_P, xcb_atom_t property_
     if (!d) {
         return false;
     }
-    if (target_P == Private::xa_timestamp) {
+    if (target_P == d->xa_timestamp) {
         // qDebug() << "Handling timestamp request";
         xcb_change_property(d->connection,
                             requestor_P,
@@ -537,7 +537,7 @@ bool KSelectionOwner::handle_selection(xcb_atom_t target_P, xcb_atom_t property_
                             XCB_PROP_MODE_REPLACE,
                             1,
                             reinterpret_cast<const void *>(&d->timestamp));
-    } else if (target_P == Private::xa_targets) {
+    } else if (target_P == d->xa_targets) {
         replyTargets(property_P, requestor_P);
     } else if (genericReply(target_P, property_P, requestor_P)) {
         // handled
@@ -553,7 +553,7 @@ void KSelectionOwner::replyTargets(xcb_atom_t property_P, xcb_window_t requestor
     if (!d) {
         return;
     }
-    xcb_atom_t atoms[3] = {Private::xa_multiple, Private::xa_timestamp, Private::xa_targets};
+    xcb_atom_t atoms[3] = {d->xa_multiple, d->xa_timestamp, d->xa_targets};
 
     xcb_change_property(d->connection,
                         requestor_P,
@@ -577,7 +577,7 @@ void KSelectionOwner::getAtoms()
     if (!d) {
         return;
     }
-    if (Private::manager_atom != XCB_NONE) {
+    if (d->manager_atom != XCB_NONE) {
         return;
     }
 
@@ -586,10 +586,7 @@ void KSelectionOwner::getAtoms()
     struct {
         const char *name;
         xcb_atom_t *atom;
-    } atoms[] = {{"MANAGER", &Private::manager_atom},
-                 {"MULTIPLE", &Private::xa_multiple},
-                 {"TARGETS", &Private::xa_targets},
-                 {"TIMESTAMP", &Private::xa_timestamp}};
+    } atoms[] = {{"MANAGER", &d->manager_atom}, {"MULTIPLE", &d->xa_multiple}, {"TARGETS", &d->xa_targets}, {"TIMESTAMP", &d->xa_timestamp}};
 
     const int count = sizeof(atoms) / sizeof(atoms[0]);
     xcb_intern_atom_cookie_t cookies[count];
@@ -605,10 +602,5 @@ void KSelectionOwner::getAtoms()
         }
     }
 }
-
-xcb_atom_t KSelectionOwner::Private::manager_atom = XCB_NONE;
-xcb_atom_t KSelectionOwner::Private::xa_multiple = XCB_NONE;
-xcb_atom_t KSelectionOwner::Private::xa_targets = XCB_NONE;
-xcb_atom_t KSelectionOwner::Private::xa_timestamp = XCB_NONE;
 
 #include "moc_kselectionowner.cpp"
