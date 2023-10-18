@@ -236,14 +236,8 @@ void WindowEffects::resetContrast(QWindow *window, Contrast *contrast)
 bool WindowEffects::eventFilter(QObject *watched, QEvent *event)
 {
     if (event->type() == QEvent::Expose) {
-        auto ee = static_cast<QExposeEvent *>(event);
-
-        if ((ee->region().isNull())) {
-            return false;
-        }
-
         auto window = qobject_cast<QWindow *>(watched);
-        if (!window) {
+        if (!window || !window->isExposed()) {
             return false;
         }
 

@@ -121,8 +121,7 @@ bool WindowShadow::eventFilter(QObject *watched, QEvent *event)
 {
     Q_UNUSED(watched)
     if (event->type() == QEvent::Expose) {
-        QExposeEvent *exposeEvent = static_cast<QExposeEvent *>(event);
-        if (!exposeEvent->region().isNull()) {
+        if (auto window = qobject_cast<QWindow *>(watched); window && window->isExposed()) {
             if (!internalCreate()) {
                 qCWarning(KWAYLAND_KWS) << "Failed to recreate shadow for" << window;
             }
