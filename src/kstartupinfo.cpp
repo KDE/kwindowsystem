@@ -18,7 +18,6 @@
 
 #include "kstartupinfo.h"
 #include "kwindowsystem_debug.h"
-#include "netwm_def.h"
 
 #include <QDateTime>
 

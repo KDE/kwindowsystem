@@ -14,7 +14,6 @@
 
 #include <QColor>
 #include <QRegion>
-#include <netwm_def.h>
 
 /**
  * Namespace for common standardized window effects
