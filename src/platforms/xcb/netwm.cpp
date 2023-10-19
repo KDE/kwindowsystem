@@ -20,6 +20,7 @@
 
 #include <private/qtx11extras_p.h>
 
+#include <kwindowinfo.h>
 #include <kwindowsystem.h>
 #include <kx11extras.h>
 #include <kxutils_p.h>

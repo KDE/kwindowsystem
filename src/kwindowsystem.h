@@ -14,7 +14,6 @@
 
 #include <QObject>
 #include <QWidgetList> //For WId
-#include <kwindowinfo.h>
 #include <kwindowsystem_export.h>
 
 class KWindowSystemPrivate;
