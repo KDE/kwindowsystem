@@ -34,7 +34,7 @@ static QSharedDataPointer<Atoms> atomsForConnection(xcb_connection_t *c)
     auto it = s_gAtomsHash->constFind(c);
     if (it == s_gAtomsHash->constEnd()) {
         QSharedDataPointer<Atoms> atom(new Atoms(c));
-        s_gAtomsHash->insert(c, atom);
+        // s_gAtomsHash->insert(c, atom);
         return atom;
     }
     return it.value();
