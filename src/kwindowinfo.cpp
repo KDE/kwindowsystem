@@ -374,7 +374,7 @@ bool KWindowInfo::isOnDesktop(int desktop) const
         if (onAllDesktops()) {
             return true;
         }
-        return KWindowSystem::viewportWindowToDesktop(d->m_geometry) == desktop;
+        return KX11Extras::viewportWindowToDesktop(d->m_geometry) == desktop;
     }
     return d->m_info->desktop() == desktop || d->m_info->desktop() == NET::OnAllDesktops;
 }
@@ -409,7 +409,7 @@ int KWindowInfo::desktop() const
         if (onAllDesktops()) {
             return NET::OnAllDesktops;
         }
-        return KWindowSystem::viewportWindowToDesktop(d->m_geometry);
+        return KX11Extras::viewportWindowToDesktop(d->m_geometry);
     }
     return d->m_info->desktop();
 }

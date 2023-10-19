@@ -100,12 +100,6 @@ public:
     static void setMainWindow(QWindow *subwindow, WId mainwindow);
 
     /**
-     * @internal
-     * Returns mapped virtual desktop for the given window geometry.
-     */
-    static int viewportWindowToDesktop(const QRect &r);
-
-    /**
      * Updates the platform-specific startup id, if any.
      *
      * This method is to be called when a running application instance

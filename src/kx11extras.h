@@ -491,6 +491,15 @@ Q_SIGNALS:
 
 protected:
     void connectNotify(const QMetaMethod &signal) override;
+
+private:
+    friend class KWindowInfo;
+
+    /**
+     * @internal
+     * Returns mapped virtual desktop for the given window geometry.
+     */
+    KWINDOWSYSTEM_NO_EXPORT static int viewportWindowToDesktop(const QRect &r);
 };
 
 #endif

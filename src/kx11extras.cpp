@@ -249,6 +249,11 @@ bool KX11Extras::mapViewport()
     return KWindowSystem::d_func()->mapViewport();
 }
 
+int KX11Extras::viewportWindowToDesktop(const QRect &r)
+{
+    return KWindowSystem::d_func()->viewportWindowToDesktop(r / qApp->devicePixelRatio());
+}
+
 void KX11Extras::setExtendedStrut(WId win,
                                   qreal left_width,
                                   qreal left_start,

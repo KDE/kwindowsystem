@@ -313,12 +313,6 @@ void KWindowSystem::setShowingDesktop(bool showing)
     return d->setShowingDesktop(showing);
 }
 
-int KWindowSystem::viewportWindowToDesktop(const QRect &r)
-{
-    Q_D(KWindowSystem);
-    return d->viewportWindowToDesktop(r / qApp->devicePixelRatio());
-}
-
 static inline KWindowSystem::Platform initPlatform()
 {
     auto platformName = QGuiApplication::platformName();
