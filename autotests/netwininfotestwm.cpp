@@ -76,7 +76,7 @@ private:
         return m_connection;
     }
     xcb_connection_t *m_connection;
-    QVector<xcb_connection_t*> m_connections;
+    QList<xcb_connection_t*> m_connections;
     std::unique_ptr<QProcess> m_xvfb;
     xcb_window_t m_rootWindow;
     xcb_window_t m_testWindow;
@@ -213,7 +213,7 @@ bool NetWinInfoTestWM::hasAtomFlag(const xcb_atom_t *atoms, int atomsLength, con
 void NetWinInfoTestWM::testAllowedActions_data()
 {
     QTest::addColumn<NET::Actions>("actions");
-    QTest::addColumn<QVector<QByteArray> >("names");
+    QTest::addColumn<QList<QByteArray> >("names");
 
     const QByteArray move       = QByteArrayLiteral("_NET_WM_ACTION_MOVE");
     const QByteArray resize     = QByteArrayLiteral("_NET_WM_ACTION_RESIZE");
@@ -226,18 +226,18 @@ void NetWinInfoTestWM::testAllowedActions_data()
     const QByteArray desktop    = QByteArrayLiteral("_NET_WM_ACTION_CHANGE_DESKTOP");
     const QByteArray close      = QByteArrayLiteral("_NET_WM_ACTION_CLOSE");
 
-    QTest::newRow("move")       << NET::Actions(NET::ActionMove)          << (QVector<QByteArray>() << move);
-    QTest::newRow("resize")     << NET::Actions(NET::ActionResize)        << (QVector<QByteArray>() << resize);
-    QTest::newRow("minimize")   << NET::Actions(NET::ActionMinimize)      << (QVector<QByteArray>() << minimize);
-    QTest::newRow("shade")      << NET::Actions(NET::ActionShade)         << (QVector<QByteArray>() << shade);
-    QTest::newRow("stick")      << NET::Actions(NET::ActionStick)         << (QVector<QByteArray>() << stick);
-    QTest::newRow("maxVert")    << NET::Actions(NET::ActionMaxVert)       << (QVector<QByteArray>() << maxVert);
-    QTest::newRow("maxHoriz")   << NET::Actions(NET::ActionMaxHoriz)      << (QVector<QByteArray>() << maxHoriz);
-    QTest::newRow("fullscreen") << NET::Actions(NET::ActionFullScreen)    << (QVector<QByteArray>() << fullscreen);
-    QTest::newRow("desktop")    << NET::Actions(NET::ActionChangeDesktop) << (QVector<QByteArray>() << desktop);
-    QTest::newRow("close")      << NET::Actions(NET::ActionClose)         << (QVector<QByteArray>() << close);
+    QTest::newRow("move")       << NET::Actions(NET::ActionMove)          << (QList<QByteArray>() << move);
+    QTest::newRow("resize")     << NET::Actions(NET::ActionResize)        << (QList<QByteArray>() << resize);
+    QTest::newRow("minimize")   << NET::Actions(NET::ActionMinimize)      << (QList<QByteArray>() << minimize);
+    QTest::newRow("shade")      << NET::Actions(NET::ActionShade)         << (QList<QByteArray>() << shade);
+    QTest::newRow("stick")      << NET::Actions(NET::ActionStick)         << (QList<QByteArray>() << stick);
+    QTest::newRow("maxVert")    << NET::Actions(NET::ActionMaxVert)       << (QList<QByteArray>() << maxVert);
+    QTest::newRow("maxHoriz")   << NET::Actions(NET::ActionMaxHoriz)      << (QList<QByteArray>() << maxHoriz);
+    QTest::newRow("fullscreen") << NET::Actions(NET::ActionFullScreen)    << (QList<QByteArray>() << fullscreen);
+    QTest::newRow("desktop")    << NET::Actions(NET::ActionChangeDesktop) << (QList<QByteArray>() << desktop);
+    QTest::newRow("close")      << NET::Actions(NET::ActionClose)         << (QList<QByteArray>() << close);
 
-    QTest::newRow("none") << NET::Actions() << QVector<QByteArray>();
+    QTest::newRow("none") << NET::Actions() << QList<QByteArray>();
 
     QTest::newRow("all") << NET::Actions(NET::ActionMove |
                                     NET::ActionResize |
@@ -249,7 +249,7 @@ void NetWinInfoTestWM::testAllowedActions_data()
                                     NET::ActionFullScreen |
                                     NET::ActionChangeDesktop |
                                     NET::ActionClose)
-                         << (QVector<QByteArray>() << move << resize << minimize << shade <<
+                         << (QList<QByteArray>() << move << resize << minimize << shade <<
                              stick << maxVert << maxHoriz <<
                              fullscreen << desktop << close);
 }
@@ -266,7 +266,7 @@ void NetWinInfoTestWM::testAllowedActions()
     QCOMPARE(info.allowedActions(), actions);
 
     // compare with the X property
-    QFETCH(QVector<QByteArray>, names);
+    QFETCH(QList<QByteArray>, names);
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_ATOM, names.size(), 32)
     xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t *>(xcb_get_property_value(reply.get()));
@@ -414,7 +414,7 @@ void NetWinInfoTestWM::testOpacity()
 void NetWinInfoTestWM::testState_data()
 {
     QTest::addColumn<NET::States>("states");
-    QTest::addColumn<QVector<QByteArray> >("names");
+    QTest::addColumn<QList<QByteArray> >("names");
 
     const QByteArray modal            = QByteArrayLiteral("_NET_WM_STATE_MODAL");
     const QByteArray sticky           = QByteArrayLiteral("_NET_WM_STATE_STICKY");
@@ -432,20 +432,20 @@ void NetWinInfoTestWM::testState_data()
     const QByteArray demandsAttention = QByteArrayLiteral("_NET_WM_STATE_DEMANDS_ATTENTION");
     const QByteArray focused          = QByteArrayLiteral("_NET_WM_STATE_FOCUSED");
 
-    QTest::newRow("modal")            << NET::States(NET::Modal)            << (QVector<QByteArray>() << modal);
-    QTest::newRow("sticky")           << NET::States(NET::Sticky)           << (QVector<QByteArray>() << sticky);
-    QTest::newRow("maxVert")          << NET::States(NET::MaxVert)          << (QVector<QByteArray>() << maxVert);
-    QTest::newRow("maxHoriz")         << NET::States(NET::MaxHoriz)         << (QVector<QByteArray>() << maxHoriz);
-    QTest::newRow("shaded")           << NET::States(NET::Shaded)           << (QVector<QByteArray>() << shaded);
-    QTest::newRow("skipTaskbar")      << NET::States(NET::SkipTaskbar)      << (QVector<QByteArray>() << skipTaskbar);
-    QTest::newRow("keepAbove")        << NET::States(NET::KeepAbove)        << (QVector<QByteArray>() << keepAbove << staysOnTop);
-    QTest::newRow("skipPager")        << NET::States(NET::SkipPager)        << (QVector<QByteArray>() << skipPager);
-    QTest::newRow("hidden")           << NET::States(NET::Hidden)           << (QVector<QByteArray>() << hidden);
-    QTest::newRow("fullScreen")       << NET::States(NET::FullScreen)       << (QVector<QByteArray>() << fullScreen);
-    QTest::newRow("keepBelow")        << NET::States(NET::KeepBelow)        << (QVector<QByteArray>() << keepBelow);
-    QTest::newRow("demandsAttention") << NET::States(NET::DemandsAttention) << (QVector<QByteArray>() << demandsAttention);
-    QTest::newRow("skipSwitcher")     << NET::States(NET::SkipSwitcher)     << (QVector<QByteArray>() << skipSwitcher);
-    QTest::newRow("focused")          << NET::States(NET::Focused)          << (QVector<QByteArray>() << focused);
+    QTest::newRow("modal")            << NET::States(NET::Modal)            << (QList<QByteArray>() << modal);
+    QTest::newRow("sticky")           << NET::States(NET::Sticky)           << (QList<QByteArray>() << sticky);
+    QTest::newRow("maxVert")          << NET::States(NET::MaxVert)          << (QList<QByteArray>() << maxVert);
+    QTest::newRow("maxHoriz")         << NET::States(NET::MaxHoriz)         << (QList<QByteArray>() << maxHoriz);
+    QTest::newRow("shaded")           << NET::States(NET::Shaded)           << (QList<QByteArray>() << shaded);
+    QTest::newRow("skipTaskbar")      << NET::States(NET::SkipTaskbar)      << (QList<QByteArray>() << skipTaskbar);
+    QTest::newRow("keepAbove")        << NET::States(NET::KeepAbove)        << (QList<QByteArray>() << keepAbove << staysOnTop);
+    QTest::newRow("skipPager")        << NET::States(NET::SkipPager)        << (QList<QByteArray>() << skipPager);
+    QTest::newRow("hidden")           << NET::States(NET::Hidden)           << (QList<QByteArray>() << hidden);
+    QTest::newRow("fullScreen")       << NET::States(NET::FullScreen)       << (QList<QByteArray>() << fullScreen);
+    QTest::newRow("keepBelow")        << NET::States(NET::KeepBelow)        << (QList<QByteArray>() << keepBelow);
+    QTest::newRow("demandsAttention") << NET::States(NET::DemandsAttention) << (QList<QByteArray>() << demandsAttention);
+    QTest::newRow("skipSwitcher")     << NET::States(NET::SkipSwitcher)     << (QList<QByteArray>() << skipSwitcher);
+    QTest::newRow("focused")          << NET::States(NET::Focused)          << (QList<QByteArray>() << focused);
 
     // TODO: it's possible to be keep above and below at the same time?!?
     QTest::newRow("all") << NET::States(NET::Modal |
@@ -461,7 +461,7 @@ void NetWinInfoTestWM::testState_data()
                                    NET::DemandsAttention |
                                    NET::SkipSwitcher  |
                                    NET::Focused)
-                         << (QVector<QByteArray>() << modal << sticky << maxVert << maxHoriz
+                         << (QList<QByteArray>() << modal << sticky << maxVert << maxHoriz
                              << shaded << skipTaskbar << keepAbove
                              << skipPager << hidden << fullScreen
                              << keepBelow << demandsAttention << staysOnTop << skipSwitcher << focused);
@@ -479,7 +479,7 @@ void NetWinInfoTestWM::testState()
     QCOMPARE(info.state(), states);
 
     // compare with the X property
-    QFETCH(QVector<QByteArray>, names);
+    QFETCH(QList<QByteArray>, names);
     QVERIFY(atom != XCB_ATOM_NONE);
     GETPROP(XCB_ATOM_ATOM, names.size(), 32)
     xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t *>(xcb_get_property_value(reply.get()));

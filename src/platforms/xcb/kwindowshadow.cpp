@@ -96,7 +96,7 @@ bool KWindowShadowPrivateX11::create()
         return false;
     }
 
-    QVector<quint32> data(12);
+    QList<quint32> data(12);
     int i = 0;
 
     // Unfortunately we cannot use handle of XCB_PIXMAP_NONE for missing shadow tiles because

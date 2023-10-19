@@ -92,7 +92,7 @@ private:
         return m_connection;
     }
     xcb_connection_t *m_connection;
-    QVector<xcb_connection_t*> m_connections;
+    QList<xcb_connection_t*> m_connections;
     std::unique_ptr<QProcess> m_xvfb;
     xcb_window_t m_rootWindow;
     xcb_window_t m_testWindow;
@@ -1005,7 +1005,7 @@ void NetWinInfoTestClient::testProtocols()
     QVERIFY(!info.supportsProtocol(NET::ContextHelpProtocol));
     QCOMPARE(info.protocols(), NET::Protocols(NET::NoProtocol));
 
-    QVector<xcb_atom_t> props;
+    QList<xcb_atom_t> props;
     QFETCH(NET::Protocols, protocols);
     if (protocols.testFlag(NET::TakeFocusProtocol)) {
         props << takeFocus;
@@ -1048,13 +1048,13 @@ void NetWinInfoTestClient::testProtocols()
 
 void NetWinInfoTestClient::testOpaqueRegion_data()
 {
-    QTest::addColumn<QVector<QRect> >("geometries");
+    QTest::addColumn<QList<QRect> >("geometries");
 
-    QTest::newRow("none") << QVector<QRect>();
-    QTest::newRow("empty") << QVector<QRect>({QRect(0, 0, 0, 0)});
-    QTest::newRow("one rect") << QVector<QRect>({QRect(10, 20, 30, 40)});
-    QTest::newRow("two rect") << QVector<QRect>({QRect(10, 20, 30, 40), QRect(1, 2, 4, 5)});
-    QTest::newRow("multiple") << QVector<QRect>({QRect(10, 20, 30, 40),
+    QTest::newRow("none") << QList<QRect>();
+    QTest::newRow("empty") << QList<QRect>({QRect(0, 0, 0, 0)});
+    QTest::newRow("one rect") << QList<QRect>({QRect(10, 20, 30, 40)});
+    QTest::newRow("two rect") << QList<QRect>({QRect(10, 20, 30, 40), QRect(1, 2, 4, 5)});
+    QTest::newRow("multiple") << QList<QRect>({QRect(10, 20, 30, 40),
                                                  QRect(1, 2, 4, 5),
                                                  QRect(100, 0, 200, 400),
                                                  QRect(1, 2, 4, 5)});
@@ -1068,8 +1068,8 @@ void NetWinInfoTestClient::testOpaqueRegion()
 
     QCOMPARE(info.opaqueRegion().size(), std::size_t(0));
 
-    QFETCH(QVector<QRect>, geometries);
-    QVector<qint32> data;
+    QFETCH(QList<QRect>, geometries);
+    QList<qint32> data;
     for (auto it = geometries.constBegin(); it != geometries.constEnd(); ++it) {
         const QRect &r = *it;
         data << r.x();

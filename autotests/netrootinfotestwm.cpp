@@ -55,7 +55,7 @@ private:
         return m_connection;
     }
     xcb_connection_t *m_connection;
-    QVector<xcb_connection_t *> m_connections;
+    QList<xcb_connection_t *> m_connections;
     std::unique_ptr<QProcess> m_xvfb;
     xcb_window_t m_supportWindow;
     xcb_window_t m_rootWindow;

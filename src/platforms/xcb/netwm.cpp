@@ -193,14 +193,14 @@ T get_value_reply(xcb_connection_t *c, const xcb_get_property_cookie_t cookie, x
 }
 
 template<typename T>
-QVector<T> get_array_reply(xcb_connection_t *c, const xcb_get_property_cookie_t cookie, xcb_atom_t type)
+QList<T> get_array_reply(xcb_connection_t *c, const xcb_get_property_cookie_t cookie, xcb_atom_t type)
 {
     xcb_get_property_reply_t *reply = xcb_get_property_reply(c, cookie, nullptr);
     if (!reply) {
-        return QVector<T>();
+        return QList<T>();
     }
 
-    QVector<T> vector;
+    QList<T> vector;
 
     if (reply->type == type && reply->value_len > 0 && reply->format == sizeof(T) * 8) {
         T *data = reinterpret_cast<T *>(xcb_get_property_value(reply));
@@ -1939,7 +1939,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
         p->states = NET::States();
         p->actions = NET::Actions();
 
-        const QVector<xcb_atom_t> atoms = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
+        const QList<xcb_atom_t> atoms = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
         for (const xcb_atom_t atom : atoms) {
             updateSupportedProperties(atom);
         }
@@ -1949,7 +1949,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
         QList<xcb_window_t> clientsToRemove;
         QList<xcb_window_t> clientsToAdd;
 
-        QVector<xcb_window_t> clients = get_array_reply<xcb_window_t>(p->conn, cookies[c++], XCB_ATOM_WINDOW);
+        QList<xcb_window_t> clients = get_array_reply<xcb_window_t>(p->conn, cookies[c++], XCB_ATOM_WINDOW);
         std::sort(clients.begin(), clients.end());
 
         if (p->clients) {
@@ -2017,7 +2017,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
         delete[] p->stacking;
         p->stacking = nullptr;
 
-        const QVector<xcb_window_t> wins = get_array_reply<xcb_window_t>(p->conn, cookies[c++], XCB_ATOM_WINDOW);
+        const QList<xcb_window_t> wins = get_array_reply<xcb_window_t>(p->conn, cookies[c++], XCB_ATOM_WINDOW);
 
         if (!wins.isEmpty()) {
             p->stacking_count = wins.count();
@@ -2043,7 +2043,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
     if (dirty & DesktopGeometry) {
         p->geometry = p->rootSize;
 
-        const QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        const QList<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
         if (data.count() == 2) {
             p->geometry.width = data.at(0);
             p->geometry.height = data.at(1);
@@ -2059,7 +2059,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
             p->viewport[i].x = p->viewport[i].y = 0;
         }
 
-        const QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        const QList<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
 
         if (data.count() >= 2) {
             int n = data.count() / 2;
@@ -2116,7 +2116,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
     if (dirty & WorkArea) {
         p->workarea.reset();
 
-        const QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        const QList<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
         if (data.count() == p->number_of_desktops * 4) {
             for (int i = 0, j = 0; i < p->number_of_desktops; i++) {
                 p->workarea[i].pos.x = data[j++];
@@ -2150,7 +2150,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
         delete[] p->virtual_roots;
         p->virtual_roots = nullptr;
 
-        const QVector<xcb_window_t> wins = get_array_reply<xcb_window_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        const QList<xcb_window_t> wins = get_array_reply<xcb_window_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
 
         if (!wins.isEmpty()) {
             p->virtual_roots_count = wins.count();
@@ -2170,7 +2170,7 @@ void NETRootInfo::update(NET::Properties properties, NET::Properties2 properties
         p->desktop_layout_corner = DesktopLayoutCornerTopLeft;
         p->desktop_layout_columns = p->desktop_layout_rows = 0;
 
-        const QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        const QList<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
 
         if (data.count() >= 4 && data[3] <= 3) {
             p->desktop_layout_corner = (NET::DesktopLayoutCorner)data[3];
@@ -3977,7 +3977,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
 
     if (dirty & WMState) {
         p->state = NET::States();
-        const QVector<xcb_atom_t> states = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
+        const QList<xcb_atom_t> states = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
 
 #ifdef NETWMDEBUG
         fprintf(stderr, "NETWinInfo::update: updating window state (%ld)\n", states.count());
@@ -4110,7 +4110,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         p->types[0] = Unknown;
         p->has_net_support = false;
 
-        const QVector<xcb_atom_t> types = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
+        const QList<xcb_atom_t> types = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
 
         if (!types.isEmpty()) {
 #ifdef NETWMDEBUG
@@ -4206,7 +4206,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     if (dirty & WMStrut) {
         p->strut = NETStrut();
 
-        QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        QList<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
         if (data.count() == 4) {
             p->strut.left = data[0];
             p->strut.right = data[1];
@@ -4218,7 +4218,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     if (dirty2 & WM2ExtendedStrut) {
         p->extended_strut = NETExtendedStrut();
 
-        QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        QList<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
         if (data.count() == 12) {
             p->extended_strut.left_width = data[0];
             p->extended_strut.right_width = data[1];
@@ -4238,7 +4238,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     if (dirty2 & WM2FullscreenMonitors) {
         p->fullscreen_monitors = NETFullscreenMonitors();
 
-        QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        QList<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
         if (data.count() == 4) {
             p->fullscreen_monitors.top = data[0];
             p->fullscreen_monitors.bottom = data[1];
@@ -4250,7 +4250,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     if (dirty & WMIconGeometry) {
         p->icon_geom = NETRect();
 
-        QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        QList<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
         if (data.count() == 4) {
             p->icon_geom.pos.x = data[0];
             p->icon_geom.pos.y = data[1];
@@ -4268,7 +4268,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     if (dirty & WMFrameExtents) {
         p->frame_strut = NETStrut();
 
-        QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        QList<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
 
         if (data.isEmpty()) {
             data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
@@ -4287,7 +4287,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     if (dirty2 & WM2FrameOverlap) {
         p->frame_overlap = NETStrut();
 
-        QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        QList<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
         if (data.count() == 4) {
             p->frame_overlap.left = data[0];
             p->frame_overlap.right = data[1];
@@ -4353,7 +4353,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     if (dirty2 & WM2AllowedActions) {
         p->allowed_actions = NET::Actions();
 
-        const QVector<xcb_atom_t> actions = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
+        const QList<xcb_atom_t> actions = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
         if (!actions.isEmpty()) {
 #ifdef NETWMDEBUG
             fprintf(stderr, "NETWinInfo::update: updating allowed actions (%ld)\n", actions.count());
@@ -4501,7 +4501,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     }
 
     if (dirty2 & WM2Protocols) {
-        const QVector<xcb_atom_t> protocols = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
+        const QList<xcb_atom_t> protocols = get_array_reply<xcb_atom_t>(p->conn, cookies[c++], XCB_ATOM_ATOM);
         p->protocols = NET::NoProtocol;
         for (auto it = protocols.begin(); it != protocols.end(); ++it) {
             if ((*it) == p->atom(WM_TAKE_FOCUS)) {
@@ -4519,7 +4519,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     }
 
     if (dirty2 & WM2OpaqueRegion) {
-        const QVector<qint32> values = get_array_reply<qint32>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        const QList<qint32> values = get_array_reply<qint32>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
         p->opaqueRegion.clear();
         p->opaqueRegion.reserve(values.count() / 4);
         for (int i = 0; i < values.count() - 3; i += 4) {
@@ -4555,7 +4555,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
     if (dirty2 & WM2GTKFrameExtents) {
         p->gtk_frame_extents = NETStrut();
 
-        QVector<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
+        QList<uint32_t> data = get_array_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL);
         if (data.count() == 4) {
             p->gtk_frame_extents.left = data[0];
             p->gtk_frame_extents.right = data[1];

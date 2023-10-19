@@ -129,7 +129,7 @@ void KWindowEffectsPrivateX11::enableBlurBehind(QWindow *window, bool enable, co
     }
 
     if (enable) {
-        QVector<uint32_t> data;
+        QList<uint32_t> data;
         data.reserve(region.rectCount() * 4);
         for (const QRect &r : region) {
             // kwin on X uses device pixels, convert from logical
@@ -154,7 +154,7 @@ void KWindowEffectsPrivateX11::enableBackgroundContrast(QWindow *window, bool en
     }
 
     if (enable) {
-        QVector<uint32_t> data;
+        QList<uint32_t> data;
         data.reserve(region.rectCount() * 4 + 16);
         for (const QRect &r : region) {
             auto dpr = qApp->devicePixelRatio();

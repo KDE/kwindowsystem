@@ -65,7 +65,7 @@ static KWindowSystemPluginInterface *loadPlugin()
         }
     }
 
-    const QVector<QStaticPlugin> staticPlugins = QPluginLoader::staticPlugins();
+    const QList<QStaticPlugin> staticPlugins = QPluginLoader::staticPlugins();
     for (const QStaticPlugin &staticPlugin : staticPlugins) {
         const QJsonObject metadata = staticPlugin.metaData();
         if (metadata.value(QLatin1String("IID")) != QLatin1String(KWindowSystemPluginInterface_iid)) {
