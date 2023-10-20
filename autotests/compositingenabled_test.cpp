@@ -6,8 +6,8 @@
 #include <KWindowSystem>
 #include <QSignalSpy>
 #include <QTest>
-#include <kmanagerselection.h>
 
+#include "kselectionowner.h"
 #include "kx11extras.h"
 
 class CompositingEnabledTest : public QObject

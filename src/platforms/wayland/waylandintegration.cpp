@@ -7,7 +7,6 @@
 */
 
 #include "waylandintegration.h"
-#include "logging.h"
 
 #include <KWindowSystem>
 

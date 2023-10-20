@@ -9,7 +9,6 @@
 #include "logging.h"
 #include "shm.h"
 #include "surfacehelper.h"
-#include "waylandintegration.h"
 
 #include <qwayland-shadow.h>
 

@@ -32,7 +32,6 @@ ecm_generate_headers(KWindowSystemX11_HEADERS
 install(
     FILES
         ${KWindowSystemX11_HEADERS}
-        kmanagerselection.h
         fixx11h.h
     DESTINATION
         ${KDE_INSTALL_INCLUDEDIR_KF}/KWindowSystem

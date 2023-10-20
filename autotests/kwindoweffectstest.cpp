@@ -7,7 +7,7 @@
 #include <QSignalSpy>
 #include <private/qtx11extras_p.h>
 
-#include <kmanagerselection.h>
+#include <kselectionowner.h>
 #include <kwindoweffects.h>
 #include <kwindowsystem.h>
 #include <kx11extras.h>

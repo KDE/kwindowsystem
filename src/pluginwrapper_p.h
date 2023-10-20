@@ -6,8 +6,6 @@
 #ifndef PLUGINWRAPPER_P_H
 #define PLUGINWRAPPER_P_H
 
-#include "netwm_def.h"
-
 #include <QWidgetList> //For WId
 #include <memory>
 

@@ -5,7 +5,6 @@
 */
 #include "kwindowsystem.h"
 #include "kwindowsystem_dummy_p.h"
-#include "kwindowsystemplugininterface_p.h"
 #include "pluginwrapper_p.h"
 
 #include <config-kwindowsystem.h>

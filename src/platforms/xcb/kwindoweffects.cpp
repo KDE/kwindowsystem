@@ -10,7 +10,6 @@
 #include <QGuiApplication>
 #include <QVarLengthArray>
 
-#include "kwindowsystem.h"
 #include "kx11extras.h"
 #include <config-kwindowsystem.h>
 
