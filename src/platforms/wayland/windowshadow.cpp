@@ -27,11 +27,7 @@ class ShadowManager : public QWaylandClientExtensionTemplate<ShadowManager>, pub
         : QWaylandClientExtensionTemplate(version)
     {
         setParent(parent);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
         initialize();
-#else
-        QMetaObject::invokeMethod(this, "addRegistryListener");
-#endif
 
         connect(this, &QWaylandClientExtension::activeChanged, this, [this] {
             if (!isActive()) {

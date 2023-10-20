@@ -12,20 +12,6 @@
 #include <QObject>
 #include <QPointer>
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-namespace KWayland
-{
-namespace Client
-{
-class Compositor;
-class ConnectionThread;
-class PlasmaShell;
-class Registry;
-class ShadowManager;
-class ShmPool;
-}
-}
-#endif
 class WaylandXdgActivationV1;
 
 class WaylandIntegration : public QObject
@@ -33,26 +19,12 @@ class WaylandIntegration : public QObject
 public:
     explicit WaylandIntegration();
     ~WaylandIntegration();
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    void setupKWaylandIntegration();
-#endif
 
     static WaylandIntegration *self();
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    KWayland::Client::Registry *registry() const;
-    KWayland::Client::PlasmaShell *waylandPlasmaShell();
-
-#endif
     WaylandXdgActivationV1 *activation();
 
 private:
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QPointer<KWayland::Client::ConnectionThread> m_waylandConnection;
-    QPointer<KWayland::Client::Compositor> m_waylandCompositor;
-    QPointer<KWayland::Client::Registry> m_registry;
-    QPointer<KWayland::Client::PlasmaShell> m_waylandPlasmaShell;
-#endif
     std::unique_ptr<WaylandXdgActivationV1> m_activation;
     struct {
         quint32 name = 0;

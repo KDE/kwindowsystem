@@ -37,11 +37,7 @@ Shm::Shm(QObject *parent)
             wl_shm_destroy(object());
         }
     });
-#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
     initialize();
-#else
-    QMetaObject::invokeMethod(this, "addRegistryListener");
-#endif
 }
 
 Shm *Shm::instance()

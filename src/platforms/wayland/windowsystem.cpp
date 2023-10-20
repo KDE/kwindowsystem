@@ -11,14 +11,6 @@
 
 #include <KWindowSystem>
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#include <KWayland/Client/connection_thread.h>
-#include <KWayland/Client/plasmashell.h>
-#include <KWayland/Client/registry.h>
-#include <KWayland/Client/seat.h>
-#include <KWayland/Client/surface.h>
-#endif
-
 #include "qwayland-plasma-window-management.h"
 #include <QGuiApplication>
 #include <QPixmap>
@@ -138,20 +130,6 @@ WId WindowSystem::activeWindow()
     return 0;
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-bool WindowSystem::allowedActionsSupported()
-{
-    return false;
-}
-#endif
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-void WindowSystem::allowExternalProcessWindowActivation(int pid)
-{
-    Q_UNUSED(pid)
-}
-#endif
-
 bool WindowSystem::compositingActive()
 {
     // wayland is always composited
@@ -176,47 +154,12 @@ int WindowSystem::currentDesktop()
     return 0;
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-void WindowSystem::demandAttention(WId win, bool set)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(set)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support demanding attention";
-}
-#endif
-
 QString WindowSystem::desktopName(int desktop)
 {
     Q_UNUSED(desktop)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support virtual desktops";
     return QString();
 }
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-QPoint WindowSystem::desktopToViewport(int desktop, bool absolute)
-{
-    Q_UNUSED(desktop)
-    Q_UNUSED(absolute)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support viewport positions";
-    return QPoint();
-}
-#endif
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-WId WindowSystem::groupLeader(WId window)
-{
-    Q_UNUSED(window)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support group leader";
-    return 0;
-}
-#endif
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-bool WindowSystem::icccmCompliantMappingState()
-{
-    return false;
-}
-#endif
 
 QPixmap WindowSystem::icon(WId win, int width, int height, bool scale, int flags)
 {
@@ -228,14 +171,6 @@ QPixmap WindowSystem::icon(WId win, int width, int height, bool scale, int flags
     qCDebug(KWAYLAND_KWS) << "This plugin does not support getting window icons";
     return QPixmap();
 }
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-void WindowSystem::lowerWindow(WId win)
-{
-    Q_UNUSED(win)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support lower window";
-}
-#endif
 
 bool WindowSystem::mapViewport()
 {
@@ -261,14 +196,6 @@ int WindowSystem::numberOfDesktops()
     return 1;
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-void WindowSystem::raiseWindow(WId win)
-{
-    Q_UNUSED(win)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support raising windows";
-}
-#endif
-
 QString WindowSystem::readNameProperty(WId window, long unsigned int atom)
 {
     Q_UNUSED(window)
@@ -276,15 +203,6 @@ QString WindowSystem::readNameProperty(WId window, long unsigned int atom)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support reading X11 properties";
     return QString();
 }
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-void WindowSystem::setBlockingCompositing(WId window, bool active)
-{
-    Q_UNUSED(window)
-    Q_UNUSED(active)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support blocking compositing";
-}
-#endif
 
 void WindowSystem::setCurrentDesktop(int desktop)
 {
@@ -339,16 +257,6 @@ void WindowSystem::setStrut(WId win, int left, int right, int top, int bottom)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support window struts";
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-void WindowSystem::setIcons(WId win, const QPixmap &icon, const QPixmap &miniIcon)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(icon)
-    Q_UNUSED(miniIcon)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support setting window icons";
-}
-#endif
-
 void WindowSystem::setOnActivities(WId win, const QStringList &activities)
 {
     Q_UNUSED(win)
@@ -380,196 +288,24 @@ void WindowSystem::setShowingDesktop(bool showing)
 
 void WindowSystem::clearState(WId win, NET::States state)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    Surface *s = Surface::fromQtWinId(win);
-    if (!s) {
-        return;
-    }
-
-    KWayland::Client::PlasmaShellSurface *plasmaShellSurface = nullptr;
-
-    if (state & NET::SkipTaskbar || state & NET::SkipSwitcher) {
-        if (!WaylandIntegration::self()->waylandPlasmaShell()) {
-            return;
-        }
-        plasmaShellSurface = PlasmaShellSurface::get(s);
-        if (!plasmaShellSurface) {
-            plasmaShellSurface = WaylandIntegration::self()->waylandPlasmaShell()->createSurface(s, this);
-        }
-        if (!plasmaShellSurface) {
-            return;
-        }
-    }
-
-    if (state & NET::SkipTaskbar) {
-        plasmaShellSurface->setSkipTaskbar(false);
-    }
-
-    if (state & NET::SkipSwitcher) {
-        plasmaShellSurface->setSkipSwitcher(false);
-    }
-
-    if (state & NET::Max) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Max window state";
-    }
-    if (state & NET::FullScreen) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing FullScreen window state";
-    }
-    if (state & NET::Modal) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Modal window state";
-    }
-    if (state & NET::Sticky) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Sticky window state";
-    }
-    if (state & NET::Shaded) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Shaded window state";
-    }
-    if (state & NET::KeepAbove) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing KeepAbove window state";
-    }
-    if (state & NET::KeepAbove) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing StaysOnTop window state";
-    }
-    if (state & NET::SkipPager) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing SkipPager window state";
-    }
-    if (state & NET::Hidden) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Hidden window state";
-    }
-    if (state & NET::KeepBelow) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing KeepBelow window state";
-    }
-    if (state & NET::DemandsAttention) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing DemandsAttention window state";
-    }
-#else
+    Q_UNUSED(win)
+    Q_UNUSED(state)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support changing window state";
-#endif
 }
 
 void WindowSystem::setState(WId win, NET::States state)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    Surface *s = Surface::fromQtWinId(win);
-    if (!s) {
-        return;
-    }
-
-    KWayland::Client::PlasmaShellSurface *plasmaShellSurface = nullptr;
-
-    if (state & NET::SkipTaskbar || state & NET::SkipSwitcher) {
-        if (!WaylandIntegration::self()->waylandPlasmaShell()) {
-            return;
-        }
-        plasmaShellSurface = PlasmaShellSurface::get(s);
-        if (!plasmaShellSurface) {
-            plasmaShellSurface = WaylandIntegration::self()->waylandPlasmaShell()->createSurface(s, this);
-        }
-        if (!plasmaShellSurface) {
-            return;
-        }
-    }
-
-    if (state & NET::SkipTaskbar) {
-        plasmaShellSurface->setSkipTaskbar(true);
-    }
-
-    if (state & NET::SkipSwitcher) {
-        plasmaShellSurface->setSkipSwitcher(true);
-    }
-
-    if (state & NET::Max) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Max window state";
-    }
-    if (state & NET::FullScreen) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing FullScreen window state";
-    }
-    if (state & NET::Modal) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Modal window state";
-    }
-    if (state & NET::Sticky) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Sticky window state";
-    }
-    if (state & NET::Shaded) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Shaded window state";
-    }
-    if (state & NET::KeepAbove) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing KeepAbove window state";
-    }
-    if (state & NET::KeepAbove) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing StaysOnTop window state";
-    }
-    if (state & NET::SkipPager) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing SkipPager window state";
-    }
-    if (state & NET::Hidden) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing Hidden window state";
-    }
-    if (state & NET::KeepBelow) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing KeepBelow window state";
-    }
-    if (state & NET::DemandsAttention) {
-        qCDebug(KWAYLAND_KWS) << "This plugin does not support changing DemandsAttention window state";
-    }
-#else
+    Q_UNUSED(win)
+    Q_UNUSED(state)
     qCDebug(KWAYLAND_KWS) << "This plugin does not support changing window state";
-#endif
 }
 
 void WindowSystem::setType(WId win, NET::WindowType windowType)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    if (!WaylandIntegration::self()->waylandPlasmaShell()) {
-        return;
-    }
-    KWayland::Client::PlasmaShellSurface::Role role;
-
-    switch (windowType) {
-    case NET::Normal:
-        role = KWayland::Client::PlasmaShellSurface::Role::Normal;
-        break;
-    case NET::Desktop:
-        role = KWayland::Client::PlasmaShellSurface::Role::Desktop;
-        break;
-    case NET::Dock:
-        role = KWayland::Client::PlasmaShellSurface::Role::Panel;
-        break;
-    case NET::OnScreenDisplay:
-        role = KWayland::Client::PlasmaShellSurface::Role::OnScreenDisplay;
-        break;
-    case NET::Notification:
-        role = KWayland::Client::PlasmaShellSurface::Role::Notification;
-        break;
-    case NET::Tooltip:
-    case NET::PopupMenu:
-        role = KWayland::Client::PlasmaShellSurface::Role::ToolTip;
-        break;
-    case NET::CriticalNotification:
-        role = KWayland::Client::PlasmaShellSurface::Role::CriticalNotification;
-        break;
-    default:
-        return;
-    }
-    Surface *s = Surface::fromQtWinId(win);
-    if (!s) {
-        return;
-    }
-    KWayland::Client::PlasmaShellSurface *shellSurface = WaylandIntegration::self()->waylandPlasmaShell()->createSurface(s, this);
-
-    shellSurface->setRole(role);
-#else
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support setting window type";
-#endif
-}
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-void WindowSystem::setUserTime(WId win, long int time)
-{
     Q_UNUSED(win)
-    Q_UNUSED(time)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support setting user type";
+    Q_UNUSED(windowType)
+    qCDebug(KWAYLAND_KWS) << "This plugin does not support setting window type";
 }
-#endif
 
 bool WindowSystem::showingDesktop()
 {
@@ -584,24 +320,6 @@ QList<WId> WindowSystem::stackingOrder()
     qCDebug(KWAYLAND_KWS) << "This plugin does not support getting windows";
     return QList<WId>();
 }
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-WId WindowSystem::transientFor(WId window)
-{
-    Q_UNUSED(window)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support transient for windows";
-    return 0;
-}
-#endif
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-int WindowSystem::viewportToDesktop(const QPoint &pos)
-{
-    Q_UNUSED(pos)
-    qCDebug(KWAYLAND_KWS) << "This plugin does not support viewports";
-    return 0;
-}
-#endif
 
 int WindowSystem::viewportWindowToDesktop(const QRect &r)
 {
