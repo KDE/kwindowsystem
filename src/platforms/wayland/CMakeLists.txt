@@ -27,9 +27,15 @@ qt6_generate_wayland_protocol_client_sources(KF6WindowSystemKWaylandPlugin FILES
 )
 
 
-ecm_qt_declare_logging_category(wayland_plugin_SRCS HEADER logging.h IDENTIFIER KWAYLAND_KWS
-    CATEGORY_NAME org.kde.kf5.kwindowsystem.kwayland DEFAULT_SEVERITY Warning
-    DESCRIPTION "wayland integration (windowsystem)" EXPORT KWAYLAND)
+ecm_qt_declare_logging_category(wayland_plugin_SRCS
+    HEADER logging.h
+    IDENTIFIER KWAYLAND_KWS
+    CATEGORY_NAME kf.windowsystem.wayland
+    OLD_CATEGORY_NAMES org.kde.kf5.kwindowsystem.kwayland
+    DEFAULT_SEVERITY Warning
+    DESCRIPTION "KWindowSystem Wayland Plugin"
+    EXPORT KWINDOWSYSTEM
+)
 
 target_sources(KF6WindowSystemKWaylandPlugin PRIVATE ${wayland_plugin_SRCS})
 
@@ -57,10 +63,3 @@ install(
     DESTINATION
         ${KDE_INSTALL_PLUGINDIR}/kf6/kwindowsystem/
 )
-
-ecm_qt_install_logging_categories(
-        EXPORT KWAYLAND
-        FILE kwindowsystem.kwayland.categories
-        DESTINATION ${KDE_INSTALL_LOGGINGCATEGORIESDIR}
-        )
-
