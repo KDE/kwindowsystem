@@ -196,7 +196,7 @@ void WindowShadow::internalDestroy()
 
     shadow.reset();
 
-    if (window) {
+    if (window && window->isVisible()) {
         window->requestUpdate();
     }
 }
