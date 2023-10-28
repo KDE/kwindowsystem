@@ -26,3 +26,17 @@ inline wl_surface *surfaceForWindow(QWindow *window)
     window->create();
     return reinterpret_cast<wl_surface *>(native->nativeResourceForWindow(QByteArrayLiteral("surface"), window));
 }
+
+inline wl_surface *surfaceForWindow(WId wid)
+{
+    QWindow *window = nullptr;
+
+    for (auto win : qApp->allWindows()) {
+        if (win->winId() == wid) {
+            window = win;
+            break;
+        }
+    }
+
+    return surfaceForWindow(window);
+}
