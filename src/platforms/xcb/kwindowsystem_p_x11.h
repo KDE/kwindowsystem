@@ -21,7 +21,7 @@ public:
     QList<WId> windows() override;
     QList<WId> stackingOrder() override;
     WId activeWindow() override;
-    void activateWindow(WId win, long time) override;
+    void activateWindow(QWindow *win, long time) override;
     bool compositingActive() override;
     int currentDesktop() override;
     int numberOfDesktops() override;

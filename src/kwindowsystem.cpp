@@ -76,7 +76,7 @@ WId KWindowSystemPrivateDummy::activeWindow()
     return 0;
 }
 
-void KWindowSystemPrivateDummy::activateWindow(WId win, long time)
+void KWindowSystemPrivateDummy::activateWindow(QWindow *win, long time)
 {
     Q_UNUSED(win)
     Q_UNUSED(time)
@@ -280,7 +280,7 @@ void KWindowSystem::connectNotify(const QMetaMethod &signal)
 void KWindowSystem::activateWindow(QWindow *win, long time)
 {
     Q_D(KWindowSystem);
-    d->activateWindow(win->winId(), time);
+    d->activateWindow(win, time);
 }
 
 void KWindowSystem::setMainWindow(QWindow *subWindow, WId mainWindowId)

@@ -53,10 +53,10 @@ WindowSystem::~WindowSystem()
     delete m_windowManagement;
 }
 
-void WindowSystem::activateWindow(WId win, long int time)
+void WindowSystem::activateWindow(QWindow *win, long int time)
 {
     Q_UNUSED(time);
-    auto s = surfaceForWindow(QWindow::fromWinId(win));
+    auto s = surfaceForWindow(win);
     if (!s) {
         return;
     }

@@ -21,7 +21,7 @@ public:
     QList<WId> windows() override;
     QList<WId> stackingOrder() override;
     WId activeWindow() override;
-    void activateWindow(WId win, long time) override;
+    void activateWindow(QWindow *win, long time) override;
     void requestToken(QWindow *win, uint32_t serial, const QString &app_id) override;
     quint32 lastInputSerial(QWindow *window) override;
     void setCurrentToken(const QString &token) override;

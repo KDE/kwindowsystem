@@ -630,9 +630,9 @@ WId KWindowSystemPrivateX11::activeWindow()
     return info.activeWindow();
 }
 
-void KWindowSystemPrivateX11::activateWindow(WId win, long time)
+void KWindowSystemPrivateX11::activateWindow(QWindow *win, long time)
 {
-    KX11Extras::activateWindow(win, time);
+    KX11Extras::activateWindow(win->winId(), time);
 }
 
 QPixmap KWindowSystemPrivateX11::icon(WId win, int width, int height, bool scale, int flags)
