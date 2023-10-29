@@ -55,7 +55,11 @@ WId KX11Extras::activeWindow()
 
 void KX11Extras::activateWindow(WId win, long time)
 {
-    KWindowSystem::d_func()->activateWindow(win, time);
+    NETRootInfo info(QX11Info::connection(), NET::Properties(), NET::Properties2(), QX11Info::appScreen());
+    if (time == 0) {
+        time = QX11Info::appUserTime();
+    }
+    info.setActiveWindow(win, NET::FromApplication, time, QGuiApplication::focusWindow() ? QGuiApplication::focusWindow()->winId() : 0);
 }
 
 void KX11Extras::forceActiveWindow(WId win, long time)

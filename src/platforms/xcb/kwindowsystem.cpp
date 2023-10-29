@@ -632,11 +632,7 @@ WId KWindowSystemPrivateX11::activeWindow()
 
 void KWindowSystemPrivateX11::activateWindow(WId win, long time)
 {
-    NETRootInfo info(QX11Info::connection(), NET::Properties(), NET::Properties2(), QX11Info::appScreen());
-    if (time == 0) {
-        time = QX11Info::appUserTime();
-    }
-    info.setActiveWindow(win, NET::FromApplication, time, QGuiApplication::focusWindow() ? QGuiApplication::focusWindow()->winId() : 0);
+    KX11Extras::activateWindow(win, time);
 }
 
 QPixmap KWindowSystemPrivateX11::icon(WId win, int width, int height, bool scale, int flags)
