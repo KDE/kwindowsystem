@@ -176,9 +176,6 @@ Q_SIGNALS:
      */
     void showingDesktopChanged(bool showing);
 
-protected:
-    void connectNotify(const QMetaMethod &signal) override;
-
 private:
     friend class KWindowSystemStaticContainer;
     friend class KX11Extras;

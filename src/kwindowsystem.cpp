@@ -51,136 +51,10 @@ KWindowSystemPrivate::~KWindowSystemPrivate()
 {
 }
 
-QPixmap KWindowSystemPrivate::iconFromNetWinInfo(int width, int height, bool scale, int flags, NETWinInfo *info)
-{
-    Q_UNUSED(width)
-    Q_UNUSED(height)
-    Q_UNUSED(scale)
-    Q_UNUSED(flags)
-    Q_UNUSED(info)
-    return QPixmap();
-}
-
-QList<WId> KWindowSystemPrivateDummy::windows()
-{
-    return QList<WId>();
-}
-
-QList<WId> KWindowSystemPrivateDummy::stackingOrder()
-{
-    return QList<WId>();
-}
-
-WId KWindowSystemPrivateDummy::activeWindow()
-{
-    return 0;
-}
-
 void KWindowSystemPrivateDummy::activateWindow(QWindow *win, long time)
 {
     Q_UNUSED(win)
     Q_UNUSED(time)
-}
-
-bool KWindowSystemPrivateDummy::compositingActive()
-{
-    return KWindowSystem::isPlatformWayland();
-}
-
-int KWindowSystemPrivateDummy::currentDesktop()
-{
-    return 0;
-}
-
-int KWindowSystemPrivateDummy::numberOfDesktops()
-{
-    return 0;
-}
-
-void KWindowSystemPrivateDummy::setCurrentDesktop(int desktop)
-{
-    Q_UNUSED(desktop)
-}
-
-void KWindowSystemPrivateDummy::setOnAllDesktops(WId win, bool b)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(b)
-}
-
-void KWindowSystemPrivateDummy::setOnDesktop(WId win, int desktop)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(desktop)
-}
-
-void KWindowSystemPrivateDummy::setOnActivities(WId win, const QStringList &activities)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(activities)
-}
-
-QPixmap KWindowSystemPrivateDummy::icon(WId win, int width, int height, bool scale, int flags)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(width)
-    Q_UNUSED(height)
-    Q_UNUSED(scale)
-    Q_UNUSED(flags)
-    return QPixmap();
-}
-
-void KWindowSystemPrivateDummy::setType(WId win, NET::WindowType windowType)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(windowType)
-}
-
-void KWindowSystemPrivateDummy::setState(WId win, NET::States state)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(state)
-}
-
-void KWindowSystemPrivateDummy::clearState(WId win, NET::States state)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(state)
-}
-
-void KWindowSystemPrivateDummy::minimizeWindow(WId win)
-{
-    Q_UNUSED(win)
-}
-
-void KWindowSystemPrivateDummy::unminimizeWindow(WId win)
-{
-    Q_UNUSED(win)
-}
-
-QRect KWindowSystemPrivateDummy::workArea(int desktop)
-{
-    Q_UNUSED(desktop)
-    return QRect();
-}
-
-QRect KWindowSystemPrivateDummy::workArea(const QList<WId> &excludes, int desktop)
-{
-    Q_UNUSED(excludes)
-    Q_UNUSED(desktop)
-    return QRect();
-}
-
-QString KWindowSystemPrivateDummy::desktopName(int desktop)
-{
-    Q_UNUSED(desktop)
-    return QString();
-}
-
-void KWindowSystemPrivateDummy::setDesktopName(int desktop, const QString &name)
-{
-    Q_UNUSED(desktop)
-    Q_UNUSED(name)
 }
 
 bool KWindowSystemPrivateDummy::showingDesktop()
@@ -193,73 +67,6 @@ void KWindowSystemPrivateDummy::setShowingDesktop(bool showing)
     Q_UNUSED(showing);
 }
 
-void KWindowSystemPrivateDummy::setExtendedStrut(WId win,
-                                                 int left_width,
-                                                 int left_start,
-                                                 int left_end,
-                                                 int right_width,
-                                                 int right_start,
-                                                 int right_end,
-                                                 int top_width,
-                                                 int top_start,
-                                                 int top_end,
-                                                 int bottom_width,
-                                                 int bottom_start,
-                                                 int bottom_end)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(left_width)
-    Q_UNUSED(left_start)
-    Q_UNUSED(left_end)
-    Q_UNUSED(right_width)
-    Q_UNUSED(right_start)
-    Q_UNUSED(right_end)
-    Q_UNUSED(top_width)
-    Q_UNUSED(top_start)
-    Q_UNUSED(top_end)
-    Q_UNUSED(bottom_width)
-    Q_UNUSED(bottom_start)
-    Q_UNUSED(bottom_end)
-}
-
-void KWindowSystemPrivateDummy::setStrut(WId win, int left, int right, int top, int bottom)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(left)
-    Q_UNUSED(right)
-    Q_UNUSED(top)
-    Q_UNUSED(bottom)
-}
-
-QString KWindowSystemPrivateDummy::readNameProperty(WId window, unsigned long atom)
-{
-    Q_UNUSED(window)
-    Q_UNUSED(atom)
-    return QString();
-}
-
-bool KWindowSystemPrivateDummy::mapViewport()
-{
-    return false;
-}
-
-int KWindowSystemPrivateDummy::viewportWindowToDesktop(const QRect &r)
-{
-    Q_UNUSED(r)
-    return 0;
-}
-
-QPoint KWindowSystemPrivateDummy::constrainViewportRelativePosition(const QPoint &pos)
-{
-    Q_UNUSED(pos)
-    return QPoint();
-}
-
-void KWindowSystemPrivateDummy::connectNotify(const QMetaMethod &signal)
-{
-    Q_UNUSED(signal)
-}
-
 KWindowSystem *KWindowSystem::self()
 {
     return &(g_kwmInstanceContainer()->kwm);
@@ -268,13 +75,6 @@ KWindowSystem *KWindowSystem::self()
 KWindowSystemPrivate *KWindowSystem::d_func()
 {
     return g_kwmInstanceContainer()->d.get();
-}
-
-void KWindowSystem::connectNotify(const QMetaMethod &signal)
-{
-    Q_D(KWindowSystem);
-    d->connectNotify(signal);
-    QObject::connectNotify(signal);
 }
 
 void KWindowSystem::activateWindow(QWindow *win, long time)

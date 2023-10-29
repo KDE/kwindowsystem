@@ -17,6 +17,7 @@
 #include "netwm_def.h"
 
 class NETWinInfo;
+class NETEventFilter;
 
 /**
  * A collection of functions to obtain information from and manipulate
@@ -494,12 +495,36 @@ protected:
 
 private:
     friend class KWindowInfo;
+    friend class KWindowSystemPrivateX11;
+    friend class NETEventFilter;
+    friend class MainThreadInstantiator;
+
+    enum FilterInfo {
+        INFO_BASIC = 1, // desktop info, not per-window
+        INFO_WINDOWS = 2, // also per-window info
+    };
+
+    KWINDOWSYSTEM_NO_EXPORT void init(FilterInfo info);
+    KWINDOWSYSTEM_NO_EXPORT QPoint desktopToViewport(int desktop, bool absolute);
+    KWINDOWSYSTEM_NO_EXPORT int viewportToDesktop(const QPoint &pos);
+
+    KWINDOWSYSTEM_NO_EXPORT QPoint constrainViewportRelativePosition(const QPoint &pos);
+
+    // used in xcb/kwindowsystem.cpp
+    static bool showingDesktop();
+    static void setShowingDesktop(bool showing);
 
     /**
      * @internal
      * Returns mapped virtual desktop for the given window geometry.
      */
     KWINDOWSYSTEM_NO_EXPORT static int viewportWindowToDesktop(const QRect &r);
+
+    KWINDOWSYSTEM_NO_EXPORT NETEventFilter *s_d_func()
+    {
+        return d.get();
+    }
+    std::unique_ptr<NETEventFilter> d;
 };
 
 #endif
