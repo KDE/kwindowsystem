@@ -82,12 +82,6 @@ void KWindowSystemPrivateDummy::activateWindow(WId win, long time)
     Q_UNUSED(time)
 }
 
-void KWindowSystemPrivateDummy::forceActiveWindow(WId win, long time)
-{
-    Q_UNUSED(win)
-    Q_UNUSED(time)
-}
-
 bool KWindowSystemPrivateDummy::compositingActive()
 {
     return KWindowSystem::isPlatformWayland();

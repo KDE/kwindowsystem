@@ -67,11 +67,6 @@ void WindowSystem::activateWindow(WId win, long int time)
     activation->activate(m_lastToken, s);
 }
 
-void WindowSystem::forceActiveWindow(WId win, long int time)
-{
-    activateWindow(win, time);
-}
-
 void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString &app_id)
 {
     wl_surface *wlSurface = [](QWindow *window) -> wl_surface * {

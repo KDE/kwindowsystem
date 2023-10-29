@@ -9,6 +9,7 @@
 #include "kx11extras.h"
 
 #include "kwindowsystem.h"
+#include "kwindowsystem_debug.h"
 #include "kwindowsystem_p.h"
 
 #include "kxutils_p.h"
@@ -59,12 +60,21 @@ void KX11Extras::activateWindow(WId win, long time)
 
 void KX11Extras::forceActiveWindow(WId win, long time)
 {
-    KWindowSystem::d_func()->forceActiveWindow(win, time);
+    if (!KWindowSystem::isPlatformX11()) {
+        qCWarning(LOG_KWINDOWSYSTEM) << "KX11Extras::forceActiveWindow may only be used on X11";
+        return;
+    }
+
+    NETRootInfo info(QX11Info::connection(), NET::Properties(), NET::Properties2(), QX11Info::appScreen());
+    if (time == 0) {
+        time = QX11Info::appTime();
+    }
+    info.setActiveWindow(win, NET::FromTool, time, 0);
 }
 
 void KX11Extras::forceActiveWindow(QWindow *win, long time)
 {
-    KWindowSystem::d_func()->forceActiveWindow(win->winId(), time);
+    forceActiveWindow(win->winId(), time);
 }
 
 bool KX11Extras::compositingActive()
