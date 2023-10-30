@@ -30,10 +30,14 @@ Q_SIGNALS:
 class WaylandXdgActivationV1 : public QWaylandClientExtensionTemplate<WaylandXdgActivationV1>, public QtWayland::xdg_activation_v1
 {
 public:
-    WaylandXdgActivationV1();
     ~WaylandXdgActivationV1() override;
 
+    static WaylandXdgActivationV1 *self();
+
     WaylandXdgActivationTokenV1 *requestXdgActivationToken(wl_seat *seat, struct ::wl_surface *surface, uint32_t serial, const QString &app_id);
+
+private:
+    WaylandXdgActivationV1();
 };
 
 #endif

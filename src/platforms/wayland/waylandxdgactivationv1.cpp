@@ -20,6 +20,12 @@ WaylandXdgActivationV1::~WaylandXdgActivationV1()
     }
 }
 
+WaylandXdgActivationV1 *WaylandXdgActivationV1::self()
+{
+    static WaylandXdgActivationV1 *instance = new WaylandXdgActivationV1;
+    return instance;
+}
+
 WaylandXdgActivationTokenV1 *
 WaylandXdgActivationV1::requestXdgActivationToken(wl_seat *seat, struct ::wl_surface *surface, uint32_t serial, const QString &app_id)
 {

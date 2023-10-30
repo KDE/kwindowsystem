@@ -2,13 +2,11 @@ add_library(KF6WindowSystemKWaylandPlugin MODULE)
 set(wayland_plugin_SRCS
     plugin.cpp
     shm.cpp
-    waylandintegration.cpp
     windoweffects.cpp
     windowshadow.cpp
     windowsystem.cpp
     waylandxdgactivationv1.cpp
     plugin.h
-    waylandintegration.h
     windoweffects.h
     windowshadow.h
     windowsystem.h

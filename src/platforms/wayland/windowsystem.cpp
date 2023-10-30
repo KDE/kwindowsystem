@@ -6,7 +6,6 @@
 #include "windowsystem.h"
 #include "logging.h"
 #include "surfacehelper.h"
-#include "waylandintegration.h"
 #include "waylandxdgactivationv1_p.h"
 
 #include <KWaylandExtras>
@@ -63,7 +62,7 @@ void WindowSystem::activateWindow(WId win, long int time)
     if (!s) {
         return;
     }
-    WaylandXdgActivationV1 *activation = WaylandIntegration::self()->activation();
+    WaylandXdgActivationV1 *activation = WaylandXdgActivationV1::self();
     if (!activation->isActive()) {
         return;
     }
@@ -90,7 +89,7 @@ void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString 
         return reinterpret_cast<wl_surface *>(native->nativeResourceForWindow(QByteArrayLiteral("surface"), window));
     }(window);
 
-    WaylandXdgActivationV1 *activation = WaylandIntegration::self()->activation();
+    WaylandXdgActivationV1 *activation = WaylandXdgActivationV1::self();
     if (!activation->isActive()) {
         // Ensure that xdgActivationTokenArrived is always emitted asynchronously
         QTimer::singleShot(0, [serial] {
