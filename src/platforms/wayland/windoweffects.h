@@ -13,15 +13,6 @@
 #include <QObject>
 #include <QPointer>
 
-namespace KWayland
-{
-namespace Client
-{
-class Compositor;
-class ConnectionThread;
-}
-}
-
 class BlurManager;
 class Blur;
 class ContrastManager;

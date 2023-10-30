@@ -10,14 +10,6 @@
 
 #include <QObject>
 
-namespace KWayland
-{
-namespace Client
-{
-class PlasmaShell;
-}
-}
-
 class WindowManagement;
 
 class WindowSystem : public QObject, public KWindowSystemPrivateV2
@@ -74,7 +66,6 @@ public:
     void connectNotify(const QMetaMethod &signal) override;
 
 private:
-    KWayland::Client::PlasmaShell *m_waylandPlasmaShell = nullptr;
     QString m_lastToken;
     WindowManagement *m_windowManagement;
 };

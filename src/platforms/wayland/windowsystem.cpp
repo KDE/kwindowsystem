@@ -40,8 +40,6 @@ public:
     bool showingDesktop = false;
 };
 
-using namespace KWayland::Client;
-
 WindowSystem::WindowSystem()
     : QObject()
     , KWindowSystemPrivateV2()
