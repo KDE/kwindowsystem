@@ -29,7 +29,7 @@ msgstr ""
 "%100<=4 ? 2 : 3);\n"
 "X-Qt-Contexts: true\n"
 
-#: platforms/xcb/kwindowsystem.cpp:898
+#: kx11extras.cpp:994
 #, qt-format
 msgctxt "KWindowSystem|"
 msgid "Desktop %1"
