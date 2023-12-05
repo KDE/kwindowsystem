@@ -665,11 +665,13 @@ void KWindowInfoX11Test::testDesktopFileName()
 {
     KWindowInfo info(window->winId(), NET::Properties(), NET::WM2DesktopFileName);
     QVERIFY(info.valid());
-    QCOMPARE(info.desktopFileName(), QByteArray());
-
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 1)
+    QCOMPARE(info.desktopFileName(), "kwindowinfox11test");
+#else
+    QCOMPARE(info.desktopFileName(), QString());
+#endif
     QSignalSpy spy(KX11Extras::self(), &KX11Extras::windowChanged);
     QVERIFY(spy.isValid());
-
     // create a NETWinInfo to set the desktop file name
     NETWinInfo netInfo(QX11Info::connection(), window->winId(), QX11Info::appRootWindow(), NET::Properties(), NET::Properties2());
     netInfo.setDesktopFileName("org.kde.foo");
