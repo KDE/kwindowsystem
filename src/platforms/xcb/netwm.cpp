@@ -4539,6 +4539,7 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
         const QByteArray id = get_string_reply(p->conn, cookies[c++], p->atom(UTF8_STRING));
         if (id.length() > 0) {
             p->desktop_file = nstrndup(id.constData(), id.length());
+            qDebug() << this << "got" << p->desktop_file;
         }
     }
 

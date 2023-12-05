@@ -26,7 +26,7 @@ include(ECMDeprecationSettings)
 include(ECMAddQch)
 include(ECMPoQmTools)
 include(ECMQmlModule)
-
+#foo
 set(EXCLUDE_DEPRECATED_BEFORE_AND_AT 0 CACHE STRING "Control the range of deprecated API excluded from the build [default=0].")
 
 option(BUILD_QCH "Build API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)" OFF)
