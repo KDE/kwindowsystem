@@ -92,8 +92,8 @@ void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString 
         return;
     }
 
-    auto waylandWindow = window ? dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle()) : nullptr;
-    auto seat = waylandWindow ? waylandWindow->display()->defaultInputDevice()->wl_seat() : nullptr;
+    auto waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
+    auto seat = waylandApp ? waylandApp->lastInputSeat() : nullptr;
     auto tokenReq = activation->requestXdgActivationToken(seat, wlSurface, serial, app_id);
     connect(tokenReq, &WaylandXdgActivationTokenV1::failed, KWindowSystem::self(), [serial, app_id]() {
         Q_EMIT KWaylandExtras::self()->xdgActivationTokenArrived(serial, {});
@@ -110,12 +110,11 @@ void WindowSystem::setCurrentToken(const QString &token)
 
 quint32 WindowSystem::lastInputSerial(QWindow *window)
 {
-    auto waylandWindow = window ? dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle()) : nullptr;
-    if (!waylandWindow) {
-        // Should never get here
-        return 0;
+    Q_UNUSED(window)
+    if (auto waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>()) {
+        return waylandApp->lastInputSerial();
     }
-    return waylandWindow->display()->lastInputSerial();
+    return 0;
 }
 
 void WindowSystem::setShowingDesktop(bool showing)
