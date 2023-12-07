@@ -70,7 +70,9 @@ void WindowSystem::activateWindow(QWindow *win, long int time)
 
 void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString &app_id)
 {
-    window->create();
+    if (window) {
+        window->create();
+    }
     wl_surface *wlSurface = surfaceForWindow(window);
 
     WaylandXdgActivationV1 *activation = WaylandXdgActivationV1::self();
