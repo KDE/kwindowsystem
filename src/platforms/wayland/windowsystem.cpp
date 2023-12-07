@@ -70,18 +70,8 @@ void WindowSystem::activateWindow(QWindow *win, long int time)
 
 void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString &app_id)
 {
-    wl_surface *wlSurface = [](QWindow *window) -> wl_surface * {
-        if (!window) {
-            return nullptr;
-        }
-
-        QPlatformNativeInterface *native = qGuiApp->platformNativeInterface();
-        if (!native) {
-            return nullptr;
-        }
-        window->create();
-        return reinterpret_cast<wl_surface *>(native->nativeResourceForWindow(QByteArrayLiteral("surface"), window));
-    }(window);
+    window->create();
+    wl_surface *wlSurface = surfaceForWindow(window);
 
     WaylandXdgActivationV1 *activation = WaylandXdgActivationV1::self();
     if (!activation->isActive()) {
