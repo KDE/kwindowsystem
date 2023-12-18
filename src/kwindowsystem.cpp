@@ -104,7 +104,7 @@ void KWindowSystem::setMainWindow(QWindow *subWindow, const QString &mainWindowI
         }
     } else {
         bool ok = false;
-        WId wid = mainWindowId.toLongLong(&ok);
+        WId wid = mainWindowId.toULongLong(&ok);
         if (ok) {
             setMainWindow(subWindow, wid);
         } else {
