@@ -28,6 +28,9 @@ public:
     virtual void requestToken(QWindow *win, uint32_t serial, const QString &app_id) = 0;
     virtual void setCurrentToken(const QString &token) = 0;
     virtual quint32 lastInputSerial(QWindow *window) = 0;
+    virtual void setMainWindow(QWindow *window, const QString &handle) = 0;
+    virtual void exportWindow(QWindow *window) = 0;
+    virtual void unexportWindow(QWindow *window) = 0;
 };
 
 #endif

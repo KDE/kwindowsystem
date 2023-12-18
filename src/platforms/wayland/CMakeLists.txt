@@ -6,6 +6,7 @@ set(wayland_plugin_SRCS
     windowshadow.cpp
     windowsystem.cpp
     waylandxdgactivationv1.cpp
+    waylandxdgforeignv2.cpp
     plugin.h
     windoweffects.h
     windowshadow.h
@@ -16,6 +17,7 @@ set(wayland_plugin_SRCS
 
 qt6_generate_wayland_protocol_client_sources(KF6WindowSystemKWaylandPlugin FILES
         ${WaylandProtocols_DATADIR}/staging/xdg-activation/xdg-activation-v1.xml
+        ${WaylandProtocols_DATADIR}/unstable/xdg-foreign/xdg-foreign-unstable-v2.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/blur.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/contrast.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/slide.xml

@@ -48,3 +48,17 @@ quint32 KWaylandExtras::lastInputSerial(QWindow *window)
     }
     return dv2->lastInputSerial(window);
 }
+
+void KWaylandExtras::exportWindow(QWindow *window)
+{
+    if (auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(KWindowSystem::d_func())) {
+        dv2->exportWindow(window);
+    }
+}
+
+void KWaylandExtras::unexportWindow(QWindow *window)
+{
+    if (auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(KWindowSystem::d_func())) {
+        dv2->unexportWindow(window);
+    }
+}

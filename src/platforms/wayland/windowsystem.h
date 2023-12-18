@@ -24,8 +24,15 @@ public:
     void setCurrentToken(const QString &token) override;
     bool showingDesktop() override;
     void setShowingDesktop(bool showing) override;
+    void exportWindow(QWindow *window) override;
+    void unexportWindow(QWindow *window) override;
+    void setMainWindow(QWindow *window, const QString &handle) override;
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
+    void doSetMainWindow(QWindow *window, const QString &handle);
     QString m_lastToken;
     WindowManagement *m_windowManagement;
 };

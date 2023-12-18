@@ -96,8 +96,23 @@ public:
      *
      * This function should be used before a dialog is shown for a window
      * that belongs to another application.
+     *
+     * On Wayland, use the QString overload to provide an XDG Foreign token.
      */
     static void setMainWindow(QWindow *subwindow, WId mainwindow);
+
+    /**
+     * Sets the parent window of @p subwindow to be @p mainwindow.
+     *
+     * This function should be used before a dialog is shown for a window
+     * that belongs to another application.
+     *
+     * @param window the sub window
+     * @param mainwindow The main window ID or XDG Foreign token
+     *
+     * @since 6.0
+     */
+    static void setMainWindow(QWindow *subwindow, const QString &mainwindow);
 
     /**
      * Updates the platform-specific startup id, if any.

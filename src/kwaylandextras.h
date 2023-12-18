@@ -41,6 +41,26 @@ public:
      */
     Q_INVOKABLE static quint32 lastInputSerial(QWindow *window);
 
+    /**
+     * Requests to export the given window using xdg_foreign_v2.
+     *
+     * @param window The window to export.
+     *
+     * @see windowExported
+     * @since 6.0
+     */
+    Q_INVOKABLE static void exportWindow(QWindow *window);
+
+    /**
+     * Unexport the window previously exported using xdg_foreign_v2.
+     *
+     * Asks the compositor to revoke the handle.
+     *
+     * @param window The window to unexport.
+     * @since 6.0
+     */
+    Q_INVOKABLE static void unexportWindow(QWindow *window);
+
 Q_SIGNALS:
     /**
      * Activation @p token to pass to the client.
@@ -48,6 +68,17 @@ Q_SIGNALS:
      * @see requestXdgActivationToken
      */
     void xdgActivationTokenArrived(int serial, const QString &token);
+
+    /**
+     * Window @p handle to pass to the client.
+     *
+     * @param window The window that requested the handle.
+     * @param handle The handle.
+     *
+     * @see exportWindow
+     * @since 6.0
+     */
+    void windowExported(QWindow *window, const QString &handle);
 
 private:
     KWaylandExtras();

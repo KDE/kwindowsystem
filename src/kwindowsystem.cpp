@@ -4,6 +4,7 @@
     SPDX-License-Identifier: LGPL-2.1-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 */
 #include "kwindowsystem.h"
+#include "kwindowsystem_debug.h"
 #include "kwindowsystem_dummy_p.h"
 #include "pluginwrapper_p.h"
 
@@ -91,6 +92,24 @@ void KWindowSystem::setMainWindow(QWindow *subWindow, WId mainWindowId)
 
         // mainWindow is not the child of any object, so make sure it gets deleted at some point
         connect(subWindow, &QObject::destroyed, mainWindow, &QObject::deleteLater);
+    }
+}
+
+void KWindowSystem::setMainWindow(QWindow *subWindow, const QString &mainWindowId)
+{
+    Q_D(KWindowSystem);
+    if (isPlatformWayland()) {
+        if (auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(d)) {
+            dv2->setMainWindow(subWindow, mainWindowId);
+        }
+    } else {
+        bool ok = false;
+        WId wid = mainWindowId.toLongLong(&ok);
+        if (ok) {
+            setMainWindow(subWindow, wid);
+        } else {
+            qCWarning(LOG_KWINDOWSYSTEM) << "Failed to convert" << mainWindowId << "to WId";
+        }
     }
 }
 
