@@ -104,7 +104,8 @@ void KWindowSystem::setMainWindow(QWindow *subWindow, const QString &mainWindowI
         }
     } else {
         bool ok = false;
-        WId wid = mainWindowId.toULongLong(&ok);
+        // base 0 means "C style" parsing with 0x for base 16, 0b for base 2, etc.
+        WId wid = mainWindowId.toULongLong(&ok, 0);
         if (ok) {
             setMainWindow(subWindow, wid);
         } else {
