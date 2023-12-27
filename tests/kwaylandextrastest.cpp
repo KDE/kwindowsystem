@@ -39,6 +39,7 @@ Window::Window()
     m_serialLabel->setText("Last input serial: " + QString::number(KWaylandExtras::self()->lastInputSerial(windowHandle())));
 
     m_tokenLabel = new QLabel;
+    m_tokenLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
     m_tokenLabel->setText("XDG actvation token:");
 
     QVBoxLayout *layout = new QVBoxLayout(this);
