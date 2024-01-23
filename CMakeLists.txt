@@ -25,6 +25,7 @@ include(ECMQtDeclareLoggingCategory)
 include(ECMDeprecationSettings)
 include(ECMAddQch)
 include(ECMPoQmTools)
+include(ECMGeneratePkgConfigFile)
 include(ECMQmlModule)
 
 set(EXCLUDE_DEPRECATED_BEFORE_AND_AT 0 CACHE STRING "Control the range of deprecated API excluded from the build [default=0].")
@@ -123,6 +124,13 @@ install(EXPORT KF6WindowSystemTargets DESTINATION "${CMAKECONFIG_INSTALL_DIR}" F
 
 install(FILES ${kwindowsystem_version_header}
         DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KWindowSystem COMPONENT Devel )
+
+if (NOT WIN32)
+    ecm_generate_pkgconfig_file(BASE_NAME KF6WindowSystem
+      INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR_KF}/KWindowSystem
+      DEPS Qt6Gui
+    INSTALL)
+endif()
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
