@@ -137,22 +137,49 @@ KWINDOWSYSTEM_EXPORT uint modXModeSwitch();
  */
 KWINDOWSYSTEM_EXPORT uint accelModMaskX();
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 0)
 /**
  * Extracts the symbol from the given Qt key and
  * converts it to an X11 symbol + modifiers.
  * @param keyQt the qt key code
  * @param sym if successful, the symbol will be written here
  * @return true if successful, false otherwise
+ *
+ * @deprecated Since 6.0, Use keyQtToSymXs(keyQt)
  */
-KWINDOWSYSTEM_EXPORT bool keyQtToSymX(int keyQt, int *sym);
+KWINDOWSYSTEM_EXPORT
+KWINDOWSYSTEM_DEPRECATED_VERSION(6, 0, "Use keyQtToSymXs(int keyQt)")
+bool keyQtToSymX(int keyQt, int *sym);
+#endif
 
+/**
+ * Extracts the symbols from the given Qt key and
+ * converts it to an X11 symbol + modifiers.
+ * @param keyQt the qt key code
+ * @return the symbols; emtpy if unsuccessful
+ */
+KWINDOWSYSTEM_EXPORT QList<int> keyQtToSymXs(int keyQt);
+
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 0)
 /**
  * Extracts the code from the given Qt key.
  * @param keyQt the qt key code
  * @param keyCode if successful, the symbol will be written here
  * @return true if successful, false otherwise
+ *
+ * @deprecated Since 6.0, Use keyQtToCodeXs(keyQt)
  */
-KWINDOWSYSTEM_EXPORT bool keyQtToCodeX(int keyQt, int *keyCode);
+KWINDOWSYSTEM_EXPORT
+KWINDOWSYSTEM_DEPRECATED_VERSION(6, 0, "Use keyQtToCodeXs(int keyQt)")
+bool keyQtToCodeX(int keyQt, int *keyCode);
+#endif
+
+/**
+ * Extracts the codes from the given Qt key.
+ * @param keyQt the qt key code
+ * @param return the codes; empty if unsuccessful
+ */
+KWINDOWSYSTEM_EXPORT QList<int> keyQtToCodeXs(int keyQt);
 
 /**
  * Extracts the modifiers from the given Qt key and

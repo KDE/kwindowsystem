@@ -89,6 +89,38 @@ private Q_SLOTS:
         QCOMPARE(keyCodeQt, keyQt);
     }
 
+    void keyQtToSymXsCalculatorKey()
+    {
+        // Should return both XF86XK_Calculator and XF86XK_Calculater
+        QList<int> keyCodes = KKeyServer::keyQtToSymXs(Qt::Key_Calculator);
+        QVERIFY(keyCodes.size() == 2);
+        QVERIFY(keyCodes[0] != keyCodes[1]);
+        int keyCodeQt;
+
+        QVERIFY(KKeyServer::symXModXToKeyQt(keyCodes[0], 0, &keyCodeQt));
+        QCOMPARE(keyCodeQt, int(Qt::Key_Calculator));
+        QVERIFY(KKeyServer::symXModXToKeyQt(keyCodes[1], 0, &keyCodeQt));
+        QCOMPARE(keyCodeQt, int(Qt::Key_Calculator));
+    }
+
+    void keyQtToSymXs_data()
+    {
+        keyQtToSymX_data();
+    }
+
+    void keyQtToSymXs()
+    {
+        QFETCH(int, keyQt);
+        QFETCH(uint, modX);
+        QFETCH(int, keySymX);
+        QList<int> syms = KKeyServer::keyQtToSymXs(keyQt);
+        QVERIFY(syms.size() > 0);
+        QCOMPARE(QString::number(syms[0], 16), QString::number(keySymX, 16));
+        uint mod;
+        QVERIFY(KKeyServer::keyQtToModX(keyQt, &mod));
+        QCOMPARE(mod, modX);
+    }
+
     void decodeXcbEvent_data()
     {
         keyQtToSymX_data();
