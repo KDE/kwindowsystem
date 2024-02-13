@@ -647,8 +647,11 @@ public:
        a description of the different directions).
 
        @param button the button which should be pressed.
+
+       @param source who initiated the move resize operation.
     **/
-    void moveResizeRequest(xcb_window_t window, int x_root, int y_root, Direction direction, xcb_button_t button);
+    void
+    moveResizeRequest(xcb_window_t window, int x_root, int y_root, Direction direction, xcb_button_t button, RequestSource source = RequestSource::FromUnknown);
 
     /**
        Clients (such as pagers/taskbars) that wish to move/resize a window
@@ -818,14 +821,17 @@ protected:
        a description of the different directions).
 
        @param button the button which should be pressed.
+
+       @param source who initiated the move resize operation.
     **/
-    virtual void moveResize(xcb_window_t window, int x_root, int y_root, unsigned long direction, xcb_button_t button)
+    virtual void moveResize(xcb_window_t window, int x_root, int y_root, unsigned long direction, xcb_button_t button, RequestSource source)
     {
         Q_UNUSED(window);
         Q_UNUSED(x_root);
         Q_UNUSED(y_root);
         Q_UNUSED(direction);
         Q_UNUSED(button);
+        Q_UNUSED(source);
     }
 
     /**
