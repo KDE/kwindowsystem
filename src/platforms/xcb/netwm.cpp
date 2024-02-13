@@ -1569,13 +1569,13 @@ void NETRootInfo::closeWindowRequest(xcb_window_t window)
     send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_NET_CLOSE_WINDOW), data);
 }
 
-void NETRootInfo::moveResizeRequest(xcb_window_t window, int x_root, int y_root, Direction direction)
+void NETRootInfo::moveResizeRequest(xcb_window_t window, int x_root, int y_root, Direction direction, xcb_button_t button)
 {
 #ifdef NETWMDEBUG
-    fprintf(stderr, "NETRootInfo::moveResizeRequest: requesting resize/move for 0x%lx (%d, %d, %d)\n", window, x_root, y_root, direction);
+    fprintf(stderr, "NETRootInfo::moveResizeRequest: requesting resize/move for 0x%lx (%d, %d, %d, %d)\n", window, x_root, y_root, direction, button);
 #endif
 
-    const uint32_t data[5] = {uint32_t(x_root), uint32_t(y_root), uint32_t(direction), 0, 0};
+    const uint32_t data[5] = {uint32_t(x_root), uint32_t(y_root), uint32_t(direction), uint32_t(button), 0};
 
     send_client_message(p->conn, netwm_sendevent_mask, p->root, window, p->atom(_NET_WM_MOVERESIZE), data);
 }
@@ -1731,14 +1731,15 @@ void NETRootInfo::event(xcb_generic_event_t *event, NET::Properties *properties,
         } else if (message->type == p->atom(_NET_WM_MOVERESIZE)) {
 #ifdef NETWMDEBUG
             fprintf(stderr,
-                    "NETRootInfo::event: moveResize(%ld, %ld, %ld, %ld)\n",
+                    "NETRootInfo::event: moveResize(%ld, %ld, %ld, %ld, %ld)\n",
                     message->window,
                     message->data.data32[0],
                     message->data.data32[1],
-                    message->data.data32[2]);
+                    message->data.data32[2],
+                    message->data.data32[3]);
 #endif
 
-            moveResize(message->window, message->data.data32[0], message->data.data32[1], message->data.data32[2]);
+            moveResize(message->window, message->data.data32[0], message->data.data32[1], message->data.data32[2], message->data.data32[3]);
         } else if (message->type == p->atom(_NET_MOVERESIZE_WINDOW)) {
 #ifdef NETWMDEBUG
             fprintf(stderr,
@@ -3090,7 +3091,7 @@ void NETWinInfo::setWindowType(WindowType type)
         data[1] = p->atom(_NET_WM_WINDOW_TYPE_NOTIFICATION);
         len = 2;
         break;
-    
+
     case AppletPopup:
         data[0] = p->atom(_KDE_NET_WM_WINDOW_TYPE_APPLET_POPUP);
         data[1] = XCB_NONE;

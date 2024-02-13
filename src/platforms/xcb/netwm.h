@@ -645,8 +645,10 @@ public:
 
        @param direction One of NET::Direction (see base class documentation for
        a description of the different directions).
+
+       @param button the button which should be pressed.
     **/
-    void moveResizeRequest(xcb_window_t window, int x_root, int y_root, Direction direction);
+    void moveResizeRequest(xcb_window_t window, int x_root, int y_root, Direction direction, xcb_button_t button);
 
     /**
        Clients (such as pagers/taskbars) that wish to move/resize a window
@@ -814,13 +816,16 @@ protected:
 
        @param direction One of NET::Direction (see base class documentation for
        a description of the different directions).
+
+       @param button the button which should be pressed.
     **/
-    virtual void moveResize(xcb_window_t window, int x_root, int y_root, unsigned long direction)
+    virtual void moveResize(xcb_window_t window, int x_root, int y_root, unsigned long direction, xcb_button_t button)
     {
         Q_UNUSED(window);
         Q_UNUSED(x_root);
         Q_UNUSED(y_root);
         Q_UNUSED(direction);
+        Q_UNUSED(button);
     }
 
     /**
