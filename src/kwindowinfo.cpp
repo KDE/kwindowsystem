@@ -568,22 +568,22 @@ QByteArray KWindowInfo::applicationMenuServiceName() const
 {
     CHECK_X11
 #if !defined(KDE_NO_WARNING_OUTPUT)
-    if (!(d->m_info->passedProperties2() & NET::WM2AppMenuObjectPath)) {
-        qWarning() << "Pass NET::WM2AppMenuObjectPath to KWindowInfo";
+    if (!(d->m_info->passedProperties2() & NET::WM2AppMenuServiceName)) {
+        qWarning() << "Pass NET::WM2AppMenuServiceName to KWindowInfo";
     }
 #endif
-    return QByteArray(d->m_info->appMenuObjectPath());
+    return QByteArray(d->m_info->appMenuServiceName());
 }
 
 QByteArray KWindowInfo::applicationMenuObjectPath() const
 {
     CHECK_X11
 #if !defined(KDE_NO_WARNING_OUTPUT)
-    if (!(d->m_info->passedProperties2() & NET::WM2AppMenuServiceName)) {
-        qWarning() << "Pass NET::WM2AppMenuServiceName to KWindowInfo";
+    if (!(d->m_info->passedProperties2() & NET::WM2AppMenuObjectPath)) {
+        qWarning() << "Pass NET::WM2AppMenuObjectPath to KWindowInfo";
     }
 #endif
-    return QByteArray(d->m_info->appMenuServiceName());
+    return QByteArray(d->m_info->appMenuObjectPath());
 }
 
 int KWindowInfo::pid() const
