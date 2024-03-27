@@ -283,6 +283,12 @@ bool isShiftAsModifierAllowed(int keyQt)
     case Qt::Key_LaunchD:
     case Qt::Key_LaunchE:
     case Qt::Key_LaunchF:
+    case Qt::Key_Shift:
+    case Qt::Key_Control:
+    case Qt::Key_Meta:
+    case Qt::Key_Alt:
+    case Qt::Key_Super_L:
+    case Qt::Key_Super_R:
         return true;
 
     default:
