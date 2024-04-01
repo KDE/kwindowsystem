@@ -12,6 +12,7 @@
 
 #include "atoms_p.h"
 #include "netwm_p.h"
+#include "kxcbevent_p.h"
 
 #if KWINDOWSYSTEM_HAVE_X11 // FIXME
 
@@ -356,7 +357,7 @@ static void readIcon(xcb_connection_t *c, const xcb_get_property_cookie_t cookie
 
 static void send_client_message(xcb_connection_t *c, uint32_t mask, xcb_window_t destination, xcb_window_t window, xcb_atom_t message, const uint32_t data[])
 {
-    xcb_client_message_event_t event;
+    KXcbEvent<xcb_client_message_event_t> event;
     event.response_type = XCB_CLIENT_MESSAGE;
     event.format = 32;
     event.sequence = 0;
@@ -367,7 +368,7 @@ static void send_client_message(xcb_connection_t *c, uint32_t mask, xcb_window_t
         event.data.data32[i] = data[i];
     }
 
-    xcb_send_event(c, false, destination, mask, (const char *)&event);
+    xcb_send_event(c, false, destination, mask, event.buffer());
 }
 
 template<class Z>
@@ -2778,7 +2779,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
         fprintf(stderr, "NETWinInfo::setState (0x%lx, 0x%lx) (Client)\n", state, mask);
 #endif // NETWMDEBUG
 
-        xcb_client_message_event_t event;
+        KXcbEvent<xcb_client_message_event_t> event;
         event.response_type = XCB_CLIENT_MESSAGE;
         event.format = 32;
         event.sequence = 0;
@@ -2792,7 +2793,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             event.data.data32[1] = p->atom(_NET_WM_STATE_MODAL);
             event.data.data32[2] = 0l;
 
-            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
         }
 
         if ((mask & Sticky) && ((p->state & Sticky) != (state & Sticky))) {
@@ -2800,7 +2801,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             event.data.data32[1] = p->atom(_NET_WM_STATE_STICKY);
             event.data.data32[2] = 0l;
 
-            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
         }
 
         if ((mask & Max) && (((p->state & mask) & Max) != (state & Max))) {
@@ -2810,35 +2811,35 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
                     event.data.data32[0] = 1;
                     event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
                     event.data.data32[2] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
-                    xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+                    xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
                 } else if ((wishstate & Max) == 0) {
                     event.data.data32[0] = 0;
                     event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
                     event.data.data32[2] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
-                    xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+                    xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
                 } else {
                     event.data.data32[0] = (wishstate & MaxHoriz) ? 1 : 0;
                     event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
                     event.data.data32[2] = 0;
-                    xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+                    xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
 
                     event.data.data32[0] = (wishstate & MaxVert) ? 1 : 0;
                     event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
                     event.data.data32[2] = 0;
-                    xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+                    xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
                 }
             } else if ((wishstate & MaxVert) != (p->state & MaxVert)) {
                 event.data.data32[0] = (wishstate & MaxVert) ? 1 : 0;
                 event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_VERT);
                 event.data.data32[2] = 0;
 
-                xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+                xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
             } else if ((wishstate & MaxHoriz) != (p->state & MaxHoriz)) {
                 event.data.data32[0] = (wishstate & MaxHoriz) ? 1 : 0;
                 event.data.data32[1] = p->atom(_NET_WM_STATE_MAXIMIZED_HORZ);
                 event.data.data32[2] = 0;
 
-                xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+                xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
             }
         }
 
@@ -2847,7 +2848,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             event.data.data32[1] = p->atom(_NET_WM_STATE_SHADED);
             event.data.data32[2] = 0l;
 
-            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
         }
 
         if ((mask & SkipTaskbar) && ((p->state & SkipTaskbar) != (state & SkipTaskbar))) {
@@ -2855,7 +2856,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             event.data.data32[1] = p->atom(_NET_WM_STATE_SKIP_TASKBAR);
             event.data.data32[2] = 0l;
 
-            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
         }
 
         if ((mask & SkipPager) && ((p->state & SkipPager) != (state & SkipPager))) {
@@ -2863,7 +2864,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             event.data.data32[1] = p->atom(_NET_WM_STATE_SKIP_PAGER);
             event.data.data32[2] = 0l;
 
-            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
         }
 
         if ((mask & SkipSwitcher) && ((p->state & SkipSwitcher) != (state & SkipSwitcher))) {
@@ -2871,7 +2872,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             event.data.data32[1] = p->atom(_KDE_NET_WM_STATE_SKIP_SWITCHER);
             event.data.data32[2] = 0l;
 
-            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
         }
 
         if ((mask & Hidden) && ((p->state & Hidden) != (state & Hidden))) {
@@ -2879,7 +2880,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             event.data.data32[1] = p->atom(_NET_WM_STATE_HIDDEN);
             event.data.data32[2] = 0l;
 
-            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
         }
 
         if ((mask & FullScreen) && ((p->state & FullScreen) != (state & FullScreen))) {
@@ -2887,7 +2888,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             event.data.data32[1] = p->atom(_NET_WM_STATE_FULLSCREEN);
             event.data.data32[2] = 0l;
 
-            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
         }
 
         if ((mask & KeepAbove) && ((p->state & KeepAbove) != (state & KeepAbove))) {
@@ -2895,14 +2896,14 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             event.data.data32[1] = p->atom(_NET_WM_STATE_ABOVE);
             event.data.data32[2] = 0l;
 
-            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
 
             // deprecated variant
             event.data.data32[0] = (state & KeepAbove) ? 1 : 0;
             event.data.data32[1] = p->atom(_NET_WM_STATE_STAYS_ON_TOP);
             event.data.data32[2] = 0l;
 
-            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
         }
 
         if ((mask & KeepBelow) && ((p->state & KeepBelow) != (state & KeepBelow))) {
@@ -2910,7 +2911,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             event.data.data32[1] = p->atom(_NET_WM_STATE_BELOW);
             event.data.data32[2] = 0l;
 
-            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
         }
 
         if ((mask & DemandsAttention) && ((p->state & DemandsAttention) != (state & DemandsAttention))) {
@@ -2918,7 +2919,7 @@ void NETWinInfo::setState(NET::States state, NET::States mask)
             event.data.data32[1] = p->atom(_NET_WM_STATE_DEMANDS_ATTENTION);
             event.data.data32[2] = 0l;
 
-            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, (const char *)&event);
+            xcb_send_event(p->conn, false, p->root, netwm_sendevent_mask, event.buffer());
         }
 
         // Focused is not added here as it is effectively "read only" set by the WM, a client setting it would be silly

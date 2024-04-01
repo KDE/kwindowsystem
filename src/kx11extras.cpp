@@ -19,6 +19,7 @@
 #include "kwindowsystem.h"
 #include "kwindowsystem_debug.h"
 #include "netwm.h"
+#include "kxcbevent_p.h"
 
 #include <QAbstractNativeEventFilter>
 #include <QGuiApplication>
@@ -869,8 +870,7 @@ void KX11Extras::minimizeWindow(WId win)
     CHECK_X11_VOID
     create_atoms();
     // as described in ICCCM 4.1.4
-    xcb_client_message_event_t ev;
-    memset(&ev, 0, sizeof(ev));
+    KXcbEvent<xcb_client_message_event_t> ev;
     ev.response_type = XCB_CLIENT_MESSAGE;
     ev.window = win;
     ev.type = _wm_change_state;
@@ -884,7 +884,7 @@ void KX11Extras::minimizeWindow(WId win)
                    false,
                    QX11Info::appRootWindow(),
                    XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT,
-                   reinterpret_cast<const char *>(&ev));
+                   ev.buffer());
 }
 
 void KX11Extras::unminimizeWindow(WId win)

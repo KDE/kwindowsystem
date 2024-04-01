@@ -7,6 +7,7 @@
 #include "kselectionowner.h"
 
 #include "kwindowsystem.h"
+#include "kxcbevent_p.h"
 #include <config-kwindowsystem.h>
 
 #include <QAbstractNativeEventFilter>
@@ -168,7 +169,7 @@ void KSelectionOwner::Private::claimSucceeded()
 {
     state = Idle;
 
-    xcb_client_message_event_t ev;
+    KXcbEvent<xcb_client_message_event_t> ev;
     ev.response_type = XCB_CLIENT_MESSAGE;
     ev.format = 32;
     ev.window = root;
@@ -179,7 +180,7 @@ void KSelectionOwner::Private::claimSucceeded()
     ev.data.data32[3] = extra1;
     ev.data.data32[4] = extra2;
 
-    xcb_send_event(connection, false, root, XCB_EVENT_MASK_STRUCTURE_NOTIFY, (const char *)&ev);
+    xcb_send_event(connection, false, root, XCB_EVENT_MASK_STRUCTURE_NOTIFY, ev.buffer());
 
     // qDebug() << "Claimed selection";
 
@@ -512,14 +513,14 @@ void KSelectionOwner::filter_selection_request(void *event)
         handled = handle_selection(ev->target, ev->property, ev->requestor);
     }
 
-    xcb_selection_notify_event_t xev;
+    KXcbEvent<xcb_selection_notify_event_t> xev;
     xev.response_type = XCB_SELECTION_NOTIFY;
     xev.selection = ev->selection;
     xev.requestor = ev->requestor;
     xev.target = ev->target;
     xev.property = handled ? ev->property : XCB_NONE;
 
-    xcb_send_event(c, false, ev->requestor, 0, (const char *)&xev);
+    xcb_send_event(c, false, ev->requestor, 0, xev.buffer());
 }
 
 bool KSelectionOwner::handle_selection(xcb_atom_t target_P, xcb_atom_t property_P, xcb_window_t requestor_P)

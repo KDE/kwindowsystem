@@ -8,6 +8,7 @@
 #include "kxmessages.h"
 #include "cptr_p.h"
 #include "kxutils_p.h"
+#include "kxcbevent_p.h"
 
 #if KWINDOWSYSTEM_HAVE_X11
 
@@ -238,7 +239,7 @@ send_message_internal(xcb_window_t w, const QString &msg_P, xcb_connection_t *c,
     QByteArray msg = msg_P.toUtf8();
     const size_t len = msg.size();
 
-    xcb_client_message_event_t event;
+    KXcbEvent<xcb_client_message_event_t> event;
     event.response_type = XCB_CLIENT_MESSAGE;
     event.format = 8;
     event.sequence = 0;
@@ -253,7 +254,7 @@ send_message_internal(xcb_window_t w, const QString &msg_P, xcb_connection_t *c,
         for (; i < 20; ++i) {
             event.data.data8[i] = 0;
         }
-        xcb_send_event(c, false, w, XCB_EVENT_MASK_PROPERTY_CHANGE, (const char *)&event);
+        xcb_send_event(c, false, w, XCB_EVENT_MASK_PROPERTY_CHANGE, event.buffer());
         event.type = followingMessage;
         pos += i;
     } while (pos <= len);
