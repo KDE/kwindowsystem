@@ -3,6 +3,8 @@ configure_file(config-kwindowsystem.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-k
 add_library(KF6WindowSystem)
 add_library(KF6::WindowSystem ALIAS KF6WindowSystem)
 
+qt_extract_metatypes(KF6WindowSystem)
+
 set_target_properties(KF6WindowSystem PROPERTIES
     VERSION     ${KWINDOWSYSTEM_VERSION}
     SOVERSION   ${KWINDOWSYSTEM_SOVERSION}
