@@ -25,5 +25,3 @@ void KWindowSystemPrivateX11::setShowingDesktop(bool showing)
 {
     KX11Extras::setShowingDesktop(showing);
 }
-
-#include "moc_kwindowsystem_p_x11.cpp"
