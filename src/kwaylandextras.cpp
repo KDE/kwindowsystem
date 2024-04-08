@@ -62,3 +62,5 @@ void KWaylandExtras::unexportWindow(QWindow *window)
         dv2->unexportWindow(window);
     }
 }
+
+#include "moc_kwaylandextras.cpp"

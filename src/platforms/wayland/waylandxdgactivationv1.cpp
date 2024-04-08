@@ -44,3 +44,5 @@ WaylandXdgActivationV1::requestXdgActivationToken(wl_seat *seat, struct ::wl_sur
     provider->commit();
     return provider;
 }
+
+#include "moc_waylandxdgactivationv1_p.cpp"

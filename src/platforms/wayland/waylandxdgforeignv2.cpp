@@ -103,3 +103,5 @@ WaylandXdgForeignImportedV2 *WaylandXdgForeignImporterV2::importToplevel(const Q
 {
     return new WaylandXdgForeignImportedV2(handle, import_toplevel(handle));
 }
+
+#include "moc_waylandxdgforeignv2_p.cpp"

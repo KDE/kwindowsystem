@@ -36,3 +36,5 @@ KWindowShadowPrivate *KWaylandPlugin::createWindowShadow()
 {
     return new WindowShadow();
 }
+
+#include "moc_plugin.cpp"

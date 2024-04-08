@@ -394,3 +394,5 @@ void WindowEffects::installContrast(QWindow *window, bool enable, qreal contrast
         }
     }
 }
+
+#include "moc_windoweffects.cpp"

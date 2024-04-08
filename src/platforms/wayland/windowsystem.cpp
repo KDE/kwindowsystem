@@ -283,3 +283,5 @@ void WindowSystem::doSetMainWindow(QWindow *window, const QString &handle)
         waylandWindowQObject->setProperty(c_kdeXdgForeignImportedProperty, QVariant());
     });
 }
+
+#include "moc_windowsystem.cpp"
