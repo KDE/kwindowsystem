@@ -11,7 +11,7 @@
 #include <QExposeEvent>
 #include <QGuiApplication>
 
-#include <private/qwaylandwindow_p.h>
+#include <qpa/qplatformwindow_p.h>
 
 #include <QWaylandClientExtensionTemplate>
 #include <qwaylandclientextension.h>
@@ -21,6 +21,8 @@
 #include "qwayland-slide.h"
 
 #include "surfacehelper.h"
+
+#include <wayland-client-protocol.h>
 
 static wl_region *createRegion(const QRegion &region)
 {
@@ -170,9 +172,9 @@ void WindowEffects::trackWindow(QWindow *window)
             m_windowWatchers.remove(window);
         });
         m_windowWatchers[window] << conn;
-        auto waylandWindow = dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle());
+        auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
         if (waylandWindow) {
-            auto conn = connect(waylandWindow, &QtWaylandClient::QWaylandWindow::wlSurfaceDestroyed, this, [this, window]() {
+            auto conn = connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceDestroyed, this, [this, window]() {
                 resetBlur(window);
                 resetContrast(window);
             });

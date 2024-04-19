@@ -19,13 +19,11 @@
 #include <QPixmap>
 #include <QPoint>
 #include <QString>
+#include <QTimer>
 #include <QWaylandClientExtensionTemplate>
 #include <QWindow>
-#include <private/qwaylanddisplay_p.h>
-#include <private/qwaylandinputdevice_p.h>
-#include <private/qwaylandwindow_p.h>
 #include <qpa/qplatformnativeinterface.h>
-#include <qwaylandclientextension.h>
+#include <qpa/qplatformwindow_p.h>
 
 constexpr const char *c_kdeXdgForeignExportedProperty("_kde_xdg_foreign_exported_v2");
 constexpr const char *c_kdeXdgForeignImportedProperty("_kde_xdg_foreign_imported_v2");
@@ -150,7 +148,7 @@ void WindowSystem::exportWindow(QWindow *window)
 
     window->create();
 
-    auto waylandWindow = dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle());
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
     if (!waylandWindow) {
         emitHandle({});
         return;
@@ -164,15 +162,14 @@ void WindowSystem::exportWindow(QWindow *window)
 
     // We want to use QObject::property(char*) and use dynamic properties on the object rather than
     // call QWaylandWindow::property(QString) and send it around.
-    auto *waylandWindowQObject = static_cast<QObject *>(waylandWindow);
-    WaylandXdgForeignExportedV2 *exported = waylandWindowQObject->property(c_kdeXdgForeignExportedProperty).value<WaylandXdgForeignExportedV2 *>();
+    WaylandXdgForeignExportedV2 *exported = waylandWindow->property(c_kdeXdgForeignExportedProperty).value<WaylandXdgForeignExportedV2 *>();
     if (!exported) {
         exported = exporter.exportToplevel(surfaceForWindow(window));
         exported->setParent(waylandWindow);
 
-        waylandWindowQObject->setProperty(c_kdeXdgForeignExportedProperty, QVariant::fromValue(exported));
-        connect(exported, &QObject::destroyed, waylandWindow, [waylandWindowQObject] {
-            waylandWindowQObject->setProperty(c_kdeXdgForeignExportedProperty, QVariant());
+        waylandWindow->setProperty(c_kdeXdgForeignExportedProperty, QVariant::fromValue(exported));
+        connect(exported, &QObject::destroyed, waylandWindow, [waylandWindow] {
+            waylandWindow->setProperty(c_kdeXdgForeignExportedProperty, QVariant());
         });
 
         connect(exported, &WaylandXdgForeignExportedV2::handleReceived, window, [window](const QString &handle) {
@@ -187,15 +184,14 @@ void WindowSystem::exportWindow(QWindow *window)
 
 void WindowSystem::unexportWindow(QWindow *window)
 {
-    auto waylandWindow = window ? dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle()) : nullptr;
+    auto waylandWindow = window ? window->nativeInterface<QNativeInterface::Private::QWaylandWindow>() : nullptr;
     if (!waylandWindow) {
         return;
     }
 
-    auto *waylandWindowQObject = static_cast<QObject *>(waylandWindow);
-    WaylandXdgForeignExportedV2 *exported = waylandWindowQObject->property(c_kdeXdgForeignExportedProperty).value<WaylandXdgForeignExportedV2 *>();
+    WaylandXdgForeignExportedV2 *exported = waylandWindow->property(c_kdeXdgForeignExportedProperty).value<WaylandXdgForeignExportedV2 *>();
     delete exported;
-    Q_ASSERT(!waylandWindowQObject->property(c_kdeXdgForeignExportedProperty).isValid());
+    Q_ASSERT(!waylandWindow->property(c_kdeXdgForeignExportedProperty).isValid());
 }
 
 void WindowSystem::setMainWindow(QWindow *window, const QString &handle)
@@ -205,20 +201,19 @@ void WindowSystem::setMainWindow(QWindow *window, const QString &handle)
     }
 
     window->create();
-    auto waylandWindow = dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle());
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
     if (!waylandWindow) {
         return;
     }
 
     // We want to use QObject::property(char*) and use dynamic properties on the object rather than
     // call QWaylandWindow::property(QString) and send it around.
-    auto *waylandWindowQObject = static_cast<QObject *>(waylandWindow);
-    auto *imported = waylandWindowQObject->property(c_kdeXdgForeignImportedProperty).value<WaylandXdgForeignImportedV2 *>();
+    auto *imported = waylandWindow->property(c_kdeXdgForeignImportedProperty).value<WaylandXdgForeignImportedV2 *>();
     // Window already parented with a different handle? Delete imported so we import the new one later.
     if (imported && imported->handle() != handle) {
         delete imported;
         imported = nullptr;
-        Q_ASSERT(!waylandWindowQObject->property(c_kdeXdgForeignImportedProperty).isValid());
+        Q_ASSERT(!waylandWindow->property(c_kdeXdgForeignImportedProperty).isValid());
     }
 
     // Don't bother.
@@ -260,7 +255,7 @@ void WindowSystem::doSetMainWindow(QWindow *window, const QString &handle)
     Q_ASSERT(window);
     Q_ASSERT(!handle.isEmpty());
 
-    auto waylandWindow = dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle());
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
     if (!waylandWindow) {
         return;
     }
@@ -270,17 +265,15 @@ void WindowSystem::doSetMainWindow(QWindow *window, const QString &handle)
         return;
     }
 
-    auto *waylandWindowQObject = static_cast<QObject *>(waylandWindow);
-
-    Q_ASSERT(!waylandWindowQObject->property(c_kdeXdgForeignImportedProperty).isValid());
+    Q_ASSERT(!waylandWindow->property(c_kdeXdgForeignImportedProperty).isValid());
 
     WaylandXdgForeignImportedV2 *imported = importer.importToplevel(handle);
     imported->set_parent_of(surfaceForWindow(window)); // foreign parent.
     imported->setParent(waylandWindow); // memory owner.
 
-    waylandWindowQObject->setProperty(c_kdeXdgForeignImportedProperty, QVariant::fromValue(imported));
-    connect(imported, &QObject::destroyed, waylandWindow, [waylandWindowQObject] {
-        waylandWindowQObject->setProperty(c_kdeXdgForeignImportedProperty, QVariant());
+    waylandWindow->setProperty(c_kdeXdgForeignImportedProperty, QVariant::fromValue(imported));
+    connect(imported, &QObject::destroyed, waylandWindow, [waylandWindow] {
+        waylandWindow->setProperty(c_kdeXdgForeignImportedProperty, QVariant());
     });
 }
 

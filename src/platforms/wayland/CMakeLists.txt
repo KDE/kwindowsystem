@@ -51,8 +51,8 @@ pkg_check_modules(XKBCommon REQUIRED IMPORTED_TARGET xkbcommon)
 target_link_libraries(KF6WindowSystemKWaylandPlugin
     KF6WindowSystem
     Wayland::Client
+    Qt::GuiPrivate
     Qt::WaylandClient
-    Qt::WaylandClientPrivate
     PkgConfig::XKBCommon
 )
 

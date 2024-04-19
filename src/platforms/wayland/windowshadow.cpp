@@ -16,7 +16,7 @@
 #include <QExposeEvent>
 #include <QWaylandClientExtension>
 
-#include <private/qwaylandwindow_p.h>
+#include <qpa/qplatformwindow_p.h>
 
 class ShadowManager : public QWaylandClientExtensionTemplate<ShadowManager>, public QtWayland::org_kde_kwin_shadow_manager
 {
@@ -139,9 +139,9 @@ bool WindowShadow::internalCreate()
     }
 
     shadow = std::make_unique<Shadow>(ShadowManager::instance()->create(surface));
-    auto waylandWindow = dynamic_cast<QtWaylandClient::QWaylandWindow *>(window->handle());
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
     if (waylandWindow) {
-        connect(waylandWindow, &QtWaylandClient::QWaylandWindow::wlSurfaceDestroyed, this, &WindowShadow::internalDestroy, Qt::UniqueConnection);
+        connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceDestroyed, this, &WindowShadow::internalDestroy, Qt::UniqueConnection);
     }
 
     auto attach = [](const std::unique_ptr<Shadow> &shadow, auto attach_func, const KWindowShadowTile::Ptr &tile) {
