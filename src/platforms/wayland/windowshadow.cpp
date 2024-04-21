@@ -8,7 +8,6 @@
 #include "windowshadow.h"
 #include "logging.h"
 #include "shm.h"
-#include "surfacehelper.h"
 
 #include <qwayland-shadow.h>
 
@@ -133,16 +132,15 @@ bool WindowShadow::internalCreate()
     if (!ShadowManager::instance()->isActive()) {
         return false;
     }
-    auto surface = surfaceForWindow(window);
-    if (!surface) {
+
+    window->create();
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if (!waylandWindow || !waylandWindow->surface()) {
         return false;
     }
 
-    shadow = std::make_unique<Shadow>(ShadowManager::instance()->create(surface));
-    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
-    if (waylandWindow) {
-        connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceDestroyed, this, &WindowShadow::internalDestroy, Qt::UniqueConnection);
-    }
+    shadow = std::make_unique<Shadow>(ShadowManager::instance()->create(waylandWindow->surface()));
+    connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceDestroyed, this, &WindowShadow::internalDestroy, Qt::UniqueConnection);
 
     auto attach = [](const std::unique_ptr<Shadow> &shadow, auto attach_func, const KWindowShadowTile::Ptr &tile) {
         if (auto buffer = bufferForTile(tile)) {
@@ -190,9 +188,11 @@ void WindowShadow::internalDestroy()
 
     // Only call surfaceForWindow and unset the surface if the native window is alive.
     // Otherwise window->create() might be called when the window is being destroyed, leading to a crash.
-    if (window && window->nativeInterface<QNativeInterface::Private::QWaylandWindow>() && ShadowManager::instance()->isActive()) {
-        if (auto surface = surfaceForWindow(window)) {
-            ShadowManager::instance()->unset(surface);
+    if (window && ShadowManager::instance()->isActive()) {
+        if (auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>()) {
+            if (waylandWindow->surface()) {
+                ShadowManager::instance()->unset(waylandWindow->surface());
+            }
         }
     }
 

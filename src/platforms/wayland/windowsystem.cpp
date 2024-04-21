@@ -6,7 +6,6 @@
 */
 #include "windowsystem.h"
 #include "logging.h"
-#include "surfacehelper.h"
 #include "waylandxdgactivationv1_p.h"
 #include "waylandxdgforeignv2_p.h"
 
@@ -59,24 +58,30 @@ WindowSystem::~WindowSystem()
     delete m_windowManagement;
 }
 
-void WindowSystem::activateWindow(QWindow *win, long int time)
+void WindowSystem::activateWindow(QWindow *window, long int time)
 {
     Q_UNUSED(time);
-    auto s = surfaceForWindow(win);
-    if (!s) {
+
+    window->create();
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if (!waylandWindow || !waylandWindow->surface()) {
         return;
     }
+
     WaylandXdgActivationV1 *activation = WaylandXdgActivationV1::self();
     if (!activation->isActive()) {
         return;
     }
-    activation->activate(m_lastToken, s);
+    activation->activate(m_lastToken, waylandWindow->surface());
 }
 
 void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString &app_id)
 {
     window->create();
-    wl_surface *wlSurface = surfaceForWindow(window);
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if (!waylandWindow) {
+        return;
+    }
 
     WaylandXdgActivationV1 *activation = WaylandXdgActivationV1::self();
     if (!activation->isActive()) {
@@ -89,7 +94,7 @@ void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString 
 
     auto waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
     auto seat = waylandApp ? waylandApp->lastInputSeat() : nullptr;
-    auto tokenReq = activation->requestXdgActivationToken(seat, wlSurface, serial, app_id);
+    auto tokenReq = activation->requestXdgActivationToken(seat, waylandWindow->surface(), serial, app_id);
     connect(tokenReq, &WaylandXdgActivationTokenV1::failed, KWindowSystem::self(), [serial, app_id]() {
         Q_EMIT KWaylandExtras::self()->xdgActivationTokenArrived(serial, {});
     });
@@ -158,7 +163,7 @@ void WindowSystem::exportWindow(QWindow *window)
     // call QWaylandWindow::property(QString) and send it around.
     WaylandXdgForeignExportedV2 *exported = waylandWindow->property(c_kdeXdgForeignExportedProperty).value<WaylandXdgForeignExportedV2 *>();
     if (!exported) {
-        exported = exporter.exportToplevel(surfaceForWindow(window));
+        exported = exporter.exportToplevel(waylandWindow->surface()); // TODO: handle null wl_surface
         exported->setParent(waylandWindow);
 
         waylandWindow->setProperty(c_kdeXdgForeignExportedProperty, QVariant::fromValue(exported));
@@ -258,7 +263,7 @@ void WindowSystem::doSetMainWindow(QWindow *window, const QString &handle)
     Q_ASSERT(!waylandWindow->property(c_kdeXdgForeignImportedProperty).isValid());
 
     WaylandXdgForeignImportedV2 *imported = importer.importToplevel(handle);
-    imported->set_parent_of(surfaceForWindow(window)); // foreign parent.
+    imported->set_parent_of(waylandWindow->surface()); // foreign parent.
     imported->setParent(waylandWindow); // memory owner.
 
     waylandWindow->setProperty(c_kdeXdgForeignImportedProperty, QVariant::fromValue(imported));

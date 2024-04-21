@@ -20,21 +20,16 @@
 #include "qwayland-contrast.h"
 #include "qwayland-slide.h"
 
-#include "surfacehelper.h"
-
 #include <wayland-client-protocol.h>
 
 static wl_region *createRegion(const QRegion &region)
 {
-    QPlatformNativeInterface *native = qGuiApp->platformNativeInterface();
-    if (!native) {
+    auto waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
+    if (!waylandApp) {
         return nullptr;
     }
-    auto compositor = reinterpret_cast<wl_compositor *>(native->nativeResourceForIntegration(QByteArrayLiteral("compositor")));
-    if (!compositor) {
-        return nullptr;
-    }
-    auto wl_region = wl_compositor_create_region(compositor);
+
+    auto wl_region = wl_compositor_create_region(waylandApp->compositor());
     for (const auto &rect : region) {
         wl_region_add(wl_region, rect.x(), rect.y(), rect.width(), rect.height());
     }
@@ -281,8 +276,15 @@ void WindowEffects::installSlide(QWindow *window, KWindowEffects::SlideFromLocat
     if (!m_slideManager->isActive()) {
         return;
     }
-    wl_surface *surface = surfaceForWindow(window);
-    if (surface) {
+
+    window->create();
+
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if (!waylandWindow) {
+        return;
+    }
+
+    if (wl_surface *surface = waylandWindow->surface()) {
         if (location != KWindowEffects::SlideFromLocation::NoEdge) {
             auto slide = new Slide(m_slideManager->create(surface), window);
 
@@ -332,9 +334,14 @@ void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &reg
         return;
     }
 
-    wl_surface *surface = surfaceForWindow(window);
+    window->create();
 
-    if (surface) {
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if (!waylandWindow) {
+        return;
+    }
+
+    if (wl_surface *surface = waylandWindow->surface()) {
         if (enable) {
             auto wl_region = createRegion(region);
             if (!wl_region) {
@@ -375,8 +382,14 @@ void WindowEffects::installContrast(QWindow *window, bool enable, qreal contrast
         return;
     }
 
-    wl_surface *surface = surfaceForWindow(window);
-    if (surface) {
+    window->create();
+
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if (!waylandWindow) {
+        return;
+    }
+
+    if (wl_surface *surface = waylandWindow->surface()) {
         if (enable) {
             auto wl_region = createRegion(region);
             if (!wl_region) {
