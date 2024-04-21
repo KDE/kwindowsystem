@@ -75,9 +75,7 @@ void WindowSystem::activateWindow(QWindow *win, long int time)
 
 void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString &app_id)
 {
-    if (window) {
-        window->create();
-    }
+    window->create();
     wl_surface *wlSurface = surfaceForWindow(window);
 
     WaylandXdgActivationV1 *activation = WaylandXdgActivationV1::self();
@@ -142,10 +140,6 @@ void WindowSystem::exportWindow(QWindow *window)
             Qt::QueuedConnection);
     };
 
-    if (!window) {
-        return;
-    }
-
     window->create();
 
     auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
@@ -184,7 +178,7 @@ void WindowSystem::exportWindow(QWindow *window)
 
 void WindowSystem::unexportWindow(QWindow *window)
 {
-    auto waylandWindow = window ? window->nativeInterface<QNativeInterface::Private::QWaylandWindow>() : nullptr;
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
     if (!waylandWindow) {
         return;
     }
@@ -196,10 +190,6 @@ void WindowSystem::unexportWindow(QWindow *window)
 
 void WindowSystem::setMainWindow(QWindow *window, const QString &handle)
 {
-    if (!window) {
-        return;
-    }
-
     window->create();
     auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
     if (!waylandWindow) {
