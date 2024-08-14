@@ -15,7 +15,12 @@ set(wayland_plugin_SRCS
 )
 
 
-qt6_generate_wayland_protocol_client_sources(KF6WindowSystemKWaylandPlugin FILES
+if (Qt6_VERSION VERSION_GREATER_EQUAL "6.8.0")
+    set(private_code_option  "PRIVATE_CODE")
+endif()
+qt6_generate_wayland_protocol_client_sources(KF6WindowSystemKWaylandPlugin
+    ${private_code_option}
+    FILES
         ${WaylandProtocols_DATADIR}/staging/xdg-activation/xdg-activation-v1.xml
         ${WaylandProtocols_DATADIR}/unstable/xdg-foreign/xdg-foreign-unstable-v2.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/blur.xml
