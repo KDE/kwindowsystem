@@ -32,7 +32,7 @@ protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
-    void doSetMainWindow(QWindow *window, const QString &handle);
+    static void doSetMainWindow(QWindow *window, const QString &handle);
     QString m_lastToken;
     WindowManagement *m_windowManagement;
 };
