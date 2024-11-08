@@ -52,7 +52,7 @@ endif()
 option(KWINDOWSYSTEM_X11 "Build X11 support" ON)
 option(KWINDOWSYSTEM_WAYLAND "Build Wayland support" ON)
 
-if (WIN32 OR APPLE OR ANDROID)
+if (WIN32 OR APPLE OR ANDROID OR HAIKU)
     set(KWINDOWSYSTEM_X11 OFF)
     set(KWINDOWSYSTEM_WAYLAND OFF)
 endif()
