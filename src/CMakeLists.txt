@@ -182,6 +182,8 @@ endif()
 
 add_subdirectory(platforms)
 
+qt_import_plugins(KF6WindowSystem INCLUDE KF6WindowSystemX11Plugin KF6WindowSystemKWaylandPlugin)
+
 if(KWINDOWSYSTEM_QML)
     add_subdirectory(qml)
 endif()

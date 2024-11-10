@@ -1,4 +1,8 @@
+if (BUILD_SHARED_LIBS)
 add_library(KF6WindowSystemX11Plugin MODULE)
+else()
+add_library(KF6WindowSystemX11Plugin)
+endif()
 
 target_sources(KF6WindowSystemX11Plugin PRIVATE
     kwindoweffects.cpp
