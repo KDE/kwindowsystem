@@ -40,7 +40,7 @@ ecm_setup_version(PROJECT VARIABLE_PREFIX KWINDOWSYSTEM
                         SOVERSION 6)
 
 # Dependencies
-set(REQUIRED_QT_VERSION 6.5.0)
+set(REQUIRED_QT_VERSION 6.6.0)
 find_package(Qt6Gui ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
 
 option(KWINDOWSYSTEM_QML "Build QML bindings" ON)
