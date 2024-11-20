@@ -30,5 +30,6 @@ endif()
 if(KWINDOWSYSTEM_WAYLAND)
   kwindowsystem_executable_tests(
     kwaylandextrastest
+    activationtest
   )
 endif()
