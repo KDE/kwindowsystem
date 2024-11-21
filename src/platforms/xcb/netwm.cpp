@@ -328,14 +328,21 @@ static void readIcon(xcb_connection_t *c, const xcb_get_property_cookie_t cookie
         uint32_t width = data[j++];
         uint32_t height = data[j++];
         uint32_t size = width * height * sizeof(uint32_t);
+
+        if (width == 0 || height == 0) {
+            fprintf(stderr, "Invalid icon size (%d x %d)\n", width, height);
+            break;
+        }
+
+        constexpr int maxIconSize = 8192;
+        if (width > maxIconSize || height > maxIconSize) {
+            fprintf(stderr, "Icon size larger than maximum (%d x %d)\n", width, height);
+            break;
+        }
+
         if (j + width * height > reply->value_len) {
             fprintf(stderr, "Ill-encoded icon data; proposed size leads to out of bounds access. Skipping. (%d x %d)\n", width, height);
             break;
-        }
-        if (width > 1024 || height > 1024) {
-            fprintf(stderr, "Warning: found huge icon. The icon data may be ill-encoded. (%d x %d)\n", width, height);
-            // do not break nor continue - the data may likely be junk, but causes no harm (yet) and might actually be just a huge icon, eg. when the icon
-            // system is abused to transfer wallpapers or such.
         }
 
         icons[i].size.width = width;
