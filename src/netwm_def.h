@@ -11,7 +11,9 @@
 #include <QRect>
 #include <kwindowsystem_export.h>
 
-/**
+/*!
+  \class NETPoint
+  \inmodule KWindowSystem
   Simple point class for NET classes.
 
   This class is a convenience class defining a point x, y.  The existence of
@@ -22,12 +24,11 @@
   appropriate class for representing a point.
 
   @author Bradley T. Hughes <bhughes@trolltech.com>
-**/
-
+*/
 struct NETPoint {
-    /**
+    /*!
        Constructor to initialize this point to 0,0.
-    **/
+    */
     NETPoint()
         : x(0)
         , y(0)
@@ -47,12 +48,14 @@ struct NETPoint {
 
     /*
        Public data member.
-    **/
+    */
     int x, ///< x coordinate.
         y; ///< y coordinate
 };
 
-/**
+/*!
+  \class NETSize
+  \inmodule KWindowSystem
   Simple size class for NET classes.
 
   This class is a convenience class defining a size width by height.  The
@@ -63,12 +66,11 @@ struct NETPoint {
   appropriate class for representing a size.
 
   @author Bradley T. Hughes <bhughes@trolltech.com>
-**/
-
+*/
 struct NETSize {
-    /**
+    /*!
        Constructor to initialize this size to 0x0
-    **/
+    */
     NETSize()
         : width(0)
         , height(0)
@@ -87,12 +89,14 @@ struct NETSize {
     }
     /*
        Public data member.
-    **/
+    */
     int width; ///< Width.
     int height; ///< Height.
 };
 
-/**
+/*!
+   \class NETRect
+   \inmodule KWindowSystem
    Simple rectangle class for NET classes.
 
    This class is a convenience class defining a rectangle as a point x,y with a
@@ -101,7 +105,7 @@ struct NETSize {
 
    NETRect is only used by the NET API. Usually QRect is the
    appropriate class for representing a rectangle.
-**/
+*/
 struct NETRect {
     NETRect()
     {
@@ -118,22 +122,24 @@ struct NETRect {
         return QRect(pos.x, pos.y, size.width, size.height);
     }
 
-    /**
+    /*!
        Position of the rectangle.
 
-       @see NETPoint
-    **/
+       \sa NETPoint
+    */
     NETPoint pos;
 
-    /**
+    /*!
        Size of the rectangle.
 
-       @see NETSize
-    **/
+       \sa NETSize
+    */
     NETSize size;
 };
 
-/**
+/*!
+   \class NETIcon
+   \inmodule KWindowSystem
    Simple icon class for NET classes.
 
    This class is a convenience class defining an icon of size width by height.
@@ -142,45 +148,45 @@ struct NETRect {
 
    NETIcon is only used by the NET API. Usually QIcon is the
    appropriate class for representing an icon.
-**/
-
+*/
 struct NETIcon {
-    /**
+    /*!
        Constructor to initialize this icon to 0x0 with data=0
-    **/
+    */
     NETIcon()
         : data(nullptr)
     {
     }
 
-    /**
+    /*!
        Size of the icon.
 
-       @see NETSize
-    **/
+       \sa NETSize
+    */
     NETSize size;
 
-    /**
+    /*!
        Image data for the icon.  This is an array of 32bit packed CARDINAL ARGB
        with high byte being A, low byte being B. First two bytes are width, height.
        Data is in rows, left to right and top to bottom.
-    **/
+    */
     unsigned char *data;
 };
 
-/**
+/*!
+   \class NETExtendedStrut
+   \inmodule KWindowSystem
    Partial strut class for NET classes.
 
    This class is a convenience class defining a strut with left, right, top and
    bottom border values, and ranges for them.  The existence of this class is to
    keep the implementation from being dependent on a separate framework/library.
    See the _NET_WM_STRUT_PARTIAL property in the NETWM spec.
-**/
-
+*/
 struct NETExtendedStrut {
-    /**
+    /*!
        Constructor to initialize this struct to 0,0,0,0
-    **/
+    */
     NETExtendedStrut()
         : left_width(0)
         , left_start(0)
@@ -197,29 +203,23 @@ struct NETExtendedStrut {
     {
     }
 
-    /**
-       Left border of the strut, width and range.
-           **/
+    /*! Left border of the strut, width and range. */
     int left_width, left_start, left_end;
 
-    /**
-       Right border of the strut, width and range.
-    **/
+    /*! Right border of the strut, width and range. */
     int right_width, right_start, right_end;
 
-    /**
-       Top border of the strut, width and range.
-           **/
+    /*! Top border of the strut, width and range. */
     int top_width, top_start, top_end;
 
-    /**
-       Bottom border of the strut, width and range.
-           **/
+    /*! Bottom border of the strut, width and range. */
     int bottom_width, bottom_start, bottom_end;
 };
 
-/**
-   @deprecated use NETExtendedStrut
+/*!
+   \class NETStrut
+   \inmodule KWindowSystem
+   \deprecated use NETExtendedStrut
 
    Simple strut class for NET classes.
 
@@ -227,12 +227,11 @@ struct NETExtendedStrut {
    bottom border values.  The existence of this class is to keep the implementation
    from being dependent on a separate framework/library. See the _NET_WM_STRUT
    property in the NETWM spec.
-**/
-
+*/
 struct NETStrut {
-    /**
+    /*!
        Constructor to initialize this struct to 0,0,0,0
-    **/
+    */
     NETStrut()
         : left(0)
         , right(0)
@@ -241,28 +240,30 @@ struct NETStrut {
     {
     }
 
-    /**
+    /*!
        Left border of the strut.
-           **/
+           */
     int left;
 
-    /**
+    /*!
        Right border of the strut.
-    **/
+    */
     int right;
 
-    /**
+    /*!
        Top border of the strut.
-           **/
+           */
     int top;
 
-    /**
+    /*!
        Bottom border of the strut.
-           **/
+           */
     int bottom;
 };
 
-/**
+/*!
+   \class NETFullscreenMonitors
+   \inmodule KWindowSystem
    Simple multiple monitor topology class for NET classes.
 
    This class is a convenience class, defining a multiple monitor topology
@@ -272,13 +273,12 @@ struct NETStrut {
    is defined by the top edge of the top monitor, the bottom edge of the bottom
    monitor, the left edge of the left monitor, and the right edge of the right
    monitor. See the _NET_WM_FULLSCREEN_MONITORS hint in the EWMH spec.
-**/
-
+*/
 struct NETFullscreenMonitors {
-    /**
+    /*!
        Constructor to initialize this struct to -1,0,0,0 (an initialized,
        albeit invalid, topology).
-    **/
+    */
     NETFullscreenMonitors()
         : top(-1)
         , bottom(0)
@@ -287,39 +287,41 @@ struct NETFullscreenMonitors {
     {
     }
 
-    /**
+    /*!
        Monitor index whose top border defines the top edge of the topology.
-    **/
+    */
     int top;
 
-    /**
+    /*!
        Monitor index whose bottom border defines the bottom edge of the topology.
-    **/
+    */
     int bottom;
 
-    /**
+    /*!
        Monitor index whose left border defines the left edge of the topology.
-    **/
+    */
     int left;
 
-    /**
+    /*!
        Monitor index whose right border defines the right edge of the topology.
-    **/
+    */
     int right;
 
-    /**
-       Convenience check to make sure that we are not holding the initial (invalid)
+    /*!
+       Convenience check to make sure that we don't return the initial (invalid)
        values. Note that we don't want to call this isValid() because we're not
        actually validating the monitor topology here, but merely that our initial
        values were overwritten at some point by real (non-negative) monitor indices.
-    **/
+    */
     bool isSet() const
     {
         return (top != -1);
     }
 };
 
-/**
+/*!
+  \class NET
+  \inmodule KWindowSystem
   Base namespace class.
 
   The NET API is an implementation of the NET Window Manager Specification.
@@ -328,162 +330,155 @@ struct NETFullscreenMonitors {
   are used to retrieve and modify the properties of windows. To keep
   the namespace relatively clean, all enums are defined here.
 
-  @see https://specifications.freedesktop.org/wm-spec/wm-spec-latest.html
- **/
-
+  \sa https://specifications.freedesktop.org/wm-spec/wm-spec-latest.html
+ */
 class KWINDOWSYSTEM_EXPORT NET
 {
 public:
-    /**
+    /*!
+       \enum NET::Role
        Application role.  This is used internally to determine how several action
        should be performed (if at all).
-    **/
-
+       \value Client
+       Indicates that the application is a client application.
+       \value WindowManager
+       Indicates that the application is a window manager application.
+    */
     enum Role {
-        /**
-           indicates that the application is a client application.
-        **/
         Client,
-        /**
-           indicates that the application is a window manager application.
-        **/
         WindowManager,
     };
 
-    /**
+    /*!
+       \enum NET::WindowType
        Window type.
-    **/
-
+       \value Unknown
+       Indicates that the window did not define a window type.
+       \value Normal
+       Indicates that this is a normal, top-level window
+       \value Desktop
+       Indicates a desktop feature. This can include a single window
+       containing desktop icons with the sam*e dimensions as the screen, allowing
+       the desktop environment to have full control of the desktop, without the
+       need for proxying root window clicks.
+       \value Dock
+       Indicates a dock or panel feature
+       \value Toolbar
+       Indicates a toolbar window
+       \value Menu
+       Indicates a pinnable (torn-off) menu window
+       \value Dialog
+       Indicates that this is a dialog window
+       \value Override
+       Deprecated: has unclear meaning and is KDE-only
+       \value TopMenu
+       Indicates a toplevel menu (AKA macmenu). This is a KDE extension to the
+       _NET_WM_WINDOW_TYPE mechanism.
+       \value Utility
+       Indicates a utility window
+       \value Splash
+       Indicates that this window is a splash screen window.
+       \value DropdownMenu
+       Indicates a dropdown menu (from a menubar typically)
+       \value PopupMenu
+       Indicates a popup menu (a context menu typically)
+       \value Tooltip
+       Indicates a tooltip window
+       \value Notification
+       Indicates a notification window
+       \value ComboBox
+       Indicates that the window is a list for a combobox
+       \value DNDIcon
+       Indicates a window that represents the dragged object during DND operation
+       \value [since 5.6] OnScreenDisplay
+       Indicates an On Screen Display window (such as volume feedback)
+       \value [since 5.58] CriticalNotification
+       Indicates a critical notification (such as battery is running out)
+       \value AppletPopup
+       Indicates that this window is an applet.
+    */
     enum WindowType {
-        /**
-           indicates that the window did not define a window type.
-        **/
         Unknown = -1,
-        /**
-           indicates that this is a normal, top-level window
-        **/
         Normal = 0,
-        /**
-           indicates a desktop feature. This can include a single window
-           containing desktop icons with the same dimensions as the screen, allowing
-           the desktop environment to have full control of the desktop, without the
-           need for proxying root window clicks.
-        **/
         Desktop = 1,
-        /**
-           indicates a dock or panel feature
-        **/
         Dock = 2,
-        /**
-           indicates a toolbar window
-        **/
         Toolbar = 3,
-        /**
-           indicates a pinnable (torn-off) menu window
-        **/
         Menu = 4,
-        /**
-           indicates that this is a dialog window
-        **/
         Dialog = 5,
         // cannot deprecate to compiler: used both by clients & manager, later needs to keep supporting it for now
         // KF6: remove
-        /**
-               @deprecated has unclear meaning and is KDE-only
-        **/
         Override = 6, // NON STANDARD
-        /**
-           indicates a toplevel menu (AKA macmenu). This is a KDE extension to the
-           _NET_WM_WINDOW_TYPE mechanism.
-        **/
         TopMenu = 7, // NON STANDARD
-        /**
-           indicates a utility window
-        **/
         Utility = 8,
-        /**
-           indicates that this window is a splash screen window.
-        **/
         Splash = 9,
-        /**
-           indicates a dropdown menu (from a menubar typically)
-        **/
         DropdownMenu = 10,
-        /**
-           indicates a popup menu (a context menu typically)
-        **/
         PopupMenu = 11,
-        /**
-           indicates a tooltip window
-        **/
         Tooltip = 12,
-        /**
-           indicates a notification window
-        **/
         Notification = 13,
-        /**
-           indicates that the window is a list for a combobox
-        **/
         ComboBox = 14,
-        /**
-           indicates a window that represents the dragged object during DND operation
-        **/
         DNDIcon = 15,
-        /**
-            indicates an On Screen Display window (such as volume feedback)
-            @since 5.6
-        **/
         OnScreenDisplay = 16, // NON STANDARD
-        /**
-            indicates a critical notification (such as battery is running out)
-            @since 5.58
-        **/
         CriticalNotification = 17, // NON STANDARD
-        /**
-         * indicates that this window is an applet.
-         */
         AppletPopup = 18, // NON STANDARD
     };
 
-    /**
-        Values for WindowType when they should be OR'ed together, e.g.
-        for the properties argument of the NETRootInfo constructor.
-        @see WindowTypes
-    **/
+    /*!
+       \enum NET::WindowTypeMask
+       Values for WindowType when they should be OR'ed together, e.g.
+       for the properties argument of the NETRootInfo constructor.
+       \value NormalMask
+       \value DesktopMask
+       \value DockMask
+       \value ToolbarMask
+       \value MenuMask
+       \value DialogMask
+       \value OverrideMask
+       \value TopMenuMask
+       \value UtilityMask
+       \value SplashMask
+       \value DropdownMenuMask
+       \value PopupMenuMask
+       \value TooltipMask
+       \value NotificationMask
+       \value ComboBoxMask
+       \value DNDIconMask
+       \value OnScreenDisplayMask
+       \value CriticalNotificationMask
+       \value AppletPopupMask
+       \value AllTypesMask
+    */
     enum WindowTypeMask {
-        NormalMask = 1u << 0, ///< @see Normal
-        DesktopMask = 1u << 1, ///< @see Desktop
-        DockMask = 1u << 2, ///< @see Dock
-        ToolbarMask = 1u << 3, ///< @see Toolbar
-        MenuMask = 1u << 4, ///< @see Menu
-        DialogMask = 1u << 5, ///< @see Dialog
-        OverrideMask = 1u << 6, ///< @see Override
-        TopMenuMask = 1u << 7, ///< @see TopMenu
-        UtilityMask = 1u << 8, ///< @see Utility
-        SplashMask = 1u << 9, ///< @see Splash
-        DropdownMenuMask = 1u << 10, ///< @see DropdownMenu
-        PopupMenuMask = 1u << 11, ///< @see PopupMenu
-        TooltipMask = 1u << 12, ///< @see Tooltip
-        NotificationMask = 1u << 13, ///< @see Notification
-        ComboBoxMask = 1u << 14, ///< @see ComboBox
-        DNDIconMask = 1u << 15, ///< @see DNDIcon
-        OnScreenDisplayMask = 1u << 16, ///< NON STANDARD @see OnScreenDisplay @since 5.6
-        CriticalNotificationMask = 1u << 17, ///< NON STANDARD @see CriticalNotification @since 5.58
-        AppletPopupMask = 1u << 18, ///< NON STANDARD @see AppletPopup
+        NormalMask = 1u << 0, ///< \sa Normal
+        DesktopMask = 1u << 1, ///< \sa Desktop
+        DockMask = 1u << 2, ///< \sa Dock
+        ToolbarMask = 1u << 3, ///< \sa Toolbar
+        MenuMask = 1u << 4, ///< \sa Menu
+        DialogMask = 1u << 5, ///< \sa Dialog
+        OverrideMask = 1u << 6, ///< \sa Override
+        TopMenuMask = 1u << 7, ///< \sa TopMenu
+        UtilityMask = 1u << 8, ///< \sa Utility
+        SplashMask = 1u << 9, ///< \sa Splash
+        DropdownMenuMask = 1u << 10, ///< \sa DropdownMenu
+        PopupMenuMask = 1u << 11, ///< \sa PopupMenu
+        TooltipMask = 1u << 12, ///< \sa Tooltip
+        NotificationMask = 1u << 13, ///< \sa Notification
+        ComboBoxMask = 1u << 14, ///< \sa ComboBox
+        DNDIconMask = 1u << 15, ///< \sa DNDIcon
+        OnScreenDisplayMask = 1u << 16, ///< NON STANDARD \sa OnScreenDisplay \since 5.6
+        CriticalNotificationMask = 1u << 17, ///< NON STANDARD \sa CriticalNotification \since 5.58
+        AppletPopupMask = 1u << 18, ///< NON STANDARD \sa AppletPopup
         AllTypesMask = 0U - 1, ///< All window types.
     };
-    /**
-     * Stores a combination of #WindowTypeMask values.
-     */
     Q_DECLARE_FLAGS(WindowTypes, WindowTypeMask)
 
-    /**
-     * Returns true if the given window type matches the mask given
+    /*!
+     * Returns \c true if the given window \a type matches the \a mask given
      * using WindowTypeMask flags.
      */
     static bool typeMatchesMask(WindowType type, WindowTypes mask);
 
-    /**
+    /*!
+       \enum NET::State
        Window state.
 
        To set the state of a window, you'll typically do something like:
@@ -497,108 +492,86 @@ public:
        Note that KeepAbove (StaysOnTop) and KeepBelow are meant as user preference and
        applications should avoid setting these states themselves.
 
-       @see States
-    **/
-
+       \value Modal
+       Indicates that this is a modal dialog box. The WM_TRANSIENT_FOR hint
+       MUST be set to indicate which window the dialog is a modal for, or set to
+       the root window if the dialog is a modal for its window group.
+       \value Sticky
+       Indicates that the Window Manager SHOULD keep the window's position
+       fixed on the screen, even when the virtual desktop scrolls. Note that this is
+       different from being kept on all desktops.
+       \value MaxVert
+       Indicates that the window is vertically maximized.
+       \value MaxHoriz
+       Indicates that the window is horizontally maximized.
+       \value Max
+       convenience value. Equal to MaxVert | MaxHoriz.
+       \value Shaded
+       Indicates that the window is shaded (rolled-up).
+       \value SkipTaskbar
+       Indicates that a window should not be included on a taskbar.
+       \value KeepAbove
+       Indicates that a window should on top of most windows (but below fullscreen
+       windows).
+       \value SkipPager
+       Indicates that a window should not be included on a pager.
+       \value Hidden
+       Indicates that a window should not be visible on the screen (e.g. when minimised).
+       Only the window manager is allowed to change it.
+       \value FullScreen
+       Indicates that a window should fill the entire screen and have no window
+       decorations.
+       \value KeepBelow
+       Indicates that a window should be below most windows (but above any desktop windows).
+       \value DemandsAttention
+       there was an attempt to activate this window, but the window manager prevented
+       this. E.g. taskbar should mark such window specially to bring user's attention to
+       this window. Only the window manager is allowed to change it.
+       \value [since 5.45] SkipSwitcher
+       Indicates that a window should not be included on a switcher.
+       \value [since 5.58] Focused
+       Indicates that a client should render as though it has focus
+       Only the window manager is allowed to change it.
+    */
     enum State {
-        /**
-           indicates that this is a modal dialog box. The WM_TRANSIENT_FOR hint
-           MUST be set to indicate which window the dialog is a modal for, or set to
-           the root window if the dialog is a modal for its window group.
-        **/
         Modal = 1u << 0,
-        /**
-           indicates that the Window Manager SHOULD keep the window's position
-           fixed on the screen, even when the virtual desktop scrolls. Note that this is
-           different from being kept on all desktops.
-        **/
         Sticky = 1u << 1,
-        /**
-           indicates that the window is vertically maximized.
-        **/
         MaxVert = 1u << 2,
-        /**
-           indicates that the window is horizontally maximized.
-        **/
         MaxHoriz = 1u << 3,
-        /**
-           convenience value. Equal to MaxVert | MaxHoriz.
-        **/
         Max = MaxVert | MaxHoriz,
-        /**
-           indicates that the window is shaded (rolled-up).
-        **/
         Shaded = 1u << 4,
-        /**
-           indicates that a window should not be included on a taskbar.
-        **/
         SkipTaskbar = 1u << 5,
-        /**
-           indicates that a window should on top of most windows (but below fullscreen
-           windows).
-        **/
         KeepAbove = 1u << 6,
-        /**
-           indicates that a window should not be included on a pager.
-        **/
         SkipPager = 1u << 7,
-        /**
-           indicates that a window should not be visible on the screen (e.g. when minimised).
-           Only the window manager is allowed to change it.
-        **/
         Hidden = 1u << 8,
-        /**
-           indicates that a window should fill the entire screen and have no window
-           decorations.
-        **/
         FullScreen = 1u << 9,
-        /**
-           indicates that a window should be below most windows (but above any desktop windows).
-        **/
         KeepBelow = 1u << 10,
-        /**
-           there was an attempt to activate this window, but the window manager prevented
-           this. E.g. taskbar should mark such window specially to bring user's attention to
-           this window. Only the window manager is allowed to change it.
-        **/
         DemandsAttention = 1u << 11,
-        /**
-           indicates that a window should not be included on a switcher.
-
-           @since 5.45
-        **/
         SkipSwitcher = 1u << 12,
-        /**
-          indicates that a client should render as though it has focus
-          Only the window manager is allowed to change it.
-          @since 5.58
-         **/
         Focused = 1u << 13,
     };
-    /**
-     * Stores a combination of #State values.
-     */
     Q_DECLARE_FLAGS(States, State)
 
-    /**
+    /*!
+       \enum NET::Direction
        Direction for WMMoveResize.
 
        When a client wants the Window Manager to start a WMMoveResize, it should
        specify one of:
 
-       @li TopLeft
-       @li Top
-       @li TopRight
-       @li Right
-       @li BottomRight
-       @li Bottom
-       @li BottomLeft
-       @li Left
-       @li Move (for movement only)
-       @li KeyboardSize (resizing via keyboard)
-       @li KeyboardMove (movement via keyboard)
-    **/
-
+       \value TopLeft
+       \value Top
+       \value TopRight
+       \value Right
+       \value BottomRight
+       \value Bottom
+       \value BottomLeft
+       \value Left
+       \value Move (for movement only)
+       \value KeyboardSize (resizing via keyboard)
+       \value KeyboardMove (movement via keyboard)
+       \value MoveResizeCancel (to ask the WM to stop moving a window)
+    */
     enum Direction {
         TopLeft = 0,
         Top = 1,
@@ -608,39 +581,48 @@ public:
         Bottom = 5,
         BottomLeft = 6,
         Left = 7,
-        Move = 8, // movement only
-        KeyboardSize = 9, // size via keyboard
-        KeyboardMove = 10, // move via keyboard
-        MoveResizeCancel = 11, // to ask the WM to stop moving a window
+        Move = 8,
+        KeyboardSize = 9,
+        KeyboardMove = 10,
+        MoveResizeCancel = 11,
     };
 
-    /**
+    /*!
+       \enum NET::MappingState
        Client window mapping state.  The class automatically watches the mapping
        state of the client windows, and uses the mapping state to determine how
        to set/change different properties. Note that this is very lowlevel
        and you most probably don't want to use this state.
-    **/
+       \value Visible
+       Indicates the client window is visible to the user.
+       \value Withdrawn
+       Indicates that neither the client window nor its icon is visible.
+       \value Iconic
+       Indicates that the client window is not visible, but its icon is.
+       This can be when the window is minimized or when it's on a
+       different virtual desktop. See also NET::Hidden.
+    */
     enum MappingState {
-        /**
-           indicates the client window is visible to the user.
-        **/
         Visible = 1, // NormalState,
-        /**
-           indicates that neither the client window nor its icon is visible.
-        **/
         Withdrawn = 0, // WithdrawnState,
-        /**
-           indicates that the client window is not visible, but its icon is.
-           This can be when the window is minimized or when it's on a
-           different virtual desktop. See also NET::Hidden.
-        **/
         Iconic = 3, // IconicState
     };
 
-    /**
+    /*!
+      \enum NET::Action
       Actions that can be done with a window (_NET_WM_ALLOWED_ACTIONS).
-      @see Actions
-    **/
+      \value ActionMove
+      \value ActionResize
+      \value ActionMinimize
+      \value ActionShade
+      \value ActionStick
+      \value ActionMaxVert
+      \value ActionMaxHoriz
+      \value ActionMax
+      \value ActionFullScreen
+      \value ActionChangeDesktop
+      \value ActionClose
+    */
     enum Action {
         ActionMove = 1u << 0,
         ActionResize = 1u << 1,
@@ -654,57 +636,53 @@ public:
         ActionChangeDesktop = 1u << 8,
         ActionClose = 1u << 9,
     };
-    /**
-     * Stores a combination of #Action values.
-     */
     Q_DECLARE_FLAGS(Actions, Action)
 
-    /**
+    /*!
+       \enum NET::Property
        Supported properties.  Clients and Window Managers must define which
        properties/protocols it wants to support.
 
+       \value WMAllProperties
        Root/Desktop window properties and protocols:
 
-       @li Supported
-       @li ClientList
-       @li ClientListStacking
-       @li NumberOfDesktops
-       @li DesktopGeometry
-       @li DesktopViewport
-       @li CurrentDesktop
-       @li DesktopNames
-       @li ActiveWindow
-       @li WorkArea
-       @li SupportingWMCheck
-       @li VirtualRoots
-       @li CloseWindow
-       @li WMMoveResize
+       \value Supported
+       \value ClientList
+       \value ClientListStacking
+       \value NumberOfDesktops
+       \value DesktopGeometry
+       \value DesktopViewport
+       \value CurrentDesktop
+       \value DesktopNames
+       \value ActiveWindow
+       \value WorkArea
+       \value SupportingWMCheck
+       \value VirtualRoots
+       \value CloseWindow
+       \value WMMoveResize
 
        Client window properties and protocols:
 
-       @li WMName
-       @li WMVisibleName
-       @li WMDesktop
-       @li WMWindowType
-       @li WMState
-       @li WMStrut  (obsoleted by WM2ExtendedStrut)
-       @li WMGeometry
-       @li WMFrameExtents
-       @li WMIconGeometry
-       @li WMIcon
-       @li WMIconName
-       @li WMVisibleIconName
-       @li WMHandledIcons
-       @li WMPid
-       @li WMPing
+       \value WMName
+       \value WMVisibleName
+       \value WMDesktop
+       \value WMWindowType
+       \value WMState
+       \value WMStrut  (obsoleted by WM2ExtendedStrut)
+       \value WMGeometry
+       \value WMFrameExtents
+       \value WMIconGeometry
+       \value WMIcon
+       \value WMIconName
+       \value WMVisibleIconName
+       \value WMHandledIcons
+       \value WMPid
+       \value WMPing
 
        ICCCM properties (provided for convenience):
 
-       @li XAWMState
-
-       @see Properties
-    **/
-
+       \value XAWMState
+    */
     enum Property {
         // root
         Supported = 1u << 0,
@@ -744,47 +722,51 @@ public:
         WMGeometry = 1u << 31,
         WMAllProperties = ~0u,
     };
-    /**
-     * Stores a combination of #Property values.
-     */
     Q_DECLARE_FLAGS(Properties, Property)
 
-    /**
+    /*!
+        \enum NET::Property2
         Supported properties. This enum is an extension to NET::Property,
         because them enum is limited only to 32 bits.
 
         Client window properties and protocols:
 
-        @li WM2UserTime
-        @li WM2StartupId
-        @li WM2TransientFor mainwindow for the window (WM_TRANSIENT_FOR)
-        @li WM2GroupLeader  group leader (window_group in WM_HINTS)
-        @li WM2AllowedActions
-        @li WM2RestackWindow
-        @li WM2MoveResizeWindow
-        @li WM2ExtendedStrut
-        @li WM2TemporaryRules internal, for kstart
-        @li WM2WindowClass  WM_CLASS
-        @li WM2WindowRole   WM_WINDOW_ROLE
-        @li WM2ClientMachine WM_CLIENT_MACHINE
-        @li WM2ShowingDesktop
-        @li WM2Opacity _NET_WM_WINDOW_OPACITY
-        @li WM2DesktopLayout _NET_DESKTOP_LAYOUT
-        @li WM2FullPlacement _NET_WM_FULL_PLACEMENT
-        @li WM2FullscreenMonitors _NET_WM_FULLSCREEN_MONITORS
-        @li WM2Urgency urgency hint in WM_HINTS (see ICCCM 4.1.2.4)
-        @li WM2Input input hint (input in WM_HINTS, see ICCCM 4.1.2.4)
-        @li WM2Protocols see NET::Protocol
-        @li WM2InitialMappingState initial state hint of WM_HINTS (see ICCCM 4.1.2.4)
-        @li WM2IconPixmap icon pixmap and mask in WM_HINTS (see ICCCM 4.1.2.4)
-        @li WM2OpaqueRegion
-        @li WM2DesktopFileName the base name of the desktop file name or the full path to the desktop file
-        @li WM2GTKFrameExtents extents of the shadow drawn by the client
-        @li WM2GTKApplicationId _GTK_APPLICATION_ID
-        @li WM2GTKShowWindowMenu _GTK_SHOW_WINDOW_MENU
-
-        @see Properties2
-    **/
+        \value WM2UserTime
+        \value WM2StartupId
+        \value WM2TransientFor mainwindow for the window (WM_TRANSIENT_FOR)
+        \value WM2GroupLeader  group leader (window_group in WM_HINTS)
+        \value WM2AllowedActions
+        \value WM2RestackWindow
+        \value WM2MoveResizeWindow
+        \value WM2ExtendedStrut
+        \value WM2KDETemporaryRules
+        \value WM2TemporaryRules internal, for kstart
+        \value WM2WindowClass  WM_CLASS
+        \value WM2WindowRole   WM_WINDOW_ROLE
+        \value WM2ClientMachine WM_CLIENT_MACHINE
+        \value WM2ShowingDesktop
+        \value WM2Opacity _NET_WM_WINDOW_OPACITY
+        \value WM2DesktopLayout _NET_DESKTOP_LAYOUT
+        \value WM2FullPlacement _NET_WM_FULL_PLACEMENT
+        \value WM2FullscreenMonitors _NET_WM_FULLSCREEN_MONITORS
+        \value WM2FrameOverlap
+        \value WM2Activities
+        \value WM2BlockCompositing
+        \value WM2KDEShadow
+        \value WM2Urgency urgency hint in WM_HINTS (see ICCCM 4.1.2.4)
+        \value WM2Input input hint (input in WM_HINTS, see ICCCM 4.1.2.4)
+        \value WM2Protocols see NET::Protocol
+        \value WM2InitialMappingState initial state hint of WM_HINTS (see ICCCM 4.1.2.4)
+        \value WM2IconPixmap icon pixmap and mask in WM_HINTS (see ICCCM 4.1.2.4)
+        \value WM2OpaqueRegion
+        \value WM2DesktopFileName the base name of the desktop file name or the full path to the desktop file
+        \value WM2GTKFrameExtents extents of the shadow drawn by the client
+        \value WM2AppMenuServiceName
+        \value WM2AppMenuObjectPath
+        \value WM2GTKApplicationId _GTK_APPLICATION_ID
+        \value WM2GTKShowWindowMenu _GTK_SHOW_WINDOW_MENU
+        \value WM2AllProperties
+    */
     enum Property2 {
         WM2UserTime = 1u << 0,
         WM2StartupId = 1u << 1,
@@ -804,66 +786,69 @@ public:
         WM2FullPlacement = 1u << 15,
         WM2FullscreenMonitors = 1u << 16,
         WM2FrameOverlap = 1u << 17, // NOT STANDARD
-        WM2Activities = 1u << 18, // NOT STANDARD @since 4.6
-        WM2BlockCompositing = 1u << 19, // NOT STANDARD @since 4.7, STANDARD @since 5.17
-        WM2KDEShadow = 1u << 20, // NOT Standard @since 4.7
-        WM2Urgency = 1u << 21, // @since 5.3
-        WM2Input = 1u << 22, // @since 5.3
-        WM2Protocols = 1u << 23, // @since 5.3
-        WM2InitialMappingState = 1u << 24, // @since 5.5
-        WM2IconPixmap = 1u << 25, // @since 5.7
-        WM2OpaqueRegion = 1u << 25, // @since 5.7
-        WM2DesktopFileName = 1u << 26, // NOT STANDARD @since 5.28
-        WM2GTKFrameExtents = 1u << 27, // NOT STANDARD @since 5.65
-        WM2AppMenuServiceName = 1u << 28, // NOT STANDARD @since 5.69
-        WM2AppMenuObjectPath = 1u << 29, // NOT STANDARD @since 5.69
-        WM2GTKApplicationId = 1u << 30, // NOT STANDARD @since 5.91
-        WM2GTKShowWindowMenu = 1u << 31, // NOT STANDARD @since 5.96
+        WM2Activities = 1u << 18, // NOT STANDARD \since 4.6
+        WM2BlockCompositing = 1u << 19, // NOT STANDARD \since 4.7, STANDARD \since 5.17
+        WM2KDEShadow = 1u << 20, // NOT Standard \since 4.7
+        WM2Urgency = 1u << 21, // \since 5.3
+        WM2Input = 1u << 22, // \since 5.3
+        WM2Protocols = 1u << 23, // \since 5.3
+        WM2InitialMappingState = 1u << 24, // \since 5.5
+        WM2IconPixmap = 1u << 25, // \since 5.7
+        WM2OpaqueRegion = 1u << 25, // \since 5.7
+        WM2DesktopFileName = 1u << 26, // NOT STANDARD \since 5.28
+        WM2GTKFrameExtents = 1u << 27, // NOT STANDARD \since 5.65
+        WM2AppMenuServiceName = 1u << 28, // NOT STANDARD \since 5.69
+        WM2AppMenuObjectPath = 1u << 29, // NOT STANDARD \since 5.69
+        WM2GTKApplicationId = 1u << 30, // NOT STANDARD \since 5.91
+        WM2GTKShowWindowMenu = 1u << 31, // NOT STANDARD \since 5.96
         WM2AllProperties = ~0u,
     };
-    /**
-     * Stores a combination of #Property2 values.
-     */
     Q_DECLARE_FLAGS(Properties2, Property2)
 
-    /**
+    /*
        Sentinel value to indicate that the client wishes to be visible on
        all desktops.
-     **/
+     */
     enum {
         OnAllDesktops = -1,
     };
 
-    /**
-       Source of the request.
-    **/
     // must match the values for data.l[0] field in _NET_ACTIVE_WINDOW message
+    /*!
+       \enum NET::RequestSource
+       Source of the request.
+       \omitvalue FromUnknown
+       Indicates that the source of the request is unknown
+       \value FromApplication
+       Indicates that the request comes from a normal application
+       \value FromTool
+       Indicated that the request comes from pager or similar tool
+    */
     enum RequestSource {
-        /**
-          @internal indicates that the source of the request is unknown
-        **/
         FromUnknown = 0, // internal
-        /**
-           indicates that the request comes from a normal application
-        **/
         FromApplication = 1,
-        /**
-           indicated that the request comes from pager or similar tool
-        **/
         FromTool = 2,
     };
 
-    /**
+    /*!
+      \enum NET::Orientation
       Orientation.
-    **/
+      \value OrientationHorizontal
+      \value OrientationVertical
+    */
     enum Orientation {
         OrientationHorizontal = 0,
         OrientationVertical = 1,
     };
 
-    /**
+    /*!
+     \enum NET::DesktopLayoutCorner
      Starting corner for desktop layout.
-    **/
+     \value DesktopLayoutCornerTopLeft
+     \value DesktopLayoutCornerTopRight
+     \value DesktopLayoutCornerBottomLeft
+     \value DesktopLayoutCornerBottomRight
+    */
     enum DesktopLayoutCorner {
         DesktopLayoutCornerTopLeft = 0,
         DesktopLayoutCornerTopRight = 1,
@@ -871,33 +856,36 @@ public:
         DesktopLayoutCornerBottomRight = 3,
     };
 
-    /**
+    /*!
+     * \enum NET::Protocol
      * Protocols supported by the client.
      * See ICCCM 4.1.2.7.
      *
-     * @see Protocols
-     * @since 5.3
-     **/
+     * \since 5.3
+     * \value NoProtocol
+     * \value TakeFocusProtocol WM_TAKE_FOCUS
+     * \value DeleteWindowProtocol WM_DELETE_WINDOW
+     * \value PingProtocol _NET_WM_PING from EWMH
+     * \value SyncRequestProtocol _NET_WM_SYNC_REQUEST from EWMH
+     * \value ContextHelpProtocol _NET_WM_CONTEXT_HELP, NON STANDARD!
+     */
     enum Protocol {
         NoProtocol = 0,
-        TakeFocusProtocol = 1 << 0, ///< WM_TAKE_FOCUS
-        DeleteWindowProtocol = 1 << 1, ///< WM_DELETE_WINDOW
-        PingProtocol = 1 << 2, ///< _NET_WM_PING from EWMH
-        SyncRequestProtocol = 1 << 3, ///< _NET_WM_SYNC_REQUEST from EWMH
-        ContextHelpProtocol = 1 << 4, ///< _NET_WM_CONTEXT_HELP, NON STANDARD!
+        TakeFocusProtocol = 1 << 0,
+        DeleteWindowProtocol = 1 << 1,
+        PingProtocol = 1 << 2,
+        SyncRequestProtocol = 1 << 3,
+        ContextHelpProtocol = 1 << 4,
     };
-    /**
-     * Stores a combination of #Protocol values.
-     */
     Q_DECLARE_FLAGS(Protocols, Protocol)
 
-    /**
+    /*!
      Compares two X timestamps, taking into account wrapping and 64bit architectures.
-     Return value is like with strcmp(), 0 for equal, -1 for time1 < time2, 1 for time1 > time2.
+     Return value is like with strcmp(), 0 for equal, -1 for \a time1 < \a time2, 1 for \a time1 > \a time2.
     */
     static int timestampCompare(unsigned long time1, unsigned long time2);
-    /**
-     Returns a difference of two X timestamps, time2 - time1, where time2 must be later than time1,
+    /*!
+     Returns a difference of two X timestamps, \a time2 - \a time1, where \a time2 must be later than \a time1,
      as returned by timestampCompare().
     */
     static int timestampDiff(unsigned long time1, unsigned long time2);
