@@ -1,0 +1,16 @@
+/*!
+    \module KWindowSystem
+    \title KWindowSystem C++ Classes
+    \ingroup modules
+    \cmakepackage KF6
+    \cmakecomponent KWindowSystem
+
+    \brief KWindowSystem description.
+
+*/
+
+/*!
+   \qmlmodule org.kde.kwindowsystem
+   \title KWindowSystem QML Types
+   \brief Stuff
+ */

@@ -1,0 +1,13 @@
+include($KDE_DOCS/global/qt-module-defaults.qdocconf)
+
+project = KWindowSystem
+description = KWindowSystem qdocconf stuff.
+
+documentationinheaders = true
+
+headerdirs = .
+sourcedirs = .
+
+outputformats = HTML
+
+depends += qtcore qtquick qtquickcontrols qtgui qtwidgets qtxml kcoreaddons kconfig
