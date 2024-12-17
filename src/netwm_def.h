@@ -1,6 +1,7 @@
 /*
   SPDX-FileCopyrightText: 2000 Troll Tech AS
   SPDX-FileCopyrightText: 2003 Lubos Lunak <l.lunak@kde.org>
+  SPDX-FileCopyrightText: Bradley T. Hughes <bhughes@trolltech.com>
 
   SPDX-License-Identifier: MIT
 */
@@ -22,8 +23,6 @@
 
   NETPoint is only used by the NET API. Usually QPoint is the
   appropriate class for representing a point.
-
-  @author Bradley T. Hughes <bhughes@trolltech.com>
 */
 struct NETPoint {
     /*!
@@ -64,8 +63,6 @@ struct NETPoint {
 
   NETSize is only used by the NET API. Usually QSize is the
   appropriate class for representing a size.
-
-  @author Bradley T. Hughes <bhughes@trolltech.com>
 */
 struct NETSize {
     /*!
