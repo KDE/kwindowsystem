@@ -213,14 +213,14 @@ struct NETExtendedStrut {
     int right_end;
 
     /*! \brief The width of the top border of the strut. */
-    int top_width,
+    int top_width;
     /*! \brief The start of the top border of the strut. */
     int top_start;
     /*! \brief The end of the top border of the strut. */
     int top_end;
 
     /*! \brief The width of the bottom border of the strut. */
-    int bottom_width,
+    int bottom_width;
     /*! \brief The start of the bottom border of the strut. */
     int bottom_start;
     /*! \brief The end of the bottom border of the strut. */
