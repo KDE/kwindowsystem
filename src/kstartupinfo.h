@@ -27,7 +27,7 @@ class KStartupInfoData;
 /*!
  * \class KStartupInfo
  * \inmodule KWindowSystem
- * Class for manipulating the application startup notification.
+ * \brief Class for manipulating the application startup notification.
  *
  * This class can be used to send information about started application,
  * change the information and receive this information. For detailed
@@ -109,8 +109,7 @@ public:
      * \since 5.5
      **/
     static QByteArray createNewStartupIdForTimestamp(quint32 timestamp);
-    /*
-     */
+
     enum {
         CleanOnCantDetect = 1 << 0,
         DisableKWinModule = 1 << 1,
@@ -351,9 +350,6 @@ Q_SIGNALS:
     void gotRemoveStartup(const KStartupInfoId &id, const KStartupInfoData &data);
 
 protected:
-    /*!
-     *
-     */
     void customEvent(QEvent *e_P) override;
 
 private:
@@ -448,7 +444,7 @@ private:
 /*!
  * \class KStartupInfoData
  * \inmodule KWindowSystem
- * Class representing data about an application startup notification.
+ * \brief Class representing data about an application startup notification.
  *
  * Such data include the icon of the starting application, the desktop on which
  * the application should start, the binary name of the application, etc.
@@ -464,7 +460,7 @@ public:
      */
     void setBin(const QString &bin);
     /*!
-     * Returns the binary name of the starting application
+     * \brief Returns the binary name of the starting application.
      */
     const QString &bin() const;
     /*!
