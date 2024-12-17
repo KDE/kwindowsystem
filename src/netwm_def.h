@@ -15,7 +15,7 @@
 /*!
   \class NETPoint
   \inmodule KWindowSystem
-  Simple point class for NET classes.
+  \brief Simple point class for NET classes.
 
   This class is a convenience class defining a point x, y.  The existence of
   this class is to keep the implementation from being dependent on a
@@ -45,17 +45,17 @@ struct NETPoint {
         return {x, y};
     }
 
-    /*
-       Public data member.
-    */
-    int x, ///< x coordinate.
-        y; ///< y coordinate
+    /*! \brief The point's X coordinate. */
+    int x;
+
+    /*! \brief The point's Y coordinate. */
+    int y;
 };
 
 /*!
   \class NETSize
   \inmodule KWindowSystem
-  Simple size class for NET classes.
+  \brief Simple size class for NET classes.
 
   This class is a convenience class defining a size width by height.  The
   existence of this class is to keep the implementation from being dependent
@@ -84,17 +84,16 @@ struct NETSize {
     {
         return {width, height};
     }
-    /*
-       Public data member.
-    */
-    int width; ///< Width.
-    int height; ///< Height.
+    /*! The size's width. */
+    int width;
+    /*! The size's height. */
+    int height;
 };
 
 /*!
    \class NETRect
    \inmodule KWindowSystem
-   Simple rectangle class for NET classes.
+   \brief Simple rectangle class for NET classes.
 
    This class is a convenience class defining a rectangle as a point x,y with a
    size width by height.  The existence of this class is to keep the implementation
@@ -120,15 +119,13 @@ struct NETRect {
     }
 
     /*!
-       Position of the rectangle.
-
+       \brief The position of the rectangle's top left corner.
        \sa NETPoint
     */
     NETPoint pos;
 
     /*!
-       Size of the rectangle.
-
+       \brief The size of the rectangle.
        \sa NETSize
     */
     NETSize size;
@@ -137,7 +134,7 @@ struct NETRect {
 /*!
    \class NETIcon
    \inmodule KWindowSystem
-   Simple icon class for NET classes.
+   \brief Simple icon class for NET classes.
 
    This class is a convenience class defining an icon of size width by height.
    The existence of this class is to keep the implementation from being
@@ -148,7 +145,7 @@ struct NETRect {
 */
 struct NETIcon {
     /*!
-       Constructor to initialize this icon to 0x0 with data=0
+       \brief Constructor to initialize this icon to 0x0 with data=0.
     */
     NETIcon()
         : data(nullptr)
@@ -156,15 +153,16 @@ struct NETIcon {
     }
 
     /*!
-       Size of the icon.
-
+       \brief The size of the icon.
        \sa NETSize
     */
     NETSize size;
 
     /*!
-       Image data for the icon.  This is an array of 32bit packed CARDINAL ARGB
-       with high byte being A, low byte being B. First two bytes are width, height.
+       \brief Image data for the icon.
+
+       This is an array of 32bit packed CARDINAL ARGB with high byte being A,
+       low byte being B. First two bytes are width, height.
        Data is in rows, left to right and top to bottom.
     */
     unsigned char *data;
@@ -173,7 +171,7 @@ struct NETIcon {
 /*!
    \class NETExtendedStrut
    \inmodule KWindowSystem
-   Partial strut class for NET classes.
+   \brief Partial strut class for NET classes.
 
    This class is a convenience class defining a strut with left, right, top and
    bottom border values, and ranges for them.  The existence of this class is to
@@ -182,7 +180,7 @@ struct NETIcon {
 */
 struct NETExtendedStrut {
     /*!
-       Constructor to initialize this struct to 0,0,0,0
+       \brief Constructor to initialize this struct to 0,0,0,0.
     */
     NETExtendedStrut()
         : left_width(0)
@@ -200,17 +198,33 @@ struct NETExtendedStrut {
     {
     }
 
-    /*! Left border of the strut, width and range. */
-    int left_width, left_start, left_end;
+    /*! \brief The width of the left border of the strut. */
+    int left_width;
+    /*! \brief The start of the left border of the strut. */
+    int left_start;
+    /*! \brief The end of the left border of the strut. */
+    int left_end;
 
-    /*! Right border of the strut, width and range. */
-    int right_width, right_start, right_end;
+    /*! The width of the right border of the strut. */
+    int right_width;
+    /*! \brief The start of the right border of the strut. */
+    int right_start;
+    /*! \brief The end of the right border of the strut. */
+    int right_end;
 
-    /*! Top border of the strut, width and range. */
-    int top_width, top_start, top_end;
+    /*! \brief The width of the top border of the strut. */
+    int top_width,
+    /*! \brief The start of the top border of the strut. */
+    int top_start;
+    /*! \brief The end of the top border of the strut. */
+    int top_end;
 
-    /*! Bottom border of the strut, width and range. */
-    int bottom_width, bottom_start, bottom_end;
+    /*! \brief The width of the bottom border of the strut. */
+    int bottom_width,
+    /*! \brief The start of the bottom border of the strut. */
+    int bottom_start;
+    /*! \brief The end of the bottom border of the strut. */
+    int bottom_end;
 };
 
 /*!
@@ -218,7 +232,7 @@ struct NETExtendedStrut {
    \inmodule KWindowSystem
    \deprecated use NETExtendedStrut
 
-   Simple strut class for NET classes.
+   \brief Simple strut class for NET classes.
 
    This class is a convenience class defining a strut with left, right, top and
    bottom border values.  The existence of this class is to keep the implementation
@@ -227,7 +241,7 @@ struct NETExtendedStrut {
 */
 struct NETStrut {
     /*!
-       Constructor to initialize this struct to 0,0,0,0
+       \brief Constructor to initialize this struct to 0,0,0,0.
     */
     NETStrut()
         : left(0)
@@ -237,31 +251,23 @@ struct NETStrut {
     {
     }
 
-    /*!
-       Left border of the strut.
-           */
+    /*! \brief Left border of the strut. */
     int left;
 
-    /*!
-       Right border of the strut.
-    */
+    /*! \brief Right border of the strut. */
     int right;
 
-    /*!
-       Top border of the strut.
-           */
+    /*! \brief Top border of the strut. */
     int top;
 
-    /*!
-       Bottom border of the strut.
-           */
+    /*! \brief Bottom border of the strut. */
     int bottom;
 };
 
 /*!
    \class NETFullscreenMonitors
    \inmodule KWindowSystem
-   Simple multiple monitor topology class for NET classes.
+   \brief Simple multiple monitor topology class for NET classes.
 
    This class is a convenience class, defining a multiple monitor topology
    for fullscreen applications that wish to be present on more than one
@@ -273,8 +279,8 @@ struct NETStrut {
 */
 struct NETFullscreenMonitors {
     /*!
-       Constructor to initialize this struct to -1,0,0,0 (an initialized,
-       albeit invalid, topology).
+       \brief Constructor to initialize this struct to -1,0,0,0
+       (an initialized, albeit invalid, topology).
     */
     NETFullscreenMonitors()
         : top(-1)
@@ -284,29 +290,23 @@ struct NETFullscreenMonitors {
     {
     }
 
-    /*!
-       Monitor index whose top border defines the top edge of the topology.
-    */
+    /*! \brief Monitor index whose top border defines the top edge of the topology. */
     int top;
 
-    /*!
-       Monitor index whose bottom border defines the bottom edge of the topology.
-    */
+    /*! \brief Monitor index whose bottom border defines the bottom edge of the topology. */
     int bottom;
 
-    /*!
-       Monitor index whose left border defines the left edge of the topology.
-    */
+    /*! \brief Monitor index whose left border defines the left edge of the topology. */
     int left;
 
-    /*!
-       Monitor index whose right border defines the right edge of the topology.
-    */
+    /*! \brief Monitor index whose right border defines the right edge of the topology. */
     int right;
 
     /*!
-       Convenience check to make sure that we don't return the initial (invalid)
-       values. Note that we don't want to call this isValid() because we're not
+       \brief Convenience check to make sure that we don't return
+       the initial (invalid) values.
+
+       Note that we don't want to call this isValid() because we're not
        actually validating the monitor topology here, but merely that our initial
        values were overwritten at some point by real (non-negative) monitor indices.
     */
@@ -319,7 +319,7 @@ struct NETFullscreenMonitors {
 /*!
   \class NET
   \inmodule KWindowSystem
-  Base namespace class.
+  \brief Base namespace class.
 
   The NET API is an implementation of the NET Window Manager Specification.
 
@@ -349,50 +349,51 @@ public:
     /*!
        \enum NET::WindowType
        Window type.
+       \sa NET::WindowTypeMask
        \value Unknown
        Indicates that the window did not define a window type.
        \value Normal
-       Indicates that this is a normal, top-level window
+       Indicates that this is a normal, top-level window.
        \value Desktop
        Indicates a desktop feature. This can include a single window
        containing desktop icons with the sam*e dimensions as the screen, allowing
        the desktop environment to have full control of the desktop, without the
        need for proxying root window clicks.
        \value Dock
-       Indicates a dock or panel feature
+       Indicates a dock or panel feature.
        \value Toolbar
-       Indicates a toolbar window
+       Indicates a toolbar window.
        \value Menu
-       Indicates a pinnable (torn-off) menu window
+       Indicates a pinnable (torn-off) menu window.
        \value Dialog
-       Indicates that this is a dialog window
+       Indicates that this is a dialog window.
        \value Override
-       Deprecated: has unclear meaning and is KDE-only
+       Non-standard. Deprecated: has unclear meaning and is KDE-only.
        \value TopMenu
-       Indicates a toplevel menu (AKA macmenu). This is a KDE extension to the
+       Non-standard. Indicates a toplevel menu (AKA macmenu). This is a KDE extension to the
        _NET_WM_WINDOW_TYPE mechanism.
        \value Utility
-       Indicates a utility window
+       Indicates a utility window.
        \value Splash
        Indicates that this window is a splash screen window.
        \value DropdownMenu
-       Indicates a dropdown menu (from a menubar typically)
+       Indicates a dropdown menu (from a menubar typically).
        \value PopupMenu
-       Indicates a popup menu (a context menu typically)
+       Indicates a popup menu (a context menu typically).
        \value Tooltip
-       Indicates a tooltip window
+       Indicates a tooltip window.
        \value Notification
-       Indicates a notification window
+       Indicates a notification window.
        \value ComboBox
-       Indicates that the window is a list for a combobox
+       Indicates that the window is a list for a combobox.
        \value DNDIcon
-       Indicates a window that represents the dragged object during DND operation
+       Indicates a window that represents the dragged object during DND operation.
        \value [since 5.6] OnScreenDisplay
-       Indicates an On Screen Display window (such as volume feedback)
+       Non-standard. Indicates an On Screen Display window (such as volume feedback).
        \value [since 5.58] CriticalNotification
-       Indicates a critical notification (such as battery is running out)
+       Non-standard. Indicates a critical notification (such as battery is running out).
        \value AppletPopup
-       Indicates that this window is an applet.
+       Non-standard. Indicates that this window is an applet.
     */
     enum WindowType {
         Unknown = -1,
@@ -404,8 +405,8 @@ public:
         Dialog = 5,
         // cannot deprecate to compiler: used both by clients & manager, later needs to keep supporting it for now
         // KF6: remove
-        Override = 6, // NON STANDARD
-        TopMenu = 7, // NON STANDARD
+        Override = 6,
+        TopMenu = 7,
         Utility = 8,
         Splash = 9,
         DropdownMenu = 10,
@@ -414,15 +415,16 @@ public:
         Notification = 13,
         ComboBox = 14,
         DNDIcon = 15,
-        OnScreenDisplay = 16, // NON STANDARD
-        CriticalNotification = 17, // NON STANDARD
-        AppletPopup = 18, // NON STANDARD
+        OnScreenDisplay = 16,
+        CriticalNotification = 17,
+        AppletPopup = 18,
     };
 
     /*!
        \enum NET::WindowTypeMask
        Values for WindowType when they should be OR'ed together, e.g.
        for the properties argument of the NETRootInfo constructor.
+       \sa NET::WindowType
        \value NormalMask
        \value DesktopMask
        \value DockMask
@@ -439,32 +441,32 @@ public:
        \value NotificationMask
        \value ComboBoxMask
        \value DNDIconMask
-       \value OnScreenDisplayMask
-       \value CriticalNotificationMask
-       \value AppletPopupMask
-       \value AllTypesMask
+       \value [since 5.6] OnScreenDisplayMask Non-standard.
+       \value [since 5.58] CriticalNotificationMask Non-standard.
+       \value AppletPopupMask Non-standard.
+       \value AllTypesMask All window types.
     */
     enum WindowTypeMask {
-        NormalMask = 1u << 0, ///< \sa Normal
-        DesktopMask = 1u << 1, ///< \sa Desktop
-        DockMask = 1u << 2, ///< \sa Dock
-        ToolbarMask = 1u << 3, ///< \sa Toolbar
-        MenuMask = 1u << 4, ///< \sa Menu
-        DialogMask = 1u << 5, ///< \sa Dialog
-        OverrideMask = 1u << 6, ///< \sa Override
-        TopMenuMask = 1u << 7, ///< \sa TopMenu
-        UtilityMask = 1u << 8, ///< \sa Utility
-        SplashMask = 1u << 9, ///< \sa Splash
-        DropdownMenuMask = 1u << 10, ///< \sa DropdownMenu
-        PopupMenuMask = 1u << 11, ///< \sa PopupMenu
-        TooltipMask = 1u << 12, ///< \sa Tooltip
-        NotificationMask = 1u << 13, ///< \sa Notification
-        ComboBoxMask = 1u << 14, ///< \sa ComboBox
-        DNDIconMask = 1u << 15, ///< \sa DNDIcon
-        OnScreenDisplayMask = 1u << 16, ///< NON STANDARD \sa OnScreenDisplay \since 5.6
-        CriticalNotificationMask = 1u << 17, ///< NON STANDARD \sa CriticalNotification \since 5.58
-        AppletPopupMask = 1u << 18, ///< NON STANDARD \sa AppletPopup
-        AllTypesMask = 0U - 1, ///< All window types.
+        NormalMask = 1u << 0,
+        DesktopMask = 1u << 1,
+        DockMask = 1u << 2,
+        ToolbarMask = 1u << 3,
+        MenuMask = 1u << 4,
+        DialogMask = 1u << 5,
+        OverrideMask = 1u << 6,
+        TopMenuMask = 1u << 7,
+        UtilityMask = 1u << 8,
+        SplashMask = 1u << 9,
+        DropdownMenuMask = 1u << 10,
+        PopupMenuMask = 1u << 11,
+        TooltipMask = 1u << 12,
+        NotificationMask = 1u << 13,
+        ComboBoxMask = 1u << 14,
+        DNDIconMask = 1u << 15,
+        OnScreenDisplayMask = 1u << 16,
+        CriticalNotificationMask = 1u << 17,
+        AppletPopupMask = 1u << 18,
+        AllTypesMask = 0U - 1,
     };
     Q_DECLARE_FLAGS(WindowTypes, WindowTypeMask)
 
@@ -564,10 +566,10 @@ public:
        \value Bottom
        \value BottomLeft
        \value Left
-       \value Move (for movement only)
-       \value KeyboardSize (resizing via keyboard)
-       \value KeyboardMove (movement via keyboard)
-       \value MoveResizeCancel (to ask the WM to stop moving a window)
+       \value Move For movement only.
+       \value KeyboardSize Resizing via keyboard.
+       \value KeyboardMove Movement via keyboard.
+       \value MoveResizeCancel To ask the WM to stop moving a window.
     */
     enum Direction {
         TopLeft = 0,
@@ -665,7 +667,7 @@ public:
        \value WMDesktop
        \value WMWindowType
        \value WMState
-       \value WMStrut  (obsoleted by WM2ExtendedStrut)
+       \value WMStrut Obsoleted by WM2ExtendedStrut.
        \value WMGeometry
        \value WMFrameExtents
        \value WMIconGeometry
@@ -730,14 +732,14 @@ public:
 
         \value WM2UserTime
         \value WM2StartupId
-        \value WM2TransientFor mainwindow for the window (WM_TRANSIENT_FOR)
-        \value WM2GroupLeader  group leader (window_group in WM_HINTS)
+        \value WM2TransientFor Main window for the window (WM_TRANSIENT_FOR).
+        \value WM2GroupLeader  Group leader (window_group in WM_HINTS).
         \value WM2AllowedActions
         \value WM2RestackWindow
         \value WM2MoveResizeWindow
         \value WM2ExtendedStrut
-        \value WM2KDETemporaryRules
-        \value WM2TemporaryRules internal, for kstart
+        \value WM2KDETemporaryRules Non-standard.
+        \omitvalue WM2TemporaryRules For kstart
         \value WM2WindowClass  WM_CLASS
         \value WM2WindowRole   WM_WINDOW_ROLE
         \value WM2ClientMachine WM_CLIENT_MACHINE
@@ -746,22 +748,22 @@ public:
         \value WM2DesktopLayout _NET_DESKTOP_LAYOUT
         \value WM2FullPlacement _NET_WM_FULL_PLACEMENT
         \value WM2FullscreenMonitors _NET_WM_FULLSCREEN_MONITORS
-        \value WM2FrameOverlap
-        \value WM2Activities
-        \value WM2BlockCompositing
-        \value WM2KDEShadow
-        \value WM2Urgency urgency hint in WM_HINTS (see ICCCM 4.1.2.4)
-        \value WM2Input input hint (input in WM_HINTS, see ICCCM 4.1.2.4)
-        \value WM2Protocols see NET::Protocol
-        \value WM2InitialMappingState initial state hint of WM_HINTS (see ICCCM 4.1.2.4)
-        \value WM2IconPixmap icon pixmap and mask in WM_HINTS (see ICCCM 4.1.2.4)
-        \value WM2OpaqueRegion
-        \value WM2DesktopFileName the base name of the desktop file name or the full path to the desktop file
-        \value WM2GTKFrameExtents extents of the shadow drawn by the client
-        \value WM2AppMenuServiceName
-        \value WM2AppMenuObjectPath
-        \value WM2GTKApplicationId _GTK_APPLICATION_ID
-        \value WM2GTKShowWindowMenu _GTK_SHOW_WINDOW_MENU
+        \value WM2FrameOverlap Non-standard.
+        \value [since 4.6] WM2Activities Non-standard.
+        \value [since 4.7] WM2BlockCompositing Standard since 5.17.
+        \value [since 4.7] WM2KDEShadow Non-standard.
+        \value [since 5.3] WM2Urgency Urgency hint in WM_HINTS (see ICCCM 4.1.2.4).
+        \value [since 5.3] WM2Input Input hint (input in WM_HINTS, see ICCCM 4.1.2.4).
+        \value [since 5.3] WM2Protocols See NET::Protocol.
+        \value [since 5.5] WM2InitialMappingState Initial state hint of WM_HINTS (see ICCCM 4.1.2.4).
+        \value [since 5.7] WM2IconPixmap Icon pixmap and mask in WM_HINTS (see ICCCM 4.1.2.4).
+        \value [since 5.7] WM2OpaqueRegion
+        \value [since 5.28] WM2DesktopFileName Non-standard. The base name of the desktop file name or the full path to the desktop file.
+        \value [since 5.65] WM2GTKFrameExtents Non-standard. Extents of the shadow drawn by the client.
+        \value [since 5.69] WM2AppMenuServiceName. Non-standard.
+        \value [since 5.69] WM2AppMenuObjectPath. Non-standard.
+        \value [since 5.91] WM2GTKApplicationId Non-standard. _GTK_APPLICATION_ID
+        \value [since 5.96] WM2GTKShowWindowMenu Non-standard. _GTK_SHOW_WINDOW_MENU
         \value WM2AllProperties
     */
     enum Property2 {
@@ -773,7 +775,7 @@ public:
         WM2RestackWindow = 1u << 5,
         WM2MoveResizeWindow = 1u << 6,
         WM2ExtendedStrut = 1u << 7,
-        WM2KDETemporaryRules = 1u << 8, // NOT STANDARD
+        WM2KDETemporaryRules = 1u << 8,
         WM2WindowClass = 1u << 9,
         WM2WindowRole = 1u << 10,
         WM2ClientMachine = 1u << 11,
@@ -782,22 +784,22 @@ public:
         WM2DesktopLayout = 1u << 14,
         WM2FullPlacement = 1u << 15,
         WM2FullscreenMonitors = 1u << 16,
-        WM2FrameOverlap = 1u << 17, // NOT STANDARD
-        WM2Activities = 1u << 18, // NOT STANDARD \since 4.6
-        WM2BlockCompositing = 1u << 19, // NOT STANDARD \since 4.7, STANDARD \since 5.17
-        WM2KDEShadow = 1u << 20, // NOT Standard \since 4.7
-        WM2Urgency = 1u << 21, // \since 5.3
-        WM2Input = 1u << 22, // \since 5.3
-        WM2Protocols = 1u << 23, // \since 5.3
-        WM2InitialMappingState = 1u << 24, // \since 5.5
-        WM2IconPixmap = 1u << 25, // \since 5.7
-        WM2OpaqueRegion = 1u << 25, // \since 5.7
-        WM2DesktopFileName = 1u << 26, // NOT STANDARD \since 5.28
-        WM2GTKFrameExtents = 1u << 27, // NOT STANDARD \since 5.65
-        WM2AppMenuServiceName = 1u << 28, // NOT STANDARD \since 5.69
-        WM2AppMenuObjectPath = 1u << 29, // NOT STANDARD \since 5.69
-        WM2GTKApplicationId = 1u << 30, // NOT STANDARD \since 5.91
-        WM2GTKShowWindowMenu = 1u << 31, // NOT STANDARD \since 5.96
+        WM2FrameOverlap = 1u << 17,
+        WM2Activities = 1u << 18,
+        WM2BlockCompositing = 1u << 19,
+        WM2KDEShadow = 1u << 20,
+        WM2Urgency = 1u << 21,
+        WM2Input = 1u << 22,
+        WM2Protocols = 1u << 23,
+        WM2InitialMappingState = 1u << 24,
+        WM2IconPixmap = 1u << 25,
+        WM2OpaqueRegion = 1u << 25,
+        WM2DesktopFileName = 1u << 26,
+        WM2GTKFrameExtents = 1u << 27,
+        WM2AppMenuServiceName = 1u << 28,
+        WM2AppMenuObjectPath = 1u << 29,
+        WM2GTKApplicationId = 1u << 30,
+        WM2GTKShowWindowMenu = 1u << 31,
         WM2AllProperties = ~0u,
     };
     Q_DECLARE_FLAGS(Properties2, Property2)
@@ -815,14 +817,14 @@ public:
        \enum NET::RequestSource
        Source of the request.
        \omitvalue FromUnknown
-       Indicates that the source of the request is unknown
+       Indicates that the source of the request is unknown.
        \value FromApplication
-       Indicates that the request comes from a normal application
+       Indicates that the request comes from a normal application.
        \value FromTool
-       Indicated that the request comes from pager or similar tool
+       Indicated that the request comes from pager or similar tool.
     */
     enum RequestSource {
-        FromUnknown = 0, // internal
+        FromUnknown = 0,
         FromApplication = 1,
         FromTool = 2,
     };
@@ -864,7 +866,7 @@ public:
      * \value DeleteWindowProtocol WM_DELETE_WINDOW
      * \value PingProtocol _NET_WM_PING from EWMH
      * \value SyncRequestProtocol _NET_WM_SYNC_REQUEST from EWMH
-     * \value ContextHelpProtocol _NET_WM_CONTEXT_HELP, NON STANDARD!
+     * \value ContextHelpProtocol Non-standard. _NET_WM_CONTEXT_HELP
      */
     enum Protocol {
         NoProtocol = 0,
@@ -877,12 +879,12 @@ public:
     Q_DECLARE_FLAGS(Protocols, Protocol)
 
     /*!
-     Compares two X timestamps, taking into account wrapping and 64bit architectures.
+     \brief Compares two X timestamps, taking into account wrapping and 64bit architectures.
      Return value is like with strcmp(), 0 for equal, -1 for \a time1 < \a time2, 1 for \a time1 > \a time2.
     */
     static int timestampCompare(unsigned long time1, unsigned long time2);
     /*!
-     Returns a difference of two X timestamps, \a time2 - \a time1, where \a time2 must be later than \a time1,
+     \brief Returns a difference of two X timestamps, \a time2 - \a time1, where \a time2 must be later than \a time1,
      as returned by timestampCompare().
     */
     static int timestampDiff(unsigned long time1, unsigned long time2);
