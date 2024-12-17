@@ -20,7 +20,7 @@ class KWindowShadowTilePrivate;
 /*!
  * \class KWindowShadowTile
  * \inmodule KWindowSystem
- * The KWindowShadowTile class provides a platform-indendent shadow tile representation.
+ * \brief The KWindowShadowTile class provides a platform-indendent shadow tile representation.
  */
 class KWINDOWSYSTEM_EXPORT KWindowShadowTile
 {
@@ -67,7 +67,7 @@ private:
 /*!
  * \class KWindowShadow
  * \inmodule KWindowSystem
- * The KWindowShadow class represents a drop-shadow that is drawn by the compositor.
+ * \brief The KWindowShadow class represents a drop-shadow that is drawn by the compositor.
  *
  * The KWindowShadow is composed of multiple tiles. The top left tile, the top right tile, the bottom
  * left tile, and the bottom right tile are rendered as they are. The top tile and the bottom tile are
