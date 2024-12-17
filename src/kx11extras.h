@@ -50,6 +50,7 @@ class KWINDOWSYSTEM_EXPORT KX11Extras : public QObject
     Q_PROPERTY(bool compositingActive READ compositingActive NOTIFY compositingChanged)
 
 public:
+    /*! */
     static KX11Extras *self();
 
     /*!
@@ -192,6 +193,7 @@ public:
     static QPixmap icon(WId win, int width = -1, int height = -1, bool scale = false);
 
     /*!
+     * \enum KX11Extras::IconSource
      * Masks specifying from which sources to read an icon.
      *
      * They are tried from the best until an icon is found.
