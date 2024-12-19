@@ -17,7 +17,7 @@
 #include <X11/Xlib.h>
 
 class KXErrorHandlerPrivate;
-/**
+/*!
  * This class simplifies handling of X errors. It shouldn't be necessary to use
  * with Qt classes, as the toolkit should handle X errors itself, so this
  * class will be mainly used with direct Xlib usage, and some lowlevel classes
@@ -38,43 +38,42 @@ class KXErrorHandlerPrivate;
  * (e.g. XGetWindowAttributes(), XGetGeometry(), etc.), it is not required
  * to do an explicit sync.
  *
- * @author Lubos Lunak <l.lunak@kde.org>
- * @short Handler for X errors
+ * \internal
  */
 class KXErrorHandler
 {
 public:
-    /**
+    /*!
      * Creates error handler that will set error flag after encountering
      * any X error.
      */
     explicit KXErrorHandler(Display *dpy = QX11Info::display());
-    /**
+    /*!
      * This constructor takes pointer to a function whose prototype matches
      * the one that's used with the XSetErrorHandler() Xlib function.
      * NOTE: For the error flag to be set, the function must return a non-zero
      * value.
      */
     explicit KXErrorHandler(int (*handler)(Display *, XErrorEvent *), Display *dpy = QX11Info::display());
-    /**
+    /*!
      * This function returns true if the error flag is set (i.e. no custom handler
      * function was used and there was any error, or the custom handler indicated
      * an error by its return value).
      *
-     * @param sync if true, an explicit XSync() will be done. Not necessary
+     * \a sync if true, an explicit XSync() will be done. Not necessary
      *             when the last X request required a roundtrip.
      */
     bool error(bool sync) const;
-    /**
+    /*!
      * This function returns the error event for the first X error that occurred.
      * The return value is useful only if error() returned true.
-     * @since 4.0.1
+     * \since 4.0.1
      */
     XErrorEvent errorEvent() const;
-    /**
+    /*!
      * Returns error message for the given error. The error message is not translated,
      * as it is meant for debugging.
-     * @since 4.0.1
+     * \since 4.0.1
      */
     static QByteArray errorMessage(const XErrorEvent &e, Display *dpy = QX11Info::display());
     ~KXErrorHandler();

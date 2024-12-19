@@ -3,6 +3,8 @@ configure_file(config-kwindowsystem.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-k
 add_library(KF6WindowSystem)
 add_library(KF6::WindowSystem ALIAS KF6WindowSystem)
 
+ecm_generate_qdoc(KF6WindowSystem kwindowsystem.qdocconf)
+
 qt_extract_metatypes(KF6WindowSystem)
 
 set_target_properties(KF6WindowSystem PROPERTIES
@@ -149,36 +151,6 @@ install(
     COMPONENT
         Devel
 )
-
-if(BUILD_QCH)
-    ecm_add_qch(
-        KF6WindowSystem_QCH
-        NAME KWindowSystem
-        BASE_NAME KF6WindowSystem
-        VERSION ${KF_VERSION}
-        ORG_DOMAIN org.kde
-        SOURCE_DIRS
-            # using dir for now, to cover any platform dependent code
-            # TODO: should only use public headers, to cover only public API
-            ${CMAKE_CURRENT_SOURCE_DIR}
-        MD_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md"
-        LINK_QCHS
-            Qt6Gui_QCH
-        INCLUDE_DIRS
-            ${CMAKE_CURRENT_BINARY_DIR}
-        BLANK_MACROS
-            KWINDOWSYSTEM_EXPORT
-            KWINDOWSYSTEM_DEPRECATED
-            KWINDOWSYSTEM_DEPRECATED_EXPORT
-            "KWINDOWSYSTEM_DEPRECATED_VERSION(x, y, t)"
-            "KWINDOWSYSTEM_DEPRECATED_VERSION_BELATED(x, y, xt, yt, t)"
-            "KWINDOWSYSTEM_ENUMERATOR_DEPRECATED_VERSION(x, y, t)"
-            "KWINDOWSYSTEM_ENUMERATOR_DEPRECATED_VERSION_BELATED(x, y, xt, yt, t)"
-        TAGFILE_INSTALL_DESTINATION ${KDE_INSTALL_QTQCHDIR}
-        QCH_INSTALL_DESTINATION ${KDE_INSTALL_QTQCHDIR}
-        COMPONENT Devel
-    )
-endif()
 
 add_subdirectory(platforms)
 
