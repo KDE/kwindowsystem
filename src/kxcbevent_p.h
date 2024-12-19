@@ -8,7 +8,7 @@
 
 #include <string.h>
 
-/**
+/*
  * KXcbEvent allocates an xcb event in a 32 bytes large, zero-initialized buffer to avoid
  * out-of-bounds reads and uninitialized memory reads in xcb_send_event(). According to
  * XCB documentation, the wire size of all XCB events is 32 bytes, and that many bytes will

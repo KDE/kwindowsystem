@@ -29,39 +29,39 @@ private:
     xcb_connection_t *m_connection;
 };
 
-/**
+/*!
    Resizable array class.
 
    This resizable array is used to simplify the implementation.  The existence of
    this class is to keep the implementation from depending on a separate
    framework/library.
-   @internal
+   \internal
 **/
 
 template<class Z>
 class NETRArray
 {
 public:
-    /**
+    /*!
        Constructs an empty (size == 0) array.
     **/
 
     NETRArray();
 
-    /**
+    /*!
        Resizable array destructor.
     **/
 
     ~NETRArray();
 
-    /**
+    /*!
        The [] operator does the work.  If the index is larger than the current
        size of the array, it is resized.
      **/
 
     Z &operator[](int);
 
-    /**
+    /*!
        Returns the size of the array.
      **/
 
@@ -70,7 +70,7 @@ public:
         return sz;
     }
 
-    /**
+    /*!
        Resets the array (size == 0).
      **/
     void reset();
@@ -81,9 +81,9 @@ private:
     Z *d;
 };
 
-/**
+/*!
    Private data for the NETRootInfo class.
-   @internal
+   \internal
 **/
 
 struct NETRootInfoPrivate {
@@ -133,9 +133,9 @@ struct NETRootInfoPrivate {
     }
 };
 
-/**
+/*!
    Private data for the NETWinInfo class.
-   @internal
+   \internal
 **/
 
 struct NETWinInfoPrivate {
