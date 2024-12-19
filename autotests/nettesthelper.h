@@ -15,7 +15,7 @@
 namespace KXUtils
 {
 
-/**
+/*!
  * @brief Small helper class to fetch an intern atom through XCB.
  *
  * This class allows to request an intern atom and delay the retrieval of the reply

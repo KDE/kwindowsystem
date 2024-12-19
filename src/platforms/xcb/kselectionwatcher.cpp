@@ -40,9 +40,9 @@ static xcb_atom_t intern_atom(xcb_connection_t *c, const char *name)
     return atom;
 }
 
-//*******************************************
+//*!*****************************************
 // KSelectionWatcher
-//*******************************************
+//*!*****************************************
 
 class Q_DECL_HIDDEN KSelectionWatcher::Private : public QAbstractNativeEventFilter
 {

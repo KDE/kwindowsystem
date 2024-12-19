@@ -126,9 +126,9 @@ public:
     void got_remove_startup_info(const QString &msg_P);
     void new_startup_info_internal(const KStartupInfoId &id_P, Data &data_P, bool update_only_P);
     void removeAllStartupInfoInternal(const KStartupInfoId &id_P);
-    /**
-     * Emits the gotRemoveStartup signal and erases the @p it from the startups map.
-     * @returns Iterator to next item in the startups map.
+    /*
+     * Emits the gotRemoveStartup signal and erases the it from the startups map.
+     * Returns Iterator to next item in the startups map.
      **/
     QMap<KStartupInfoId, Data>::iterator removeStartupInfoInternal(QMap<KStartupInfoId, Data>::iterator it);
     void remove_startup_pids(const KStartupInfoId &id, const KStartupInfoData &data);
