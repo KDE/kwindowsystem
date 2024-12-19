@@ -21,6 +21,7 @@ class KWindowSystemPrivate;
 /*!
  * \qmltype KWindowSystem
  * \inqmlmodule org.kde.kwindowsystem
+ * \nativetype KWindowSystem
  * \brief Convenience access to certain properties and features of window systems.
  */
 /*!

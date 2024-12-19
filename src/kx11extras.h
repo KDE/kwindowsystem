@@ -22,6 +22,7 @@ class NETEventFilter;
 /*!
  * \qmltype KX11Extras
  * \inqmlmodule org.kde.kwindowsystem
+ * \nativetype KX11Extras
  * \brief A collection of functions to obtain information from and manipulate X11 windows.
  *
  * These are generally not applicable to other window systems.
