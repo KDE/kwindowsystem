@@ -8,6 +8,8 @@
 #define KXERRORHANDLER_H
 #include <config-kwindowsystem.h>
 
+#include <mutex>
+
 #include <QtGlobal>
 
 #if KWINDOWSYSTEM_HAVE_X11
@@ -90,6 +92,7 @@ private:
     int (*user_handler2)(Display *, XErrorEvent *);
     int (*old_handler)(Display *, XErrorEvent *);
     static int handler_wrapper(Display *, XErrorEvent *);
+    static std::mutex s_lock;
     static KXErrorHandler **handlers;
     static int pos;
     static int size;
