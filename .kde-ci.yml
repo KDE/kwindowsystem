@@ -1,13 +1,13 @@
 Dependencies:
-- 'on': ['@all']
-  'require':
+ - 'on': ['@all']
+   'require':
     'frameworks/extra-cmake-modules': '@same'
-- 'on': ['Linux/Qt6', 'Linux/Qt6Next', 'FreeBSD/Qt6']
-  'require':
+ - 'on': ['Linux/Qt6', 'Linux/Qt6Next', 'FreeBSD/Qt6']
+   'require':
     'libraries/plasma-wayland-protocols': '@latest-kf6'
     'third-party/wayland': '@latest'
     'third-party/wayland-protocols': '@latest'
 
 Options:
-  test-before-installing: True
-  require-passing-tests-on: [ 'Linux', 'FreeBSD', 'Windows' ]
+ test-before-installing: True
+ require-passing-tests-on: ['Linux', 'FreeBSD', 'Windows']
