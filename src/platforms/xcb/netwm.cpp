@@ -8,11 +8,13 @@
 //#define NETWMDEBUG
 #include "netwm.h"
 
+#include <xcb/res.h>
 #include <xcb/xproto.h>
 
 #include "atoms_p.h"
-#include "netwm_p.h"
+#include "cptr_p.h"
 #include "kxcbevent_p.h"
+#include "netwm_p.h"
 
 #if KWINDOWSYSTEM_HAVE_X11 // FIXME
 
@@ -4356,6 +4358,28 @@ void NETWinInfo::update(NET::Properties dirtyProperties, NET::Properties2 dirtyP
 
     if (dirty & WMPid) {
         p->pid = get_value_reply<uint32_t>(p->conn, cookies[c++], XCB_ATOM_CARDINAL, 0);
+
+        // Do not trust _NET_WM_PID if we can help it. It's super problematic because it gets supplied by the client
+        // and may thus be the pid inside a pid namespace and not reflect the actual pid (on the host).
+        // Query xres if available instead.
+        static const auto haveXRes = [this] {
+            auto cookie = xcb_res_query_version(p->conn, XCB_RES_MAJOR_VERSION, XCB_RES_MINOR_VERSION);
+            UniqueCPointer<xcb_res_query_version_reply_t> reply(xcb_res_query_version_reply(p->conn, cookie, nullptr));
+            return reply != nullptr;
+        }();
+
+        if (haveXRes) {
+            xcb_res_client_id_spec_t specs;
+            specs.client = p->window;
+            specs.mask = XCB_RES_CLIENT_ID_MASK_LOCAL_CLIENT_PID;
+            auto cookie = xcb_res_query_client_ids(p->conn, 1, &specs);
+
+            UniqueCPointer<xcb_res_query_client_ids_reply_t> reply(xcb_res_query_client_ids_reply(p->conn, cookie, nullptr));
+            if (reply && xcb_res_query_client_ids_ids_length(reply.get()) > 0) {
+                uint32_t pid = *xcb_res_client_id_value_value((xcb_res_query_client_ids_ids_iterator(reply.get()).data));
+                p->pid = pid;
+            }
+        }
     }
 
     if (dirty2 & WM2StartupId) {
