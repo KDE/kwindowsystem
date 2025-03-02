@@ -6,28 +6,28 @@
 # Sahachart Anukulkitch <drrider@gmail.com>, 2006, 2007.
 # Narachai Sakorn <narachai@gmail.com>, 2008.
 # Phuwanat Sakornsakolpat <narachai@gmail.com>, 2010.
+# SPDX-FileCopyrightText: 2025 Pongsakorn S. <kde@xerusion.me>
 msgid ""
 msgstr ""
 "Project-Id-Version: kdelibs4\n"
 "Report-Msgid-Bugs-To: http://bugs.kde.org\n"
 "POT-Creation-Date: 2014-03-23 01:50+0000\n"
-"PO-Revision-Date: 2010-12-31 22:47+0700\n"
-"Last-Translator: Phuwanat Sakornsakolpat <narachai@gmail.com>\n"
-"Language-Team: Thai <thai-l10n@googlegroups.com>\n"
+"PO-Revision-Date: 2025-03-02 00:29+0700\n"
+"Last-Translator: Pongsakorn S. <kde@xerusion.me>\n"
+"Language-Team: Thai\n"
 "Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.0\n"
+"X-Generator: Lokalize 24.12.2\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Qt-Contexts: true\n"
 
 #: kx11extras.cpp:994
-#, fuzzy, qt-format
-#| msgid "Desktop %1"
+#, qt-format
 msgctxt "KWindowSystem|"
 msgid "Desktop %1"
-msgstr "พื้นที่ทำงาน %1"
+msgstr "เดสก์ท็อป %1"
 
 #, fuzzy
 #~ msgctxt "QObject|"
@@ -11458,7 +11458,7 @@ msgstr "พื้นที่ทำงาน %1"
 #~ "point: %4<br />(In decimal: %5)</qt>"
 #~ msgstr ""
 #~ "<qt><font size=\"+4\" face=\"%1\">%2</font><br />%3<br />รหัสยูนิโค้ด: %4<br /"
-#~ ">(ในแบบเลขฐานสิบ: %5)</"
+#~ ">(ในแบบเลขฐานสิบ: %5)</qt>"
 
 #~ msgid ""
 #~ "Konqueror has the ability to store the password in an encrypted wallet. "
