@@ -23,5 +23,6 @@ inline wl_surface *surfaceForWindow(QWindow *window)
     if (!native) {
         return nullptr;
     }
+    window->create();
     return reinterpret_cast<wl_surface *>(native->nativeResourceForWindow(QByteArrayLiteral("surface"), window));
 }
