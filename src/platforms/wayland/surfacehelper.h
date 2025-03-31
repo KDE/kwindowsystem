@@ -9,6 +9,8 @@
 #include <QWindow>
 
 #include <QGuiApplication>
+#include <QVersionNumber>
+
 #include <qpa/qplatformnativeinterface.h>
 
 struct wl_surface;
@@ -23,5 +25,16 @@ inline wl_surface *surfaceForWindow(QWindow *window)
     if (!native) {
         return nullptr;
     }
+
+    // NotificationWindow incorrectly relied on a side effect of an older version of this class
+    // In order to remain bug-compatiable, with that older usage, this is
+    // it can be dropped when we no longer support 6.3.0 or 6.3.1
+    static bool isBuggyPlasma =
+        qApp->applicationName() == QLatin1String("plasmashell") && QVersionNumber::fromString(qApp->applicationVersion()) < QVersionNumber(6, 3, 4);
+
+    if (isBuggyPlasma) {
+        window->create();
+    }
+
     return reinterpret_cast<wl_surface *>(native->nativeResourceForWindow(QByteArrayLiteral("surface"), window));
 }
