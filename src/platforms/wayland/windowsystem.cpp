@@ -8,6 +8,7 @@
 #include "logging.h"
 #include "surfacehelper.h"
 #include "waylandxdgactivationv1_p.h"
+#include "waylandxdgdialogv1_p.h"
 #include "waylandxdgforeignv2_p.h"
 
 #include <KWaylandExtras>
@@ -16,10 +17,12 @@
 #include "qwayland-plasma-window-management.h"
 #include <QEvent>
 #include <QGuiApplication>
+#include <QLibraryInfo>
 #include <QPixmap>
 #include <QPoint>
 #include <QString>
 #include <QTimer>
+#include <QVersionNumber>
 #include <QWaylandClientExtensionTemplate>
 #include <QWindow>
 #include <qpa/qplatformnativeinterface.h>
@@ -284,6 +287,18 @@ void WindowSystem::doSetMainWindow(QWindow *window, const QString &handle)
     connect(imported, &QObject::destroyed, waylandWindow, [waylandWindow] {
         waylandWindow->setProperty(c_kdeXdgForeignImportedProperty, QVariant());
     });
+
+    // Before Qt 6.10, Qt sets XDG Dialog modal only when it has a transient parent.
+    if (window->modality() != Qt::NonModal && QLibraryInfo::version() < QVersionNumber(6, 10, 0)) {
+        auto &xdgDialog = WaylandXdgDialogWmV1::self();
+        if (xdgDialog.isActive()) {
+            if (auto *xdgToplevel = xdgToplevelForWindow(window)) {
+                auto *dialog = xdgDialog.getDialog(xdgToplevel);
+                dialog->set_modal();
+                dialog->setParent(waylandWindow);
+            }
+        }
+    }
 }
 
 #include "moc_windowsystem.cpp"
