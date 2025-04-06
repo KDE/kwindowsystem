@@ -14,6 +14,7 @@
 #include <qpa/qplatformnativeinterface.h>
 
 struct wl_surface;
+struct xdg_toplevel;
 
 inline wl_surface *surfaceForWindow(QWindow *window)
 {
@@ -37,4 +38,18 @@ inline wl_surface *surfaceForWindow(QWindow *window)
     }
 
     return reinterpret_cast<wl_surface *>(native->nativeResourceForWindow(QByteArrayLiteral("surface"), window));
+}
+
+inline xdg_toplevel *xdgToplevelForWindow(QWindow *window)
+{
+    if (!window) {
+        return nullptr;
+    }
+
+    QPlatformNativeInterface *native = qGuiApp->platformNativeInterface();
+    if (!native) {
+        return nullptr;
+    }
+
+    return reinterpret_cast<xdg_toplevel *>(native->nativeResourceForWindow(QByteArrayLiteral("xdg_toplevel"), window));
 }
