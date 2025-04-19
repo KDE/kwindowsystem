@@ -289,14 +289,19 @@ void WindowSystem::doSetMainWindow(QWindow *window, const QString &handle)
     });
 
     // Before Qt 6.10, Qt sets XDG Dialog modal only when it has a transient parent.
-    if (window->modality() != Qt::NonModal && QLibraryInfo::version() < QVersionNumber(6, 10, 0)) {
-        auto &xdgDialog = WaylandXdgDialogWmV1::self();
-        if (xdgDialog.isActive()) {
-            if (auto *xdgToplevel = xdgToplevelForWindow(window)) {
-                auto *dialog = xdgDialog.getDialog(xdgToplevel);
-                dialog->set_modal();
-                dialog->setParent(waylandWindow);
+    if (QLibraryInfo::version() < QVersionNumber(6, 10, 0)) {
+        auto *oldDialog = waylandWindow->findChild<WaylandXdgDialogV1 *>();
+        if (window->modality() != Qt::NonModal && !oldDialog) {
+            auto &xdgDialog = WaylandXdgDialogWmV1::self();
+            if (xdgDialog.isActive()) {
+                if (auto *xdgToplevel = xdgToplevelForWindow(window)) {
+                    auto *dialog = xdgDialog.getDialog(xdgToplevel);
+                    dialog->set_modal();
+                    dialog->setParent(waylandWindow);
+                }
             }
+        } else {
+            delete oldDialog;
         }
     }
 }
