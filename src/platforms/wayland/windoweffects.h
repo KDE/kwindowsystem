@@ -18,6 +18,8 @@ class Blur;
 class ContrastManager;
 class Contrast;
 class SlideManager;
+class BackgroundEffectManager;
+class BackgroundEffect;
 
 class WindowEffects : public QObject, public KWindowEffectsPrivate
 {
@@ -72,6 +74,8 @@ private:
     BlurManager *m_blurManager;
     ContrastManager *m_contrastManager;
     SlideManager *m_slideManager;
+    std::unique_ptr<BackgroundEffectManager> m_backgroundEffectManager;
+    std::unordered_map<QWindow *, std::unique_ptr<BackgroundEffect>> m_backgroundEffects;
 };
 
 #endif

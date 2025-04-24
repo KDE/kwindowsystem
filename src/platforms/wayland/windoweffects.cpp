@@ -18,6 +18,7 @@
 
 #include "qwayland-blur.h"
 #include "qwayland-contrast.h"
+#include "qwayland-ext-background-effect-v1.h"
 #include "qwayland-slide.h"
 
 #include "helpers.h"
@@ -119,9 +120,54 @@ public:
     }
 };
 
+class BackgroundEffectManager : public QWaylandClientExtensionTemplate<BackgroundEffectManager>, public QtWayland::ext_background_effect_manager_v1
+{
+    Q_OBJECT
+public:
+    BackgroundEffectManager()
+        : QWaylandClientExtensionTemplate<BackgroundEffectManager>(1)
+    {
+        initialize();
+    }
+
+    ~BackgroundEffectManager()
+    {
+        if (isQpaAlive() && isActive()) {
+            destroy();
+        }
+    }
+
+    void ext_background_effect_manager_v1_capabilities(uint32_t flags) override
+    {
+        supportsBlur = flags & EXT_BACKGROUND_EFFECT_MANAGER_V1_CAPABILITY_BLUR;
+        Q_EMIT capabilitiesChanged();
+    }
+
+    bool supportsBlur = false;
+
+    Q_SIGNAL void capabilitiesChanged();
+};
+
+class BackgroundEffect : public QtWayland::ext_background_effect_surface_v1
+{
+public:
+    BackgroundEffect(struct ::ext_background_effect_surface_v1 *object)
+        : QtWayland::ext_background_effect_surface_v1(object)
+    {
+    }
+
+    ~BackgroundEffect() override
+    {
+        if (isQpaAlive()) {
+            destroy();
+        }
+    }
+};
+
 WindowEffects::WindowEffects()
     : QObject()
     , KWindowEffectsPrivate()
+    , m_backgroundEffectManager(std::make_unique<BackgroundEffectManager>())
 {
     m_blurManager = new BlurManager();
     m_contrastManager = new ContrastManager();
@@ -132,6 +178,9 @@ WindowEffects::WindowEffects()
     // are added.
 
     connect(m_blurManager, &BlurManager::activeChanged, this, [this] {
+        if (m_backgroundEffectManager->isActive()) {
+            return;
+        }
         for (auto it = m_blurRegions.constBegin(); it != m_blurRegions.constEnd(); ++it) {
             installBlur(it.key(), m_blurManager->isActive(), *it);
         }
@@ -154,6 +203,18 @@ WindowEffects::WindowEffects()
             } else {
                 installSlide(it.key(), KWindowEffects::SlideFromLocation::NoEdge, 0);
             }
+        }
+    });
+
+    connect(m_backgroundEffectManager.get(), &BackgroundEffectManager::activeChanged, this, [this]() {
+        if (!m_backgroundEffectManager->isActive()) {
+            m_backgroundEffects.clear();
+        }
+    });
+
+    connect(m_backgroundEffectManager.get(), &BackgroundEffectManager::capabilitiesChanged, this, [this]() {
+        for (auto it = m_blurRegions.constBegin(); it != m_blurRegions.constEnd(); ++it) {
+            installBlur(it.key(), m_backgroundEffectManager->supportsBlur, *it);
         }
     });
 }
@@ -219,6 +280,7 @@ void replaceValue(MapType &map, typename MapType::key_type key, typename MapType
 
 void WindowEffects::resetBlur(QWindow *window, Blur *blur)
 {
+    m_backgroundEffects.erase(window);
     replaceValue(m_blurs, window, blur);
 }
 
@@ -380,27 +442,54 @@ void WindowEffects::enableBlurBehind(QWindow *window, bool enable, const QRegion
 
 void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &region)
 {
+    wl_surface *surface = surfaceForWindow(window);
+    if (!surface) {
+        return;
+    }
+    if (m_backgroundEffectManager->isActive()) {
+        replaceValue(m_blurs, window, nullptr);
+        if (!m_backgroundEffectManager->supportsBlur) {
+            // will be set if/when the capability changes
+            return;
+        }
+        auto &effect = m_backgroundEffects[window];
+        if (!effect) {
+            effect = std::make_unique<BackgroundEffect>(m_backgroundEffectManager->get_background_effect(surface));
+        }
+        wl_region *wlRegion = nullptr;
+        if (enable) {
+            if (region.isEmpty()) {
+                // empty region = cover the whole window
+                wlRegion = createRegion(QRegion{
+                    std::numeric_limits<int>::min() / 2,
+                    std::numeric_limits<int>::min() / 2,
+                    std::numeric_limits<int>::max(),
+                    std::numeric_limits<int>::max(),
+                });
+            } else {
+                wlRegion = createRegion(region);
+            }
+        }
+        effect->set_blur_region(wlRegion);
+        wl_region_destroy(wlRegion);
+        return;
+    }
     if (!m_blurManager->isActive()) {
         return;
     }
-
-    wl_surface *surface = surfaceForWindow(window);
-
-    if (surface) {
-        if (enable) {
-            auto wl_region = createRegion(region);
-            if (!wl_region) {
-                return;
-            }
-            auto blur = new Blur(m_blurManager->create(surface), window);
-            blur->set_region(wl_region);
-            blur->commit();
-            wl_region_destroy(wl_region);
-            resetBlur(window, blur);
-        } else {
-            resetBlur(window);
-            m_blurManager->unset(surface);
+    if (enable) {
+        auto wl_region = createRegion(region);
+        if (!wl_region) {
+            return;
         }
+        auto blur = new Blur(m_blurManager->create(surface), window);
+        blur->set_region(wl_region);
+        blur->commit();
+        wl_region_destroy(wl_region);
+        resetBlur(window, blur);
+    } else {
+        resetBlur(window);
+        m_blurManager->unset(surface);
     }
 }
 
@@ -465,3 +554,4 @@ void WindowEffects::installContrast(QWindow *window, bool enable, qreal contrast
 }
 
 #include "moc_windoweffects.cpp"
+#include "windoweffects.moc"
