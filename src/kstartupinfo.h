@@ -226,7 +226,11 @@ public:
      * @li CantDetect - unable to detect if the window matches any existing
      *          startup notification
      */
-    enum startup_t { NoMatch, Match, CantDetect };
+    enum startup_t {
+        NoMatch,
+        Match,
+        CantDetect
+    };
     /**
      * Checks if the given windows matches any existing startup notification.
      * @param w the window id to check
@@ -531,7 +535,11 @@ public:
     /**
      *
      */
-    enum TriState { Yes, No, Unknown };
+    enum TriState {
+        Yes,
+        No,
+        Unknown
+    };
 
     /**
      * Sets whether the visual feedback for this startup notification

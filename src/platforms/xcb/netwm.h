@@ -650,8 +650,12 @@ public:
 
        @param source who initiated the move resize operation.
     **/
-    void
-    moveResizeRequest(xcb_window_t window, int x_root, int y_root, Direction direction, xcb_button_t button = XCB_BUTTON_INDEX_ANY, RequestSource source = RequestSource::FromUnknown);
+    void moveResizeRequest(xcb_window_t window,
+                           int x_root,
+                           int y_root,
+                           Direction direction,
+                           xcb_button_t button = XCB_BUTTON_INDEX_ANY,
+                           RequestSource source = RequestSource::FromUnknown);
 
     /**
        Clients (such as pagers/taskbars) that wish to move/resize a window
@@ -1715,7 +1719,7 @@ private:
     NETWinInfoPrivate *p; // krazy:exclude=dpointer (implicitly shared)
 };
 
-//#define KWIN_FOCUS
+// #define KWIN_FOCUS
 
 #endif
 #endif // netwm_h
