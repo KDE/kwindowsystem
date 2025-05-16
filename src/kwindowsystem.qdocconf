@@ -10,4 +10,6 @@ sourcedirs += .
 
 outputformats = HTML
 
+navigation.landingpage = "KWindowSystem"
+
 depends += qtcore qtquick qtquickcontrols qtgui
