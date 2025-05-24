@@ -32,3 +32,5 @@ qhp.KWindowSystem.subprojects.qmltypes.title = QML Types
 qhp.KWindowSystem.subprojects.qmltypes.indexTitle = KWindowSystem QML Types
 qhp.KWindowSystem.subprojects.qmltypes.selectors = qmltype
 qhp.KWindowSystem.subprojects.qmltypes.sortPages = true
+
+tagfile = kwindowsystem.tags
