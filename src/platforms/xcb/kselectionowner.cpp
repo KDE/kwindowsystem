@@ -47,7 +47,11 @@ static xcb_atom_t intern_atom(xcb_connection_t *c, const char *name)
 class Q_DECL_HIDDEN KSelectionOwner::Private : public QAbstractNativeEventFilter
 {
 public:
-    enum State { Idle, WaitingForTimestamp, WaitingForPreviousOwner };
+    enum State {
+        Idle,
+        WaitingForTimestamp,
+        WaitingForPreviousOwner
+    };
 
     Private(KSelectionOwner *owner_P, xcb_atom_t selection_P, xcb_connection_t *c, xcb_window_t root)
         : state(Idle)

@@ -5,14 +5,14 @@
     SPDX-License-Identifier: MIT
 */
 
-//#define NETWMDEBUG
+// #define NETWMDEBUG
 #include "netwm.h"
 
 #include <xcb/xproto.h>
 
 #include "atoms_p.h"
-#include "netwm_p.h"
 #include "kxcbevent_p.h"
+#include "netwm_p.h"
 
 #if KWINDOWSYSTEM_HAVE_X11 // FIXME
 

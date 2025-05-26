@@ -7,8 +7,8 @@
 
 #include "kxmessages.h"
 #include "cptr_p.h"
-#include "kxutils_p.h"
 #include "kxcbevent_p.h"
+#include "kxutils_p.h"
 
 #if KWINDOWSYSTEM_HAVE_X11
 

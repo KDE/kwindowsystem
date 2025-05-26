@@ -4,8 +4,8 @@
     SPDX-License-Identifier: MIT
 */
 
-//#ifdef    don't do this, this file is supposed to be included
-//#define   multiple times
+// #ifdef    don't do this, this file is supposed to be included
+// #define   multiple times
 
 #include <QtGlobal>
 
