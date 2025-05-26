@@ -181,7 +181,11 @@ bool KWindowInfo::hasState(NET::States s) const
 bool KWindowInfo::icccmCompliantMappingState() const
 {
     CHECK_X11
-    static enum { noidea, yes, no } wm_is_1_2_compliant = noidea;
+    static enum {
+        noidea,
+        yes,
+        no
+    } wm_is_1_2_compliant = noidea;
     if (wm_is_1_2_compliant == noidea) {
         NETRootInfo info(QX11Info::connection(), NET::Supported, NET::Properties2(), QX11Info::appScreen());
         wm_is_1_2_compliant = info.isSupported(NET::Hidden) ? yes : no;
@@ -519,7 +523,11 @@ QByteArray KWindowInfo::clientMachine() const
 bool KWindowInfo::allowedActionsSupported() const
 {
     CHECK_X11
-    static enum { noidea, yes, no } wm_supports_allowed_actions = noidea;
+    static enum {
+        noidea,
+        yes,
+        no
+    } wm_supports_allowed_actions = noidea;
     if (wm_supports_allowed_actions == noidea) {
         NETRootInfo info(QX11Info::connection(), NET::Supported, NET::Properties2(), QX11Info::appScreen());
         wm_supports_allowed_actions = info.isSupported(NET::WM2AllowedActions) ? yes : no;

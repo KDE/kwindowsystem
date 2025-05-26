@@ -18,8 +18,8 @@
 #include "cptr_p.h"
 #include "kwindowsystem.h"
 #include "kwindowsystem_debug.h"
-#include "netwm.h"
 #include "kxcbevent_p.h"
+#include "netwm.h"
 
 #include <QAbstractNativeEventFilter>
 #include <QGuiApplication>
