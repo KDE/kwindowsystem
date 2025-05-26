@@ -26,7 +26,12 @@ private:
     QPushButton *m_btnEllipse;
     QWidget *m_area;
 
-    enum { Nothing, FullWindow, Rect, Ellipse } m_state;
+    enum {
+        Nothing,
+        FullWindow,
+        Rect,
+        Ellipse
+    } m_state;
 
     void setWindowAlpha(int alpha);
 
