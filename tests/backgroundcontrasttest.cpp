@@ -48,7 +48,12 @@ private:
     qreal m_intensity;
     qreal m_saturation;
 
-    enum { Nothing, FullWindow, Rect, Ellipse } m_state;
+    enum {
+        Nothing,
+        FullWindow,
+        Rect,
+        Ellipse
+    } m_state;
 
     void disableContrast();
     void enableContrast();

@@ -280,7 +280,11 @@ public:
      *        Unable to detect if the window matches any existing
      *        startup notification.
      */
-    enum startup_t { NoMatch, Match, CantDetect };
+    enum startup_t {
+        NoMatch,
+        Match,
+        CantDetect
+    };
     /*!
      * \brief Checks if the given window \a w matches any existing startup notification.
      */
@@ -572,7 +576,11 @@ public:
      * \value No
      * \value Unknown
      */
-    enum TriState { Yes, No, Unknown };
+    enum TriState {
+        Yes,
+        No,
+        Unknown
+    };
 
     /*!
      * Sets whether the visual feedback for this startup notification
