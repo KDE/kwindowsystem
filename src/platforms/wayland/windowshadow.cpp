@@ -62,7 +62,7 @@ public:
 WindowShadowTile::WindowShadowTile()
 {
     connect(Shm::instance(), &Shm::activeChanged, this, [this] {
-        if (Shm::instance()->isActive()) {
+        if (!Shm::instance()->isActive()) {
             buffer.reset();
         }
     });
