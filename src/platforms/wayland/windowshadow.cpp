@@ -34,18 +34,27 @@ class ShadowManager : public QWaylandClientExtensionTemplate<ShadowManager>, pub
             }
         });
     }
-
-public:
     ~ShadowManager()
     {
         if (isActive()) {
             destroy();
         }
     }
+    using QWaylandClientExtensionTemplate<ShadowManager>::isActive; // privatise to make people use static verison
+
+public:
     static ShadowManager *instance()
     {
-        static ShadowManager *instance = new ShadowManager(qGuiApp);
+        if (!qGuiApp || qGuiApp->closingDown()) {
+            return nullptr;
+        }
+        static QPointer<ShadowManager> instance = new ShadowManager(qGuiApp);
         return instance;
+    }
+    static bool active()
+    {
+        auto manager = instance();
+        return manager && manager->isActive();
     }
 };
 
@@ -130,7 +139,7 @@ bool WindowShadow::internalCreate()
     if (shadow) {
         return true;
     }
-    if (!ShadowManager::instance()->isActive()) {
+    if (!ShadowManager::active()) {
         return false;
     }
     auto surface = surfaceForWindow(window);
@@ -173,7 +182,7 @@ bool WindowShadow::internalCreate()
 
 bool WindowShadow::create()
 {
-    if (!ShadowManager::instance()->isActive()) {
+    if (!ShadowManager::active()) {
         return false;
     }
 
@@ -190,7 +199,7 @@ void WindowShadow::internalDestroy()
 
     // Only call surfaceForWindow and unset the surface if the native window is alive.
     // Otherwise window->create() might be called when the window is being destroyed, leading to a crash.
-    if (window && window->nativeInterface<QNativeInterface::Private::QWaylandWindow>() && ShadowManager::instance()->isActive()) {
+    if (window && window->nativeInterface<QNativeInterface::Private::QWaylandWindow>() && ShadowManager::active()) {
         if (auto surface = surfaceForWindow(window)) {
             ShadowManager::instance()->unset(surface);
         }
