@@ -4706,6 +4706,10 @@ const char *NETWinInfo::visibleIconName() const
 
 int NETWinInfo::desktop(bool ignore_viewport) const
 {
+    if (p->role == WindowManager) {
+        return p->desktop;
+    }
+
     if (!ignore_viewport && KX11Extras::mapViewport()) {
         const KWindowInfo info(p->window, NET::WMDesktop);
         return info.desktop();
