@@ -13,8 +13,8 @@
 
 #include <qpa/qplatformwindow_p.h>
 
+#include <QWaylandClientExtension>
 #include <QWaylandClientExtensionTemplate>
-#include <qwaylandclientextension.h>
 
 #include "qwayland-blur.h"
 #include "qwayland-contrast.h"
