@@ -21,42 +21,35 @@ private Q_SLOTS:
 
 private:
     std::unique_ptr<QProcess> m_westonProcess;
+    QTemporaryDir m_xdgRuntimeDir;
 };
 
 void TestKWindowsystemPlatformWayland::initTestCase()
 {
+    // we need weston, else skip this
     const QString westonExec = QStandardPaths::findExecutable(QStringLiteral("weston"));
+    if (westonExec.isEmpty()) {
+        QSKIP("Weston is not installed");
+    }
+
+    // we need a valid XDG_RUNTIME_DIR, separate it from the one the user might have
+    QVERIFY(m_xdgRuntimeDir.isValid());
+    qputenv("XDG_RUNTIME_DIR", m_xdgRuntimeDir.path().toLocal8Bit());
 
     // start Weston
     m_westonProcess.reset(new QProcess);
     m_westonProcess->setProgram(westonExec);
-    m_westonProcess->setArguments(QStringList({QStringLiteral("--socket=kwindowsystem-platform-wayland-0"), QStringLiteral("--backend=headless-backend.so")}));
+    m_westonProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+    m_westonProcess->setArguments(QStringList({QStringLiteral("--socket=kwindowsystem-platform-wayland-0"),
+                                               QStringLiteral("--backend=headless"),
+                                               QStringLiteral("--shell=kiosk"),
+                                               QStringLiteral("--no-config")}));
     m_westonProcess->start();
-    if (!m_westonProcess->waitForStarted()) {
-        m_westonProcess.reset();
-        QSKIP("Weston could not be started");
-    }
+    QVERIFY(m_westonProcess->waitForStarted());
 
     // wait for the socket to appear
-    QTest::qWait(500);
-
-    QDir runtimeDir(qgetenv("XDG_RUNTIME_DIR"));
-    if (runtimeDir.exists(QStringLiteral("kwindowsystem-platform-wayland-0"))) {
-        // already there
-        return;
-    }
-
-    std::unique_ptr<QFileSystemWatcher> socketWatcher(new QFileSystemWatcher(QStringList({runtimeDir.absolutePath()})));
-    QSignalSpy socketSpy(socketWatcher.get(), &QFileSystemWatcher::directoryChanged);
-    QVERIFY(socketSpy.isValid());
-
-    // limit to max of 10 waits
-    for (int i = 0; i < 10; i++) {
-        QVERIFY(socketSpy.wait());
-        if (runtimeDir.exists(QStringLiteral("kwindowsystem-platform-wayland-0"))) {
-            return;
-        }
-    }
+    const QDir runtimeDir(m_xdgRuntimeDir.path());
+    QTRY_VERIFY_WITH_TIMEOUT(runtimeDir.exists(QStringLiteral("kwindowsystem-platform-wayland-0")), 5000);
 }
 
 void TestKWindowsystemPlatformWayland::cleanupTestCase()
