@@ -16,10 +16,18 @@ class QWaylandSurface;
 class WaylandXdgActivationTokenV1 : public QObject, public QtWayland::xdg_activation_token_v1
 {
     Q_OBJECT
+
 public:
+    ~WaylandXdgActivationTokenV1() override
+    {
+        destroy();
+    }
+
+protected:
     void xdg_activation_token_v1_done(const QString &token) override
     {
         Q_EMIT done(token);
+        deleteLater();
     }
 
 Q_SIGNALS:
