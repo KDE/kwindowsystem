@@ -74,6 +74,7 @@ void WindowSystem::activateWindow(QWindow *win, long int time)
     activation->activate(m_lastToken, s);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 19)
 void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString &app_id)
 {
     if (window) {
@@ -97,6 +98,7 @@ void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString 
         Q_EMIT KWaylandExtras::self()->xdgActivationTokenArrived(serial, token);
     });
 }
+#endif
 
 void WindowSystem::setCurrentToken(const QString &token)
 {

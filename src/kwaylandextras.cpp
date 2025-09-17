@@ -26,6 +26,7 @@ KWaylandExtras *KWaylandExtras::self()
     return &instance;
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 19)
 void KWaylandExtras::requestXdgActivationToken(QWindow *window, uint32_t serial, const QString &app_id)
 {
     auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(KWindowSystem::d_func());
@@ -39,6 +40,7 @@ void KWaylandExtras::requestXdgActivationToken(QWindow *window, uint32_t serial,
     }
     dv2->requestToken(window, serial, app_id);
 }
+#endif
 
 quint32 KWaylandExtras::lastInputSerial(QWindow *window)
 {

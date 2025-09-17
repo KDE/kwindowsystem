@@ -19,7 +19,9 @@ public:
     WindowSystem();
     ~WindowSystem() override;
     void activateWindow(QWindow *win, long time) override;
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 19)
     void requestToken(QWindow *win, uint32_t serial, const QString &app_id) override;
+#endif
     quint32 lastInputSerial(QWindow *window) override;
     void setCurrentToken(const QString &token) override;
     bool showingDesktop() override;
