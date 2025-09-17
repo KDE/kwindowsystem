@@ -50,9 +50,7 @@ public:
 };
 
 WindowSystem::WindowSystem()
-    : QObject()
-    , KWindowSystemPrivateV2()
-    , m_lastToken(qEnvironmentVariable("XDG_ACTIVATION_TOKEN"))
+    : m_lastToken(qEnvironmentVariable("XDG_ACTIVATION_TOKEN"))
 {
     m_windowManagement = new WindowManagement;
 }
@@ -301,6 +299,27 @@ void WindowSystem::doSetMainWindow(QWindow *window, const QString &handle)
             delete oldDialog;
         }
     }
+}
+
+QFuture<QString> WindowSystem::xdgActivationToken(QWindow *window, uint32_t serial, const QString &appId)
+{
+    WaylandXdgActivationV1 *activation = WaylandXdgActivationV1::self();
+    if (!activation->isActive()) {
+        return QFuture<QString>();
+    }
+
+    auto waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
+    if (!waylandApp) {
+        return QFuture<QString>();
+    }
+
+    if (window) {
+        window->create();
+    }
+    wl_surface *wlSurface = surfaceForWindow(window);
+
+    auto token = activation->requestXdgActivationToken(waylandApp->lastInputSeat(), wlSurface, serial, appId);
+    return token->future();
 }
 
 #include "moc_windowsystem.cpp"

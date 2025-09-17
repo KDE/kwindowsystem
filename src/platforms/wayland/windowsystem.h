@@ -12,7 +12,7 @@
 
 class WindowManagement;
 
-class WindowSystem : public QObject, public KWindowSystemPrivateV2
+class WindowSystem : public QObject, public KWindowSystemPrivateV3
 {
     Q_OBJECT
 public:
@@ -27,6 +27,7 @@ public:
     void exportWindow(QWindow *window) override;
     void unexportWindow(QWindow *window) override;
     void setMainWindow(QWindow *window, const QString &handle) override;
+    QFuture<QString> xdgActivationToken(QWindow *window, uint32_t serial, const QString &appId) override;
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;

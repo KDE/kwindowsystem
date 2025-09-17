@@ -7,6 +7,8 @@
 #define KWINDOWSYSTEM_P_H
 
 #include "netwm_def.h"
+
+#include <QFuture>
 #include <QStringList>
 #include <QWidgetList> //For WId
 #include <kwindowsystem_export.h>
@@ -31,6 +33,12 @@ public:
     virtual void setMainWindow(QWindow *window, const QString &handle) = 0;
     virtual void exportWindow(QWindow *window) = 0;
     virtual void unexportWindow(QWindow *window) = 0;
+};
+
+class KWINDOWSYSTEM_EXPORT KWindowSystemPrivateV3 : public KWindowSystemPrivateV2
+{
+public:
+    virtual QFuture<QString> xdgActivationToken(QWindow *window, uint32_t serial, const QString &appId) = 0;
 };
 
 #endif

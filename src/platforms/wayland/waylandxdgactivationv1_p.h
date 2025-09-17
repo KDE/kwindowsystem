@@ -8,7 +8,10 @@
 #define WAYLANDXDGACTIVATIONV1_P_H
 
 #include "qwayland-xdg-activation-v1.h"
+
+#include <QFuture>
 #include <QObject>
+#include <QPromise>
 #include <QtWaylandClient/QWaylandClientExtension>
 
 class QWaylandSurface;
@@ -18,20 +21,36 @@ class WaylandXdgActivationTokenV1 : public QObject, public QtWayland::xdg_activa
     Q_OBJECT
 
 public:
+    WaylandXdgActivationTokenV1()
+    {
+        m_promise.start();
+    }
+
     ~WaylandXdgActivationTokenV1() override
     {
         destroy();
     }
 
+    QFuture<QString> future() const
+    {
+        return m_promise.future();
+    }
+
 protected:
     void xdg_activation_token_v1_done(const QString &token) override
     {
+        m_promise.addResult(token);
+        m_promise.finish();
+
         Q_EMIT done(token);
         deleteLater();
     }
 
 Q_SIGNALS:
     void done(const QString &token);
+
+private:
+    QPromise<QString> m_promise;
 };
 
 class WaylandXdgActivationV1 : public QWaylandClientExtensionTemplate<WaylandXdgActivationV1>, public QtWayland::xdg_activation_v1

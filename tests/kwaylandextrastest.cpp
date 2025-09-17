@@ -79,16 +79,10 @@ void Window::updateSerial()
 
 void Window::requestToken()
 {
-    connect(
-        KWaylandExtras::self(),
-        &KWaylandExtras::xdgActivationTokenArrived,
-        this,
-        [this](int /*serial*/, const QString &token) {
+    KWaylandExtras::xdgActivationToken(windowHandle(), KWaylandExtras::self()->lastInputSerial(windowHandle()), QString())
+        .then(this, [this](const QString &token) {
             m_tokenLabel->setText("XDG actvation token: " + token);
-        },
-        Qt::SingleShotConnection);
-
-    KWaylandExtras::requestXdgActivationToken(windowHandle(), KWaylandExtras::self()->lastInputSerial(windowHandle()), QString());
+        });
 }
 
 void Window::exportWindow()

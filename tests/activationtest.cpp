@@ -28,13 +28,12 @@ public:
         pushButton->setText("Raise other");
         layout()->addWidget(pushButton);
 
-        connect(pushButton, &QPushButton::clicked, this, [this] {
-            KWaylandExtras::requestXdgActivationToken(windowHandle(), KWaylandExtras::lastInputSerial(windowHandle()), QString());
-        });
-
-        connect(KWaylandExtras::self(), &KWaylandExtras::xdgActivationTokenArrived, this, [otherWindow](int /*serial*/, const QString &token) {
-            KWindowSystem::setCurrentXdgActivationToken(token);
-            KWindowSystem::activateWindow(otherWindow->windowHandle());
+        connect(pushButton, &QPushButton::clicked, this, [this, otherWindow] {
+            KWaylandExtras::xdgActivationToken(windowHandle(), KWaylandExtras::lastInputSerial(windowHandle()), QString())
+                .then(otherWindow, [otherWindow](const QString &token) {
+                    KWindowSystem::setCurrentXdgActivationToken(token);
+                    KWindowSystem::activateWindow(otherWindow->windowHandle());
+                });
         });
     }
 };

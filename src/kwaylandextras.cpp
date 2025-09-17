@@ -63,4 +63,18 @@ void KWaylandExtras::unexportWindow(QWindow *window)
     }
 }
 
+QFuture<QString> KWaylandExtras::xdgActivationToken(QWindow *window, uint32_t serial, const QString &appId)
+{
+    if (auto dv3 = dynamic_cast<KWindowSystemPrivateV3 *>(KWindowSystem::d_func())) {
+        return dv3->xdgActivationToken(window, serial, appId);
+    } else {
+        return QFuture<QString>();
+    }
+}
+
+QFuture<QString> KWaylandExtras::xdgActivationToken(QWindow *window, const QString &appId)
+{
+    return xdgActivationToken(window, lastInputSerial(window), appId);
+}
+
 #include "moc_kwaylandextras.cpp"
