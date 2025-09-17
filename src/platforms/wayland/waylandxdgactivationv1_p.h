@@ -31,7 +31,6 @@ protected:
     }
 
 Q_SIGNALS:
-    void failed();
     void done(const QString &token);
 };
 

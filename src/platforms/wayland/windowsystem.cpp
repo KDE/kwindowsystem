@@ -95,9 +95,6 @@ void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString 
     auto waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
     auto seat = waylandApp ? waylandApp->lastInputSeat() : nullptr;
     auto tokenReq = activation->requestXdgActivationToken(seat, wlSurface, serial, app_id);
-    connect(tokenReq, &WaylandXdgActivationTokenV1::failed, KWindowSystem::self(), [serial, app_id]() {
-        Q_EMIT KWaylandExtras::self()->xdgActivationTokenArrived(serial, {});
-    });
     connect(tokenReq, &WaylandXdgActivationTokenV1::done, KWindowSystem::self(), [serial](const QString &token) {
         Q_EMIT KWaylandExtras::self()->xdgActivationTokenArrived(serial, token);
     });
