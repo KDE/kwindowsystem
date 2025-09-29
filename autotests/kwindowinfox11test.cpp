@@ -243,19 +243,15 @@ void KWindowInfoX11Test::testMinimized()
     QVERIFY(!verifyMinimized(window->winId()));
 
     window->showMinimized();
-    // TODO: improve by using signalspy?
-    QTest::qWait(100);
 
     // should be minimized, now
-    QVERIFY(verifyMinimized(window->winId()));
+    QTRY_VERIFY_WITH_TIMEOUT(verifyMinimized(window->winId()), 500);
 
     // back to normal
     window->showNormal();
-    // TODO: improve by using signalspy?
-    QTest::qWait(100);
 
     // should no longer be minimized
-    QVERIFY(!verifyMinimized(window->winId()));
+    QTRY_VERIFY_WITH_TIMEOUT(!verifyMinimized(window->winId()), 500);
 }
 
 void KWindowInfoX11Test::testMappingState()
@@ -264,16 +260,12 @@ void KWindowInfoX11Test::testMappingState()
     QCOMPARE(info.mappingState(), NET::Visible);
 
     window->showMinimized();
-    // TODO: improve by using signalspy?
-    QTest::qWait(100);
-    KWindowInfo info2(window->winId(), NET::XAWMState);
-    QCOMPARE(info2.mappingState(), NET::Iconic);
+
+    QTRY_COMPARE_WITH_TIMEOUT(KWindowInfo(window->winId(), NET::XAWMState).mappingState(), NET::Iconic, 500);
 
     window->hide();
-    // TODO: improve by using signalspy?
-    QTest::qWait(100);
-    KWindowInfo info3(window->winId(), NET::XAWMState);
-    QCOMPARE(info3.mappingState(), NET::Withdrawn);
+
+    QTRY_COMPARE_WITH_TIMEOUT(KWindowInfo(window->winId(), NET::XAWMState).mappingState(), NET::Withdrawn, 500);
 }
 
 void KWindowInfoX11Test::testWindowType_data()
@@ -525,10 +517,9 @@ void KWindowInfoX11Test::testName()
     QCOMPARE(info.visibleIconNameWithState(), QStringLiteral("kwindowinfox11test"));
 
     window->showMinimized();
-    // TODO: improve by using signalspy?
-    QTest::qWait(100);
+
     // should be minimized, now
-    QVERIFY(verifyMinimized(window->winId()));
+    QTRY_VERIFY_WITH_TIMEOUT(verifyMinimized(window->winId()), 500);
 
     // that should have changed the visible name
     KWindowInfo info2(window->winId(), NET::WMName | NET::WMVisibleName | NET::WMIconName | NET::WMVisibleIconName | NET::WMState | NET::XAWMState);

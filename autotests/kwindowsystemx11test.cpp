@@ -67,7 +67,7 @@ void KWindowSystemX11Test::testWindowAdded()
     std::unique_ptr<QWidget> widget(new QWidget);
     widget->show();
     QVERIFY(QTest::qWaitForWindowExposed(widget.get()));
-    QVERIFY(spy.count() > 0);
+    QTRY_VERIFY_WITH_TIMEOUT(spy.count() > 0, 500);
     bool hasWId = false;
     for (auto it = spy.constBegin(); it != spy.constEnd(); ++it) {
         if ((*it).isEmpty()) {
@@ -90,13 +90,13 @@ void KWindowSystemX11Test::testWindowRemoved()
     std::unique_ptr<QWidget> widget(new QWidget);
     widget->show();
     QVERIFY(QTest::qWaitForWindowExposed(widget.get()));
-    QVERIFY(KX11Extras::hasWId(widget->winId()));
+    QTRY_VERIFY_WITH_TIMEOUT(KX11Extras::hasWId(widget->winId()), 500);
 
     QSignalSpy spy(KX11Extras::self(), &KX11Extras::windowRemoved);
     widget->hide();
     spy.wait(1000);
     QCOMPARE(spy.first().at(0).toULongLong(), widget->winId());
-    QVERIFY(!KX11Extras::hasWId(widget->winId()));
+    QTRY_VERIFY_WITH_TIMEOUT(!KX11Extras::hasWId(widget->winId()), 500);
 }
 
 void KWindowSystemX11Test::testDesktopChanged()
