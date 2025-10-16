@@ -225,38 +225,10 @@ void WindowSystem::setMainWindow(QWindow *window, const QString &handle)
         doSetMainWindow(window, handle);
     } else {
         // We can only import an XDG toplevel.
-        // QWaylandWindow::surfaceRoleCreated is only in Qt 6.8,
-        // in earlier versions wait for the window be exposed,
-        // since QWaylandWindow::wlSurfaceCreated is too early.
-#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
-        window->setProperty(c_kdeXdgForeignPendingHandleProperty, handle);
-        window->installEventFilter(this);
-#else
         connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceRoleCreated, window, [window, handle] {
             doSetMainWindow(window, handle);
         });
-#endif
     }
-}
-
-bool WindowSystem::eventFilter(QObject *watched, QEvent *event)
-{
-#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
-    if (event->type() == QEvent::Expose) {
-        auto *window = static_cast<QWindow *>(watched);
-        if (window->isExposed()) {
-            const QString handle = window->property(c_kdeXdgForeignPendingHandleProperty).toString();
-            if (!handle.isEmpty()) {
-                doSetMainWindow(window, handle);
-                window->setProperty(c_kdeXdgForeignPendingHandleProperty, QVariant());
-            }
-
-            window->removeEventFilter(this);
-        }
-    }
-#endif
-
-    return QObject::eventFilter(watched, event);
 }
 
 void WindowSystem::doSetMainWindow(QWindow *window, const QString &handle)

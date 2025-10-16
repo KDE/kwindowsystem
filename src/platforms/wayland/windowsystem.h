@@ -31,9 +31,6 @@ public:
     void setMainWindow(QWindow *window, const QString &handle) override;
     QFuture<QString> xdgActivationToken(QWindow *window, uint32_t serial, const QString &appId) override;
 
-protected:
-    bool eventFilter(QObject *watched, QEvent *event) override;
-
 private:
     static void doSetMainWindow(QWindow *window, const QString &handle);
     QString m_lastToken;
