@@ -314,16 +314,21 @@ void WindowEffects::installSlide(QWindow *window, KWindowEffects::SlideFromLocat
 
 void WindowEffects::enableBlurBehind(QWindow *window, bool enable, const QRegion &region)
 {
+    bool changed;
     if (enable) {
         trackWindow(window);
+        changed = (m_blurRegions[window] != region);
         m_blurRegions[window] = region;
     } else {
         resetBlur(window);
+        changed = m_blurRegions.contains(window);
         m_blurRegions.remove(window);
         releaseWindow(window);
     }
 
-    installBlur(window, enable, region);
+    if (changed) {
+        installBlur(window, enable, region);
+    }
 }
 
 void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &region)
