@@ -31,6 +31,7 @@
 constexpr const char *c_kdeXdgForeignExportedProperty("_kde_xdg_foreign_exported_v2");
 constexpr const char *c_kdeXdgForeignImportedProperty("_kde_xdg_foreign_imported_v2");
 constexpr const char *c_kdeXdgForeignPendingHandleProperty("_kde_xdg_foreign_pending_handle");
+constexpr const char *c_xdgActivationTokenEnv("XDG_ACTIVATION_TOKEN");
 
 class WindowManagement : public QWaylandClientExtensionTemplate<WindowManagement>, public QtWayland::org_kde_plasma_window_management
 {
@@ -50,7 +51,6 @@ public:
 };
 
 WindowSystem::WindowSystem()
-    : m_lastToken(qEnvironmentVariable("XDG_ACTIVATION_TOKEN"))
 {
     m_windowManagement = new WindowManagement;
 }
@@ -71,7 +71,7 @@ void WindowSystem::activateWindow(QWindow *win, long int time)
     if (!activation->isActive()) {
         return;
     }
-    activation->activate(m_lastToken, s);
+    activation->activate(consumeCurrentActivationToken(), s);
 }
 
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 19)
@@ -102,7 +102,7 @@ void WindowSystem::requestToken(QWindow *window, uint32_t serial, const QString 
 
 void WindowSystem::setCurrentToken(const QString &token)
 {
-    m_lastToken = token;
+    qputenv(c_xdgActivationTokenEnv, token.toUtf8());
 }
 
 quint32 WindowSystem::lastInputSerial(QWindow *window)
@@ -273,6 +273,13 @@ void WindowSystem::doSetMainWindow(QWindow *window, const QString &handle)
             delete oldDialog;
         }
     }
+}
+
+QString WindowSystem::consumeCurrentActivationToken()
+{
+    const auto token = qEnvironmentVariable(c_xdgActivationTokenEnv);
+    qunsetenv(c_xdgActivationTokenEnv);
+    return token;
 }
 
 QFuture<QString> WindowSystem::xdgActivationToken(QWindow *window, uint32_t serial, const QString &appId)

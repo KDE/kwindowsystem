@@ -33,7 +33,7 @@ public:
 
 private:
     static void doSetMainWindow(QWindow *window, const QString &handle);
-    QString m_lastToken;
+    static QString consumeCurrentActivationToken();
     WindowManagement *m_windowManagement;
 };
 
