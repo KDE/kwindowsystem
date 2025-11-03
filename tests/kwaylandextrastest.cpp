@@ -5,15 +5,13 @@
     SPDX-License-Identifier: LGPL-2.1-or-later
 */
 
+#include <kwaylandextras.h>
 #include <kwindowsystem.h>
 
 #include <QApplication>
-#include <QDialog>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QPushButton>
+#include <QWidget>
 
-#include <kwaylandextras.h>
+#include "ui_kwaylandextrastest.h"
 
 class Window : public QWidget
 {
@@ -28,60 +26,31 @@ private:
     void unexportWindow();
     void setExportedHandle(const QString &handle);
 
-    QLabel *m_serialLabel;
-    QLabel *m_tokenLabel;
-    QLabel *m_exportedLabel;
+    Ui_KWaylandExtrasTest m_ui;
 };
 
 Window::Window()
 {
-    QPushButton *serialButton = new QPushButton("Update serial");
-    connect(serialButton, &QPushButton::clicked, this, &Window::updateSerial);
+    m_ui.setupUi(this);
 
-    QPushButton *tokenButton = new QPushButton("Request token");
-    connect(tokenButton, &QPushButton::clicked, this, &Window::requestToken);
+    updateSerial();
 
-    m_serialLabel = new QLabel;
-    m_serialLabel->setText("Last input serial: " + QString::number(KWaylandExtras::self()->lastInputSerial(windowHandle())));
-
-    m_tokenLabel = new QLabel;
-    m_tokenLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
-    m_tokenLabel->setText("XDG actvation token:");
-
-    QHBoxLayout *exportLayout = new QHBoxLayout;
-
-    QPushButton *exportButton = new QPushButton("Export window");
-    connect(exportButton, &QPushButton::clicked, this, &Window::exportWindow);
-
-    QPushButton *unexportButton = new QPushButton("Unexport window");
-    connect(unexportButton, &QPushButton::clicked, this, &Window::unexportWindow);
-
-    m_exportedLabel = new QLabel;
-    m_exportedLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
-    setExportedHandle(QString());
-
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(serialButton);
-    layout->addWidget(m_serialLabel);
-    layout->addWidget(tokenButton);
-    layout->addWidget(m_tokenLabel);
-
-    exportLayout->addWidget(exportButton);
-    exportLayout->addWidget(unexportButton);
-    layout->addLayout(exportLayout);
-    layout->addWidget(m_exportedLabel);
+    connect(m_ui.serialButton, &QPushButton::clicked, this, &Window::updateSerial);
+    connect(m_ui.tokenButton, &QPushButton::clicked, this, &Window::requestToken);
+    connect(m_ui.exportButton, &QPushButton::clicked, this, &Window::exportWindow);
+    connect(m_ui.unexportButton, &QPushButton::clicked, this, &Window::unexportWindow);
 }
 
 void Window::updateSerial()
 {
-    m_serialLabel->setText("Last input serial: " + QString::number(KWaylandExtras::self()->lastInputSerial(windowHandle())));
+    m_ui.serialLabel->setText(QString::number(KWaylandExtras::self()->lastInputSerial(windowHandle())));
 }
 
 void Window::requestToken()
 {
     KWaylandExtras::xdgActivationToken(windowHandle(), KWaylandExtras::self()->lastInputSerial(windowHandle()), QString())
         .then(this, [this](const QString &token) {
-            m_tokenLabel->setText("XDG actvation token: " + token);
+            m_ui.tokenLabel->setText(token);
         });
 }
 
@@ -107,7 +76,7 @@ void Window::unexportWindow()
 
 void Window::setExportedHandle(const QString &handle)
 {
-    m_exportedLabel->setText("XDG foreign handle: " + handle);
+    m_ui.exportedLabel->setText(handle);
 }
 
 int main(int argc, char **argv)

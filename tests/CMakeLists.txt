@@ -32,4 +32,5 @@ if(KWINDOWSYSTEM_WAYLAND)
     kwaylandextrastest
     activationtest
   )
+  target_sources(kwaylandextrastest PRIVATE kwaylandextrastest.ui)
 endif()
