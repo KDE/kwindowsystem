@@ -55,6 +55,8 @@ private:
         qreal intensity = 1;
         qreal saturation = 1;
         QRegion region;
+
+        bool operator==(const BackgroundContrastData &other) const = default;
     };
     QHash<QWindow *, BackgroundContrastData> m_backgroundConstrastRegions;
     QHash<QWindow *, QPointer<Blur>> m_blurs;
@@ -62,6 +64,8 @@ private:
     struct SlideData {
         KWindowEffects::SlideFromLocation location;
         int offset;
+
+        bool operator==(const SlideData &other) const = default;
     };
     QHash<QWindow *, SlideData> m_slideMap;
     BlurManager *m_blurManager;

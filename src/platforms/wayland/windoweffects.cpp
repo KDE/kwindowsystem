@@ -263,13 +263,26 @@ bool WindowEffects::isEffectAvailable(KWindowEffects::Effect effect)
 void WindowEffects::slideWindow(QWindow *window, KWindowEffects::SlideFromLocation location, int offset)
 {
     if (location != KWindowEffects::SlideFromLocation::NoEdge) {
-        m_slideMap[window] = SlideData{
+        trackWindow(window);
+
+        const SlideData data{
             .location = location,
             .offset = offset,
         };
-        trackWindow(window);
+
+        if (auto it = m_slideMap.find(window); it != m_slideMap.end()) {
+            if (*it == data) {
+                return;
+            } else {
+                *it = data;
+            }
+        } else {
+            m_slideMap.insert(window, data);
+        }
     } else {
-        m_slideMap.remove(window);
+        if (!m_slideMap.remove(window)) {
+            return;
+        }
         releaseWindow(window);
     }
 
@@ -316,10 +329,21 @@ void WindowEffects::enableBlurBehind(QWindow *window, bool enable, const QRegion
 {
     if (enable) {
         trackWindow(window);
-        m_blurRegions[window] = region;
+
+        if (auto it = m_blurRegions.find(window); it != m_blurRegions.end()) {
+            if (*it == region) {
+                return;
+            } else {
+                *it = region;
+            }
+        } else {
+            m_blurRegions.insert(window, region);
+        }
     } else {
+        if (!m_blurRegions.remove(window)) {
+            return;
+        }
         resetBlur(window);
-        m_blurRegions.remove(window);
         releaseWindow(window);
     }
 
@@ -356,13 +380,28 @@ void WindowEffects::enableBackgroundContrast(QWindow *window, bool enable, qreal
 {
     if (enable) {
         trackWindow(window);
-        m_backgroundConstrastRegions[window].contrast = contrast;
-        m_backgroundConstrastRegions[window].intensity = intensity;
-        m_backgroundConstrastRegions[window].saturation = saturation;
-        m_backgroundConstrastRegions[window].region = region;
+
+        const BackgroundContrastData data{
+            .contrast = contrast,
+            .intensity = intensity,
+            .saturation = saturation,
+            .region = region,
+        };
+
+        if (auto it = m_backgroundConstrastRegions.find(window); it != m_backgroundConstrastRegions.end()) {
+            if (*it == data) {
+                return;
+            } else {
+                *it = data;
+            }
+        } else {
+            m_backgroundConstrastRegions.insert(window, data);
+        }
     } else {
+        if (!m_backgroundConstrastRegions.remove(window)) {
+            return;
+        }
         resetContrast(window);
-        m_backgroundConstrastRegions.remove(window);
         releaseWindow(window);
     }
 
