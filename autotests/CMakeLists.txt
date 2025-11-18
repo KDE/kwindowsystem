@@ -6,6 +6,8 @@ add_definitions(-DAUTOTEST_BUILD_DIR="${CMAKE_CURRENT_BINARY_DIR}")
 include(ECMMarkAsTest)
 include(ECMAddTests)
 
+set(ECM_TEST_NAME_PREFIX "kwindowsystem-")
+
 find_package(Qt6 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Test Widgets)
 
 add_subdirectory(helper)
@@ -18,7 +20,7 @@ macro(KWINDOWSYSTEM_UNIT_TESTS)
          list(APPEND libs XCB::XCB XCB::KEYSYMS XCB::ICCCM)
       endif()
 
-      ecm_add_test(${_testname}.cpp LINK_LIBRARIES ${libs} NAME_PREFIX "kwindowsystem-" GUI)
+      ecm_add_test(${_testname}.cpp LINK_LIBRARIES ${libs} GUI)
    endforeach(_testname)
 endmacro(KWINDOWSYSTEM_UNIT_TESTS)
 macro(KWINDOWSYSTEM_EXECUTABLE_TESTS)
@@ -56,4 +58,8 @@ if(KWINDOWSYSTEM_X11)
     )
 endif()
 
-ecm_add_test(kwindowsystem_platform_wayland_test.cpp LINK_LIBRARIES KF6::WindowSystem Qt6::Test TEST_NAME kwindowsystemplatformwaylandtest NAME_PREFIX "kwindowsystem-" GUI)
+ecm_add_test(kwindowsystem_platform_wayland_test.cpp
+    LINK_LIBRARIES KF6::WindowSystem Qt6::Test
+    TEST_NAME kwindowsystemplatformwaylandtest
+    GUI
+)
