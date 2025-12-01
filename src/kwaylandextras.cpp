@@ -97,4 +97,18 @@ QFuture<QString> KWaylandExtras::xdgActivationToken(QWindow *window, const QStri
     return xdgActivationToken(window, lastInputSerial(window), appId);
 }
 
+void KWaylandExtras::setXdgToplevelTag(QWindow *window, const QString &tag)
+{
+    if (auto dv4 = dynamic_cast<KWindowSystemPrivateV4 *>(KWindowSystem::d_func())) {
+        dv4->setXdgToplevelTag(window, tag);
+    }
+}
+
+void KWaylandExtras::setXdgToplevelDescription(QWindow *window, const QString &description)
+{
+    if (auto dv4 = dynamic_cast<KWindowSystemPrivateV4 *>(KWindowSystem::d_func())) {
+        dv4->setXdgToplevelDescription(window, description);
+    }
+}
+
 #include "moc_kwaylandextras.cpp"
