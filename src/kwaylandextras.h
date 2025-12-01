@@ -86,6 +86,20 @@ public:
      */
     static QFuture<QString> xdgActivationToken(QWindow *window, const QString &appId);
 
+    /*!
+     * Assigns the specified \a tag to the given \a window.
+     *
+     * \since 6.22
+     */
+    static void setXdgToplevelTag(QWindow *window, const QString &tag);
+
+    /*!
+     * Assigns the specified \a description to the given \a window.
+     *
+     * \since 6.22
+     */
+    static void setXdgToplevelDescription(QWindow *window, const QString &description);
+
 Q_SIGNALS:
 #if KWINDOWSYSTEM_ENABLE_DEPRECATED_SINCE(6, 19)
     /*!

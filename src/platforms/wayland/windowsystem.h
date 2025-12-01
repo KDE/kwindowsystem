@@ -12,7 +12,7 @@
 
 class WindowManagement;
 
-class WindowSystem : public QObject, public KWindowSystemPrivateV3
+class WindowSystem : public QObject, public KWindowSystemPrivateV4
 {
     Q_OBJECT
 public:
@@ -30,6 +30,8 @@ public:
     void unexportWindow(QWindow *window) override;
     void setMainWindow(QWindow *window, const QString &handle) override;
     QFuture<QString> xdgActivationToken(QWindow *window, uint32_t serial, const QString &appId) override;
+    void setXdgToplevelTag(QWindow *window, const QString &tag) override;
+    void setXdgToplevelDescription(QWindow *window, const QString &description) override;
 
 private:
     static void doSetMainWindow(QWindow *window, const QString &handle);

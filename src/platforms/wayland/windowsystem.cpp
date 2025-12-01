@@ -10,6 +10,7 @@
 #include "waylandxdgactivationv1_p.h"
 #include "waylandxdgdialogv1_p.h"
 #include "waylandxdgforeignv2_p.h"
+#include "waylandxdgtopleveltagv1_p.h"
 
 #include <KWaylandExtras>
 #include <KWindowSystem>
@@ -301,6 +302,46 @@ QFuture<QString> WindowSystem::xdgActivationToken(QWindow *window, uint32_t seri
 
     auto token = activation->requestXdgActivationToken(waylandApp->lastInputSeat(), wlSurface, serial, appId);
     return token->future();
+}
+
+void WindowSystem::setXdgToplevelTag(QWindow *window, const QString &tag)
+{
+    Q_ASSERT(window);
+
+    window->create();
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if (!waylandWindow) {
+        return;
+    }
+
+    auto tryAssignTag = [waylandWindow, tag]() {
+        if (auto xdgToplevel = waylandWindow->surfaceRole<xdg_toplevel>()) {
+            WaylandXdgToplevelTagManagerV1::self()->set_toplevel_tag(xdgToplevel, tag);
+        }
+    };
+
+    tryAssignTag();
+    connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceRoleCreated, this, tryAssignTag);
+}
+
+void WindowSystem::setXdgToplevelDescription(QWindow *window, const QString &description)
+{
+    Q_ASSERT(window);
+
+    window->create();
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if (!waylandWindow) {
+        return;
+    }
+
+    auto tryAssignDescription = [waylandWindow, description]() {
+        if (auto xdgToplevel = waylandWindow->surfaceRole<xdg_toplevel>()) {
+            WaylandXdgToplevelTagManagerV1::self()->set_toplevel_tag(xdgToplevel, description);
+        }
+    };
+
+    tryAssignDescription();
+    connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceRoleCreated, this, tryAssignDescription);
 }
 
 #include "moc_windowsystem.cpp"
