@@ -181,7 +181,6 @@ void KWindowSystem::updateStartupId(QWindow *window)
         const QString token = qEnvironmentVariable("XDG_ACTIVATION_TOKEN");
         if (!token.isEmpty()) {
             setCurrentXdgActivationToken(token);
-            qunsetenv("XDG_ACTIVATION_TOKEN");
         }
     }
     // clang-format on
