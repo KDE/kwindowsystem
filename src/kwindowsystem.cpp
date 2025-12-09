@@ -173,17 +173,10 @@ void KWindowSystem::updateStartupId(QWindow *window)
         if (!startupId.isEmpty()) {
             KStartupInfo::setNewStartupId(window, startupId);
         }
-    } else
+    }
 #else
     Q_UNUSED(window);
 #endif
-    if (isPlatformWayland()) {
-        const QString token = qEnvironmentVariable("XDG_ACTIVATION_TOKEN");
-        if (!token.isEmpty()) {
-            setCurrentXdgActivationToken(token);
-            qunsetenv("XDG_ACTIVATION_TOKEN");
-        }
-    }
     // clang-format on
 }
 
