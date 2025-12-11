@@ -47,7 +47,7 @@ class KWINDOWSYSTEM_EXPORT KWindowSystemPrivateV4 : public KWindowSystemPrivateV
 {
 public:
     virtual void setXdgToplevelTag(QWindow *window, const QString &tag) = 0;
-    virtual void setXdgToplevelDescription(QWindow *window, const QString &tag) = 0;
+    virtual void setXdgToplevelDescription(QWindow *window, const QString &description) = 0;
 };
 
 #endif
