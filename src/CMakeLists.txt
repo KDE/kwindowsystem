@@ -154,7 +154,7 @@ install(
 
 add_subdirectory(platforms)
 
-if(KWINDOWSYSTEM_QML)
+if(USE_QML)
     add_subdirectory(qml)
 endif()
 

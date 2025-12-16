@@ -45,9 +45,9 @@ if (Qt6Gui_VERSION VERSION_GREATER_EQUAL "6.10.0")
     find_package(Qt6GuiPrivate ${REQUIRED_QT_VERSION} REQUIRED NO_MODULE)
 endif()
 
-option(KWINDOWSYSTEM_QML "Build QML bindings" ON)
+option(USE_QML "Build QML bindings" ON)
 
-if (KWINDOWSYSTEM_QML)
+if (USE_QML)
     find_package(Qt6Qml ${REQUIRED_QT_VERSION} CONFIG REQUIRED)
 endif()
 
