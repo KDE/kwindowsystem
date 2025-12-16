@@ -10,6 +10,7 @@
 #include "waylandxdgactivationv1_p.h"
 #include "waylandxdgdialogv1_p.h"
 #include "waylandxdgforeignv2_p.h"
+#include "waylandxdgtopleveltagv1_p.h"
 
 #include <KWaylandExtras>
 #include <KWindowSystem>
@@ -31,6 +32,8 @@
 constexpr const char *c_kdeXdgForeignExportedProperty("_kde_xdg_foreign_exported_v2");
 constexpr const char *c_kdeXdgForeignImportedProperty("_kde_xdg_foreign_imported_v2");
 constexpr const char *c_kdeXdgForeignPendingHandleProperty("_kde_xdg_foreign_pending_handle");
+constexpr const char *c_kdeXdgToplevelTagCookieName("_kde_xdg_toplevel_tag_cookie");
+constexpr const char *c_kdeXdgToplevelDescriptionCookieName("_kde_xdg_toplevel_description_cookie");
 constexpr const char *c_xdgActivationTokenEnv("XDG_ACTIVATION_TOKEN");
 
 class WindowManagement : public QWaylandClientExtensionTemplate<WindowManagement>, public QtWayland::org_kde_plasma_window_management
@@ -301,6 +304,56 @@ QFuture<QString> WindowSystem::xdgActivationToken(QWindow *window, uint32_t seri
 
     auto token = activation->requestXdgActivationToken(waylandApp->lastInputSeat(), wlSurface, serial, appId);
     return token->future();
+}
+
+void WindowSystem::setXdgToplevelTag(QWindow *window, const QString &tag)
+{
+    Q_ASSERT(window);
+
+    window->create();
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if (!waylandWindow) {
+        return;
+    }
+
+    delete window->findChild<QObject *>(c_kdeXdgToplevelTagCookieName, Qt::FindDirectChildrenOnly);
+
+    auto cookie = new QObject(window);
+    cookie->setObjectName(c_kdeXdgToplevelTagCookieName);
+
+    auto tryAssignTag = [waylandWindow, tag]() {
+        if (auto xdgToplevel = waylandWindow->surfaceRole<xdg_toplevel>()) {
+            WaylandXdgToplevelTagManagerV1::self()->set_toplevel_tag(xdgToplevel, tag);
+        }
+    };
+
+    tryAssignTag();
+    connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceRoleCreated, cookie, tryAssignTag);
+}
+
+void WindowSystem::setXdgToplevelDescription(QWindow *window, const QString &description)
+{
+    Q_ASSERT(window);
+
+    window->create();
+    auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if (!waylandWindow) {
+        return;
+    }
+
+    delete window->findChild<QObject *>(c_kdeXdgToplevelDescriptionCookieName, Qt::FindDirectChildrenOnly);
+
+    auto cookie = new QObject(window);
+    cookie->setObjectName(c_kdeXdgToplevelDescriptionCookieName);
+
+    auto tryAssignDescription = [waylandWindow, description]() {
+        if (auto xdgToplevel = waylandWindow->surfaceRole<xdg_toplevel>()) {
+            WaylandXdgToplevelTagManagerV1::self()->set_toplevel_description(xdgToplevel, description);
+        }
+    };
+
+    tryAssignDescription();
+    connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceRoleCreated, cookie, tryAssignDescription);
 }
 
 #include "moc_windowsystem.cpp"

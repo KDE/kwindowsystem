@@ -43,4 +43,11 @@ public:
     virtual QFuture<QString> xdgActivationToken(QWindow *window, uint32_t serial, const QString &appId) = 0;
 };
 
+class KWINDOWSYSTEM_EXPORT KWindowSystemPrivateV4 : public KWindowSystemPrivateV3
+{
+public:
+    virtual void setXdgToplevelTag(QWindow *window, const QString &tag) = 0;
+    virtual void setXdgToplevelDescription(QWindow *window, const QString &description) = 0;
+};
+
 #endif

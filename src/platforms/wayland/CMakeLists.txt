@@ -8,6 +8,7 @@ set(wayland_plugin_SRCS
     waylandxdgactivationv1.cpp
     waylandxdgdialogv1.cpp
     waylandxdgforeignv2.cpp
+    waylandxdgtopleveltagv1.cpp
     plugin.h
     windoweffects.h
     windowshadow.h
@@ -25,6 +26,7 @@ qt6_generate_wayland_protocol_client_sources(KF6WindowSystemKWaylandPlugin
         ${WaylandProtocols_DATADIR}/staging/xdg-activation/xdg-activation-v1.xml
         ${WaylandProtocols_DATADIR}/unstable/xdg-foreign/xdg-foreign-unstable-v2.xml
         ${WaylandProtocols_DATADIR}/staging/xdg-dialog/xdg-dialog-v1.xml
+        ${WaylandProtocols_DATADIR}/staging/xdg-toplevel-tag/xdg-toplevel-tag-v1.xml
         ${WaylandProtocols_DATADIR}/stable/xdg-shell/xdg-shell.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/blur.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/contrast.xml
