@@ -10,7 +10,6 @@
 
 #include <xcb/xproto.h>
 
-#include "atoms_p.h"
 #include "netwm_p.h"
 #include "kxcbevent_p.h"
 
