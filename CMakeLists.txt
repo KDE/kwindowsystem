@@ -89,7 +89,7 @@ set(KWINDOWSYSTEM_HAVE_X11 ${KWINDOWSYSTEM_X11})
 ecm_install_po_files_as_qm(poqm)
 
 ecm_set_disabled_deprecation_versions(
-    QT 6.10.0
+    QT 6.11.0
 )
 
 add_subdirectory(src)
