@@ -38,7 +38,7 @@ class ShadowManager : public QWaylandClientExtensionTemplate<ShadowManager>, pub
 public:
     ~ShadowManager()
     {
-        if (isActive()) {
+        if (qGuiApp && isActive()) {
             destroy();
         }
     }
