@@ -4,9 +4,8 @@
     SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
+#include "helpers.h"
 #include "waylandxdgtopleveltagv1_p.h"
-
-#include <QGuiApplication>
 
 WaylandXdgToplevelTagManagerV1::WaylandXdgToplevelTagManagerV1()
     : QWaylandClientExtensionTemplate<WaylandXdgToplevelTagManagerV1>(1)
@@ -16,7 +15,7 @@ WaylandXdgToplevelTagManagerV1::WaylandXdgToplevelTagManagerV1()
 
 WaylandXdgToplevelTagManagerV1::~WaylandXdgToplevelTagManagerV1()
 {
-    if (qGuiApp && isActive()) {
+    if (isQpaAlive() && isActive()) {
         destroy();
     }
 }

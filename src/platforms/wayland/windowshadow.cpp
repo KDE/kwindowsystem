@@ -6,9 +6,9 @@
 */
 
 #include "windowshadow.h"
+#include "helpers.h"
 #include "logging.h"
 #include "shm.h"
-#include "surfacehelper.h"
 
 #include <qwayland-shadow.h>
 
@@ -38,7 +38,7 @@ class ShadowManager : public QWaylandClientExtensionTemplate<ShadowManager>, pub
 public:
     ~ShadowManager()
     {
-        if (isActive()) {
+        if (isQpaAlive() && isActive()) {
             destroy();
         }
     }
@@ -53,9 +53,12 @@ class Shadow : public QtWayland::org_kde_kwin_shadow
 {
 public:
     using QtWayland::org_kde_kwin_shadow::org_kde_kwin_shadow;
+
     ~Shadow()
     {
-        destroy();
+        if (isQpaAlive()) {
+            destroy();
+        }
     }
 };
 
@@ -185,6 +188,10 @@ bool WindowShadow::create()
 void WindowShadow::internalDestroy()
 {
     if (!shadow) {
+        return;
+    }
+
+    if (!isQpaAlive()) {
         return;
     }
 

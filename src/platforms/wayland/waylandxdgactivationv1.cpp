@@ -4,8 +4,8 @@
     SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
+#include "helpers.h"
 #include "waylandxdgactivationv1_p.h"
-#include <QGuiApplication>
 
 WaylandXdgActivationV1::WaylandXdgActivationV1()
     : QWaylandClientExtensionTemplate<WaylandXdgActivationV1>(1)
@@ -15,7 +15,7 @@ WaylandXdgActivationV1::WaylandXdgActivationV1()
 
 WaylandXdgActivationV1::~WaylandXdgActivationV1()
 {
-    if (qGuiApp && isActive()) {
+    if (isQpaAlive() && isActive()) {
         destroy();
     }
 }

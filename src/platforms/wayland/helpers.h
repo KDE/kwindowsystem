@@ -53,3 +53,20 @@ inline xdg_toplevel *xdgToplevelForWindow(QWindow *window)
 
     return reinterpret_cast<xdg_toplevel *>(native->nativeResourceForWindow(QByteArrayLiteral("xdg_toplevel"), window));
 }
+
+/*!
+ * \internal
+ *
+ * Some objects are children of the application object and therefore they are deleted after the QPA.
+ *
+ * The problem is that the wl_display object will be gone after the QPA is shut down. This can make the
+ * app crash when it attempts to clean up its proxy objects. The wl_proxy memory won't be released by
+ * wl_display_disconnect(), but wl_proxy objects will contain dangling display pointers.
+ *
+ * We need something better, but as of now, there is not a lot to work with. If you know that an object
+ * will live as long as the app, you may need to use this function before calling the destructor request.
+ */
+inline bool isQpaAlive()
+{
+    return qGuiApp;
+}

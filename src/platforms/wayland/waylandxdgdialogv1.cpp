@@ -4,9 +4,8 @@
     SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
+#include "helpers.h"
 #include "waylandxdgdialogv1_p.h"
-
-#include <QGuiApplication>
 
 WaylandXdgDialogV1::WaylandXdgDialogV1(::xdg_dialog_v1 *object)
     : QObject()
@@ -16,7 +15,7 @@ WaylandXdgDialogV1::WaylandXdgDialogV1(::xdg_dialog_v1 *object)
 
 WaylandXdgDialogV1::~WaylandXdgDialogV1()
 {
-    if (qGuiApp) {
+    if (isQpaAlive()) {
         destroy();
     }
 }
@@ -29,7 +28,7 @@ WaylandXdgDialogWmV1::WaylandXdgDialogWmV1()
 
 WaylandXdgDialogWmV1::~WaylandXdgDialogWmV1()
 {
-    if (qGuiApp && isActive()) {
+    if (isQpaAlive() && isActive()) {
         destroy();
     }
 }

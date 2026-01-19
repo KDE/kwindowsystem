@@ -6,6 +6,7 @@
 */
 
 #include "shm.h"
+#include "helpers.h"
 
 #include <QGuiApplication>
 #include <QImage>
@@ -25,7 +26,9 @@ ShmBuffer::ShmBuffer(::wl_buffer *buffer)
 
 ShmBuffer::~ShmBuffer()
 {
-    destroy();
+    if (isQpaAlive()) {
+        destroy();
+    }
 }
 
 Shm::Shm(QObject *parent)
@@ -48,7 +51,7 @@ Shm *Shm::instance()
 
 Shm::~Shm() noexcept
 {
-    if (isActive()) {
+    if (isQpaAlive() && isActive()) {
         wl_shm_destroy(object());
     }
 }

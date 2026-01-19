@@ -20,7 +20,7 @@
 #include "qwayland-contrast.h"
 #include "qwayland-slide.h"
 
-#include "surfacehelper.h"
+#include "helpers.h"
 
 #include <wayland-client-protocol.h>
 
@@ -61,7 +61,9 @@ public:
 
     ~Blur() override
     {
-        release();
+        if (isQpaAlive()) {
+            release();
+        }
     }
 };
 
@@ -85,7 +87,9 @@ public:
 
     ~Contrast() override
     {
-        release();
+        if (isQpaAlive()) {
+            release();
+        }
     }
 };
 
@@ -109,7 +113,9 @@ public:
 
     ~Slide() override
     {
-        release();
+        if (isQpaAlive()) {
+            release();
+        }
     }
 };
 

@@ -4,9 +4,8 @@
     SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
+#include "helpers.h"
 #include "waylandxdgforeignv2_p.h"
-
-#include <QGuiApplication>
 
 WaylandXdgForeignExportedV2::WaylandXdgForeignExportedV2(::zxdg_exported_v2 *object)
     : QObject()
@@ -16,7 +15,7 @@ WaylandXdgForeignExportedV2::WaylandXdgForeignExportedV2(::zxdg_exported_v2 *obj
 
 WaylandXdgForeignExportedV2::~WaylandXdgForeignExportedV2()
 {
-    if (qGuiApp) {
+    if (isQpaAlive()) {
         destroy();
     }
 }
@@ -40,7 +39,7 @@ WaylandXdgForeignExporterV2::WaylandXdgForeignExporterV2()
 
 WaylandXdgForeignExporterV2::~WaylandXdgForeignExporterV2()
 {
-    if (qGuiApp && isActive()) {
+    if (isQpaAlive() && isActive()) {
         destroy();
     }
 }
@@ -65,7 +64,7 @@ WaylandXdgForeignImportedV2::WaylandXdgForeignImportedV2(const QString &handle, 
 
 WaylandXdgForeignImportedV2::~WaylandXdgForeignImportedV2()
 {
-    if (qGuiApp) {
+    if (isQpaAlive()) {
         destroy();
     }
 }
@@ -88,7 +87,7 @@ WaylandXdgForeignImporterV2::WaylandXdgForeignImporterV2()
 
 WaylandXdgForeignImporterV2::~WaylandXdgForeignImporterV2()
 {
-    if (qGuiApp && isActive()) {
+    if (isQpaAlive() && isActive()) {
         destroy();
     }
 }
