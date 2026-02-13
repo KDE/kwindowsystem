@@ -71,9 +71,9 @@ private:
         bool operator==(const SlideData &other) const = default;
     };
     QHash<QWindow *, SlideData> m_slideMap;
-    BlurManager *m_blurManager;
-    ContrastManager *m_contrastManager;
-    SlideManager *m_slideManager;
+    std::unique_ptr<BlurManager> m_blurManager;
+    std::unique_ptr<ContrastManager> m_contrastManager;
+    std::unique_ptr<SlideManager> m_slideManager;
     std::unique_ptr<BackgroundEffectManager> m_backgroundEffectManager;
     std::unordered_map<QWindow *, std::unique_ptr<BackgroundEffect>> m_backgroundEffects;
 };

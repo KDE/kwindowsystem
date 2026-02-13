@@ -170,17 +170,16 @@ public:
 WindowEffects::WindowEffects()
     : QObject()
     , KWindowEffectsPrivate()
+    , m_blurManager(std::make_unique<BlurManager>())
+    , m_contrastManager(std::make_unique<ContrastManager>())
+    , m_slideManager(std::make_unique<SlideManager>())
     , m_backgroundEffectManager(std::make_unique<BackgroundEffectManager>())
 {
-    m_blurManager = new BlurManager();
-    m_contrastManager = new ContrastManager();
-    m_slideManager = new SlideManager();
-
     // The KWindowEffects API doesn't provide any signals to notify that the particular
     // effect has become unavailable. So we re-install effects when the corresponding globals
     // are added.
 
-    connect(m_blurManager, &BlurManager::activeChanged, this, [this] {
+    connect(m_blurManager.get(), &BlurManager::activeChanged, this, [this] {
         if (m_backgroundEffectManager->isActive()) {
             return;
         }
@@ -189,7 +188,7 @@ WindowEffects::WindowEffects()
         }
     });
 
-    connect(m_contrastManager, &ContrastManager::activeChanged, this, [this] {
+    connect(m_contrastManager.get(), &ContrastManager::activeChanged, this, [this] {
         for (auto it = m_backgroundConstrastRegions.constBegin(); it != m_backgroundConstrastRegions.constEnd(); ++it) {
             if (m_contrastManager->isActive()) {
                 installContrast(it.key(), true, it->contrast, it->intensity, it->saturation, it->region);
@@ -199,7 +198,7 @@ WindowEffects::WindowEffects()
         }
     });
 
-    connect(m_slideManager, &SlideManager::activeChanged, this, [this] {
+    connect(m_slideManager.get(), &SlideManager::activeChanged, this, [this] {
         for (auto it = m_slideMap.constBegin(); it != m_slideMap.constEnd(); ++it) {
             if (m_slideManager->isActive()) {
                 installSlide(it.key(), it->location, it->offset);
@@ -224,9 +223,6 @@ WindowEffects::WindowEffects()
 
 WindowEffects::~WindowEffects()
 {
-    delete m_blurManager;
-    delete m_contrastManager;
-    delete m_slideManager;
 }
 
 void WindowEffects::trackWindow(QWindow *window)
