@@ -48,7 +48,8 @@ private:
     void resetBlur(QWindow *window, Blur *blur = nullptr);
     void resetContrast(QWindow *window, Contrast *contrast = nullptr);
 
-    QHash<QWindow *, QList<QMetaObject::Connection>> m_windowWatchers;
+    QHash<QWindow *, QMetaObject::Connection> m_windowDestroyedWatchers;
+    QHash<QWindow *, QMetaObject::Connection> m_surfaceDestroyedWatchers;
     QHash<QWindow *, QRegion> m_blurRegions;
     struct BackgroundContrastData {
         qreal contrast = 1;

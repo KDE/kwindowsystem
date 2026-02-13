@@ -167,24 +167,25 @@ WindowEffects::~WindowEffects()
 
 void WindowEffects::trackWindow(QWindow *window)
 {
-    if (!m_windowWatchers.contains(window)) {
+    if (!m_windowDestroyedWatchers.contains(window)) {
         window->installEventFilter(this);
-        auto conn = connect(window, &QObject::destroyed, this, [this, window]() {
+        m_windowDestroyedWatchers[window] = connect(window, &QObject::destroyed, this, [this, window]() {
             resetBlur(window);
             m_blurRegions.remove(window);
             resetContrast(window);
             m_backgroundConstrastRegions.remove(window);
             m_slideMap.remove(window);
-            m_windowWatchers.remove(window);
+            m_windowDestroyedWatchers.remove(window);
+            m_surfaceDestroyedWatchers.remove(window);
         });
-        m_windowWatchers[window] << conn;
+    }
+    if (!m_surfaceDestroyedWatchers.contains(window)) {
         auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
         if (waylandWindow) {
-            auto conn = connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceDestroyed, this, [this, window]() {
+            m_surfaceDestroyedWatchers[window] = connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceDestroyed, this, [this, window]() {
                 resetBlur(window);
                 resetContrast(window);
             });
-            m_windowWatchers[window] << conn;
         }
     }
 }
@@ -192,11 +193,15 @@ void WindowEffects::trackWindow(QWindow *window)
 void WindowEffects::releaseWindow(QWindow *window)
 {
     if (!m_blurRegions.contains(window) && !m_backgroundConstrastRegions.contains(window) && !m_slideMap.contains(window)) {
-        for (const auto &conn : m_windowWatchers[window]) {
-            disconnect(conn);
+        if (auto it = m_windowDestroyedWatchers.find(window); it != m_windowDestroyedWatchers.end()) {
+            disconnect(*it);
+            m_windowDestroyedWatchers.erase(it);
+        }
+        if (auto it = m_surfaceDestroyedWatchers.find(window); it != m_surfaceDestroyedWatchers.end()) {
+            disconnect(*it);
+            m_surfaceDestroyedWatchers.erase(it);
         }
         window->removeEventFilter(this);
-        m_windowWatchers.remove(window);
     }
 }
 
@@ -248,6 +253,23 @@ bool WindowEffects::eventFilter(QObject *watched, QEvent *event)
                 installSlide(window, it->location, it->offset);
             }
         }
+    } else if (event->type() == QEvent::PlatformSurface) {
+        auto ps = static_cast<QPlatformSurfaceEvent *>(event);
+        if (ps->surfaceEventType() != QPlatformSurfaceEvent::SurfaceCreated) {
+            return false;
+        }
+        auto window = static_cast<QWindow *>(watched);
+        auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+        if (!waylandWindow) {
+            return false;
+        }
+        if (auto it = m_surfaceDestroyedWatchers.find(window); it != m_surfaceDestroyedWatchers.end()) {
+            disconnect(*it);
+        }
+        m_surfaceDestroyedWatchers[window] = connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceDestroyed, this, [this, window]() {
+            resetBlur(window);
+            resetContrast(window);
+        });
     }
     return false;
 }
