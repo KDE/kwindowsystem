@@ -342,6 +342,9 @@ bool WindowEffects::isEffectAvailable(KWindowEffects::Effect effect)
     case KWindowEffects::BackgroundContrast:
         return m_contrastManager->isActive();
     case KWindowEffects::BlurBehind:
+        if (m_backgroundEffectManager->isActive()) {
+            return m_backgroundEffectManager->supportsBlur;
+        }
         return m_blurManager->isActive();
     case KWindowEffects::Slide:
         return m_slideManager->isActive();
