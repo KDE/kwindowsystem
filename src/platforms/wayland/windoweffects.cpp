@@ -48,6 +48,7 @@ public:
     BlurManager()
         : QWaylandClientExtensionTemplate<BlurManager>(1)
     {
+        initialize();
     }
 };
 
@@ -74,6 +75,7 @@ public:
     ContrastManager()
         : QWaylandClientExtensionTemplate<ContrastManager>(2)
     {
+        initialize();
     }
 };
 
@@ -100,6 +102,7 @@ public:
     SlideManager()
         : QWaylandClientExtensionTemplate<SlideManager>(1)
     {
+        initialize();
     }
 };
 
