@@ -16,12 +16,8 @@ set(wayland_plugin_SRCS
     waylandxdgactivationv1_p.h
 )
 
-
-if (Qt6_VERSION VERSION_GREATER_EQUAL "6.8.0")
-    set(private_code_option  "PRIVATE_CODE")
-endif()
 qt6_generate_wayland_protocol_client_sources(KF6WindowSystemKWaylandPlugin
-    ${private_code_option}
+    PRIVATE_CODE
     FILES
         ${WaylandProtocols_DATADIR}/stable/xdg-shell/xdg-shell.xml
         ${WaylandProtocols_DATADIR}/staging/ext-background-effect/ext-background-effect-v1.xml
@@ -36,7 +32,6 @@ qt6_generate_wayland_protocol_client_sources(KF6WindowSystemKWaylandPlugin
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/shadow.xml
         ${Wayland_DATADIR}/wayland.xml
 )
-
 
 ecm_qt_declare_logging_category(wayland_plugin_SRCS
     HEADER logging.h
