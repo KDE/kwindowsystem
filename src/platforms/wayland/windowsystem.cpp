@@ -167,6 +167,12 @@ void WindowSystem::exportWindow(QWindow *window)
     // call QWaylandWindow::property(QString) and send it around.
     WaylandXdgForeignExportedV2 *exported = waylandWindow->property(c_kdeXdgForeignExportedProperty).value<WaylandXdgForeignExportedV2 *>();
     if (!exported) {
+        if (!xdgToplevelForWindow(window)) {
+            qCWarning(KWAYLAND_KWS) << window << "is not an XDG toplevel, cannot export";
+            emitHandle({});
+            return;
+        }
+
         exported = exporter.exportToplevel(surfaceForWindow(window));
         exported->setParent(waylandWindow);
 
