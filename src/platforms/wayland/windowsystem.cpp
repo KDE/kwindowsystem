@@ -227,10 +227,16 @@ void WindowSystem::setMainWindow(QWindow *window, const QString &handle)
     if (window->isExposed()) {
         doSetMainWindow(window, handle);
     } else {
-        // We can only import an XDG toplevel.
-        connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceRoleCreated, window, [window, handle] {
+        // check if surface role has been created already
+        if (waylandWindow->surfaceRole<xdg_toplevel>()) {
             doSetMainWindow(window, handle);
-        });
+        }
+        // if not wait for it
+        else {
+            connect(waylandWindow, &QNativeInterface::Private::QWaylandWindow::surfaceRoleCreated, window, [window, handle] {
+                doSetMainWindow(window, handle);
+            });
+        }
     }
 }
 
@@ -241,6 +247,11 @@ void WindowSystem::doSetMainWindow(QWindow *window, const QString &handle)
 
     auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
     if (!waylandWindow) {
+        return;
+    }
+
+    // we can only attach to a toplevel
+    if (!waylandWindow->surfaceRole<xdg_toplevel>()) {
         return;
     }
 
