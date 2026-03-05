@@ -11,6 +11,7 @@
 #include <QExposeEvent>
 #include <QGuiApplication>
 
+#include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformwindow_p.h>
 
 #include <QWaylandClientExtension>

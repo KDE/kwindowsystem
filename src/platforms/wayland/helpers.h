@@ -11,7 +11,6 @@
 #include <QGuiApplication>
 #include <QVersionNumber>
 
-#include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformwindow_p.h>
 
 struct wl_surface;
@@ -23,7 +22,7 @@ inline wl_surface *surfaceForWindow(QWindow *window)
         return nullptr;
     }
 
-    QPlatformNativeInterface *native = qGuiApp->platformNativeInterface();
+    auto native = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
     if (!native) {
         return nullptr;
     }
@@ -38,7 +37,7 @@ inline wl_surface *surfaceForWindow(QWindow *window)
         window->create();
     }
 
-    return reinterpret_cast<wl_surface *>(native->nativeResourceForWindow(QByteArrayLiteral("surface"), window));
+    return native->surface();
 }
 
 inline xdg_toplevel *xdgToplevelForWindow(QWindow *window)
