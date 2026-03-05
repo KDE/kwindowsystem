@@ -12,6 +12,7 @@
 #include <QVersionNumber>
 
 #include <qpa/qplatformnativeinterface.h>
+#include <qpa/qplatformwindow_p.h>
 
 struct wl_surface;
 struct xdg_toplevel;
@@ -46,12 +47,13 @@ inline xdg_toplevel *xdgToplevelForWindow(QWindow *window)
         return nullptr;
     }
 
-    QPlatformNativeInterface *native = qGuiApp->platformNativeInterface();
+    auto native = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+
     if (!native) {
         return nullptr;
     }
 
-    return reinterpret_cast<xdg_toplevel *>(native->nativeResourceForWindow(QByteArrayLiteral("xdg_toplevel"), window));
+    return native->surfaceRole<xdg_toplevel>();
 }
 
 /*!
