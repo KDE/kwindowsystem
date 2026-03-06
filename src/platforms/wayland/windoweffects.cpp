@@ -11,7 +11,6 @@
 #include <QExposeEvent>
 #include <QGuiApplication>
 
-#include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformwindow_p.h>
 
 #include <QWaylandClientExtension>
@@ -28,11 +27,11 @@
 
 static wl_region *createRegion(const QRegion &region)
 {
-    QPlatformNativeInterface *native = qGuiApp->platformNativeInterface();
+    auto native = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
     if (!native) {
         return nullptr;
     }
-    auto compositor = reinterpret_cast<wl_compositor *>(native->nativeResourceForIntegration(QByteArrayLiteral("compositor")));
+    auto compositor = native->compositor();
     if (!compositor) {
         return nullptr;
     }
