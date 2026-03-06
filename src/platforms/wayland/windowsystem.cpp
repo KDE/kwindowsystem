@@ -26,7 +26,6 @@
 #include <QVersionNumber>
 #include <QWaylandClientExtensionTemplate>
 #include <QWindow>
-#include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformwindow_p.h>
 
 constexpr const char *c_kdeXdgForeignExportedProperty("_kde_xdg_foreign_exported_v2");
