@@ -473,7 +473,9 @@ void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &reg
             }
         }
         effect->set_blur_region(wlRegion);
-        wl_region_destroy(wlRegion);
+        if (wlRegion) {
+            wl_region_destroy(wlRegion);
+        }
         return;
     }
     if (!m_blurManager->isActive()) {
