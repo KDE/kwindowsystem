@@ -46,7 +46,7 @@ public:
     void org_kde_plasma_window_management_show_desktop_changed(uint32_t state) override
     {
         showingDesktop = state == show_desktop_enabled;
-        KWindowSystem::self()->showingDesktopChanged(showingDesktop);
+        Q_EMIT KWindowSystem::self()->showingDesktopChanged(showingDesktop);
     }
 
     bool showingDesktop = false;
