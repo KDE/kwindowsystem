@@ -15,7 +15,7 @@
  * be read by xcb_send_event().
  */
 template<class EventType, bool needsPadding = (sizeof(EventType) < 32)>
-struct KXcbEvent;
+class KXcbEvent;
 
 template<class EventType>
 class KXcbEvent<EventType, false> : public EventType
