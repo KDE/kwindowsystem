@@ -42,6 +42,30 @@ static wl_region *createRegion(const QRegion &region)
     return wl_region;
 }
 
+static QRect scaledAndRoundedRect(const QRect &rect, qreal scale)
+{
+    if (scale == 1) {
+        return rect;
+    }
+    return QRect(QPoint(std::round(rect.x() * scale),
+                        std::round(rect.y() * scale)),
+                 QPoint(std::round((rect.x() + rect.width()) * scale) - 1,
+                        std::round((rect.y() + rect.height()) * scale) - 1));
+}
+
+static QRegion scaledAndRoundedRegion(const QRegion &region, qreal scale)
+{
+    if (scale == 1) {
+        return region;
+    }
+
+    QRegion scaled;
+    for (const QRect &rect : region)
+        scaled |= scaledAndRoundedRect(rect, scale);
+
+    return scaled;
+}
+
 class BlurManager : public QWaylandClientExtensionTemplate<BlurManager>, public QtWayland::org_kde_kwin_blur_manager
 {
 public:
@@ -444,8 +468,8 @@ void WindowEffects::enableBlurBehind(QWindow *window, bool enable, const QRegion
 
 void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &region)
 {
-    wl_surface *surface = surfaceForWindow(window);
-    if (!surface) {
+    auto native = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if (!native) {
         return;
     }
     if (m_backgroundEffectManager->isActive()) {
@@ -456,7 +480,7 @@ void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &reg
         }
         auto &effect = m_backgroundEffects[window];
         if (!effect) {
-            effect = std::make_unique<BackgroundEffect>(m_backgroundEffectManager->get_background_effect(surface));
+            effect = std::make_unique<BackgroundEffect>(m_backgroundEffectManager->get_background_effect(native->surface()));
         }
         wl_region *wlRegion = nullptr;
         if (enable) {
@@ -469,7 +493,11 @@ void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &reg
                     std::numeric_limits<int>::max(),
                 });
             } else {
+#if QT_VERSION < QT_VERSION_CHECK(6, 12, 0)
                 wlRegion = createRegion(region);
+#else
+                wlRegion = createRegion(scaledAndRoundedRegion(region, native->clientToCompositorScale()));
+#endif
             }
         }
         effect->set_blur_region(wlRegion);
@@ -482,18 +510,22 @@ void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &reg
         return;
     }
     if (enable) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 12, 0)
         auto wl_region = createRegion(region);
+#else
+        auto wl_region = createRegion(scaledAndRoundedRegion(region, native->clientToCompositorScale()));
+#endif
         if (!wl_region) {
             return;
         }
-        auto blur = new Blur(m_blurManager->create(surface), window);
+        auto blur = new Blur(m_blurManager->create(native->surface()), window);
         blur->set_region(wl_region);
         blur->commit();
         wl_region_destroy(wl_region);
         resetBlur(window, blur);
     } else {
         resetBlur(window);
-        m_blurManager->unset(surface);
+        m_blurManager->unset(native->surface());
     }
 }
 
@@ -535,25 +567,31 @@ void WindowEffects::installContrast(QWindow *window, bool enable, qreal contrast
         return;
     }
 
-    wl_surface *surface = surfaceForWindow(window);
-    if (surface) {
-        if (enable) {
-            auto wl_region = createRegion(region);
-            if (!wl_region) {
-                return;
-            }
-            auto backgroundContrast = new Contrast(m_contrastManager->create(surface), window);
-            backgroundContrast->set_region(wl_region);
-            backgroundContrast->set_contrast(wl_fixed_from_double(contrast));
-            backgroundContrast->set_intensity(wl_fixed_from_double(intensity));
-            backgroundContrast->set_saturation(wl_fixed_from_double(saturation));
-            backgroundContrast->commit();
-            wl_region_destroy(wl_region);
-            resetContrast(window, backgroundContrast);
-        } else {
-            resetContrast(window);
-            m_contrastManager->unset(surface);
+    auto native = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
+    if (!native) {
+        return;
+    }
+
+    if (enable) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 12, 0)
+        auto wl_region = createRegion(region);
+#else
+        auto wl_region = createRegion(scaledAndRoundedRegion(region, native->clientToCompositorScale()));
+#endif
+        if (!wl_region) {
+            return;
         }
+        auto backgroundContrast = new Contrast(m_contrastManager->create(native->surface()), window);
+        backgroundContrast->set_region(wl_region);
+        backgroundContrast->set_contrast(wl_fixed_from_double(contrast));
+        backgroundContrast->set_intensity(wl_fixed_from_double(intensity));
+        backgroundContrast->set_saturation(wl_fixed_from_double(saturation));
+        backgroundContrast->commit();
+        wl_region_destroy(wl_region);
+        resetContrast(window, backgroundContrast);
+    } else {
+        resetContrast(window);
+        m_contrastManager->unset(native->surface());
     }
 }
 
