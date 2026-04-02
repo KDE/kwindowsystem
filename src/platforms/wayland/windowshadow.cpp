@@ -161,10 +161,19 @@ bool WindowShadow::internalCreate()
     attach(shadow, &Shadow::attach_bottom, bottomTile);
     attach(shadow, &Shadow::attach_bottom_left, bottomLeftTile);
 
-    shadow->set_left_offset(wl_fixed_from_double(padding.left()));
-    shadow->set_top_offset(wl_fixed_from_double(padding.top()));
-    shadow->set_right_offset(wl_fixed_from_double(padding.right()));
-    shadow->set_bottom_offset(wl_fixed_from_double(padding.bottom()));
+#if QT_VERSION < QT_VERSION_CHECK(6, 12, 0)
+    const QMargins nativePadding(padding);
+#else
+    const QMargins nativePadding(std::round(padding.left() * waylandWindow->clientToCompositorScale()),
+                                 std::round(padding.top() * waylandWindow->clientToCompositorScale()),
+                                 std::round(padding.right() * waylandWindow->clientToCompositorScale()),
+                                 std::round(padding.bottom() * waylandWindow->clientToCompositorScale()));
+#endif
+
+    shadow->set_left_offset(wl_fixed_from_double(nativePadding.left()));
+    shadow->set_top_offset(wl_fixed_from_double(nativePadding.top()));
+    shadow->set_right_offset(wl_fixed_from_double(nativePadding.right()));
+    shadow->set_bottom_offset(wl_fixed_from_double(nativePadding.bottom()));
 
     shadow->commit();
 
