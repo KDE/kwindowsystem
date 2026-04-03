@@ -8,115 +8,95 @@ msgstr ""
 "Project-Id-Version: kdelibs4\n"
 "Report-Msgid-Bugs-To: http://bugs.kde.org\n"
 "POT-Creation-Date: 2014-03-23 01:50+0000\n"
-"PO-Revision-Date: 2013-09-08 07:05+0900\n"
-"Last-Translator: Gheyret Kenji <gheyret@gmail.com>\n"
+"PO-Revision-Date: 2026-04-01 09:19-0400\n"
+"Last-Translator: Abduqadir Abliz <sahranbay@gmail.com>\n"
 "Language-Team: Uyghur Computer Science Association <UKIJ@yahoogroups.com>\n"
 "Language: ug\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.5.5\n"
+"X-Generator: Poedit 3.8\n"
 "X-Qt-Contexts: true\n"
 
 #: kx11extras.cpp:994
-#, fuzzy, qt-format
-#| msgid "Desktop %1"
+#, qt-format
 msgctxt "KWindowSystem|"
 msgid "Desktop %1"
-msgstr "ئۈستەلئۈستى %1"
+msgstr "%1-ئۈستەلئۈستى‎‏"
 
-#, fuzzy
 #~ msgctxt "QObject|"
 #~ msgid "Desktop %1"
 #~ msgstr "ئۈستەلئۈستى %1"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "Backspace"
 #~ msgstr "Backspace"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "SysReq"
 #~ msgstr "SysReq"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "CapsLock"
 #~ msgstr "CapsLock"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "NumLock"
 #~ msgstr "NumLock"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "ScrollLock"
 #~ msgstr "ScrollLock"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "PageUp"
 #~ msgstr "PageUp"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "PageDown"
 #~ msgstr "PageDown"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "Stop"
 #~ msgstr "توختا"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "Again"
 #~ msgstr "قايتا"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "Props"
 #~ msgstr "Props"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "Undo"
 #~ msgstr "يېنىۋال"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "Front"
 #~ msgstr "ئالدى"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "Copy"
 #~ msgstr "كۆچۈر"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "Open"
 #~ msgstr "ئاچ"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "Paste"
 #~ msgstr "چاپلا"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "Find"
 #~ msgstr "ئىزدە"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "Cut"
 #~ msgstr "كەس"
 
-#, fuzzy
 #~ msgctxt "KKeyServer|"
 #~ msgid "Print"
 #~ msgstr "بېسىپ چىقار"
@@ -3797,7 +3777,6 @@ msgstr "ئۈستەلئۈستى %1"
 #~ msgid "Supply a username and password below."
 #~ msgstr "تۆۋەندە ئىشلەتكۈچى ئاتى ۋە ئىم تەمىنلەيدۇ."
 
-#, fuzzy
 #~ msgid "Use this password:"
 #~ msgstr "ئىمنى ساقلا(&K)"
 
