@@ -70,7 +70,9 @@ public:
      * Requests an xdg_activation_v1 token for a specific window \a window with the given \a appId.
      * The \a serial indicates an event that triggered the request.
      *
-     * \note No xdgActivationTokenArrived() signal will be emitted for this token.
+     * The appId may be empty, in which case any application can use the token. This should usually be avoided!
+     *
+     * \note No xdgActivationTokenArrived() signal will be emitted for this token. Use the QFuture instead.
      *
      * \since 6.19
      */
@@ -80,7 +82,9 @@ public:
      * Requests an xdg_activation_v1 token for a specific window \a window with the given \a appId.
      * The last received input serial will be used to request the token.
      *
-     * \note No xdgActivationTokenArrived() signal will be emitted for this token.
+     * The appId may be empty, in which case any application can use the token. This should usually be avoided!
+     *
+     * \note No xdgActivationTokenArrived() signal will be emitted for this token. Use the QFuture instead.
      *
      * \since 6.19
      */
