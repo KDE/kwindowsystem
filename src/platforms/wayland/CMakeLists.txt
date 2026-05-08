@@ -38,7 +38,6 @@ ecm_qt_declare_logging_category(wayland_plugin_SRCS
     IDENTIFIER KWAYLAND_KWS
     CATEGORY_NAME kf.windowsystem.wayland
     OLD_CATEGORY_NAMES org.kde.kf5.kwindowsystem.kwayland
-    DEFAULT_SEVERITY Warning
     DESCRIPTION "KWindowSystem Wayland Plugin"
     EXPORT KWINDOWSYSTEM
 )

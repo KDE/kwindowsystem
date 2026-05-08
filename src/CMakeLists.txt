@@ -28,7 +28,6 @@ ecm_qt_declare_logging_category(KF6WindowSystem
     IDENTIFIER LOG_KWINDOWSYSTEM
     CATEGORY_NAME kf.windowsystem
     OLD_CATEGORY_NAMES org.kde.kwindowsystem
-    DEFAULT_SEVERITY Warning
     DESCRIPTION "KWindowSystem"
     EXPORT KWINDOWSYSTEM
 )
@@ -55,7 +54,6 @@ if (KWINDOWSYSTEM_X11)
         HEADER kwindowsystem_xcb_debug.h
         IDENTIFIER LOG_KKEYSERVER_X11
         CATEGORY_NAME kf.windowsystem.keyserver.x11
-        DEFAULT_SEVERITY Warning
     )
 
    target_sources(KF6WindowSystem PRIVATE
