@@ -149,8 +149,8 @@ KWINDOWSYSTEM_EXPORT uint accelModMaskX();
  *
  * Use keyQtToSymXs(keyQt)
  */
-KWINDOWSYSTEM_EXPORT
 KWINDOWSYSTEM_DEPRECATED_VERSION(6, 0, "Use keyQtToSymXs(int keyQt)")
+KWINDOWSYSTEM_EXPORT
 bool keyQtToSymX(int keyQt, int *sym);
 #endif
 
@@ -176,8 +176,8 @@ KWINDOWSYSTEM_EXPORT QList<int> keyQtToSymXs(int keyQt);
  *
  * \deprecated[6.0] Use keyQtToCodeXs(keyQt)
  */
-KWINDOWSYSTEM_EXPORT
 KWINDOWSYSTEM_DEPRECATED_VERSION(6, 0, "Use keyQtToCodeXs(int keyQt)")
+KWINDOWSYSTEM_EXPORT
 bool keyQtToCodeX(int keyQt, int *keyCode);
 #endif
 
