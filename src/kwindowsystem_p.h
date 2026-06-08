@@ -33,7 +33,7 @@ public:
     virtual void setCurrentToken(const QString &token) = 0;
     virtual quint32 lastInputSerial(QWindow *window) = 0;
     virtual void setMainWindow(QWindow *window, const QString &handle) = 0;
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 27)
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 28)
     virtual void exportWindow(QWindow *window) = 0;
     virtual void unexportWindow(QWindow *window) = 0;
 #endif

@@ -132,7 +132,7 @@ bool WindowSystem::showingDesktop()
     return m_windowManagement->showingDesktop;
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 27)
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 28)
 void WindowSystem::exportWindow(QWindow *window)
 {
     exportToplevel(window).then(window, [window](const QString &handle) {
@@ -190,7 +190,7 @@ QFuture<QString> WindowSystem::exportToplevel(QWindow *window)
 
     return future;
 }
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 27)
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 28)
 void WindowSystem::unexportWindow(QWindow *window)
 {
     unexportToplevel(window);

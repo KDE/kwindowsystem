@@ -51,7 +51,7 @@ quint32 KWaylandExtras::lastInputSerial(QWindow *window)
     return dv2->lastInputSerial(window);
 }
 
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 27)
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 28)
 void KWaylandExtras::exportWindow(QWindow *window)
 {
     if (auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(KWindowSystem::d_func())) {
@@ -72,7 +72,7 @@ QFuture<QString> KWaylandExtras::exportToplevel(QWindow *window)
     if (auto dv5 = dynamic_cast<KWindowSystemPrivateV5 *>(KWindowSystem::d_func())) {
         return dv5->exportToplevel(window);
     }
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 27)
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 28)
     exportWindow(window);
     QPromise<QString> promise;
     promise.start();
@@ -103,7 +103,7 @@ void KWaylandExtras::unexportToplevel(QWindow *window)
     if (auto dv5 = dynamic_cast<KWindowSystemPrivateV5 *>(KWindowSystem::d_func())) {
         dv5->unexportToplevel(window);
     }
-#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 27)
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 28)
     else {
         unexportWindow(window);
     }
