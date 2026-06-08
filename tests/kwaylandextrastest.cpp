@@ -56,16 +56,7 @@ void Window::requestToken()
 
 void Window::exportWindow()
 {
-    connect(
-        KWaylandExtras::self(),
-        &KWaylandExtras::windowExported,
-        this,
-        [this](QWindow *window, const QString &handle) {
-            Q_UNUSED(window);
-            setExportedHandle(handle);
-        },
-        Qt::SingleShotConnection);
-    KWaylandExtras::exportWindow(windowHandle());
+    KWaylandExtras::exportToplevel(windowHandle()).then(std::bind_front(&Window::setExportedHandle, this));
 }
 
 void Window::unexportWindow()

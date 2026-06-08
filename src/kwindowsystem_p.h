@@ -33,8 +33,10 @@ public:
     virtual void setCurrentToken(const QString &token) = 0;
     virtual quint32 lastInputSerial(QWindow *window) = 0;
     virtual void setMainWindow(QWindow *window, const QString &handle) = 0;
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 27)
     virtual void exportWindow(QWindow *window) = 0;
     virtual void unexportWindow(QWindow *window) = 0;
+#endif
 };
 
 class KWINDOWSYSTEM_EXPORT KWindowSystemPrivateV3 : public KWindowSystemPrivateV2
@@ -48,6 +50,13 @@ class KWINDOWSYSTEM_EXPORT KWindowSystemPrivateV4 : public KWindowSystemPrivateV
 public:
     virtual void setXdgToplevelTag(QWindow *window, const QString &tag) = 0;
     virtual void setXdgToplevelDescription(QWindow *window, const QString &description) = 0;
+};
+
+class KWINDOWSYSTEM_EXPORT KWindowSystemPrivateV5 : public KWindowSystemPrivateV4
+{
+public:
+    virtual QFuture<QString> exportToplevel(QWindow *window) = 0;
+    virtual void unexportToplevel(QWindow *window) = 0;
 };
 
 #endif

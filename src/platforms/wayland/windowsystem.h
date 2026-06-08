@@ -12,7 +12,7 @@
 
 class WindowManagement;
 
-class WindowSystem : public QObject, public KWindowSystemPrivateV4
+class WindowSystem : public QObject, public KWindowSystemPrivateV5
 {
     Q_OBJECT
 public:
@@ -26,8 +26,12 @@ public:
     void setCurrentToken(const QString &token) override;
     bool showingDesktop() override;
     void setShowingDesktop(bool showing) override;
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 19)
     void exportWindow(QWindow *window) override;
     void unexportWindow(QWindow *window) override;
+#endif
+    QFuture<QString> exportToplevel(QWindow *window) override;
+    void unexportToplevel(QWindow *window) override;
     void setMainWindow(QWindow *window, const QString &handle) override;
     QFuture<QString> xdgActivationToken(QWindow *window, uint32_t serial, const QString &appId) override;
     void setXdgToplevelTag(QWindow *window, const QString &tag) override;

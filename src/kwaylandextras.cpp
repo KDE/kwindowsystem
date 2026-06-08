@@ -51,6 +51,7 @@ quint32 KWaylandExtras::lastInputSerial(QWindow *window)
     return dv2->lastInputSerial(window);
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 27)
 void KWaylandExtras::exportWindow(QWindow *window)
 {
     if (auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(KWindowSystem::d_func())) {
@@ -63,6 +64,50 @@ void KWaylandExtras::unexportWindow(QWindow *window)
     if (auto dv2 = dynamic_cast<KWindowSystemPrivateV2 *>(KWindowSystem::d_func())) {
         dv2->unexportWindow(window);
     }
+}
+#endif
+
+QFuture<QString> KWaylandExtras::exportToplevel(QWindow *window)
+{
+    if (auto dv5 = dynamic_cast<KWindowSystemPrivateV5 *>(KWindowSystem::d_func())) {
+        return dv5->exportToplevel(window);
+    }
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 27)
+    exportWindow(window);
+    QPromise<QString> promise;
+    promise.start();
+    auto future = promise.future();
+    auto connection = std::make_unique<QMetaObject::Connection>();
+    auto &connectionRef = *connection;
+    connectionRef =
+        connect(self(),
+                &KWaylandExtras::windowExported,
+                window,
+                [wanted = window, promise = std::move(promise), connection = std::move(connection)](QWindow *window, const QString &handle) mutable {
+                    if (window != wanted) {
+                        return;
+                    }
+                    promise.addResult(handle);
+                    promise.finish();
+                    QObject::disconnect(*connection);
+                });
+
+    return future;
+#else
+    return QtFuture::makeReadyValueFuture(QString());
+#endif
+}
+
+void KWaylandExtras::unexportToplevel(QWindow *window)
+{
+    if (auto dv5 = dynamic_cast<KWindowSystemPrivateV5 *>(KWindowSystem::d_func())) {
+        dv5->unexportToplevel(window);
+    }
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 27)
+    else {
+        unexportWindow(window);
+    }
+#endif
 }
 
 QFuture<QString> KWaylandExtras::xdgActivationToken(QWindow *window, uint32_t serial, const QString &appId)

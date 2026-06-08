@@ -132,44 +132,38 @@ bool WindowSystem::showingDesktop()
     return m_windowManagement->showingDesktop;
 }
 
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 27)
 void WindowSystem::exportWindow(QWindow *window)
 {
-    auto emitHandle = [window](const QString &handle) {
-        // Ensure that windowExported is always emitted asynchronously.
-        QMetaObject::invokeMethod(
-            window,
-            [window, handle] {
-                Q_EMIT KWaylandExtras::self()->windowExported(window, handle);
-            },
-            Qt::QueuedConnection);
-    };
+    exportToplevel(window).then(window, [window](const QString &handle) {
+        QMetaObject::invokeMethod(KWaylandExtras::self(), &KWaylandExtras::windowExported, Qt::QueuedConnection, window, handle);
+    });
+}
+#endif
 
+QFuture<QString> WindowSystem::exportToplevel(QWindow *window)
+{
     if (!window) {
-        return;
+        return QtFuture::makeReadyValueFuture(QString());
     }
 
     window->create();
 
     auto waylandWindow = window->nativeInterface<QNativeInterface::Private::QWaylandWindow>();
     if (!waylandWindow) {
-        emitHandle({});
-        return;
+        return QtFuture::makeReadyValueFuture(QString());
     }
 
     auto &exporter = WaylandXdgForeignExporterV2::self();
     if (!exporter.isActive()) {
-        emitHandle({});
-        return;
+        return QtFuture::makeReadyValueFuture(QString());
     }
 
-    // We want to use QObject::property(char*) and use dynamic properties on the object rather than
-    // call QWaylandWindow::property(QString) and send it around.
     WaylandXdgForeignExportedV2 *exported = waylandWindow->property(c_kdeXdgForeignExportedProperty).value<WaylandXdgForeignExportedV2 *>();
     if (!exported) {
         if (!xdgToplevelForWindow(window)) {
             qCWarning(KWAYLAND_KWS) << window << "is not an XDG toplevel, cannot export";
-            emitHandle({});
-            return;
+            return QtFuture::makeReadyValueFuture(QString());
         }
 
         exported = exporter.exportToplevel(surfaceForWindow(window));
@@ -179,18 +173,31 @@ void WindowSystem::exportWindow(QWindow *window)
         connect(exported, &QObject::destroyed, waylandWindow, [waylandWindow] {
             waylandWindow->setProperty(c_kdeXdgForeignExportedProperty, QVariant());
         });
-
-        connect(exported, &WaylandXdgForeignExportedV2::handleReceived, window, [window](const QString &handle) {
-            Q_EMIT KWaylandExtras::self()->windowExported(window, handle);
-        });
     }
 
     if (!exported->handle().isEmpty()) {
-        emitHandle(exported->handle());
+        return QtFuture::makeReadyValueFuture(exported->handle());
     }
-}
 
+    QPromise<QString> promise;
+    promise.start();
+    auto future = promise.future();
+
+    connect(exported, &WaylandXdgForeignExportedV2::handleReceived, exported, [p = std::move(promise)](const QString &handle) mutable {
+        p.addResult(handle);
+        p.finish();
+    });
+
+    return future;
+}
+#if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 27)
 void WindowSystem::unexportWindow(QWindow *window)
+{
+    unexportToplevel(window);
+}
+#endif
+
+void WindowSystem::unexportToplevel(QWindow *window)
 {
     auto waylandWindow = window ? window->nativeInterface<QNativeInterface::Private::QWaylandWindow>() : nullptr;
     if (!waylandWindow) {
