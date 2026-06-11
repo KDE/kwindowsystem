@@ -135,6 +135,9 @@ bool WindowSystem::showingDesktop()
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 28)
 void WindowSystem::exportWindow(QWindow *window)
 {
+    if (!window) {
+        return;
+    }
     exportToplevel(window).then(window, [window](const QString &handle) {
         QMetaObject::invokeMethod(KWaylandExtras::self(), &KWaylandExtras::windowExported, Qt::QueuedConnection, window, handle);
     });
