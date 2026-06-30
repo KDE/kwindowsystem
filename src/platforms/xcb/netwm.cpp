@@ -44,14 +44,14 @@ struct kde_wm_hints {
     xcb_window_t window_group;
 };
 
-typedef QHash<xcb_connection_t *, QSharedDataPointer<Atoms>> AtomHash;
+typedef QHash<xcb_connection_t *, QSharedPointer<Atoms>> AtomHash;
 Q_GLOBAL_STATIC(AtomHash, s_gAtomsHash)
 
-static QSharedDataPointer<Atoms> atomsForConnection(xcb_connection_t *c)
+static QSharedPointer<Atoms> atomsForConnection(xcb_connection_t *c)
 {
     auto it = s_gAtomsHash->constFind(c);
     if (it == s_gAtomsHash->constEnd()) {
-        QSharedDataPointer<Atoms> atom(new Atoms(c));
+        QSharedPointer<Atoms> atom(new Atoms(c));
         s_gAtomsHash->insert(c, atom);
         return atom;
     }
@@ -59,8 +59,7 @@ static QSharedDataPointer<Atoms> atomsForConnection(xcb_connection_t *c)
 }
 
 Atoms::Atoms(xcb_connection_t *c)
-    : QSharedData()
-    , m_connection(c)
+    : m_connection(c)
 {
     for (int i = 0; i < KwsAtomCount; ++i) {
         m_atoms[i] = XCB_ATOM_NONE;

@@ -8,12 +8,11 @@
 #ifndef netwm_p_h
 #define netwm_p_h
 
-#include <QSharedData>
-#include <QSharedDataPointer>
+#include <QSharedPointer>
 
 #include "atoms_p.h"
 
-class Atoms : public QSharedData
+class Atoms
 {
 public:
     explicit Atoms(xcb_connection_t *c);
@@ -126,7 +125,7 @@ struct NETRootInfoPrivate {
 
     int ref;
 
-    QSharedDataPointer<Atoms> atoms;
+    QSharedPointer<Atoms> atoms;
     xcb_atom_t atom(KwsAtom atom) const
     {
         return atoms->atom(atom);
@@ -185,7 +184,7 @@ struct NETWinInfoPrivate {
 
     int ref;
 
-    QSharedDataPointer<Atoms> atoms;
+    QSharedPointer<Atoms> atoms;
     xcb_atom_t atom(KwsAtom atom) const
     {
         return atoms->atom(atom);
