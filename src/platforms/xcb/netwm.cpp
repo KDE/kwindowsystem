@@ -44,18 +44,35 @@ struct kde_wm_hints {
     xcb_window_t window_group;
 };
 
-typedef QHash<xcb_connection_t *, QSharedPointer<Atoms>> AtomHash;
-Q_GLOBAL_STATIC(AtomHash, s_gAtomsHash)
+// These are atoms that are used in the Xorg session.
+typedef QHash<xcb_connection_t *, QSharedPointer<Atoms>> PersistentAtomHash;
+Q_GLOBAL_STATIC(PersistentAtomHash, s_gAtomsHash)
+
+// These are atoms that are used on Wayland. It is mainly relevant for KWin/Wayland.
+// On Wayland, X11 connections can appear and disappear if Xwayland crashes or restarts.
+typedef QHash<xcb_connection_t *, QWeakPointer<Atoms>> TransientAtomHash;
+Q_GLOBAL_STATIC(TransientAtomHash, s_gTransientAtomsHash)
 
 static QSharedPointer<Atoms> atomsForConnection(xcb_connection_t *c)
 {
-    auto it = s_gAtomsHash->constFind(c);
-    if (it == s_gAtomsHash->constEnd()) {
-        QSharedPointer<Atoms> atom(new Atoms(c));
-        s_gAtomsHash->insert(c, atom);
-        return atom;
+    if (QX11Info::isPlatformX11()) {
+        auto it = s_gAtomsHash->constFind(c);
+        if (it == s_gAtomsHash->constEnd()) {
+            QSharedPointer<Atoms> atom(new Atoms(c));
+            s_gAtomsHash->insert(c, atom);
+            return atom;
+        }
+        return it.value();
+    } else {
+        auto &atoms = (*s_gTransientAtomsHash)[c];
+        if (atoms) {
+            return atoms;
+        }
+
+        auto ref = QSharedPointer<Atoms>::create(c);
+        atoms = ref;
+        return ref;
     }
-    return it.value();
 }
 
 Atoms::Atoms(xcb_connection_t *c)
