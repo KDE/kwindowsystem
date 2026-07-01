@@ -995,7 +995,7 @@ msgstr "Scriptorio %1"
 #~ msgstr "Patronos"
 
 #~ msgid "Wallpapers"
-#~ msgstr "Tapetes de papiro"
+#~ msgstr "Fundos de schermo"
 
 #~ msgid "XDG Application menu (.desktop files)"
 #~ msgstr "XDG Menu de applicationes (files .desktop)"
