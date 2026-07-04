@@ -69,6 +69,10 @@ void KWaylandExtras::unexportWindow(QWindow *window)
 
 QFuture<QString> KWaylandExtras::exportToplevel(QWindow *window)
 {
+    if (!window) {
+        return QtFuture::makeReadyValueFuture(QString());
+    }
+
     if (auto dv5 = dynamic_cast<KWindowSystemPrivateV5 *>(KWindowSystem::d_func())) {
         return dv5->exportToplevel(window);
     }
@@ -100,6 +104,10 @@ QFuture<QString> KWaylandExtras::exportToplevel(QWindow *window)
 
 void KWaylandExtras::unexportToplevel(QWindow *window)
 {
+    if (!window) {
+        return;
+    }
+
     if (auto dv5 = dynamic_cast<KWindowSystemPrivateV5 *>(KWindowSystem::d_func())) {
         dv5->unexportToplevel(window);
     }
