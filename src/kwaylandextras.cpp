@@ -74,6 +74,9 @@ QFuture<QString> KWaylandExtras::exportToplevel(QWindow *window)
     }
 #if KWINDOWSYSTEM_BUILD_DEPRECATED_SINCE(6, 28)
     exportWindow(window);
+    if (!window) {
+        return QtFuture::makeReadyValueFuture(QString());
+    }
     QPromise<QString> promise;
     promise.start();
     auto future = promise.future();
