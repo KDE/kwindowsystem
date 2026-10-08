@@ -450,6 +450,10 @@ void WindowEffects::installBlur(QWindow *window, bool enable, const QRegion &reg
     }
     if (m_backgroundEffectManager->isActive()) {
         replaceValue(m_blurs, window, nullptr);
+        if (!enable) {
+            m_backgroundEffects.erase(window);
+            return;
+        }
         if (!m_backgroundEffectManager->supportsBlur) {
             // will be set if/when the capability changes
             return;
