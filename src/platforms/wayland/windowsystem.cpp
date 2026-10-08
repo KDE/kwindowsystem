@@ -348,8 +348,12 @@ void WindowSystem::setXdgToplevelTag(QWindow *window, const QString &tag)
     cookie->setObjectName(c_kdeXdgToplevelTagCookieName);
 
     auto tryAssignTag = [waylandWindow, tag]() {
+        auto manager = WaylandXdgToplevelTagManagerV1::self();
+        if (!manager->isActive()) {
+            return;
+        }
         if (auto xdgToplevel = waylandWindow->surfaceRole<xdg_toplevel>()) {
-            WaylandXdgToplevelTagManagerV1::self()->set_toplevel_tag(xdgToplevel, tag);
+            manager->set_toplevel_tag(xdgToplevel, tag);
         }
     };
 
@@ -373,8 +377,12 @@ void WindowSystem::setXdgToplevelDescription(QWindow *window, const QString &des
     cookie->setObjectName(c_kdeXdgToplevelDescriptionCookieName);
 
     auto tryAssignDescription = [waylandWindow, description]() {
+        auto manager = WaylandXdgToplevelTagManagerV1::self();
+        if (!manager->isActive()) {
+            return;
+        }
         if (auto xdgToplevel = waylandWindow->surfaceRole<xdg_toplevel>()) {
-            WaylandXdgToplevelTagManagerV1::self()->set_toplevel_description(xdgToplevel, description);
+            manager->set_toplevel_description(xdgToplevel, description);
         }
     };
 
