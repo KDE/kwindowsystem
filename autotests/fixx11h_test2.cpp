@@ -13,7 +13,6 @@ static Bool foo()
     return 1; // Xdefs doesn't define True!
 }
 
-#include <X11/Xlib.h>
 #include <fixx11h.h>
 
 int main(int, char **)

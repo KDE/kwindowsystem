@@ -15,8 +15,6 @@ static Bool foo()
     return True;
 }
 
-#include <X11/Xdefs.h>
-
 int main(int, char **)
 {
     Bool b = foo();
