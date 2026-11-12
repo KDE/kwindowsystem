@@ -58,10 +58,10 @@ void KXMessages_UnitTest::testStart()
     std::unique_ptr<KXMessages> receiver;
     switch (receiverType) {
     case KXMessages_UnitTest::ReceiverTypeDefault:
-        receiver.reset(new KXMessages(type));
+        receiver.reset(new KXMessages(type.constData()));
         break;
     case KXMessages_UnitTest::ReceiverTypeConnection:
-        receiver.reset(new KXMessages(QX11Info::connection(), QX11Info::appRootWindow(), type));
+        receiver.reset(new KXMessages(QX11Info::connection(), QX11Info::appRootWindow(), type.constData()));
         break;
     default:
         Q_UNREACHABLE();
@@ -76,7 +76,7 @@ void KXMessages_UnitTest::testStart()
         message += "a";
         switch (broadcastType) {
         case KXMessages_UnitTest::BroadcastMessageObject:
-            m_msgs.broadcastMessage(type, message);
+            m_msgs.broadcastMessage(type.constData(), message);
             break;
         case KXMessages_UnitTest::BroadcastStaticConnection:
             QVERIFY(KXMessages::broadcastMessageX(QX11Info::connection(), type.constData(), message, QX11Info::appScreen()));
