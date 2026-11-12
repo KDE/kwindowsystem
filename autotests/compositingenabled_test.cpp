@@ -29,7 +29,7 @@ void CompositingEnabledTest::testRecreatingNetEventFilter()
     QSignalSpy claimedSpy(&compositorSelection, &KSelectionOwner::claimedOwnership);
     QVERIFY(claimedSpy.isValid());
     compositorSelection.claim(true);
-    connect(&compositorSelection, &KSelectionOwner::claimedOwnership, [] {
+    connect(&compositorSelection, &KSelectionOwner::claimedOwnership, &compositorSelection, [] {
         // let's connect to a signal which will cause a re-creation of NetEventFilter
         QSignalSpy workAreaChangedSpy(KX11Extras::self(), &KX11Extras::workAreaChanged);
         QVERIFY(workAreaChangedSpy.isValid());
