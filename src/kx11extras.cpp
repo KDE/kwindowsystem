@@ -115,13 +115,13 @@ static inline const QRect &displayGeometry()
             connections.clear();
         };
 
-        QObject::connect(qApp, &QGuiApplication::screenAdded, dirtify);
-        QObject::connect(qApp, &QGuiApplication::screenRemoved, dirtify);
+        QObject::connect(qApp, &QGuiApplication::screenAdded, qApp, dirtify);
+        QObject::connect(qApp, &QGuiApplication::screenRemoved, qApp, dirtify);
         const QList<QScreen *> screenList = QGuiApplication::screens();
         QRegion region;
         for (int i = 0; i < screenList.count(); ++i) {
             const QScreen *screen = screenList.at(i);
-            connections << QObject::connect(screen, &QScreen::geometryChanged, dirtify);
+            connections << QObject::connect(screen, &QScreen::geometryChanged, qApp, dirtify);
             const QRect geometry = screen->geometry();
             const qreal dpr = screen->devicePixelRatio();
             region += QRect(geometry.topLeft(), geometry.size() * dpr);
